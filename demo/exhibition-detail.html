@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detail</title>
+
+    <!-- Icons / Font -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./css/detail.css" />
+  </head>
+
+  <body class="page">
+    <!-- HEADER -->
+    <header class="header" id="header">
+      <div class="header__inner">
+        <div class="header__left">
+          <a href="#" class="logo">ARTSPACE</a>
+
+          <nav class="nav">
+            <a href="#" class="nav__link">What's ON</a>
+            <a href="#" class="nav__link">게시판</a>
+            <a href="#" class="nav__link">굿즈</a>
+            <a href="#" class="nav__link">경매</a>
+          </nav>
+        </div>
+
+        <div class="header__right">
+          <button class="icon-btn" type="button" aria-label="마이페이지">
+            <i class="fa-regular fa-user"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="container" id="main-content">
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        <a href="#" class="breadcrumb__link">홈</a>
+        <i
+          class="fa-solid fa-chevron-right breadcrumb__sep"
+          aria-hidden="true"
+        ></i>
+        <a href="#" class="breadcrumb__link">What's ON</a>
+        <i
+          class="fa-solid fa-chevron-right breadcrumb__sep"
+          aria-hidden="true"
+        ></i>
+        <span class="breadcrumb__current">전시</span>
+      </div>
+
+      <!-- Detail Layout -->
+      <div class="detail-grid" id="detail-content">
+        <section class="left-col">
+          <div class="poster-sticky" id="poster-section">
+            <div class="poster-box">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/27e93eb786-52f1b5b299d57b35b1e4.png"
+                alt="전시 포스터"
+                class="poster-img"
+              />
+            </div>
+
+            <div class="poster-actions">
+              <div class="actions-row">
+                <button class="btn btn-outline" type="button">
+                  <i class="fa-solid fa-heart" aria-hidden="true"></i>
+                  <span>Like</span>
+                </button>
+                <button class="btn btn-outline" type="button">
+                  <i class="fa-solid fa-heart-crack"></i>
+                  <span>Dislike</span>
+                </button>
+                <button class="btn btn-outline" type="button">
+                  <i class="fa-solid fa-list"></i>
+                  <span>Save</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right: Info / Content -->
+        <section class="right-col">
+          <div class="info" id="info-section">
+            <div class="badge-row">
+              <span class="badge">전시</span>
+              <button class="btn btn-outline" type="button">
+                <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+                <span>공유</span>
+              </button>
+            </div>
+
+            <h1 class="title">사진으로 보는 현대</h1>
+
+            <div class="meta-box">
+              <div class="meta-row">
+              <div class="meta-label">일정</div>
+              <div class="meta-value">2024.01.10 ~ 2024.04.28</div>
+            </div>
+              <div class="meta-row">
+                <div class="meta-label">시간</div>
+                <div class="meta-value">10:00 ~ 19:00 (입장 마감 18:20)</div>
+              </div>
+              <div class="meta-row">
+                <div class="meta-label">장소</div>
+                <div class="meta-value">
+                  아트스페이스 메인홀 (서울 ○○구 ○○로 00)
+                </div>
+              </div>
+              <!-- <div class="meta-row">
+                <div class="meta-label">가격</div>
+                <div class="meta-value">
+                  일반 15,000원 / 청소년 10,000원 / 어린이 8,000원
+                </div>
+              </div> -->
+            </div>
+
+                        <!-- Cast -->
+            <div class="section section-divider" id="cast-section">
+              <h2 class="section-title">작가</h2>
+
+              <div class="cast-grid">
+                <div class="cast-desc">최재림</div>
+                <div class="cast-card">
+                  <!-- <div class="cast-photo">
+                    <img
+                      src="https://storage.googleapis.com/uxpilot-auth.appspot.com/f308fd8143-3aee4b3d271d71b6f82c.png"
+                      alt="최재림"
+                    />
+                  </div> -->
+                  <!-- <div class="cast-name">최재림</div> -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="section" id="description-section">
+              <h2 class="section-title">상세 정보</h2>
+
+              <div class="desc" id="descText">
+                <p>
+                  <b>사진으로 보는 현대</b>는 2000년대 이후 도시와 인간의 일상을
+                  기록해 온 국내외 사진가 12인의 작업을 한 자리에서 만나는 현대
+                  사진전입니다. 스마트폰과 SNS가 이미지를 소비하는 방식을
+                  바꿔놓은 이후, 사진은 ‘기록’에서 ‘해석’의 매체로
+                  확장되었습니다. 본 전시는 그 변화의 흐름 속에서
+                  <b>현대인의 감정·관계·속도·고독</b>을 사진의 언어로
+                  포착합니다.
+                  전시는 총 3개의 섹션으로 구성됩니다.
+                  <b>1) 도시의 표면</b>에서는 유리, 금속, 네온, 광고판 등 도시의
+                  질감과 빛을 통해 ‘보이는 것’의 세계를 탐구합니다.
+                  <b>2) 사적인 풍경</b>은 가족, 방, 책상, 메시지 기록 등 개인의
+                  공간에서 드러나는 감정의 흔적을 담습니다.
+                  <b>3) 사라지는 순간</b>에서는 장노출·연속촬영·아카이브 콜라주
+                  등 다양한 기법으로 ‘지금’이 사라지는 감각을 시각화합니다.
+                  관람 포인트는 <b>사진의 프레이밍(구도)과 여백</b>입니다.
+                  인물의 표정을 직접 보여주기보다, 주변 환경·반사·그림자·흐림을
+                  이용해 감정을 암시하는 작품이 많습니다. 작품 옆 캡션에는 촬영
+                  장비가 아니라 <b>작가가 선택한 ‘거리감’(가까이/멀리)</b>과 그
+                  이유가 적혀 있어, 같은 장면도 어떻게 전혀 다른 의미가 되는지
+                  비교하며 볼 수 있습니다.
+                  또한 일부 구간에는 관람객 참여형 코너
+                  <b>“나의 오늘 한 장”</b>이 마련되어 있습니다. 제공되는 엽서형
+                  프레임에 오늘의 감정을 한 문장으로 적고, 전시장 벽면에
+                  부착하면 하나의 ‘집단 아카이브’가 완성됩니다. (현장 운영
+                  상황에 따라 참여 코너는 변경될 수 있습니다.)
+                </p>
+              </div>
+
+              <button class="more-btn" type="button" id="descToggle">
+                <span>더보기</span>
+                <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <!-- Reviews -->
+            <div class="section" id="reviews-section">
+              <div class="reviews-head">
+                <h2 class="section-title">관람 후기</h2>
+                <button class="btn btn-sm btn-outline" type="button">
+                  후기 작성
+                </button>
+              </div>
+
+              <div class="reviews">
+                <article class="review">
+                  <div class="review__top">
+                    <div class="review__user">
+                      <div class="avatar">
+                        <img
+                          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg"
+                          alt="user"
+                        />
+                      </div>
+                      <div>
+                        <div class="review__name">김**</div>
+                        <div class="review__date">2024.01.15</div>
+                      </div>
+                    </div>
+
+                    <div class="review__like">
+                      <button
+                        class="like-btn"
+                        type="button"
+                        aria-label="좋아요"
+                      >
+                        <i class="fa-solid fa-thumbs-up"></i>
+                      </button>
+                      <span class="like-count">24</span>
+                    </div>
+                  </div>
+
+                  <p class="review__text">
+                    아이비 배우님의 록시 연기가 정말 인상 깊었어요. All That
+                    Jazz 넘버에서 소름 돋았습니다. 무대 연출도 심플하면서
+                    세련되고, 음악도 귀에 쏙쏙 들어와서 170분이 전혀 지루하지
+                    않았어요. 강력 추천합니다!
+                  </p>
+                </article>
+
+                <article class="review">
+                  <div class="review__top">
+                    <div class="review__user">
+                      <div class="avatar">
+                        <img
+                          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg"
+                          alt="user"
+                        />
+                      </div>
+                      <div>
+                        <div class="review__name">박**</div>
+                        <div class="review__date">2024.01.12</div>
+                      </div>
+                    </div>
+
+                    <div class="review__like">
+                      <button
+                        class="like-btn"
+                        type="button"
+                        aria-label="좋아요"
+                      >
+                        <i class="fa-solid fa-thumbs-up"></i>
+                      </button>
+                      <span class="like-count">18</span>
+                    </div>
+                  </div>
+
+                  <p class="review__text">
+                    Cell Block Tango 장면이 압권이었습니다. 안무와 조명, 음악이
+                    완벽하게 조화를 이루는 순간이었어요. 뮤지컬을 처음 보는
+                    친구와 함께 갔는데, 친구도 너무 만족해했습니다.
+                  </p>
+                </article>
+
+                <article class="review">
+                  <div class="review__top">
+                    <div class="review__user">
+                      <div class="avatar">
+                        <img
+                          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-6.jpg"
+                          alt="user"
+                        />
+                      </div>
+                      <div>
+                        <div class="review__name">이**</div>
+                        <div class="review__date">2024.01.10</div>
+                      </div>
+                    </div>
+
+                    <div class="review__like">
+                      <button
+                        class="like-btn"
+                        type="button"
+                        aria-label="좋아요"
+                      >
+                        <i class="fa-solid fa-thumbs-up"></i>
+                      </button>
+                      <span class="like-count">32</span>
+                    </div>
+                  </div>
+
+                  <p class="review__text">
+                    브로드웨이에서 봤던 시카고와 비교해도 전혀 손색없는 공연이었어요. 배우들의 열정과 에너지가 객석까지 전달되는 게
+                    느껴졌습니다. 앙코르 공연 기대합니다!
+                  </p>
+                </article>
+              </div>
+
+              <button class="btn btn-outline btn-full" type="button">
+                후기 더보기
+              </button>
+            </div>
+
+            <!-- Booking -->
+            <div class="booking">
+              <h3 class="booking-title">예매하기</h3>
+
+              <div class="booking-grid">
+                <a href="#" class="booking-link">
+                  <span>인터파크</span>
+                  <i class="fa-solid fa-arrow-right booking-arrow"></i>
+                </a>
+
+                <a href="#" class="booking-link">
+                  <span>YES24</span>
+                  <i class="fa-solid fa-arrow-right booking-arrow"></i>
+                </a>
+
+                <a href="#" class="booking-link">
+                  <span>멜론티켓</span>
+                  <i class="fa-solid fa-arrow-right booking-arrow"></i>
+                </a>
+
+                <a href="#" class="booking-link">
+                  <span>티켓링크</span>
+                  <i class="fa-solid fa-arrow-right booking-arrow"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer" id="footer">
+      <div class="footer__inner">
+        <div class="footer__grid">
+          <div>
+            <div class="footer__brand">ARTSPACE</div>
+            <p class="footer__desc">문화예술의 모든 순간을<br />함께합니다</p>
+          </div>
+
+          <div>
+            <h3 class="footer__title">서비스</h3>
+            <ul class="footer__list">
+              <li><a href="#">What's ON</a></li>
+              <li><a href="#">게시판</a></li>
+              <li><a href="#">굿즈</a></li>
+              <li><a href="#">경매</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="footer__title">고객지원</h3>
+            <ul class="footer__list">
+              <li><a href="#">공지사항</a></li>
+              <li><a href="#">FAQ</a></li>
+              <li><a href="#">1:1 문의</a></li>
+              <li><a href="#">이용약관</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="footer__title">SNS</h3>
+            <div class="sns">
+              <a class="sns__btn" href="#" aria-label="Instagram"
+                ><i class="fa-brands fa-instagram"></i
+              ></a>
+              <a class="sns__btn" href="#" aria-label="Facebook"
+                ><i class="fa-brands fa-facebook-f"></i
+              ></a>
+              <a class="sns__btn" href="#" aria-label="YouTube"
+                ><i class="fa-brands fa-youtube"></i
+              ></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer__bottom">
+          <p>© 2024 ARTSPACE. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JS -->
+    <script src="./js/detail.js"></script>
+  </body>
+</html>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Art Auction</title>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="./css/auction.css" />
+</head>
+
+<body class="page">
+
+  <!-- HEADER -->
+  <header id="header" class="header">
+    <div class="header__inner">
+      <div class="header__left">
+        <a href="#" class="logo">ARTRIUM</a>
+
+        <nav class="nav">
+          <a href="#" class="nav__link">What's ON</a>
+          <a href="#" class="nav__link">게시판</a>
+          <a href="#" class="nav__link">Goods</a>
+          <a href="#" class="nav__link is-active">경매</a>
+        </nav>
+      </div>
+
+      <div class="header__right">
+        <button class="icon-btn" type="button" aria-label="검색">
+          <i class="fa-solid fa-search"></i>
+        </button>
+        <button class="icon-btn" type="button" aria-label="마이페이지">
+          <i class="fa-solid fa-user"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- HERO -->
+    <section id="auction-hero" class="hero">
+      <div class="hero__row">
+        <div></div>
+        <div class="hero__search">
+          <div class="searchbox">
+            <input class="searchbox__input" type="text" placeholder="작품명, 작가명 검색" />
+            <button class="searchbox__btn" type="button" aria-label="검색">
+              <i class="fa-solid fa-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILTERS -->
+    <section id="auction-filters" class="filters">
+      <div class="filters__row">
+        <div class="filters__tabs" role="tablist" aria-label="경매 상태 필터">
+          <button class="tab is-active" type="button">전체</button>
+          <button class="tab" type="button">진행중</button>
+          <button class="tab" type="button">예정</button>
+          <button class="tab" type="button">종료</button>
+        </div>
+
+        <div class="filters__meta">
+          <span class="count">총 <strong>24</strong>점</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRID -->
+    <section id="auction-grid" class="grid-wrap">
+      <div class="grid">
+
+        <!-- CARD 1 -->
+        <article id="auction-card-1" class="card">
+          <div class="card__media">
+            <img class="card__img" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/47bea1f016-8b691c32c78631a5e0ba.png" alt="abstract modern art painting with bold colors on white canvas in gallery" />
+            <span class="badge badge--live">진행중</span>
+
+            <div class="card__hover">
+              <button class="btn btn-light" type="button">입찰하기</button>
+            </div>
+          </div>
+
+          <div class="card__body">
+            <h3 class="card__title">Untitled #47</h3>
+            <p class="card__artist">김민준</p>
+
+            <div class="card__priceRow">
+              <div>
+                <p class="card__label">현재가</p>
+                <p class="card__price">3,200,000원</p>
+              </div>
+              <div class="card__right">
+                <p class="card__label">마감</p>
+                <p class="card__due is-live">2일 14시간</p>
+              </div>
+            </div>
+
+            <div class="card__stats">
+              <i class="fa-solid fa-gavel"></i>
+              <p>입찰 <strong>23</strong>건</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 2 -->
+        <article id="auction-card-2" class="card">
+          <div class="card__media">
+            <img class="card__img" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/4136dde6a0-881f656a722a776b31e3.png" alt="minimalist sculpture marble white contemporary art in studio" />
+            <span class="badge badge--live">진행중</span>
+
+            <div class="card__hover">
+              <button class="btn btn-light" type="button">입찰하기</button>
+            </div>
+          </div>
+
+          <div class="card__body">
+            <h3 class="card__title">Silent Form</h3>
+            <p class="card__artist">박서연</p>
+
+            <div class="card__priceRow">
+              <div>
+                <p class="card__label">현재가</p>
+                <p class="card__price">5,800,000원</p>
+              </div>
+              <div class="card__right">
+                <p class="card__label">마감</p>
+                <p class="card__due is-live">1일 8시간</p>
+              </div>
+            </div>
+
+            <div class="card__stats">
+              <i class="fa-solid fa-gavel"></i>
+              <p>입찰 <strong>41</strong>건</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 3 -->
+        <article id="auction-card-3" class="card">
+          <div class="card__media">
+            <img class="card__img" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/37ffb51aae-5223b0925524f5225662.png" alt="urban landscape painting cityscape modern art acrylic on canvas" />
+            <span class="badge badge--soon">예정</span>
+
+            <div class="card__hover">
+              <button class="btn btn-light" type="button">알림받기</button>
+            </div>
+          </div>
+
+          <div class="card__body">
+            <h3 class="card__title">Metropolitan Nights</h3>
+            <p class="card__artist">이지훈</p>
+
+            <div class="card__priceRow">
+              <div>
+                <p class="card__label">시작가</p>
+                <p class="card__price">2,500,000원</p>
+              </div>
+              <div class="card__right">
+                <p class="card__label">시작</p>
+                <p class="card__due is-soon">3일 후</p>
+              </div>
+            </div>
+
+            <div class="card__stats">
+              <i class="fa-solid fa-bell"></i>
+              <p>알림 신청 <strong>156</strong>명</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 4 -->
+        <article id="auction-card-4" class="card">
+          <div class="card__media">
+            <img class="card__img" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/0d11f21d43-49fdc76c8058583365bc.png" alt="traditional korean ink painting landscape mountain modern interpretation" />
+            <span class="badge badge--live">진행중</span>
+
+            <div class="card__hover">
+              <button class="btn btn-light" type="button">입찰하기</button>
+            </div>
+          </div>
+
+          <div class="card__body">
+            <h3 class="card__title">산수화 재해석</h3>
+            <p class="card__artist">정수아</p>
+
+            <div class="card__priceRow">
+              <div>
+                <p class="card__label">현재가</p>
+                <p class="card__price">4,100,000원</p>
+              </div>
+              <div class="card__right">
+                <p class="card__label">마감</p>
+                <p class="card__due is-live">5시간</p>
+              </div>
+            </div>
+
+            <div class="card__stats">
+              <i class="fa-solid fa-gavel"></i>
+              <p>입찰 <strong>67</strong>건</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 5 -->
+        <article id="auction-card-5" class="card">
+          <div class="card__media">
+            <img class="card__img" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/185feb98da-24f923aefd81cc0f73fd.png" alt="contemporary photography black and white portrait artistic fine art" />
+            <span class="badge badge--live">진행중</span>
+
+            <div class="card__hover">
+              <button class="btn btn-light" type="button">입찰하기</button>
+            </div>
+          </div>
+
+          <div class="card__body">
+            <h3 class="card__title">Moment in Time</h3>
+            <p class="card__artist">최현우</p>
+
+            <div class="card__priceRow">
+              <div>
+                <p class="card__label">현재가</p>
+                <p class="card__price">1,900,000원</p>
+              </div>
+              <div class="card__right">
+                <p class="card__label">마감</p>
+                <p class="card__due is-live">4일 2시간</p>
+              </div>
+            </div>
+
+            <div class="card__stats">
+              <i class="fa-solid fa-gavel"></i>
+              <p>입찰 <strong>15</strong>건</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 6 (ended) -->
+        <article id="auction-card-6" class="card is-ended">
+          <div class="card__media">
+            <img class="card__img" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/5b82e823e9-3b4f78282149ebcea55f.png" alt="mixed media collage contemporary art texture layers modern" />
+            <span class="badge badge--ended">종료</span>
+          </div>
+
+          <div class="card__body">
+            <h3 class="card__title">Layers of Memory</h3>
+            <p class="card__artist">강예진</p>
+
+            <div class="card__priceRow">
+              <div>
+                <p class="card__label">낙찰가</p>
+                <p class="card__price">7,200,000원</p>
+              </div>
+              <div class="card__right">
+                <p class="card__label">종료</p>
+                <p class="card__due is-ended">2일 전</p>
+              </div>
+            </div>
+
+            <div class="card__stats">
+              <i class="fa-solid fa-gavel"></i>
+              <p>입찰 <strong>89</strong>건</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 7 -->
+        <article id="auction-card-7" class="card">
+          <div class="card__media">
+            <img class="card__img" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/0a614de7f8-73b0251f63cab87a970f.png" alt="geometric abstract art colorful shapes modern painting on canvas" />
+            <span class="badge badge--live">진행중</span>
+
+            <div class="card__hover">
+              <button class="btn btn-light" type="button">입찰하기</button>
+            </div>
+          </div>
+
+          <div class="card__body">
+            <h3 class="card__title">Geometric Dreams</h3>
+            <p class="card__artist">윤태영</p>
+
+            <div class="card__priceRow">
+              <div>
+                <p class="card__label">현재가</p>
+                <p class="card__price">2,700,000원</p>
+              </div>
+              <div class="card__right">
+                <p class="card__label">마감</p>
+                <p class="card__due is-live">3일 19시간</p>
+              </div>
+            </div>
+
+            <div class="card__stats">
+              <i class="fa-solid fa-gavel"></i>
+              <p>입찰 <strong>32</strong>건</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 8 -->
+        <article id="auction-card-8" class="card">
+          <div class="card__media">
+            <img class="card__img" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/32036aff0e-bea04333bd6eee69e1ec.png" alt="ceramic sculpture contemporary art pottery modern design white" />
+            <span class="badge badge--soon">예정</span>
+
+            <div class="card__hover">
+              <button class="btn btn-light" type="button">알림받기</button>
+            </div>
+          </div>
+
+          <div class="card__body">
+            <h3 class="card__title">Vessel Series #3</h3>
+            <p class="card__artist">임하늘</p>
+
+            <div class="card__priceRow">
+              <div>
+                <p class="card__label">시작가</p>
+                <p class="card__price">3,800,000원</p>
+              </div>
+              <div class="card__right">
+                <p class="card__label">시작</p>
+                <p class="card__due is-soon">1일 후</p>
+              </div>
+            </div>
+
+            <div class="card__stats">
+              <i class="fa-solid fa-bell"></i>
+              <p>알림 신청 <strong>203</strong>명</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 9 -->
+        <article id="auction-card-9" class="card">
+          <div class="card__media">
+            <img class="card__img" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/653400e34f-3fa8cfb14f4e5aa9d0a7.png" alt="expressionist painting vibrant colors emotional modern art oil on canvas" />
+            <span class="badge badge--live">진행중</span>
+
+            <div class="card__hover">
+              <button class="btn btn-light" type="button">입찰하기</button>
+            </div>
+          </div>
+
+          <div class="card__body">
+            <h3 class="card__title">Emotion in Motion</h3>
+            <p class="card__artist">송민지</p>
+
+            <div class="card__priceRow">
+              <div>
+                <p class="card__label">현재가</p>
+                <p class="card__price">6,500,000원</p>
+              </div>
+              <div class="card__right">
+                <p class="card__label">마감</p>
+                <p class="card__due is-live">1일 16시간</p>
+              </div>
+            </div>
+
+            <div class="card__stats">
+              <i class="fa-solid fa-gavel"></i>
+              <p>입찰 <strong>54</strong>건</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- INFO -->
+    <section id="auction-info" class="info">
+      <div class="info__inner">
+        <h2 class="info__h2">경매 안내</h2>
+
+        <div class="info__grid">
+          <div class="info-card">
+            <div class="info-card__icon">
+              <i class="fa-solid fa-user-check"></i>
+            </div>
+            <h3 class="info-card__title">본인 인증</h3>
+            <p class="info-card__desc">경매 참여를 위해서는 본인 인증이 필요합니다</p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card__icon">
+              <i class="fa-solid fa-gavel"></i>
+            </div>
+            <h3 class="info-card__title">마감형 입찰</h3>
+            <p class="info-card__desc">정해진 기한 내 최고가 입찰자가 낙찰됩니다</p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card__icon">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="info-card__title">안전한 거래</h3>
+            <p class="info-card__desc">전문가 검증을 거친 작품만 등록됩니다</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer id="footer" class="footer">
+    <div class="footer__inner">
+      <div class="footer__grid">
+        <div>
+          <h3 class="footer__brand">ARTRIUM</h3>
+          <p class="footer__desc">문화와 예술을 만나는 프리미엄 플랫폼</p>
+        </div>
+
+        <div>
+          <h4 class="footer__title">서비스</h4>
+          <ul class="footer__list">
+            <li><a href="#">What's ON</a></li>
+            <li><a href="#">게시판</a></li>
+            <li><a href="#">Goods</a></li>
+            <li><a href="#">경매</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">고객지원</h4>
+          <ul class="footer__list">
+            <li><a href="#">공지사항</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">1:1 문의</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">정보</h4>
+          <ul class="footer__list">
+            <li><a href="#">이용약관</a></li>
+            <li><a href="#">개인정보처리방침</a></li>
+            <li><a href="#">회사소개</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>&copy; 2024 ARTRIUM. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Custom JS -->
+  <script src="./js/auction.js"></script>
+</body>
+</html>

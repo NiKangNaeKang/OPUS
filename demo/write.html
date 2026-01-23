@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Post</title>
+
+  <!-- Icons / Font -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script>window.FontAwesomeConfig = { autoReplaceSvg: "nest" };</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="./css/write.css" />
+</head>
+
+<body class="page">
+  <!-- HEADER -->
+  <header id="header" class="header">
+    <div class="header__inner">
+      <div class="header__left">
+        <div class="brand">
+          <div class="brand__mark" aria-hidden="true"><span>A</span></div>
+          <span class="brand__name">ArtCulture</span>
+        </div>
+
+        <nav class="nav">
+          <a href="#" class="nav__link">홈</a>
+          <a href="#" class="nav__link">정보 리스트</a>
+          <a href="#" class="nav__link is-active">게시판</a>
+          <a href="#" class="nav__link">굿즈</a>
+          <a href="#" class="nav__link">경매</a>
+          <a href="#" class="nav__link">관리자</a>
+        </nav>
+      </div>
+
+      <div class="header__right">
+        <button class="icon-btn" type="button" aria-label="마이페이지">
+          <i class="fa-solid fa-user" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- MAIN -->
+    <main id="main-content" class="main">
+      <div class="wrap">
+        <div class="page-head">
+          <div>
+            <h1 class="h1">새 게시글 작성</h1>
+            <p class="sub">공지사항 게시글을 작성합니다</p>
+          </div>
+
+          <div class="page-head__actions">
+            <button class="btn btn--ghost" type="button">임시저장</button>
+            <button class="btn btn--dark" type="button">게시하기</button>
+          </div>
+        </div>
+
+        <div class="grid">
+          <!-- LEFT (2/3) -->
+          <div class="col-left">
+            <!-- Basic info -->
+            <section id="post-basic-info" class="card">
+              <div class="stack">
+                <div class="field">
+                  <label class="label">제목</label>
+                  <input class="input" type="text" placeholder="게시글 제목을 입력하세요" />
+                </div>
+            </section>
+
+            <!-- Content -->
+            <section id="post-content" class="card">
+              <h2 class="h2">내용</h2>
+
+              <div class="toolbar">
+                <button class="tool-btn" type="button" aria-label="굵게">
+                  <i class="fa-solid fa-bold" aria-hidden="true"></i>
+                </button>
+                <button class="tool-btn" type="button" aria-label="기울임">
+                  <i class="fa-solid fa-italic" aria-hidden="true"></i>
+                </button>
+                <button class="tool-btn" type="button" aria-label="밑줄">
+                  <i class="fa-solid fa-underline" aria-hidden="true"></i>
+                </button>
+
+                <div class="tool-sep" aria-hidden="true"></div>
+
+                <button class="tool-btn" type="button" aria-label="글머리">
+                  <i class="fa-solid fa-list-ul" aria-hidden="true"></i>
+                </button>
+                <button class="tool-btn" type="button" aria-label="번호">
+                  <i class="fa-solid fa-list-ol" aria-hidden="true"></i>
+                </button>
+
+                <div class="tool-sep" aria-hidden="true"></div>
+
+                <button class="tool-btn" type="button" aria-label="링크">
+                  <i class="fa-solid fa-link" aria-hidden="true"></i>
+                </button>
+                <button class="tool-btn" type="button" aria-label="이미지">
+                  <i class="fa-solid fa-image" aria-hidden="true"></i>
+                </button>
+                <button class="tool-btn" type="button" aria-label="코드">
+                  <i class="fa-solid fa-code" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <textarea class="textarea" rows="16" placeholder="게시글 내용을 입력하세요..."></textarea>
+            </section>
+
+            <!-- Attachments -->
+            <section id="post-attachments" class="card">
+              <h2 class="h2">첨부 파일</h2>
+
+              <div class="dropzone" role="button" tabindex="0">
+                <div class="dropzone__icon">
+                  <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+                </div>
+                <p class="dropzone__title">클릭하거나 파일을 드래그하여 업로드</p>
+                <p class="dropzone__desc">최대 10MB, PDF, JPG, PNG 지원</p>
+              </div>
+            </section>
+          </div>
+
+          <!-- RIGHT (1/3) -->
+          <div class="col-right">
+            <!-- Status -->
+            <section id="post-status" class="card">
+              <h2 class="h2">게시 설정</h2>
+
+              <div class="stack">
+                <div class="field">
+                  <label class="label label--spaced">공개 상태</label>
+
+                  <div class="radio-group">
+                    <label class="radio-item">
+                      <input type="radio" name="status" value="published" checked />
+                      <span>즉시 게시</span>
+                    </label>
+
+                    <label class="radio-item">
+                      <input type="radio" name="status" value="scheduled" />
+                      <span>예약 게시</span>
+                    </label>
+
+                    <label class="radio-item">
+                      <input type="radio" name="status" value="draft" />
+                      <span>비공개</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <button class="link-btn" type="button">
+                  <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                  <span>게시 날짜 설정</span>
+                </button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- JS -->
+  <script src="./js/write.js"></script>
+</body>
+</html>

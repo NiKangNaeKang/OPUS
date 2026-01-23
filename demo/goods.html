@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Goods</title>
+
+  <!-- Icons / Font -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="./css/goods.css" />
+</head>
+
+<body class="page">
+  <!-- HEADER -->
+  <header id="header" class="header">
+    <div class="header__inner">
+      <div class="header__left">
+        <a href="#" class="logo">ARTSPACE</a>
+
+        <nav class="nav" aria-label="주요 메뉴">
+          <a href="#" class="nav__link">What's ON</a>
+          <a href="#" class="nav__link">게시판</a>
+          <a href="#" class="nav__link nav__link--active">굿즈</a>
+          <a href="#" class="nav__link">경매</a>
+        </nav>
+      </div>
+
+      <div class="header__right" aria-label="유틸 메뉴">
+        <button class="icon-btn" type="button" aria-label="찜">
+          <i class="fa-solid fa-heart"></i>
+        </button>
+        <button class="icon-btn" type="button" aria-label="장바구니">
+          <i class="fa-solid fa-shopping-cart"></i>
+        </button>
+        <button class="icon-btn" type="button" aria-label="마이페이지">
+          <i class="fa-solid fa-user"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- Filter -->
+    <section id="goods-filter" class="filter">
+      <div class="filter__top">
+        <div class="toggle" role="tablist">
+          <button class="toggle__btn is-active">뮤지컬</button>
+          <button class="toggle__btn">전시</button>
+        </div>
+      </div>
+
+      <div class="filter__row">
+        <div class="chips">
+          <button class="chip is-active">전체</button>
+          <button class="chip">의류</button>
+          <button class="chip">액세서리</button>
+          <button class="chip">문구</button>
+          <button class="chip">포스터/엽서</button>
+          <button class="chip">음반/DVD</button>
+        </div>
+
+        <div class="search">
+          <input type="text" class="search__input" placeholder="상품명 검색" />
+          <button class="search__btn">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Grid -->
+    <section id="goods-grid" class="grid">
+      <div class="grid__head">
+        <p class="grid__count">
+          총 <span id="totalCount" class="grid__countStrong">48</span>개의 상품
+        </p>
+
+        <div class="grid__sort">
+          <div class="select-wrap select-wrap--ghost">
+            <select class="select select--ghost" id="sortSelect" aria-label="정렬">
+              <option value="latest">최신순</option>
+              <option value="popular">인기순</option>
+              <option value="priceLow">낮은 가격순</option>
+              <option value="priceHigh">높은 가격순</option>
+            </select>
+            <i class="fa-solid fa-chevron-down select__icon" aria-hidden="true"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- items -->
+      <div class="grid__items" id="goodsItems">
+        <!-- 1 -->
+        <article class="card" data-kind="musical" data-cat="clothes">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a7f5aa7753-078f8203afee3d340d1f.png"
+                 alt="elegant musical theatre tshirt with minimalist design on white background">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">레미제라블 티셔츠</h3>
+          <p class="card__meta">의류</p>
+          <p class="card__price">45,000원</p>
+        </article>
+
+        <!-- 2 -->
+        <article class="card" data-kind="musical" data-cat="stationery">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/aab63d6602-1b0a7821bae5e003db57.png"
+                 alt="luxury musical theatre notebook with elegant cover design">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">위키드 노트북</h3>
+          <p class="card__meta">문구</p>
+          <p class="card__price">18,000원</p>
+        </article>
+
+        <!-- 3 -->
+        <article class="card" data-kind="musical" data-cat="poster">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/09fbe5dfb3-854f6874ce67ddda6d1e.png"
+                 alt="premium musical poster print in minimalist frame">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">오페라의 유령 포스터</h3>
+          <p class="card__meta">포스터/엽서</p>
+          <p class="card__price">25,000원</p>
+        </article>
+
+        <!-- 4 -->
+        <article class="card" data-kind="musical" data-cat="accessory">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/75061c8cc1-8df8619bc121c929c9e5.png"
+                 alt="elegant theatre tote bag with modern design">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">캣츠 에코백</h3>
+          <p class="card__meta">액세서리</p>
+          <p class="card__price">32,000원</p>
+        </article>
+
+        <!-- 5 -->
+        <article class="card" data-kind="musical" data-cat="dvd">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/ab095daf82-a18ca12e1a76b6920c8a.png"
+                 alt="luxury musical soundtrack CD album with elegant packaging">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">시카고 OST 앨범</h3>
+          <p class="card__meta">음반/DVD</p>
+          <p class="card__price">28,000원</p>
+        </article>
+
+        <!-- 6 -->
+        <article class="card" data-kind="musical" data-cat="etc">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/4b7e5cc4a6-90ee5fb9cdc86610a071.png"
+                 alt="premium theatre mug with minimalist design">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">맘마미아 머그컵</h3>
+          <p class="card__meta">기타</p>
+          <p class="card__price">22,000원</p>
+        </article>
+
+        <!-- 7 -->
+        <article class="card" data-kind="musical" data-cat="accessory">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/9e431c8659-a30c053f67318e624f78.png"
+                 alt="elegant musical keychain with sophisticated design">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">해밀턴 키링</h3>
+          <p class="card__meta">액세서리</p>
+          <p class="card__price">15,000원</p>
+        </article>
+
+        <!-- 8 -->
+        <article class="card" data-kind="musical" data-cat="stationery">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/8fd0e486b3-681c8656043e66cec02f.png"
+                 alt="luxury theatre program book with elegant cover">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">킹키부츠 프로그램북</h3>
+          <p class="card__meta">문구</p>
+          <p class="card__price">20,000원</p>
+        </article>
+
+        <!-- 9 -->
+        <article class="card" data-kind="musical" data-cat="clothes">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/4775d9a367-53aa282489b5e3a7934a.png"
+                 alt="modern musical cap with minimalist logo">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">디어 에반 한센 캡모자</h3>
+          <p class="card__meta">의류</p>
+          <p class="card__price">38,000원</p>
+        </article>
+
+        <!-- 10 -->
+        <article class="card" data-kind="musical" data-cat="poster">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/ee28048a2e-09681283e2f186bde63e.png"
+                 alt="premium theatre postcard set with elegant design">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">빌리 엘리어트 엽서 세트</h3>
+          <p class="card__meta">포스터/엽서</p>
+          <p class="card__price">12,000원</p>
+        </article>
+
+        <!-- 11 -->
+        <article class="card" data-kind="musical" data-cat="stationery">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/e80837a73a-cc705f1600d99af9d37f.png"
+                 alt="elegant musical pen with sophisticated design">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">젠틀맨스 가이드 볼펜</h3>
+          <p class="card__meta">문구</p>
+          <p class="card__price">8,000원</p>
+        </article>
+
+        <!-- 12 -->
+        <article class="card" data-kind="musical" data-cat="clothes">
+          <div class="card__img">
+            <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/b0e6c69bb8-923aed69ab4582ba9132.png"
+                 alt="luxury musical sweatshirt with modern design">
+            <button class="wish" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart"></i>
+            </button>
+          </div>
+          <h3 class="card__title">스프링 어웨이크닝 후드</h3>
+          <p class="card__meta">의류</p>
+          <p class="card__price">65,000원</p>
+        </article>
+      </div>
+
+      <div class="more">
+        <button class="more__btn" type="button" id="moreBtn">더보기</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer id="footer" class="footer">
+    <div class="footer__inner">
+      <div class="footer__grid">
+        <div>
+          <h3 class="footer__brand">ARTSPACE</h3>
+          <p class="footer__desc">문화와 예술을 경험하는<br />새로운 방법</p>
+        </div>
+
+        <div>
+          <h4 class="footer__title">서비스</h4>
+          <ul class="footer__list">
+            <li><a href="#">What's ON</a></li>
+            <li><a href="#">게시판</a></li>
+            <li><a href="#">굿즈</a></li>
+            <li><a href="#">경매</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">고객지원</h4>
+          <ul class="footer__list">
+            <li><a href="#">공지사항</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">1:1 문의</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">정보</h4>
+          <ul class="footer__list">
+            <li><a href="#">이용약관</a></li>
+            <li><a href="#">개인정보처리방침</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2024 ARTSPACE. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="./js/goods.js"></script>
+</body>
+</html>

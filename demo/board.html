@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Board</title>
+
+  <!-- Icons / Font -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind (유지) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Noto Sans KR', 'sans-serif'] },
+          colors: { charcoal:'#2C2C2C', slate:'#4A4A4A', silver:'#E5E5E5' }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="./css/board.css" />
+</head>
+
+<body class="page">
+  <!-- HEADER (detail 페이지 스타일과 동일 톤) -->
+  <header id="header" class="header header--overlay">
+    <div class="wrap header__inner">
+      <div class="header__left">
+        <a href="#" class="brand">CULTURIST</a>
+
+        <nav class="gnb">
+          <a href="#" class="gnb__link">홈</a>
+          <a href="#" class="gnb__link is-active">What's ON</a>
+          <a href="#" class="gnb__link">게시판</a>
+          <a href="#" class="gnb__link">굿즈</a>
+          <a href="#" class="gnb__link">경매</a>
+          <a href="#" class="admin-link">관리자</a>
+        </nav>
+      </div>
+
+      <div class="header__right">
+        <button class="icon-btn" type="button" aria-label="마이페이지">
+          <i class="fa-regular fa-user" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main id="board-main" class="container">
+    <!-- Tabs -->
+    <div class="tabs" id="board-tabs">
+      <button class="tab-btn is-active" type="button" data-tab="notice" aria-selected="true">공지</button>
+      <button class="tab-btn" type="button" data-tab="promo" aria-selected="false">홍보</button>
+    </div>
+
+    <!-- Filters -->
+    <section class="filters" aria-label="검색 및 정렬">
+      <div class="filters__left">
+        <select class="select" id="categorySelect">
+          <option value="all">전체</option>
+          <option value="musical">뮤지컬</option>
+          <option value="exhibition">미술 전시</option>
+          <option value="auction">경매</option>
+          <option value="goods">굿즈</option>
+        </select>
+
+        <select class="select" id="sortSelect">
+          <option value="latest">최신순</option>
+          <option value="views">조회수순</option>
+        </select>
+      </div>
+
+      <div class="filters__right">
+        <div class="search">
+          <div class="search__field">
+            <input
+              class="search__input"
+              id="searchInput"
+              type="text"
+              placeholder="제목/내용/작성자 검색"
+              autocomplete="off"
+            />
+            <i class="fa-solid fa-magnifying-glass search__icon" aria-hidden="true"></i>
+          </div>
+
+          <button class="search__btn" type="button" id="searchBtn">
+            검색
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- List (JS가 렌더링) -->
+    <div id="board-list" class="board-list" aria-live="polite"></div>
+
+    <div class="write-btn">
+      <button class="btn btn-primary" type="button" id="writeBtn">
+        글쓰기
+      </button>
+    </div>
+
+
+    <!-- Pagination (더미 UI 유지) -->
+    <div id="board-pagination" class="pagination">
+      <button class="page-btn" type="button" aria-label="이전">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <button class="page-btn is-active" type="button">1</button>
+      <button class="page-btn" type="button">2</button>
+      <button class="page-btn" type="button">3</button>
+      <button class="page-btn" type="button">4</button>
+      <button class="page-btn" type="button">5</button>
+      <button class="page-btn" type="button" aria-label="다음">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+  </main>
+
+  <!-- FOOTER (기존 유지해도 됨. 디자인 통일하려면 너의 detail footer로 바꿔도 OK) -->
+  <footer id="footer" class="footer">
+    <div class="footer__inner">
+      <div class="footer__grid">
+        <div>
+          <div class="footer__brand">ARTSPACE</div>
+          <p class="footer__desc">문화예술의 모든 순간을<br />함께합니다</p>
+        </div>
+
+        <div>
+          <h3 class="footer__title">서비스</h3>
+          <ul class="footer__list">
+            <li><a href="#">What's ON</a></li>
+            <li><a href="#">게시판</a></li>
+            <li><a href="#">굿즈</a></li>
+            <li><a href="#">경매</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="footer__title">고객지원</h3>
+          <ul class="footer__list">
+            <li><a href="#">공지사항</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">1:1 문의</a></li>
+            <li><a href="#">이용약관</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="footer__title">SNS</h3>
+          <div class="sns">
+            <a class="sns__btn" href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a class="sns__btn" href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a class="sns__btn" href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2024 ARTSPACE. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="./js/board.js"></script>
+</body>
+</html>

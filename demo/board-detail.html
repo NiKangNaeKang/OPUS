@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Board Detail</title>
+
+  <!-- Font / Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="./css/board-detail.css" />
+</head>
+
+<body class="page">
+  <!-- HEADER -->
+  <header class="header" id="header">
+    <div class="header__inner">
+      <div class="header__left">
+        <a href="#" class="logo">ARTIQUE</a>
+
+        <nav class="nav" aria-label="주요 메뉴">
+          <a href="#" class="nav__link">What's ON</a>
+          <a href="#" class="nav__link nav__link--active">게시판</a>
+          <a href="#" class="nav__link">굿즈</a>
+          <a href="#" class="nav__link">경매</a>
+        </nav>
+      </div>
+
+      <div class="header__right">
+        <button class="icon-btn" type="button" aria-label="마이페이지">
+          <i class="fa-regular fa-user"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="container" id="board-detail-main">
+    <!-- Article -->
+    <article class="post" id="post-article">
+      <!-- Post Header -->
+      <header class="post__head" id="post-header">
+        <div class="post__metaTop">
+          <span class="pill pill--dark">NOTICE</span>
+          <span class="post__divider" aria-hidden="true">|</span>
+          <span class="post__date">2024.01.15</span>
+        </div>
+
+        <h1 class="post__title">
+          2024년 상반기 뮤지컬 및 전시 일정 안내
+        </h1>
+
+        <div class="post__metaBottom">
+          <div class="meta">
+            <div class="meta__item">
+              <i class="fa-regular fa-user" aria-hidden="true"></i>
+              <span>관리자</span>
+            </div>
+            <div class="meta__item">
+              <i class="fa-regular fa-eye" aria-hidden="true"></i>
+              <span>1,247</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Post Content -->
+      <section class="post__content" id="post-content">
+        <div class="content">
+          <p class="lead">안녕하세요, ARTIQUE입니다.</p>
+
+          <p>
+            2024년 상반기에 진행될 주요 뮤지컬 및 미술 전시 일정을 안내드립니다.
+            올해는 더욱 다채로운 공연과 전시가 준비되어 있으니 많은 관심 부탁드립니다.
+          </p>
+
+          <div class="box">
+            <h3 class="box__title">주요 뮤지컬 라인업</h3>
+            <ul class="list">
+              <li class="list__item">
+                <span class="dot" aria-hidden="true"></span>
+                <div>
+                  <b>레 미제라블</b> - 2024.02.15 ~ 2024.05.20 / 블루스퀘어 신한카드홀
+                </div>
+              </li>
+              <li class="list__item">
+                <span class="dot" aria-hidden="true"></span>
+                <div>
+                  <b>오페라의 유령</b> - 2024.03.01 ~ 2024.06.30 / 샤롯데씨어터
+                </div>
+              </li>
+              <li class="list__item">
+                <span class="dot" aria-hidden="true"></span>
+                <div>
+                  <b>시카고</b> - 2024.04.10 ~ 2024.07.15 / 세종문화회관
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="box">
+            <h3 class="box__title">주요 미술 전시</h3>
+            <ul class="list">
+              <li class="list__item">
+                <span class="dot" aria-hidden="true"></span>
+                <div>
+                  <b>모네: 빛의 순간들</b> - 2024.02.01 ~ 2024.05.31 / 국립중앙박물관
+                </div>
+              </li>
+              <li class="list__item">
+                <span class="dot" aria-hidden="true"></span>
+                <div>
+                  <b>현대미술의 흐름</b> - 2024.03.15 ~ 2024.06.20 / 서울시립미술관
+                </div>
+              </li>
+              <li class="list__item">
+                <span class="dot" aria-hidden="true"></span>
+                <div>
+                  <b>백남준 회고전</b> - 2024.04.01 ~ 2024.07.31 / 국립현대미술관
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <p>
+            각 공연 및 전시에 대한 자세한 정보는 'What's ON' 페이지에서 확인하실 수 있습니다.
+            예매 오픈 일정은 개별 공지를 통해 안내드릴 예정입니다.
+          </p>
+
+          <p>
+            회원님들의 문화생활이 더욱 풍요로워질 수 있도록 ARTIQUE가 최선을 다하겠습니다.
+          </p>
+
+          <div class="notice">
+            <p>
+              * 상기 일정은 주최 측 사정에 따라 변경될 수 있습니다.<br />
+              * 티켓 예매 및 문의: support@artique.com
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Post Footer -->
+      <footer class="post__foot" id="post-footer">
+        <div class="post__actions">
+          <button class="btn btn--dark" type="button" id="backBtn">
+            <i class="fa-solid fa-list" aria-hidden="true"></i>
+            <span>Back to List</span>
+          </button>
+
+          <div class="post__nav">
+            <button class="btn btn--outline" type="button">
+              <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+              <span>Previous</span>
+            </button>
+            <button class="btn btn--outline" type="button">
+              <span>Next</span>
+              <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </footer>
+    </article>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer" id="footer">
+    <div class="footer__inner">
+      <div class="footer__grid">
+        <div>
+          <div class="footer__brand">ARTIQUE</div>
+          <p class="footer__desc">
+            문화예술의 모든 순간을<br />
+            ARTIQUE와 함께하세요
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer__title">Service</h4>
+          <ul class="footer__list">
+            <li><a href="#">What's ON</a></li>
+            <li><a href="#">Board</a></li>
+            <li><a href="#">Goods</a></li>
+            <li><a href="#">Auction</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">Support</h4>
+          <ul class="footer__list">
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Privacy</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">Follow Us</h4>
+          <div class="footer__sns">
+            <a href="#" class="sns-btn" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" class="sns-btn" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+            <a href="#" class="sns-btn" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2024 ARTIQUE. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="./js/board-detail.js"></script>
+</body>
+</html>

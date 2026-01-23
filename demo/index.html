@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home</title>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script>
+    window.FontAwesomeConfig = { autoReplaceSvg: "nest" };
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="./css/index.css" />
+</head>
+
+<body>
+  <body>
+  <!-- HEADER (hero 위에 고정으로 얹을 거라 hero 밖에 둠) -->
+  <header id="header" class="header header--overlay">
+    <div class="wrap header__inner">
+      <div class="header__left">
+        <a href="#" class="brand">OPUS</a>
+
+        <nav class="gnb">
+          <a href="#" class="gnb__link">On-Stage</a>
+          <a href="#" class="gnb__link">Proposals</a>
+          <a href="#" class="gnb__link">Unveiling</a>
+          <a href="#" class="gnb__link">Selections</a>
+        </nav>
+      </div>
+
+      <div class="header__right">
+        <button class="icon-btn" type="button" aria-label="마이페이지">
+          <i class="fa-regular fa-user" aria-hidden="true"></i>
+        </button>
+        <!-- <button type="button">로그아웃</button> -->
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section id="hero-banner" class="hero">
+    <div class="hero__bg">
+      <!-- <img
+        class="hero__img"
+        src="https://storage.googleapis.com/uxpilot-auth.appspot.com/799bd2c672-1cb77b23b49d0f383f77.png"
+        alt="elegant theatrical stage with dramatic red curtains and spotlight, cinematic photography"
+      /> -->
+    </div>
+
+    <button id="prev-slide" class="hero__nav hero__nav--left" type="button" aria-label="이전">
+      <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+    </button>
+
+    <button id="next-slide" class="hero__nav hero__nav--right" type="button" aria-label="다음">
+      <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+    </button>
+
+    <div class="hero__content">
+      <div class="wrap">
+        <div class="hero__text">
+          <h1 class="hero__title">OPUS</h1>
+          <p class="hero__place">작품을 보는 새로운 관점을 열고, 숨겨진 예술의 무대를 드러내다.</p>
+          <p class="hero__date"><b>O</b>pening</p>
+          <p class="hero__date"><b>P</b>erspective</p>
+          <p class="hero__date"><b>U</b>nveiling</p>
+          <p class="hero__date"><b>S</b>cene</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__bottom">
+      <div class="dots" aria-label="슬라이드 페이지">
+        <button class="dot is-active" type="button" aria-label="1"></button>
+        <button class="dot" type="button" aria-label="2"></button>
+        <button class="dot" type="button" aria-label="3"></button>
+        <button class="dot" type="button" aria-label="4"></button>
+      </div>
+
+      <div class="hero__count">
+        <span id="current-time">3</span> / 10
+      </div>
+    </div>
+  </section>
+
+  <!-- ART MD PICK -->
+  <section id="art-md-pick" class="section section--alt">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title">전시 MD Pick</h2>
+      </div>
+
+      <div class="card-grid">
+        <article class="card">
+          <div class="card__thumb card__thumb--white">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/58a2095d97-9bd16223f914cf35d1fa.png"
+              alt="contemporary art exhibition poster with abstract colorful painting"
+            />
+            <button class="like-btn" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart" aria-hidden="true"></i>
+            </button>
+          </div>
+          <h3 class="card__title">모네: 빛의 순간</h3>
+          <p class="card__meta">2024.01.10 - 2024.04.20</p>
+          <p class="card__sub">국립현대미술관</p>
+        </article>
+
+        <article class="card">
+          <div class="card__thumb card__thumb--white">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/2874bd2599-f479c9013a644132c97a.png"
+              alt="modern art exhibition poster featuring geometric sculptures"
+            />
+          </div>
+          <h3 class="card__title">백남준의 세계</h3>
+          <p class="card__meta">2024.02.05 - 2024.05.15</p>
+          <p class="card__sub">서울시립미술관</p>
+        </article>
+
+        <article class="card">
+          <div class="card__thumb card__thumb--white">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/dc60bffba9-132dffe3468580d0765f.png"
+              alt="impressionist art exhibition poster with dreamy landscape painting"
+            />
+          </div>
+          <h3 class="card__title">반 고흐: 별이 빛나는 밤</h3>
+          <p class="card__meta">2024.03.01 - 2024.06.10</p>
+          <p class="card__sub">예술의전당 한가람미술관</p>
+        </article>
+
+        <article class="card">
+          <div class="card__thumb card__thumb--white">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/acf0e512e6-f7755634f24d30b38138.png"
+              alt="contemporary photography exhibition poster with black and white artistic photo"
+            />
+          </div>
+          <h3 class="card__title">사진으로 보는 한국</h3>
+          <p class="card__meta">2024.01.25 - 2024.04.30</p>
+          <p class="card__sub">리움미술관</p>
+        </article>
+
+        <article class="card">
+          <div class="card__thumb card__thumb--white">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/9afde8ec45-856b049fb1470d994044.png"
+              alt="classical art exhibition poster with renaissance painting style"
+            />
+            <button class="like-btn" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart" aria-hidden="true"></i>
+            </button>
+          </div>
+          <h3 class="card__title">르네상스의 거장들</h3>
+          <p class="card__meta">2024.02.20 - 2024.05.30</p>
+          <p class="card__sub">DDP 디자인뮤지엄</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+    <!-- MUSICAL MD PICK -->
+  <section id="musical-md-pick" class="section">
+    <div class="wrap">
+      <div class="section__head">
+        <h2 class="section__title">공연 MD Pick</h2>
+      </div>
+
+      <div class="card-grid">
+        <!-- Card 1 -->
+        <article class="card">
+          <div class="card__thumb">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/e0a92d3d57-9293bb4aba30302c1c0a.png"
+              alt="musical poster design for Phantom of the Opera, elegant theatrical artwork"
+            />
+          </div>
+          <h3 class="card__title">오페라의 유령</h3>
+          <p class="card__meta">2024.01.15 - 2024.04.30</p>
+          <p class="card__sub">샤롯데씨어터</p>
+        </article>
+
+        <!-- Card 2 -->
+        <article class="card">
+          <div class="card__thumb">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/072b5ca667-a72d65c97bb76eeb858a.png"
+              alt="musical poster design for Wicked, magical green themed theatrical artwork"
+            />
+            <button class="like-btn" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart" aria-hidden="true"></i>
+            </button>
+          </div>
+          <h3 class="card__title">위키드</h3>
+          <p class="card__meta">2024.02.01 - 2024.05.31</p>
+          <p class="card__sub">블루스퀘어</p>
+        </article>
+
+        <!-- Card 3 -->
+        <article class="card">
+          <div class="card__thumb">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/6663746987-6e4025959e6230cb2a79.png"
+              alt="musical poster design for Chicago, jazz age art deco style theatrical artwork"
+            />
+            <button class="like-btn" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart" aria-hidden="true"></i>
+            </button>
+          </div>
+          <h3 class="card__title">시카고</h3>
+          <p class="card__meta">2024.03.10 - 2024.06.20</p>
+          <p class="card__sub">디큐브아트센터</p>
+        </article>
+
+        <!-- Card 4 -->
+        <article class="card">
+          <div class="card__thumb">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a212ec033b-0624b1e5152a1d3d115e.png"
+              alt="musical poster design for Cats, feline themed theatrical artwork with dancers"
+            />
+            <button class="like-btn" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart" aria-hidden="true"></i>
+            </button>
+          </div>
+          <h3 class="card__title">캣츠</h3>
+          <p class="card__meta">2024.01.20 - 2024.04.15</p>
+          <p class="card__sub">LG아트센터</p>
+        </article>
+
+        <!-- Card 5 -->
+        <article class="card">
+          <div class="card__thumb">
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/8149baeb41-a1a4a706604ad7874149.png"
+              alt="musical poster design for Les Miserables, dramatic revolutionary france themed theatrical artwork"
+            />
+            <button class="like-btn" type="button" aria-label="찜">
+              <i class="fa-regular fa-heart" aria-hidden="true"></i>
+            </button>
+          </div>
+          <h3 class="card__title">레미제라블</h3>
+          <p class="card__meta">2024.02.15 - 2024.05.25</p>
+          <p class="card__sub">예술의전당</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="footer" class="footer">
+    <div class="wrap">
+      <div class="footer__grid">
+        <div>
+          <h3 class="footer__brand">ARTSPACE</h3>
+          <p class="footer__desc">문화예술의 모든 것을 한 곳에서</p>
+        </div>
+
+        <div>
+          <h4 class="footer__title">서비스</h4>
+          <ul class="footer__links">
+            <li><a href="#">What's ON</a></li>
+            <li><a href="#">게시판</a></li>
+            <li><a href="#">굿즈</a></li>
+            <li><a href="#">경매</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">고객지원</h4>
+          <ul class="footer__links">
+            <li><a href="#">공지사항</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">1:1 문의</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">정보</h4>
+          <ul class="footer__links">
+            <li><a href="#">이용약관</a></li>
+            <li><a href="#">개인정보처리방침</a></li>
+            <li><a href="#">회사소개</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2024 ARTSPACE. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Custom JS -->
+  <script src="./js/index.js"></script>
+</body>
+</html>

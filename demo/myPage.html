@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Page</title>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="./css/mypage.css" />
+</head>
+
+<body class="page">
+  <!-- Header -->
+    <header id="header" class="header header--overlay">
+    <div class="wrap header__inner">
+      <div class="header__left">
+        <a href="#" class="brand">OPUS</a>
+
+        <nav class="gnb">
+          <a href="#" class="gnb__link">On-Stage</a>
+          <a href="#" class="gnb__link">Proposals</a>
+          <a href="#" class="gnb__link">Unveiling</a>
+          <a href="#" class="gnb__link">Selections</a>
+        </nav>
+      </div>
+
+      <div class="header__right">
+        <button class="icon-btn" type="button" aria-label="마이페이지">
+          <i class="fa-regular fa-user" aria-hidden="true"></i>
+        </button>
+        <!-- <button type="button">로그아웃</button> -->
+      </div>
+    </div>
+  </header>
+
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar__inner">
+
+      <nav class="sidebar__nav" aria-label="마이페이지 메뉴">
+        <div class="nav-group">
+          <p class="nav-group__title">내 정보</p>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-link is-active" href="#profile-edit">
+                <i class="fa-regular fa-user"></i>
+                <span>정보 수정</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" href="#password-change">
+                <i class="fa-solid fa-lock"></i>
+                <span>비밀번호 변경</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="nav-group">
+          <p class="nav-group__title">활동 내역</p>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-link" href="#wishlist">
+                <i class="fa-regular fa-heart"></i>
+                <span>찜한 리스트</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" href="#reviews">
+                <i class="fa-regular fa-comment"></i>
+                <span>작성 후기</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" href="#purchase-history">
+                <i class="fa-solid fa-receipt"></i>
+                <span>구매 내역</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-link" href="#auction-history">
+                <i class="fa-solid fa-gavel"></i>
+                <span>경매 내역</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main id="main-content" class="main">
+    <div class="main__inner">
+
+      <!-- 1) PROFILE EDIT -->
+      <section id="profile-edit" class="card">
+        <header class="card__head">
+          <h2 class="card__title">내 정보 수정</h2>
+          <p class="card__desc">기본 정보를 수정할 수 있습니다</p>
+        </header>
+
+        <div class="card__body">
+          <form class="form">
+            <div class="field">
+              <label class="label">이메일</label>
+              <input class="input input--disabled" type="email" value="art@example.com" disabled />
+            </div>
+
+            <div class="field">
+              <label class="label">연락처</label>
+              <input class="input" type="tel" value="010-1234-5678" />
+            </div>
+
+            <div class="form__actions">
+              <button class="btn btn--primary" type="submit">저장하기</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 2) PASSWORD CHANGE -->
+      <section id="password-change" class="card">
+        <header class="card__head">
+          <h2 class="card__title">비밀번호 변경</h2>
+          <p class="card__desc">안전한 비밀번호로 주기적으로 변경해주세요</p>
+        </header>
+
+        <div class="card__body">
+          <form class="form form--narrow">
+            <div class="field">
+              <label class="label">현재 비밀번호</label>
+              <input class="input" type="password" />
+            </div>
+
+            <div class="field">
+              <label class="label">새 비밀번호</label>
+              <input class="input" type="password" />
+            </div>
+
+            <div class="field">
+              <label class="label">새 비밀번호 확인</label>
+              <input class="input" type="password" />
+            </div>
+
+            <div class="form__actions">
+              <button class="btn btn--primary" type="submit">비밀번호 변경</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 회원 탈퇴 -->
+      
+      <!-- 새로운 페이지로 : 활동 내역 -->
+      <!-- 3) WISHLIST -->
+      <section id="wishlist" class="card">
+        <header class="card__head">
+          <h2 class="card__title">찜한 리스트</h2>
+          <p class="card__desc">관심있는 공연과 전시를 모아보세요</p>
+        </header>
+
+        <div class="card__body">
+          <div class="chips">
+            <button class="chip is-active" type="button">전체 <span class="chip__count">12</span></button>
+            <button class="chip" type="button">뮤지컬 <span class="chip__count">8</span></button>
+            <button class="chip" type="button">전시 <span class="chip__count">4</span></button>
+          </div>
+
+          <div class="grid3">
+            <!-- item 1 -->
+            <article class="wish">
+              <div class="wish__thumb">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/8d868b0886-12fb8394127bd38e9b49.png"
+                     alt="elegant musical theater poster for phantom of the opera, dramatic lighting, luxury aesthetic" />
+                <button class="wish__heart" type="button" aria-label="찜 해제">
+                  <i class="fa-solid fa-heart"></i>
+                </button>
+              </div>
+              <div class="wish__meta">
+                <p class="wish__tag">뮤지컬</p>
+                <h3 class="wish__title">오페라의 유령</h3>
+                <p class="wish__place">블루스퀘어 신한카드홀</p>
+                <p class="wish__date">2024.12.01 - 2025.02.28</p>
+              </div>
+            </article>
+
+            <!-- item 2 -->
+            <article class="wish">
+              <div class="wish__thumb">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/724bbde368-96542716245d4752f523.png"
+                     alt="modern art exhibition poster with abstract geometric shapes, minimalist design, high-end gallery aesthetic" />
+                <button class="wish__heart" type="button" aria-label="찜 해제">
+                  <i class="fa-solid fa-heart"></i>
+                </button>
+              </div>
+              <div class="wish__meta">
+                <p class="wish__tag">전시</p>
+                <h3 class="wish__title">모던 아트 컬렉션</h3>
+                <p class="wish__place">국립현대미술관</p>
+                <p class="wish__date">2024.11.15 - 2025.01.31</p>
+              </div>
+            </article>
+
+            <!-- item 3 -->
+            <article class="wish">
+              <div class="wish__thumb">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/8d868b0886-feec3f70e996d879c312.png"
+                     alt="elegant musical theater poster for wicked, magical emerald theme, sophisticated design" />
+                <button class="wish__heart" type="button" aria-label="찜 해제">
+                  <i class="fa-solid fa-heart"></i>
+                </button>
+              </div>
+              <div class="wish__meta">
+                <p class="wish__tag">뮤지컬</p>
+                <h3 class="wish__title">위키드</h3>
+                <p class="wish__place">샤롯데씨어터</p>
+                <p class="wish__date">2024.10.20 - 2025.03.15</p>
+              </div>
+            </article>
+
+            <!-- item 4 -->
+            <article class="wish">
+              <div class="wish__thumb">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/dc60bffba9-584e141a523b9357ece4.png"
+                     alt="impressionist art exhibition poster, monet water lilies style, elegant museum aesthetic" />
+                <button class="wish__heart" type="button" aria-label="찜 해제">
+                  <i class="fa-solid fa-heart"></i>
+                </button>
+              </div>
+              <div class="wish__meta">
+                <p class="wish__tag">전시</p>
+                <h3 class="wish__title">인상주의 걸작전</h3>
+                <p class="wish__place">예술의전당 한가람미술관</p>
+                <p class="wish__date">2024.12.10 - 2025.02.20</p>
+              </div>
+            </article>
+
+            <!-- item 5 -->
+            <article class="wish">
+              <div class="wish__thumb">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/2f4cc12297-58cd9a35f260927c79fc.png"
+                     alt="musical theater poster for les miserables, dramatic french revolution theme, premium design" />
+                <button class="wish__heart" type="button" aria-label="찜 해제">
+                  <i class="fa-solid fa-heart"></i>
+                </button>
+              </div>
+              <div class="wish__meta">
+                <p class="wish__tag">뮤지컬</p>
+                <h3 class="wish__title">레미제라블</h3>
+                <p class="wish__place">LG아트센터</p>
+                <p class="wish__date">2024.11.01 - 2025.01.28</p>
+              </div>
+            </article>
+
+            <!-- item 6 -->
+            <article class="wish">
+              <div class="wish__thumb">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/781f04cc62-ab3cbd907bef543ebfba.png"
+                     alt="contemporary sculpture exhibition poster, minimalist white gallery space, luxury art aesthetic" />
+                <button class="wish__heart" type="button" aria-label="찜 해제">
+                  <i class="fa-solid fa-heart"></i>
+                </button>
+              </div>
+              <div class="wish__meta">
+                <p class="wish__tag">전시</p>
+                <h3 class="wish__title">현대 조각의 미학</h3>
+                <p class="wish__place">리움미술관</p>
+                <p class="wish__date">2024.11.20 - 2025.02.10</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4) REVIEWS -->
+      <section id="reviews" class="card">
+        <header class="card__head">
+          <h2 class="card__title">작성 후기</h2>
+          <p class="card__desc">관람한 공연과 전시에 대한 소중한 의견을 남겨주세요</p>
+        </header>
+
+        <div class="review-list">
+          <!-- review 1 -->
+          <article class="review">
+            <div class="review__thumb">
+              <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/8d868b0886-56d27d5510b21aad1033.png"
+                   alt="elegant musical theater poster for cats, theatrical design" />
+            </div>
+
+            <div class="review__body">
+              <div class="review__top">
+                <div>
+                  <h3 class="review__title">캣츠</h3>
+                  <p class="review__sub">블루스퀘어 신한카드홀 · 2024.11.15 관람</p>
+                </div>
+                <span class="review__date">2024.11.16</span>
+              </div>
+
+              <p class="review__text">
+                음악과 안무가 정말 환상적이었습니다. 배우들의 연기력과 노래 실력이 뛰어나 감동적인 시간을 보냈습니다.
+                무대 연출도 매우 인상적이었고, 특히 조명 효과가 작품의 분위기를 극대화시켜주었어요. 다시 한번 보고 싶은 작품입니다.
+              </p>
+            </div>
+          </article>
+
+          <!-- review 2 -->
+          <article class="review">
+            <div class="review__thumb">
+              <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/9028f5ee77-b203fcdaec016a4d5dc6.png"
+                   alt="abstract modern art exhibition poster, colorful geometric design" />
+            </div>
+
+            <div class="review__body">
+              <div class="review__top">
+                <div>
+                  <h3 class="review__title">추상미술의 세계</h3>
+                  <p class="review__sub">서울시립미술관 · 2024.11.10 관람</p>
+                </div>
+                <span class="review__date">2024.11.11</span>
+              </div>
+
+              <p class="review__text">
+                현대 추상미술의 다양한 스펙트럼을 한눈에 볼 수 있었던 전시였습니다. 작품 하나하나에 담긴 작가의 메시지를 느낄 수 있었고,
+                전시 공간 구성도 매우 세련되었습니다. 특히 인터랙티브 작품들이 인상적이었어요.
+              </p>
+            </div>
+          </article>
+
+          <!-- review 3 -->
+          <article class="review">
+            <div class="review__thumb">
+              <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/8d868b0886-78a2f594a9842a522867.png"
+                   alt="elegant musical theater poster for chicago, art deco style" />
+            </div>
+
+            <div class="review__body">
+              <div class="review__top">
+                <div>
+                  <h3 class="review__title">시카고</h3>
+                  <p class="review__sub">샤롯데씨어터 · 2024.10.28 관람</p>
+                </div>
+                <span class="review__date">2024.10.29</span>
+              </div>
+
+              <p class="review__text">
+                재즈와 탭댄스의 완벽한 조화! 에너지 넘치는 공연이었습니다. 배우들의 카리스마와 무대 장악력이 대단했고, 음악도 너무 좋았어요.
+                1920년대 시카고의 화려함과 어두움을 동시에 느낄 수 있었던 작품입니다.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 5) PURCHASE -->
+      <section id="purchase-history" class="card">
+        <header class="card__head">
+          <h2 class="card__title">구매 내역</h2>
+          <p class="card__desc">굿즈 및 티켓 구매 내역을 확인하세요</p>
+        </header>
+
+        <div class="order-list">
+          <!-- order 1 -->
+          <article class="order">
+            <div class="order__top">
+              <div>
+                <p class="order__no">주문번호: 20241115-0012345</p>
+                <p class="order__time">2024.11.15 14:23</p>
+              </div>
+              <span class="badge badge--dark">배송완료</span>
+            </div>
+
+            <div class="order__body">
+              <div class="order__thumb">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/416b2ea453-90909df8fe931991afb3.png"
+                     alt="phantom of the opera official merchandise tote bag, elegant design without background" />
+              </div>
+
+              <div class="order__info">
+                <h3 class="order__title">오페라의 유령 공식 토트백</h3>
+                <p class="order__sub">수량: 1개</p>
+                <p class="order__price">35,000원</p>
+              </div>
+
+              <div class="order__actions">
+                <button class="btn btn--outline" type="button">주문상세</button>
+                <button class="btn btn--outline" type="button">배송조회</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- order 2 -->
+          <article class="order">
+            <div class="order__top">
+              <div>
+                <p class="order__no">주문번호: 20241110-0012288</p>
+                <p class="order__time">2024.11.10 18:45</p>
+              </div>
+              <span class="badge badge--green">예매완료</span>
+            </div>
+
+            <div class="order__body">
+              <div class="order__thumb">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/0ce651701a-cd478c1d3a35bf47977b.png"
+                     alt="wicked musical ticket design, emerald green theme" />
+              </div>
+
+              <div class="order__info">
+                <h3 class="order__title">뮤지컬 위키드 티켓</h3>
+                <p class="order__sub">2024.12.20 19:30 | R석 2매</p>
+                <p class="order__sub">샤롯데씨어터</p>
+                <p class="order__price">300,000원</p>
+              </div>
+
+              <div class="order__actions">
+                <button class="btn btn--outline" type="button">예매확인</button>
+                <button class="btn btn--outline" type="button">취소/환불</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- order 3 -->
+          <article class="order">
+            <div class="order__top">
+              <div>
+                <p class="order__no">주문번호: 20241105-0011956</p>
+                <p class="order__time">2024.11.05 11:20</p>
+              </div>
+              <span class="badge badge--blue">배송중</span>
+            </div>
+
+            <div class="order__body">
+              <div class="order__thumb">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/76e35077b2-cb47a9949fe92ddc23bf.png"
+                     alt="les miserables official photobook merchandise without background" />
+              </div>
+
+              <div class="order__info">
+                <h3 class="order__title">레미제라블 공식 포토북</h3>
+                <p class="order__sub">수량: 1개</p>
+                <p class="order__price">48,000원</p>
+              </div>
+
+              <div class="order__actions">
+                <button class="btn btn--outline" type="button">주문상세</button>
+                <button class="btn btn--outline" type="button">배송조회</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 6) AUCTION -->
+      <section id="auction-history" class="card">
+        <header class="card__head">
+          <h2 class="card__title">경매 내역</h2>
+          <p class="card__desc">참여한 미술품 경매 내역을 확인하세요</p>
+        </header>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>작품명</th>
+                <th>작가</th>
+                <th>입찰가</th>
+                <th>낙찰가</th>
+                <th>상태</th>
+                <th>일시</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>
+                  <div class="artcell">
+                    <div class="artcell__thumb">
+                      <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/98f4093957-12dcdb3189b9d2fff4b3.png"
+                           alt="contemporary abstract painting, colorful modern art" />
+                    </div>
+                    <div class="artcell__info">
+                      <p class="artcell__title">Urban Dreams</p>
+                      <p class="artcell__sub">캔버스에 아크릴, 80×100cm</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="td-muted">김현대</td>
+                <td class="td-strong">8,500,000원</td>
+                <td class="td-strong2">9,200,000원</td>
+                <td><span class="badge badge--red">유찰</span></td>
+                <td class="td-date">2024.11.12</td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="artcell">
+                    <div class="artcell__thumb">
+                      <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/ba3dfc4f7e-30acac26766b4a6fffa4.png"
+                           alt="minimalist sculpture photograph, white marble art piece" />
+                    </div>
+                    <div class="artcell__info">
+                      <p class="artcell__title">Silence</p>
+                      <p class="artcell__sub">대리석, 45×30×25cm</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="td-muted">박조각</td>
+                <td class="td-strong">12,000,000원</td>
+                <td class="td-strong2">12,000,000원</td>
+                <td><span class="badge badge--green">낙찰</span></td>
+                <td class="td-date">2024.10.28</td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="artcell">
+                    <div class="artcell__thumb">
+                      <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/1bf9e1260c-af80fcc301edd4ea9280.png"
+                           alt="impressionist landscape painting, serene nature scene" />
+                    </div>
+                    <div class="artcell__info">
+                      <p class="artcell__title">가을 정원</p>
+                      <p class="artcell__sub">캔버스에 유채, 60×80cm</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="td-muted">이자연</td>
+                <td class="td-strong">5,200,000원</td>
+                <td class="td-dash">-</td>
+                <td><span class="badge badge--blue">진행중</span></td>
+                <td class="td-date">2024.11.18 마감</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+    <!-- FOOTER -->
+  <footer id="footer" class="footer">
+    <div class="wrap">
+      <div class="footer__grid">
+        <div>
+          <h3 class="footer__brand">ARTSPACE</h3>
+          <p class="footer__desc">문화예술의 모든 것을 한 곳에서</p>
+        </div>
+
+        <div>
+          <h4 class="footer__title">서비스</h4>
+          <ul class="footer__links">
+            <li><a href="#">What's ON</a></li>
+            <li><a href="#">게시판</a></li>
+            <li><a href="#">굿즈</a></li>
+            <li><a href="#">경매</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">고객지원</h4>
+          <ul class="footer__links">
+            <li><a href="#">공지사항</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">1:1 문의</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">정보</h4>
+          <ul class="footer__links">
+            <li><a href="#">이용약관</a></li>
+            <li><a href="#">개인정보처리방침</a></li>
+            <li><a href="#">회사소개</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2024 ARTSPACE. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- JS -->
+  <script src="./js/mypage.js"></script>
+</body>
+</html>

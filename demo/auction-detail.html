@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auction Item</title>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="./css/auction-detail.css" />
+</head>
+
+<body class="page">
+
+  <!-- HEADER -->
+  <header id="header" class="header">
+    <div class="header__inner">
+      <div class="header__left">
+        <a href="#" class="logo">OPUS</a>
+
+        <nav class="nav">
+          <a href="#" class="nav__link">On-Stage</a>
+          <a href="#" class="nav__link">Proposals</a>
+          <a href="#" class="nav__link">Unveiling</a>
+          <a href="#" class="nav__link is-active">Selections</a>
+        </nav>
+      </div>
+
+      <div class="header__right">
+        <button class="icon-btn" type="button" aria-label="마이페이지">
+          <i class="fa-regular fa-user"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="container">
+    <div class="back-row">
+      <a href="#" class="back-link">
+        <i class="fa-solid fa-chevron-left"></i>
+        <span>경매 목록으로 돌아가기</span>
+      </a>
+    </div>
+
+    <!-- DETAIL -->
+    <section id="auction-detail-section" class="detail">
+      <!-- IMAGE -->
+      <div id="image-section" class="image">
+        <div class="image__main">
+          <img
+            id="mainImage"
+            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/98f4093957-19f0a712ae10695c0744.png"
+            alt="contemporary abstract painting with bold brushstrokes, modern art gallery style"
+          />
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div id="info-section" class="info">
+        <div class="info__top">
+          <span class="status status--live">진행중</span>
+
+          <h1 class="title">무제 (Untitled)</h1>
+          <p class="artist">김현수 작가</p>
+
+          <div class="spec">
+            <div class="spec__row">
+              <span class="spec__k">제작연도</span>
+              <span class="spec__v">2023</span>
+            </div>
+            <div class="spec__row">
+              <span class="spec__k">재료</span>
+              <span class="spec__v">캔버스에 아크릴</span>
+            </div>
+            <div class="spec__row">
+              <span class="spec__k">크기</span>
+              <span class="spec__v">100 × 80 cm</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pricebox">
+          <div class="pricebox__block">
+            <p class="pricebox__label">추정가</p>
+            <p class="pricebox__value pricebox__value--lg">₩8,000,000 - ₩12,000,000</p>
+          </div>
+
+          <div class="pricebox__block pricebox__divider">
+            <p class="pricebox__label">시작가</p>
+            <p class="pricebox__value">₩6,000,000</p>
+          </div>
+
+          <div class="pricebox__block pricebox__divider">
+            <p class="pricebox__label">현재가</p>
+            <p class="pricebox__value pricebox__value--xl">₩9,500,000</p>
+            <p class="pricebox__hint">응찰 15회</p>
+          </div>
+        </div>
+
+        <div class="timer" data-end="2024-01-28T15:00:00">
+          <div class="timer__row">
+            <span class="timer__label">마감까지</span>
+
+            <div class="countdown" id="countdown" aria-label="countdown">
+              <div class="countdown__unit">
+                <span id="days">02</span>
+                <span class="countdown__txt">일</span>
+              </div>
+              <span class="countdown__sep">:</span>
+              <div class="countdown__unit">
+                <span id="hours">14</span>
+                <span class="countdown__txt">시간</span>
+              </div>
+              <span class="countdown__sep">:</span>
+              <div class="countdown__unit">
+                <span id="minutes">32</span>
+                <span class="countdown__txt">분</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="timer__hint">2024년 1월 28일 오후 3시 마감</p>
+        </div>
+
+        <button class="bid-btn" type="button">응찰하기</button>
+
+        <div class="notice">
+          <div class="notice__row">
+            <i class="fa-solid fa-circle-info"></i>
+            <p>
+              응찰을 위해서는 본인 인증이 필요합니다. 경매 참여 전 회원정보에서 실명 인증을 완료해주세요.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DESCRIPTION -->
+    <section id="description-section" class="section">
+      <h2 class="section__title">작품 설명</h2>
+
+      <div class="prose">
+        <p>
+          김현수 작가의 '무제'는 추상표현주의의 영향을 받은 작품으로, 대담한 붓터치와 강렬한 색채의 대비를 통해 내면의 감정을 표현합니다.
+          작가는 캔버스 위에 즉흥적이면서도 계산된 붓질을 더해가며, 관람자로 하여금 작품 속에서 자신만의 이야기를 발견하도록 유도합니다.
+        </p>
+        <p>
+          이 작품은 2023년 개인전 '침묵의 소리'에서 처음 공개되었으며, 현대미술계에서 주목받는 신진 작가의 대표작 중 하나입니다.
+          작가는 전통적인 회화 기법에 현대적 감각을 더해 독자적인 예술 세계를 구축해왔습니다.
+        </p>
+        <p>
+          캔버스에 아크릴로 제작된 이 작품은 빛의 각도에 따라 다양한 질감과 색감을 드러내며, 공간에 역동적인 에너지를 부여합니다.
+          작품의 보존 상태는 매우 양호하며, 작가의 서명과 제작연도가 뒷면에 명시되어 있습니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- ARTIST -->
+    <section id="artist-section" class="section">
+      <h2 class="section__title">작가 소개</h2>
+
+      <div class="artist-box">
+        <div class="artist-box__info">
+          <h3 class="artist-box__name">김현수</h3>
+          <p class="artist-box__desc">
+            홍익대학교 미술대학 회화과를 졸업하고, 파리 에콜 데 보자르에서 현대미술을 전공했습니다.
+            귀국 후 다수의 개인전과 단체전에 참여하며 한국 현대미술계의 주목받는 작가로 자리매김했습니다.
+          </p>
+
+          <div class="artist-box__meta">
+            <p><strong>주요 전시:</strong> 2023 개인전 '침묵의 소리', 2022 국립현대미술관 단체전</p>
+            <p><strong>수상:</strong> 2021 올해의 젊은 작가상</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GUIDE -->
+    <section id="bidding-guide-section" class="section">
+      <h2 class="section__title">응찰 안내</h2>
+
+      <div class="guide-grid">
+        <!-- TABLE -->
+        <div>
+          <h3 class="sub-title">호가표</h3>
+
+          <div class="tick-table">
+            <div class="tick-table__head">
+              <div>현재가</div>
+              <div>응찰 단위</div>
+            </div>
+
+            <div class="tick-table__row">
+              <div>500만원 미만</div>
+              <div>10만원</div>
+            </div>
+            <div class="tick-table__row">
+              <div>500만원 ~ 1,000만원</div>
+              <div>50만원</div>
+            </div>
+            <div class="tick-table__row">
+              <div>1,000만원 ~ 3,000만원</div>
+              <div>100만원</div>
+            </div>
+            <div class="tick-table__row">
+              <div>3,000만원 ~ 5,000만원</div>
+              <div>200만원</div>
+            </div>
+            <div class="tick-table__row">
+              <div>5,000만원 이상</div>
+              <div>500만원</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MUST INFO -->
+        <div>
+          <h3 class="sub-title">응찰 필수 정보</h3>
+
+          <div class="bullets">
+            <div class="bullet"><i class="fa-solid fa-circle"></i><p>경매 참여를 위해서는 실명 인증이 필수입니다.</p></div>
+            <div class="bullet"><i class="fa-solid fa-circle"></i><p>응찰 후 취소는 불가능하며, 낙찰 시 구매 의무가 발생합니다.</p></div>
+            <div class="bullet"><i class="fa-solid fa-circle"></i><p>낙찰가 외에 구매 수수료(낙찰가의 15%)가 별도로 부과됩니다.</p></div>
+            <div class="bullet"><i class="fa-solid fa-circle"></i><p>마감 10분 전 응찰 시 자동으로 10분 연장됩니다.</p></div>
+            <div class="bullet"><i class="fa-solid fa-circle"></i><p>결제는 낙찰 후 7일 이내에 완료되어야 합니다.</p></div>
+            <div class="bullet"><i class="fa-solid fa-circle"></i><p>작품 배송은 결제 완료 후 3-5 영업일 소요됩니다.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="caution">
+        <h3 class="sub-title">유의사항</h3>
+        <div class="caution__list">
+          <p>• 작품의 상태는 상세 이미지를 통해 확인하실 수 있으며, 추가 문의는 고객센터로 연락 주시기 바랍니다.</p>
+          <p>• 경매 마감 후 최고가 응찰자가 낙찰자로 결정되며, 낙찰 확정 메일이 발송됩니다.</p>
+          <p>• 작품 인수는 직접 방문 또는 배송 중 선택 가능합니다.</p>
+          <p>• 설치 및 보관 비용과 배송비는 공지사항 참고 바랍니다.</p>
+          <p>• 모든 작품은 진품 보증서와 함께 제공됩니다.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer id="footer" class="footer">
+    <div class="footer__inner">
+      <div class="footer__grid">
+        <div>
+          <h3 class="footer__brand">ARTCULTURE</h3>
+          <p class="footer__desc">문화와 예술을 경험하는 새로운 방법</p>
+        </div>
+
+        <div>
+          <h4 class="footer__title">서비스</h4>
+          <ul class="footer__list">
+            <li><a href="#">What's ON</a></li>
+            <li><a href="#">게시판</a></li>
+            <li><a href="#">굿즈</a></li>
+            <li><a href="#">경매</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">고객지원</h4>
+          <ul class="footer__list">
+            <li><a href="#">공지사항</a></li>
+            <li><a href="#">자주 묻는 질문</a></li>
+            <li><a href="#">이용약관</a></li>
+            <li><a href="#">개인정보처리방침</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__title">문의</h4>
+          <ul class="footer__list">
+            <li>이메일: info@artculture.com</li>
+            <li>전화: 02-1234-5678</li>
+            <li>운영시간: 평일 10:00-18:00</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2024 ARTCULTURE. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Custom JS -->
+  <script src="./js/auction-detail.js"></script>
+</body>
+</html>
