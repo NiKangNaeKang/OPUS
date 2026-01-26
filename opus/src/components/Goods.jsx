@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { axiosApi } from "../api/axiosAPI";
-import Loading from "./Loading"
+import Loading from "./common/Loading"
 import '../css/goods.css'
 
 const Goods = () => {
@@ -76,7 +76,7 @@ const Goods = () => {
         <section id="goods-grid" className="grid">
           <div className="grid__head">
             <p className="grid__count">
-              총 <span id="totalCount" className="grid__countStrong">48</span>개의 상품
+              총 <span id="totalCount" className="grid__countStrong">{goodsList.length}</span>개의 상품
             </p>
 
             <div className="grid__sort">
@@ -98,14 +98,20 @@ const Goods = () => {
               <p>상품 목록이 존재하지 않습니다.</p>
             ) : (
               goodsList.map((goods) => (
-                <article className="card">
+                <article className="card" key={goods.goodsNo}>
+                  <div class="card__img">
+                    <img src={goods.goodsThumbnail} alt={goods.goodsName} />
+                      <button class="wish" type="button" aria-label="찜">
+                        <i class="fa-regular fa-heart"></i>
+                      </button>
+                  </div>
                   <h3 class="card__title">{goods.goodsName}</h3>
-                  <p class="card__meta">{ }</p>
+                  <p class="card__meta">{goods.goodsType}</p>
                   <p class="card__price">{goods.goodsPrice}</p>
                 </article>
               ))
             )
-            } 
+            }
           </div>
         </section>
       )}
