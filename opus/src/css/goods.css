@@ -28,67 +28,6 @@ img{ display:block; max-width:100%; }
 
 .page{ min-height:100vh; }
 
-/* ============== HEADER ============== */
-.header{
-  position:fixed;
-  top:0; left:0; right:0;
-  z-index:50;
-  background:#fff;
-  border-bottom:1px solid var(--line);
-}
-.header__inner{
-  max-width: var(--wrap);
-  margin:0 auto;
-  padding: 16px var(--pad);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:20px;
-}
-.header__left{
-  display:flex;
-  align-items:center;
-  gap:48px;
-}
-.logo{
-  font-size: 24px;
-  font-weight: 900;
-  color:#111827;
-}
-.nav{
-  display:flex;
-  align-items:center;
-  gap:32px;
-}
-.nav__link{
-  font-size: 14px;
-  font-weight: 600;
-  color:#374151;
-  padding-bottom: 4px;
-  transition: color .15s ease, border-color .15s ease;
-}
-.nav__link:hover{ color:#111827; }
-.nav__link--active{
-  color:#111827;
-  font-weight: 800;
-  border-bottom: 2px solid #111827;
-}
-
-.header__right{
-  display:flex;
-  align-items:center;
-  gap:24px;
-}
-.icon-btn{
-  border:0;
-  background:transparent;
-  cursor:pointer;
-  color:#374151;
-  font-size: 18px;
-  transition: color .15s ease;
-}
-.icon-btn:hover{ color:#111827; }
-
 /* ============== MAIN LAYOUT ============== */
 .main{
   padding-top: 80px; /* header 높이만큼 */
@@ -239,6 +178,19 @@ img{ display:block; max-width:100%; }
   font-weight: 800;
 }
 
+.loading-box {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;                  /* 스피너-텍스트 간격 */
+  text-align: center;
+}
+
+.loading_msg {
+  margin: 0;
+}
+
 /* grid */
 .grid{
   padding: 48px var(--pad);
@@ -348,59 +300,6 @@ img{ display:block; max-width:100%; }
   transition: background .15s ease, border-color .15s ease;
 }
 .more__btn:hover{ background:#f9fafb; border-color:#9ca3af; }
-
-/* footer */
-.footer{
-  margin-top: 96px;
-  background:#111827; /* bg-gray-900 */
-  color:#fff;
-}
-.footer__inner{
-  max-width: var(--wrap);
-  margin:0 auto;
-  padding: 64px var(--pad);
-}
-.footer__grid{
-  display:grid;
-  grid-template-columns: repeat(4, minmax(0,1fr));
-  gap: 48px;
-  margin-bottom: 36px;
-}
-.footer__brand{
-  margin:0 0 16px;
-  font-size: 20px;
-  font-weight: 900;
-}
-.footer__desc{
-  margin:0;
-  color:#9ca3af; /* gray-400 */
-  font-size: 14px;
-  line-height: 1.6;
-}
-.footer__title{
-  margin:0 0 14px;
-  font-size: 14px;
-  font-weight: 800;
-}
-.footer__list{
-  list-style:none;
-  padding:0;
-  margin:0;
-  display:grid;
-  gap: 12px;
-}
-.footer__list a{
-  color:#9ca3af;
-  font-size: 14px;
-}
-.footer__list a:hover{ color:#fff; }
-
-.footer__bottom{
-  border-top:1px solid #1f2937; /* gray-800 */
-  padding-top: 22px;
-  color:#6b7280;
-  font-size: 12px;
-}
 
 /* responsive */
 @media (max-width: 1200px){
