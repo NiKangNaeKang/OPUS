@@ -1,0 +1,115 @@
+:root{
+  --black:#111;
+  --text:#111;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --bg:#fff;
+
+  --wrap:1280px;
+  --pad:32px;
+
+  --radius:12px;
+  --radius-pill:999px;
+  --shadow: 0 10px 30px rgba(0,0,0,0.06);
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:"Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+::-webkit-scrollbar{ display:none; }
+
+a{ color:inherit; text-decoration:none; }
+button, input{ font:inherit; }
+img{ display:block; max-width:100%; }
+
+.wrap{
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding-left: var(--pad);
+  padding-right: var(--pad);
+}
+
+.header{
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:1000;
+  transition: background .2s ease, box-shadow .2s ease, border-color .2s ease;
+  border-bottom:1px solid transparent;
+}
+
+.header__inner{
+  padding:10px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+}
+
+.header__left{
+  display:flex;
+  align-items:center;
+  gap:42px;
+}
+
+.brand{
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:-0.02em;
+}
+
+.gnb{
+  display:flex;
+  align-items:center;
+  gap:22px;
+  flex-wrap:wrap;
+}
+.gnb__link{
+  font-size:14px;
+  font-weight:500;
+  transition: color .2s ease, opacity .2s ease;
+}
+.gnb__link.is-active{ font-weight:700; }
+
+.header__right{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.icon-btn{
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  font-size:20px;
+  transition: color .2s ease;
+}
+
+.admin-link{
+  font-size:14px;
+  font-weight:500;
+  transition: color .2s ease;
+}
+
+/* 스크롤 상태: 배경 흰색 + 글씨 검정 (요청사항) */
+.header.is-scrolled{
+  background:#fff;
+  border-bottom-color: var(--line);
+  box-shadow: var(--shadow);
+}
+.header.is-scrolled .brand,
+.header.is-scrolled .gnb__link,
+.header.is-scrolled .icon-btn,
+.header.is-scrolled .admin-link{
+  color:#111;
+  opacity:1;
+}
+.header.is-scrolled .gnb__link:hover,
+.header.is-scrolled .icon-btn:hover,
+.header.is-scrolled .admin-link:hover{
+  color:#000;
+}
