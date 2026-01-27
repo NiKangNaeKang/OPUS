@@ -13,10 +13,10 @@ function Footer () {
           <div>
             <h4 className="footer__title">서비스</h4>
             <ul className="footer__links">
-              <li><a href="#">What's ON</a></li>
-              <li><a href="#">게시판</a></li>
-              <li><a href="#">굿즈</a></li>
-              <li><a href="#">경매</a></li>
+              <li><a href="#">On-Stage</a></li>
+              <li><a href="#">Proposals</a></li>
+              <li><a href="#">Unveiling</a></li>
+              <li><a href="#">Selections</a></li>
             </ul>
           </div>
 

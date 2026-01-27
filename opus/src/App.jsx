@@ -1,19 +1,22 @@
-import { useState } from 'react'
-import './App.css'
-import Header from './components/common/Header';
-import Footer from './components/common/Footer';
-import OnStage from './components/OnStage';
+import { Routes, Route } from "react-router-dom";
+import Header from "./components/common/Header";
+import Footer from "./components/common/Footer";
+import Home from "./pages/Home";
+import ScrollToTop from "./components/ScrollToTop";
 
-function App() {
+export default function App() {
   return (
     <>
+      <ScrollToTop />
       <Header />
+
       <main>
-        <OnStage />
+        <Routes>
+          <Route path="/" element={<Home />} />
+        </Routes>
       </main>
+
       <Footer />
     </>
-  )
+  );
 }
-
-export default App;
