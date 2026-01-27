@@ -4,6 +4,8 @@ import Footer from "./components/common/Footer";
 import Home from "./pages/Home";
 import ScrollToTop from "./components/ScrollToTop";
 
+import Board from "./components/Board"
+
 export default function App() {
   return (
     <>
@@ -12,7 +14,9 @@ export default function App() {
 
       <main>
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* <Route path="/" element={<Home />} /> */}
+          <Route path="/" element={<Board />} />
+
         </Routes>
       </main>
 
