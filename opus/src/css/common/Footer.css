@@ -78,8 +78,9 @@ button, input{ font:inherit; }
 .footer__links a{
   font-size:13px;
   color:#374151;
+  transition-duration: 0.2s;
 }
-.footer__links a:hover{ color:#fff; }
+.footer__links a:hover{ font-weight: bold; }
 
 .footer__bottom{
   border-top:1px solid #ddd;
