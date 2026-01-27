@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
+import exam1 from "../assets/heroExam.png";
+import exam2 from "../assets/OnStageExam.jpg";
+import exam3 from "../assets/artExam.jpg";
+import exam4 from "../assets/stageExam.png";
+import exam5 from "../assets/abstractExam.png";
 
 const SLIDES = [
-  { title: "OPUS" },
-  { title: "ART" },
-  { title: "MUSICAL" },
-  { title: "EXHIBITION" },
+  { title: "OPUS", content: "작품을 보는 새로운 관점을 열고, 숨겨진 예술의 무대를 드러내다", img: exam1 },
+  { title: "On-Stage", content: "현재 관람가능한 전시와 공연을 확인하실 수 있습니다", img: exam2 },
+  { title: "Proposals", content: "전시와 공연에 관한 정보를 담아 정중히 제안드립니다", img: exam3 },
+  { title: "Unveiling", content: "직접 명작을 소장할 수 있는 기회의 막이 열립니다", img: exam4 },
+  { title: "Selections", content: "예술적 여운을 이어갈 소품을 모아뒀어요", img: exam5 },
 ];
 
 export default function HeroSlider() {
@@ -13,7 +19,7 @@ export default function HeroSlider() {
   useEffect(() => {
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % SLIDES.length);
-    }, 5000);
+    }, 5500);
 
     return () => clearInterval(timer);
   }, []);
@@ -25,7 +31,13 @@ export default function HeroSlider() {
 
   return (
     <section id="hero-banner" className="hero">
-      <div className="hero__bg" />
+      <div className="hero__bg">
+        <img
+          className="hero__img"
+          src={SLIDES[index].img}
+          alt="elegant theatrical stage with dramatic red curtains and spotlight, cinematic photography"
+        />
+      </div>
 
       <button className="hero__nav hero__nav--left" onClick={prev}>
         <i className="fa-solid fa-chevron-left" />
@@ -40,12 +52,17 @@ export default function HeroSlider() {
           <div className="hero__text">
             <h1 className="hero__title">{SLIDES[index].title}</h1>
             <p className="hero__place">
-              작품을 보는 새로운 관점을 열고, 숨겨진 예술의 무대를 드러내다.
+              {SLIDES[index].content}
             </p>
-            <p className="hero__date"><b>O</b>pening</p>
-            <p className="hero__date"><b>P</b>erspective</p>
-            <p className="hero__date"><b>U</b>nveiling</p>
-            <p className="hero__date"><b>S</b>cene</p>
+            {SLIDES[index].title === "OPUS" ? (
+              <>
+                <p className="hero__date"><b>O</b>pening</p>
+                <p className="hero__date"><b>P</b>erspective,</p>
+                <p className="hero__date"><b>U</b>nveiling</p>
+                <p className="hero__date"><b>S</b>cene</p>
+              </>
+            ) : null}
+
           </div>
         </div>
       </div>
