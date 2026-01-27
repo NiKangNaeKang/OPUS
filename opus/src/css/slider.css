@@ -1,0 +1,96 @@
+/* =========================
+   MD PICK SLIDER
+========================= */
+
+.mdpick-layout {
+  position: relative;
+  margin-top: 24px;
+}
+
+.mdpick-hitbox {
+  position: relative;
+}
+
+/* =========================
+   CARD AREA
+========================= */
+
+.mdpick-content {
+  overflow: hidden;
+}
+
+.mdpick-cardwrap {
+  flex: 0 0 255px;
+  width: 255px;
+  min-width: 255px;
+}
+
+/* ✅ 5장 정확히 보이게 고정 */
+.slider-viewport {
+  overflow: hidden;
+  width: calc((260px * 5) + (24px * 4));
+}
+
+.slider-track {
+  display: flex;
+  gap: 24px;
+  transition: transform 0.5s ease;
+  will-change: transform;
+}
+
+/* =========================
+   SLIDER BUTTONS (Option A)
+========================= */
+
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.slider-btn--prev {
+  left: -56px;
+}
+
+.slider-btn--next {
+  right: -56px;
+}
+
+.mdpick-layout:hover .slider-btn {
+  opacity: 1;
+}
+
+.slider-btn:hover {
+  transform: translateY(-50%) scale(1.05);
+}
+
+.slider-btn i {
+  font-size: 22px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.slider-btn:hover i {
+  color: rgba(0, 0, 0, 0.95);
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+  .slider-btn {
+    display: none;
+  }
+
+  .slider-viewport {
+    overflow: hidden;
+    width: calc((260px * 5) + (24px * 4));
+  }
+}

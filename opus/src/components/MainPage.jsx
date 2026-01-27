@@ -1,5 +1,6 @@
 import React from "react";
 import '../css/index.css';
+import HeroBg1 from "../assets/HeroBanner1st.png";
 
 const Main = () => {
   return (
@@ -33,7 +34,7 @@ const Main = () => {
           <div className="hero__bg">
             <img
               className="hero__img"
-              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/799bd2c672-1cb77b23b49d0f383f77.png"
+              src={HeroBg1}
               alt="elegant theatrical stage with dramatic red curtains and spotlight, cinematic photography"
             />
           </div>
