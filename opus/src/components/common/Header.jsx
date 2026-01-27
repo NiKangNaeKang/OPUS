@@ -51,9 +51,16 @@ function Header() {
         </div>
 
         <div className="header__right">
+          <button className="icon-btn" type="button" aria-label="알림">
+            <i className="fa-regular fa-bell" aria-hidden="true"></i>
+          </button>
           <button className="icon-btn" type="button" aria-label="마이페이지">
             <i className="fa-regular fa-user" aria-hidden="true"></i>
           </button>
+          {location.pathname.includes("goods") ? 
+          <button className="icon-btn" type="button" aria-label="장바구니">
+            <i className="fa-solid fa-cart-shopping" aria-hidden="true"></i></button> 
+            : null}
         </div>
       </div>
     </header>
