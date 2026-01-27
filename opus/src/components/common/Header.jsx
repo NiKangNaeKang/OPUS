@@ -33,6 +33,9 @@ function Header () {
           <button className="icon-btn" type="button" aria-label="마이페이지">
             <i className="fa-regular fa-user" aria-hidden="true"></i>
           </button>
+          <button className="icon-btn" type="button" aria-label="장바구니">
+            <i className="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+          </button>
         </div>
       </div>
     </header>

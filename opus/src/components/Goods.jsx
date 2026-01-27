@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { axiosApi } from "../api/axiosAPI";
 import Loading from "./common/Loading"
 import '../css/goods.css'
+import { NavLink } from "react-router-dom";
 
 const Goods = () => {
 
@@ -92,23 +93,25 @@ const Goods = () => {
             </div>
           </div>
 
-          <div class="grid__items" id="goodsItems">
+          <div className="grid__items" id="goodsItems">
 
             {goodsList.length === 0 ? (
               <p>상품 목록이 존재하지 않습니다.</p>
             ) : (
               goodsList.map((goods) => (
-                <article className="card" key={goods.goodsNo}>
-                  <div class="card__img">
-                    <img src={goods.goodsThumbnail} alt={goods.goodsName} />
-                      <button class="wish" type="button" aria-label="찜">
-                        <i class="fa-regular fa-heart"></i>
+                <NavLink to={`/goods/${goods.goodsNo}`} key={goods.goodsNo} >
+                  <article className="card">
+                    <div className="card__img">
+                      <img src={goods.goodsThumbnail} alt={goods.goodsName} />
+                      <button className="wish" type="button" aria-label="찜">
+                        <i className="fa-regular fa-heart"></i>
                       </button>
-                  </div>
-                  <h3 class="card__title">{goods.goodsName}</h3>
-                  <p class="card__meta">{goods.goodsType}</p>
-                  <p class="card__price">{goods.goodsPrice}</p>
-                </article>
+                    </div>
+                    <h3 className="card__title">{goods.goodsName}</h3>
+                    <p className="card__meta">{goods.goodsType}</p>
+                    <p className="card__price">{goods.goodsPrice}</p>
+                  </article>
+                </NavLink>
               ))
             )
             }
