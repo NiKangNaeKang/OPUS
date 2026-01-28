@@ -443,7 +443,9 @@ button, input{ font:inherit; }
   font-size:13px;
   color:#374151;
 }
-.footer__links a:hover{ color:#fff; }
+.footer__links a:hover{ 
+  font-weight: bold; 
+}
 
 .footer__bottom{
   border-top:1px solid #ddd;
