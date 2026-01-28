@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { axiosApi } from "../api/axiosAPI";
-import Loading from "./common/Loading"
-import '../css/goods.css'
+import { axiosApi } from "../../api/axiosAPI";
+import Loading from "../../components/common/Loading"
+import '../../css/goods.css'
 import { NavLink } from "react-router-dom";
 
-const Goods = () => {
+const Selections = () => {
 
   const [goodsList, setGoodsList] = useState(null); // 상품 목록
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태
@@ -13,7 +13,7 @@ const Goods = () => {
   const selectGoodsList = async () => {
     try {
 
-      const resp = await axiosApi.get("/goods/selectGoodsList");
+      const resp = await axiosApi.get("/selections/selectGoodsList");
 
       if (resp.status == 200) {
         setGoodsList(resp.data);
@@ -99,7 +99,7 @@ const Goods = () => {
               <p>상품 목록이 존재하지 않습니다.</p>
             ) : (
               goodsList.map((goods) => (
-                <NavLink to={`/goods/${goods.goodsNo}`} key={goods.goodsNo} >
+                <NavLink to={`/selections/${goods.goodsNo}`} key={goods.goodsNo} >
                   <article className="card">
                     <div className="card__img">
                       <img src={goods.goodsThumbnail} alt={goods.goodsName} />
@@ -124,4 +124,4 @@ const Goods = () => {
 
 }
 
-export default Goods;
+export default Selections;

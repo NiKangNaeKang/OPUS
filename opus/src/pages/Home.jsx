@@ -6,8 +6,6 @@ import { musicalData } from "../data/musicalData";
 export default function Home() {
   return (
     <>
-      <HeroSlider />
-
       <MdPickSlider
         title="Exhibitions, you better go"
         data={artData}
