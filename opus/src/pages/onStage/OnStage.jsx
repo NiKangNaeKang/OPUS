@@ -2,11 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import '../../css/pages/onStage/OnStage.css'
 
+// 랜더링될 때마다 다시 선언되지 않음
+// 컴포넌트는 state가 바뀔 때마다 함수가 재실행, 따라서 함수 밖에 두면 영향을 받지 않음
 const KOPIS_BASE = "http://www.kopis.or.kr/openApi/restful/pblprfr";
 
-// 날짜를 YYYYMMDD로 만들기(stdate, eddate의 형식)
+// JS Date의 형실을 YYYYMMDD로 만들기(stdate, eddate의 형식)
 function formatYYYYMMDD(d) {
   const yyyy = String(d.getFullYear());
+  // getMonth() : 0에서부터 시작, 문자열의 길이를 2자리로 맞추고 부족하면 왼쪽에 0을 채움
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
   
@@ -15,10 +18,15 @@ function formatYYYYMMDD(d) {
 
 // XML을 JS 배열 형태로 변환하기
 function parseKopisXML(xmlText) {
+  // DOMParser : 문자열(XML/HTML)을 "DOM(Document)" 객체로 변환해주는 브라우저 내장 기능
+  // KOPIS의 응답은 XML 문자열! > XML 문서처럼 파싱 후 > 원하는 태그 값 뽑기<dbs><db></db></dbs>
+  // parseFrom String : 어떤 종류의 문서로 해석할지 알려주고 파싱
+  // parseFromString(xmlText, "text/xml") : xmlText를 XML로 해석하라고 알려줌
   const doc = new DOMParser().parseFromString(xmlText, "text/xml");
   const dbNodes = Array.from(doc.getElementsByTagName("db"));
 
   const items = dbNodes.map((db) => {
+    // ?? : 널 병합 연산자(Nullish Coalescing) : 왼쪽이 null 또는 undefined면 오른쪽을 사용
     const get = (tag) => db.getElementsByTagName(tag)?.[0]?.textContent?.trim() ?? "";
 
     return {
@@ -50,8 +58,21 @@ export default function OnStage() {
 
   // KOPIS : 시작일~마감일 31일 제한 있음
   const dateRange = useMemo(() => {
-    
-  })
+    const end = new Date();
+    const start = new Date();
+    // start를 30일 전 날짜로
+    start.setDate(end.getDate() - 30);
+
+    return {
+      prfpdfrom : formatYYYYMMDD(start),
+      prfpdto : formatYYYYMMDD(end),
+    };
+  }, []);
+
+  // 한 번에 몇 행씩 가지고 올 건지? (최대 100행)
+  const rows = 20;
+
+  const 
 
 
   // 각 작품 : item, 스크롤 바닥이면 page++
