@@ -72,36 +72,48 @@ export default function OnStage() {
   // 한 번에 몇 행씩 가지고 올 건지? (최대 100행)
   const rows = 20;
 
-  const 
+  // 필터링할 키
+  const filtersForQueryKey = useMemo(() => ({
+    genre, status, search, ...dateRange, rows,
+  }), [genre, status, search, dateRange, rows]);
 
+  // useInfinite 사용하기
+  const {
+    data,
+    status : queryStatus,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+    error
+  } = useInfiniteQuery({
+    // refetch 기준
+    queryKey : ["kopis", "pblprfr", filtersForQueryKey],
+    // 첫 페이지
+    initialPageParam : 1,
+    // 전시 탭인 경우, KOPIS 호출 막아주기
+    enabled : Boolean(SERVICE_KEY) && genre !== "exhibition",
+    
+    queryFn : async({ pageParam }) => {
+      if(!SERVICE_KEY) throw new Error("SERVICE_KEY 오류");
 
-  // 각 작품 : item, 스크롤 바닥이면 page++
-  const [item, setItem] = useState([]);
-  const [page, setPage] = useState(1);
-  
-  // query 키와 query function을 정의
-  const {data, isLoading, isError} = useQuery({
-    // r각 쿼리를 식별하기 위해 사용하는 고유한 값
-    // > 이 값을 기반으로 데이터를 캐싱, 필요할 때 다시 불러오거나 캐시된 데이터 재사용
-    queryKey: ["items"],
-    // 실제 데이터를 fetch하는 함수
-    queryFn: () => {
-      // 서버에서 데이터를 가져오는 역할
-      // promise를 반환하는 비동기 함수여야 하고, useQuery가 데이터를 필요로 할 때 자동으로 호출됨
-      const response = fetch("http://kopis.or.kr/openApi/restful/pblprfr");
-      return response.json();
-    }
-  })
+      const url = new URL(KOPIS_BASE);
+      url.searchParams.set("service", SERVICE_KEY);
+      url.searchParams.set("stdate", dateRange.stdate);
+      url.searchParams.set("eddate", dateRange.eddate);
+      url.searchParams.set("cpage", String(pageParam));
+      url.searchParams.set("rows", String(rows));
 
-  // 탭, 필더 변경일 경우 > useEffect로 목록 초기화 + 1페이지부터
-  useEffect(() => {
-    setItem([]);
-    setPage(1);
-  }, [genre, status, search]);
-  
-  if(isError) {
-    return "error : " + error.message;
-  }
+      // 공연명으로 검색하기
+      if(search.trim()) {
+        url.searchParams.set("prfnm", search.trim())
+      }
+    },
+    getNextPageParam: (lastPage) => {
+      return lastPage.nextPage ?? undefined;
+    },
+  });
+
   return (
     <>
       {isLoading ? "Loading..." : null}
