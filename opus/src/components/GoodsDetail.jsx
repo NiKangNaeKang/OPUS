@@ -96,7 +96,7 @@ const GoodsDetail = () => {
           <div id="product-total" className="total">
             <div className="total__row">
               <span className="label">총 상품금액</span>
-              <span className="total__price" id="totalPriceText">{goodsDetail.goodsPrice} * goods</span>
+              <span className="total__price" id="totalPriceText">{goodsDetail.goodsPrice}</span>
             </div>
           </div>
 
@@ -108,7 +108,7 @@ const GoodsDetail = () => {
           <div id="product-seller-info" className="seller">
             <div className="seller__row">
               <span className="seller__label">판매자</span>
-              <span className="seller__value seller__value--strong">EMK 뮤지컬컴퍼니</span>
+              <span className="seller__value seller__value--strong">{goodsDetail.goodsSeller}</span>
             </div>
             <div className="seller__row">
               <span className="seller__label">배송</span>
@@ -133,8 +133,7 @@ const GoodsDetail = () => {
 
               <div className="prose">
                 <p>
-                  2024년 뮤지컬 레미제라블 공식 라이선스 포스터 아트프린트입니다.
-                  프리미엄 용지에 고해상도로 인쇄되어 선명하고 생동감 있는 이미지를 제공합니다.
+                  {goodsDetail.goodsInfo}
                 </p>
 
                 <div className="detail-image">
@@ -144,14 +143,6 @@ const GoodsDetail = () => {
                   />
                 </div>
 
-                <h3 className="section-subtitle">제품 특징</h3>
-                <ul className="checklist">
-                  <li><i className="fa-solid fa-check" aria-hidden="true"></i><span>고급 아트지 사용으로 오랜 시간 색상 유지</span></li>
-                  <li><i className="fa-solid fa-check" aria-hidden="true"></i><span>프리미엄 액자 구성 (블랙/화이트 선택 가능)</span></li>
-                  <li><i className="fa-solid fa-check" aria-hidden="true"></i><span>공식 라이선스 제품으로 정품 보장</span></li>
-                  <li><i className="fa-solid fa-check" aria-hidden="true"></i><span>벽걸이 고리 포함으로 간편한 설치</span></li>
-                </ul>
-
                 <div className="detail-image">
                   <img
                     src="https://storage.googleapis.com/uxpilot-auth.appspot.com/7e3b69a2e4-5b2e411b3921c96684f3.png"
@@ -159,41 +150,126 @@ const GoodsDetail = () => {
                   />
                 </div>
 
-                <h3 className="section-subtitle">제품 사양</h3>
-                <div className="spec">
-                  <table className="spec__table">
-                    <tbody>
-                      <tr>
-                        <td className="spec__k">제품명</td>
-                        <td className="spec__v">레미제라블 공식 포스터 아트프린트</td>
-                      </tr>
-                      <tr>
-                        <td className="spec__k">재질</td>
-                        <td className="spec__v">프리미엄 아트지, 우드 프레임</td>
-                      </tr>
-                      <tr>
-                        <td className="spec__k">사이즈</td>
-                        <td className="spec__v">A4 / A3 / A2 (옵션 선택)</td>
-                      </tr>
-                      <tr>
-                        <td className="spec__k">제조국</td>
-                        <td className="spec__v">대한민국</td>
-                      </tr>
-                      <tr>
-                        <td className="spec__k">제조사</td>
-                        <td className="spec__v">EMK 뮤지컬컴퍼니</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
               </div>
             </div>
           </div>
 
           <div className="tab-panel" id="tab-shipping">
             <div className="detail-wrap">
-              <h2 className="section-title">배송/교환/반품</h2>
-              <p className="muted">여기에 배송/교환/반품 정책 내용을 넣으면 돼.</p>
+              {/* <!-- OPUS 배송/교환/반품 정책 (Copy & Paste) --> */}
+              <header class="policy__header">
+                <h2 class="policy__title">배송/교환/반품 정책</h2>
+                <p class="policy__subtitle">OPUS는 세련된 경험과 신뢰 가능한 운영 기준을 함께 제공합니다.</p>
+              </header>
+              <section class="policy policy--opus" aria-label="OPUS 배송/교환/반품 정책">
+                <article class="policy__section" id="shipping">
+                  <h3 class="policy__section-title">배송 안내</h3>
+                  <p class="policy__text">
+                    OPUS는 주문 확인 후, 상품의 품질을 한 번 더 점검한 뒤 출고됩니다.
+                  </p>
+
+                  <ul class="policy__list">
+                    <li><strong>배송 방법</strong>: 택배 배송</li>
+                    <li><strong>배송 지역</strong>: 대한민국 전 지역</li>
+                    <li>
+                      <strong>배송 비용</strong>:
+                      <ul class="policy__sublist">
+                        <li>기본 배송비 3,000원</li>
+                        <li>일정 금액 이상 구매 시 무료 배송 (상세 기준은 결제 페이지 참고)</li>
+                      </ul>
+                    </li>
+                    <li>
+                      <strong>배송 기간</strong>:
+                      <ul class="policy__sublist">
+                        <li>결제 완료 후 영업일 기준 1–3일 이내 출고</li>
+                        <li>출고 후 배송까지는 지역에 따라 1–2일 정도 소요될 수 있습니다.</li>
+                      </ul>
+                    </li>
+                  </ul>
+
+                  <p class="policy__note">
+                    ※ 주문 폭주, 제작 일정, 택배사 사정에 따라 배송이 지연될 수 있으며, 지연이 발생할 경우 개별 안내드립니다.
+                  </p>
+                </article>
+
+                <article class="policy__section" id="exchange-return">
+                  <h3 class="policy__section-title">교환 및 반품 안내</h3>
+                  <p class="policy__text">
+                    OPUS는 고객님의 만족스러운 쇼핑 경험을 위해 아래와 같은 기준으로 교환·반품을 운영합니다.
+                  </p>
+
+                  <div class="policy__grid">
+                    <section class="policy__card" aria-label="교환·반품 가능">
+                      <h4 class="policy__card-title">교환·반품이 가능한 경우</h4>
+                      <ul class="policy__list">
+                        <li>상품 수령일로부터 <strong>7일 이내</strong> 교환·반품 요청 시</li>
+                        <li>상품의 <strong>착용 흔적, 사용 흔적, 훼손</strong>이 없는 경우</li>
+                        <li>구성품(케이스, 포장재, 사은품 등)이 모두 보존된 상태</li>
+                      </ul>
+                    </section>
+
+                    <section class="policy__card" aria-label="교환·반품 불가">
+                      <h4 class="policy__card-title">교환·반품이 불가능한 경우</h4>
+                      <ul class="policy__list">
+                        <li>고객님의 부주의로 상품이 훼손되거나 가치가 감소한 경우</li>
+                        <li>착용 또는 사용 흔적이 확인되는 경우</li>
+                        <li>상품 수령 후 7일이 경과한 경우</li>
+                        <li>주문 제작 상품 또는 별도 안내된 교환·반품 불가 상품</li>
+                      </ul>
+                    </section>
+                  </div>
+                </article>
+
+                <article class="policy__section" id="fees">
+                  <h3 class="policy__section-title">교환·반품 배송비 안내</h3>
+
+                  <ul class="policy__list">
+                    <li>
+                      <strong>단순 변심</strong>에 의한 교환·반품:
+                      <span>왕복 배송비 고객 부담</span>
+                    </li>
+                    <li>
+                      <strong>상품 불량 또는 오배송</strong>의 경우:
+                      <span>배송비 전액 OPUS 부담</span>
+                    </li>
+                  </ul>
+
+                  <p class="policy__note">
+                    ※ 반품 배송비는 최초 배송비 결제 여부에 따라 차감 또는 별도 입금 안내될 수 있습니다.
+                  </p>
+                </article>
+
+                <article class="policy__section" id="process">
+                  <h3 class="policy__section-title">교환·반품 절차</h3>
+
+                  <ol class="policy__steps">
+                    <li>고객센터 또는 마이페이지를 통해 교환·반품 신청</li>
+                    <li>안내에 따라 상품 회수 진행</li>
+                    <li>상품 상태 확인 후 교환 또는 환불 처리</li>
+                  </ol>
+
+                  <p class="policy__note">
+                    ※ 사전 접수 없이 임의로 반송하신 경우 처리가 지연될 수 있습니다.
+                  </p>
+                </article>
+
+                <article class="policy__section" id="refund">
+                  <h3 class="policy__section-title">환불 안내</h3>
+
+                  <ul class="policy__list">
+                    <li>반품 상품이 OPUS에 도착하여 검수 완료 후 <strong>영업일 기준 3–5일 이내</strong> 환불이 진행됩니다.</li>
+                    <li>카드사 및 결제 수단에 따라 실제 환불 시점은 다소 차이가 있을 수 있습니다.</li>
+                  </ul>
+                </article>
+
+                <footer class="policy__footer">
+                  <h3 class="policy__section-title">안내사항</h3>
+                  <p class="policy__text">
+                    OPUS는 모든 상품을 출고 전 꼼꼼하게 검수하고 있으며, 고객님께 전달되는 순간까지 품질을 가장 중요하게 생각합니다.<br />
+                    정책 관련 문의는 언제든 고객센터를 통해 편하게 문의해 주세요.
+                  </p>
+                </footer>
+              </section>
             </div>
           </div>
         </div>
