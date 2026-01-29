@@ -1,22 +1,24 @@
-import { Routes, Route, BrowserRouter } from "react-router-dom";
-import Header from "./components/common/Header";
-import Footer from "./components/common/Footer";
+import { Routes, Route } from "react-router-dom";
+import DarkHeaderLayout from "./layouts/DarkHeaderLayout";
+import LightHeaderLayout from "./layouts/LightHeaderLayout";
 import Home from "./pages/Home";
-
-import Board from "./components/Board"
+import ScrollToTop from "./components/ScrollToTop";
+import Unveiling from "./pages/Unveiling";
+import OnStage from "./pages/onStage/OnStage";
 
 export default function App() {
   return (
-    <>
-      <Header variant="light" />
-      <main id="main-content" className="main">
-        <Routes>
-          {/* <Route path="/" element={<Home />} /> */}
-          <Route path="/" element={<Board />} />
+    <Routes>
+      {/* Dark Header */}
+      <Route element = {<DarkHeaderLayout />}>
+        <Route path="/" element={<Home />} />
+      </Route>
 
-        </Routes>
-      </main>
-      <Footer />
-    </>
+      {/* Light Header */}
+      <Route element = {<LightHeaderLayout />}>
+        <Route path="/onStage" element={<OnStage />}/>
+        <Route path="/unveiling" element={<Unveiling />} />
+      </Route>
+    </Routes>
   );
-}
+} 

@@ -18,7 +18,6 @@ function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ✅ 홈 최상단에서만 hero 모드(흰 글씨)
   const onHero = isHome && !scrolled;
 
   return (
@@ -35,7 +34,7 @@ function Header() {
           </Link>
 
           <nav className="gnb">
-            <NavLink to="/on-stage" className={({ isActive }) =>
+            <NavLink to="/onStage" className={({ isActive }) =>
               `gnb__link ${isActive ? "is-active" : ""}`
             }>
               On-Stage
