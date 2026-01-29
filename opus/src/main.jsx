@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./css/index.css";
 import "./css/slider.css";
+import "./css/Unveiling.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
