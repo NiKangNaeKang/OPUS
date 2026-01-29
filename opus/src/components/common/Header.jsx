@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link, NavLink } from "react-router-dom";
 import "../../css/common/Header.css";
 
 function Header() {
@@ -18,7 +18,6 @@ function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ✅ 홈 최상단에서만 hero 모드(흰 글씨)
   const onHero = isHome && !scrolled;
 
   return (
@@ -30,23 +29,34 @@ function Header() {
     >
       <div className="wrap header__inner">
         <div className="header__left">
-          <a href="#" className="brand">
+          <Link to="/" className="brand">
             OPUS
-          </a>
+          </Link>
 
           <nav className="gnb">
-            <a href="#" className="gnb__link is-active">
+            <NavLink to="/onStage" className={({ isActive }) =>
+              `gnb__link ${isActive ? "is-active" : ""}`
+            }>
               On-Stage
-            </a>
-            <a href="#" className="gnb__link">
+            </NavLink>
+
+            <NavLink to="/proposals" className={({ isActive }) =>
+              `gnb__link ${isActive ? "is-active" : ""}`
+            }>
               Proposals
-            </a>
-            <a href="#" className="gnb__link">
+            </NavLink>
+
+            <NavLink to="/unveiling" className={({ isActive }) =>
+              `gnb__link ${isActive ? "is-active" : ""}`
+            }>
               Unveiling
-            </a>
-            <a href="#" className="gnb__link">
+            </NavLink>
+
+            <NavLink to="/selections" className={({ isActive }) =>
+              `gnb__link ${isActive ? "is-active" : ""}`
+            }>
               Selections
-            </a>
+            </NavLink>
           </nav>
         </div>
 

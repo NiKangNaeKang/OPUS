@@ -1,5 +1,9 @@
 {
   "dependencies": {
+<<<<<<< HEAD
     "react-router-dom": "^7.13.0"
+=======
+    "@fortawesome/fontawesome-free": "^7.1.0"
+>>>>>>> 66bd8bc073680689768ed54147e591a0a5452428
   }
 }
