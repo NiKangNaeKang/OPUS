@@ -6,16 +6,31 @@ export const unveilingData = [
     image:
       "https://storage.googleapis.com/uxpilot-auth.appspot.com/47bea1f016-8b691c32c78631a5e0ba.png",
     alt: "abstract modern art painting with bold colors on white canvas in gallery",
-    status: "LIVE", // ALL | LIVE | UPCOMING | ENDED
-    priceLabel: "현재가",
-    priceText: "3,200,000원",
-    dueLabel: "마감",
-    dueText: "2일 14시간",
-    statsType: "BID", // BID | ALERT
-    statsText: "입찰",
-    statsCount: 23,
+    status: "LIVE", // LIVE | UPCOMING | ENDED
+
+    pricing: {
+      label: "현재가",
+      amount: 3200000,
+      currency: "KRW",
+      display: "3,200,000원",
+    },
+
+    timing: {
+      label: "마감",
+      display: "2일 14시간",
+      // endsAt: "2026-02-10T12:00:00+09:00", // 나중에 자동계산 시 사용
+    },
+
+    stats: {
+      type: "BID", // BID | ALERT
+      label: "입찰",
+      count: 23,
+      display: "입찰 23건",
+    },
+
     actionText: "입찰하기",
   },
+
   {
     id: 2,
     title: "Silent Form",
@@ -24,15 +39,12 @@ export const unveilingData = [
       "https://storage.googleapis.com/uxpilot-auth.appspot.com/4136dde6a0-881f656a722a776b31e3.png",
     alt: "minimalist sculpture marble white contemporary art in studio",
     status: "LIVE",
-    priceLabel: "현재가",
-    priceText: "5,800,000원",
-    dueLabel: "마감",
-    dueText: "1일 8시간",
-    statsType: "BID",
-    statsText: "입찰",
-    statsCount: 41,
+    pricing: { label: "현재가", amount: 5800000, currency: "KRW", display: "5,800,000원" },
+    timing: { label: "마감", display: "1일 8시간" },
+    stats: { type: "BID", label: "입찰", count: 41, display: "입찰 41건" },
     actionText: "입찰하기",
   },
+
   {
     id: 3,
     title: "Metropolitan Nights",
@@ -41,15 +53,12 @@ export const unveilingData = [
       "https://storage.googleapis.com/uxpilot-auth.appspot.com/37ffb51aae-5223b0925524f5225662.png",
     alt: "urban landscape painting cityscape modern art acrylic on canvas",
     status: "UPCOMING",
-    priceLabel: "시작가",
-    priceText: "2,500,000원",
-    dueLabel: "시작",
-    dueText: "3일 후",
-    statsType: "ALERT",
-    statsText: "알림 신청",
-    statsCount: 156,
+    pricing: { label: "시작가", amount: 2500000, currency: "KRW", display: "2,500,000원" },
+    timing: { label: "시작", display: "3일 후" },
+    stats: { type: "ALERT", label: "알림 신청", count: 156, display: "알림 신청 156명" },
     actionText: "알림받기",
   },
+
   {
     id: 4,
     title: "산수화 재해석",
@@ -58,15 +67,12 @@ export const unveilingData = [
       "https://storage.googleapis.com/uxpilot-auth.appspot.com/0d11f21d43-49fdc76c8058583365bc.png",
     alt: "traditional korean ink painting landscape mountain modern interpretation",
     status: "LIVE",
-    priceLabel: "현재가",
-    priceText: "4,100,000원",
-    dueLabel: "마감",
-    dueText: "5시간",
-    statsType: "BID",
-    statsText: "입찰",
-    statsCount: 67,
+    pricing: { label: "현재가", amount: 4100000, currency: "KRW", display: "4,100,000원" },
+    timing: { label: "마감", display: "5시간" },
+    stats: { type: "BID", label: "입찰", count: 67, display: "입찰 67건" },
     actionText: "입찰하기",
   },
+
   {
     id: 5,
     title: "Moment in Time",
@@ -75,15 +81,12 @@ export const unveilingData = [
       "https://storage.googleapis.com/uxpilot-auth.appspot.com/185feb98da-24f923aefd81cc0f73fd.png",
     alt: "contemporary photography black and white portrait artistic fine art",
     status: "LIVE",
-    priceLabel: "현재가",
-    priceText: "1,900,000원",
-    dueLabel: "마감",
-    dueText: "4일 2시간",
-    statsType: "BID",
-    statsText: "입찰",
-    statsCount: 15,
+    pricing: { label: "현재가", amount: 1900000, currency: "KRW", display: "1,900,000원" },
+    timing: { label: "마감", display: "4일 2시간" },
+    stats: { type: "BID", label: "입찰", count: 15, display: "입찰 15건" },
     actionText: "입찰하기",
   },
+
   {
     id: 6,
     title: "Layers of Memory",
@@ -92,16 +95,12 @@ export const unveilingData = [
       "https://storage.googleapis.com/uxpilot-auth.appspot.com/5b82e823e9-3b4f78282149ebcea55f.png",
     alt: "mixed media collage contemporary art texture layers modern",
     status: "ENDED",
-    priceLabel: "낙찰가",
-    priceText: "7,200,000원",
-    dueLabel: "종료",
-    dueText: "2일 전",
-    statsType: "BID",
-    statsText: "입찰",
-    statsCount: 89,
-    actionText: null, // 종료는 hover 버튼 없음
-    ended: true,
+    pricing: { label: "낙찰가", amount: 7200000, currency: "KRW", display: "7,200,000원" },
+    timing: { label: "종료", display: "2일 전" },
+    stats: { type: "BID", label: "입찰", count: 89, display: "입찰 89건" },
+    actionText: null,
   },
+
   {
     id: 7,
     title: "Geometric Dreams",
@@ -110,15 +109,12 @@ export const unveilingData = [
       "https://storage.googleapis.com/uxpilot-auth.appspot.com/0a614de7f8-73b0251f63cab87a970f.png",
     alt: "geometric abstract art colorful shapes modern painting on canvas",
     status: "LIVE",
-    priceLabel: "현재가",
-    priceText: "2,700,000원",
-    dueLabel: "마감",
-    dueText: "3일 19시간",
-    statsType: "BID",
-    statsText: "입찰",
-    statsCount: 32,
+    pricing: { label: "현재가", amount: 2700000, currency: "KRW", display: "2,700,000원" },
+    timing: { label: "마감", display: "3일 19시간" },
+    stats: { type: "BID", label: "입찰", count: 32, display: "입찰 32건" },
     actionText: "입찰하기",
   },
+
   {
     id: 8,
     title: "Vessel Series #3",
@@ -127,15 +123,12 @@ export const unveilingData = [
       "https://storage.googleapis.com/uxpilot-auth.appspot.com/32036aff0e-bea04333bd6eee69e1ec.png",
     alt: "ceramic sculpture contemporary art pottery modern design white",
     status: "UPCOMING",
-    priceLabel: "시작가",
-    priceText: "3,800,000원",
-    dueLabel: "시작",
-    dueText: "1일 후",
-    statsType: "ALERT",
-    statsText: "알림 신청",
-    statsCount: 203,
+    pricing: { label: "시작가", amount: 3800000, currency: "KRW", display: "3,800,000원" },
+    timing: { label: "시작", display: "1일 후" },
+    stats: { type: "ALERT", label: "알림 신청", count: 203, display: "알림 신청 203명" },
     actionText: "알림받기",
   },
+
   {
     id: 9,
     title: "Emotion in Motion",
@@ -144,13 +137,11 @@ export const unveilingData = [
       "https://storage.googleapis.com/uxpilot-auth.appspot.com/653400e34f-3fa8cfb14f4e5aa9d0a7.png",
     alt: "expressionist painting vibrant colors emotional modern art oil on canvas",
     status: "LIVE",
-    priceLabel: "현재가",
-    priceText: "6,500,000원",
-    dueLabel: "마감",
-    dueText: "1일 16시간",
-    statsType: "BID",
-    statsText: "입찰",
-    statsCount: 54,
+    pricing: { label: "현재가", amount: 6500000, currency: "KRW", display: "6,500,000원" },
+    timing: { label: "마감", display: "1일 16시간" },
+    stats: { type: "BID", label: "입찰", count: 54, display: "입찰 54건" },
     actionText: "입찰하기",
   },
+
+  
 ];

@@ -3,8 +3,7 @@ function getBadgeClass(status) {
     case "LIVE":
       return "badge badge--live";
     case "UPCOMING":
-      // 원본 HTML이 예정도 badge--soon을 쓰고 있어서 그대로 맞춥니다.
-      return "badge badge--soon";
+      return "badge badge--soon"; // 기존 css 네이밍 유지
     case "ENDED":
       return "badge badge--ended";
     default:
@@ -21,7 +20,7 @@ function getBadgeText(status) {
     case "ENDED":
       return "종료";
     default:
-      return "전체";
+      return "";
   }
 }
 
@@ -38,29 +37,27 @@ function getDueClass(status) {
   }
 }
 
-function getStatsIcon(statsType) {
-  return statsType === "ALERT" ? "fa-solid fa-bell" : "fa-solid fa-gavel";
+function getStatsIconClass(type) {
+  return type === "ALERT" ? "fa-solid fa-bell" : "fa-solid fa-gavel";
 }
 
 export default function AuctionCard({ item }) {
   if (!item) return null;
 
+  const isEnded = item.status === "ENDED";
   const badgeClass = getBadgeClass(item.status);
   const badgeText = getBadgeText(item.status);
   const dueClass = getDueClass(item.status);
-  const statsIcon = getStatsIcon(item.statsType);
+  const statsIcon = getStatsIconClass(item.stats?.type);
 
   return (
-    <article
-      id={`auction-card-${item.id}`}
-      className={`card ${item.ended ? "is-ended" : ""}`}
-    >
+    <article id={`auction-card-${item.id}`} className={`card ${isEnded ? "is-ended" : ""}`}>
       <div className="card__media">
         <img className="card__img" src={item.image} alt={item.alt || item.title} />
         <span className={badgeClass}>{badgeText}</span>
 
-        {/* 종료 카드에는 hover 버튼 없음(원본 그대로) */}
-        {!item.ended && item.actionText && (
+        {/* 종료가 아니고 actionText가 있을 때만 hover 버튼 */}
+        {!isEnded && item.actionText && (
           <div className="card__hover">
             <button className="btn btn-light" type="button">
               {item.actionText}
@@ -75,21 +72,21 @@ export default function AuctionCard({ item }) {
 
         <div className="card__priceRow">
           <div>
-            <p className="card__label">{item.priceLabel}</p>
-            <p className="card__price">{item.priceText}</p>
+            <p className="card__label">{item.pricing?.label ?? "-"}</p>
+            <p className="card__price">{item.pricing?.display ?? "-"}</p>
           </div>
 
           <div className="card__right">
-            <p className="card__label">{item.dueLabel}</p>
-            <p className={dueClass}>{item.dueText}</p>
+            <p className="card__label">{item.timing?.label ?? "-"}</p>
+            <p className={dueClass}>{item.timing?.display ?? "-"}</p>
           </div>
         </div>
 
         <div className="card__stats">
           <i className={statsIcon} />
           <p>
-            {item.statsText} <strong>{item.statsCount}</strong>건
-            {item.statsType === "ALERT" ? "" : ""}
+            {item.stats?.label ?? ""} <strong>{item.stats?.count ?? 0}</strong>
+            {item.stats?.type === "ALERT" ? "명" : "건"}
           </p>
         </div>
       </div>

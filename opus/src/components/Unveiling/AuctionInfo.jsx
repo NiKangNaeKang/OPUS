@@ -11,7 +11,8 @@ export default function AuctionInfo() {
             </div>
             <h3 className="info-card__title">본인 인증</h3>
             <p className="info-card__desc">
-              경매 참여를 위해서는 본인 인증이 필요합니다
+              안전한 경매 참여를 위해 <br />
+              본인 인증이 필요합니다
             </p>
           </div>
 
@@ -21,7 +22,8 @@ export default function AuctionInfo() {
             </div>
             <h3 className="info-card__title">마감형 입찰</h3>
             <p className="info-card__desc">
-              정해진 기한 내 최고가 입찰자가 낙찰됩니다
+              정해진 마감 시간까지<br />
+              최고가 입찰자가 낙찰됩니다
             </p>
           </div>
 
@@ -31,7 +33,8 @@ export default function AuctionInfo() {
             </div>
             <h3 className="info-card__title">안전한 거래</h3>
             <p className="info-card__desc">
-              전문가 검증을 거친 작품만 등록됩니다
+              전문가 검증을 거친<br />
+              신뢰 가능한 작품만 등록됩니다
             </p>
           </div>
         </div>
