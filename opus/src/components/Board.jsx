@@ -7,25 +7,20 @@ const Board = () => {
   const [category, setCategory] = useState('all');
   const [sort, setSort] = useState('latest');
   
-  // 상태 관리 (입력값과 실제 검색값 분리)
   const [keyword, setKeyword] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 유틸리티
   const formatDate = (iso) => iso.replaceAll('-', '.');
   const formatNumber = (n) => Number(n).toLocaleString('ko-KR');
 
-  // 버튼 클릭 시 호출
   const handleSearch = () => {
     setSearchQuery(keyword);
   };
 
-  // 엔터키 지원
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleSearch();
   };
 
-  // 필터링 및 정렬 데이터 계산
   const filteredItems = useMemo(() => {
     if (!boardData || !boardData[activeTab]) return [];
     
