@@ -24,7 +24,7 @@ body {
 .board-container {
   max-width: var(--wrap);
   margin: 0 auto;
-  padding: 60px 24px 100px;
+  padding: 110px 24px 100px;
 }
 
 .tabs {

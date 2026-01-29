@@ -1,4 +1,4 @@
-export const boardData = {
+export const proposalsData = {
   notice: [
     { id: "n1", type: "공지", category: "all", title: "2024년 1월 서비스 정기 점검 안내", excerpt: "안정적인 서비스 제공을 위한 정기 점검이 진행됩니다.", author: "관리자", date: "2024-01-15", views: 1247 },
     { id: "n2", type: "공지", category: "auction", title: "경매 서비스 이용 가이드", excerpt: "경매 참여 전 필수 확인 사항과 유의사항을 안내합니다.", author: "관리자", date: "2024-01-12", views: 892 },
@@ -11,10 +11,10 @@ export const boardData = {
   ],
 
   promotion: [
-    { id: "p1", type: "홍보", category: "exhibition", title: "[전시] 사진으로 보는 현대 — 도슨트 투어 오픈", excerpt: "주말 도슨트(30분) 투어가 새로 오픈되었습니다. 사전 예약 필수!", author: "ARTSPACE", date: "2024-01-14", views: 409 },
-    { id: "p2", type: "홍보", category: "musical", title: "[뮤지컬] 얼리버드 할인 안내", excerpt: "1월 예매자 대상 최대 20% 할인. 좌석 소진 전 서둘러주세요.", author: "제휴사", date: "2024-01-11", views: 1320 },
-    { id: "p3", type: "홍보", category: "auction", title: "[경매] 1월 프리뷰 전시 — 출품작 미리보기", excerpt: "출품작 프리뷰 전시가 시작됩니다. 현장 상담도 가능해요.", author: "경매팀", date: "2024-01-09", views: 980 },
-    { id: "p4", type: "홍보", category: "goods", title: "[굿즈] 한정 수량 아트북 입고", excerpt: "리미티드 에디션 아트북이 입고되었습니다. 재고 소진 시 종료.", author: "스토어", date: "2024-01-07", views: 155 },
-    { id: "p5", type: "홍보", category: "exhibition", title: "[전시] 작가와의 대화(Artist Talk) 신청 안내", excerpt: "작가의 작업 과정과 비하인드 스토리를 직접 들어보세요.", author: "ARTSPACE", date: "2024-01-04", views: 741 },
+    { id: "p1", type: "홍보", category: "exhibition", title: "사진으로 보는 현대 — 도슨트 투어 오픈", excerpt: "주말 도슨트(30분) 투어가 새로 오픈되었습니다. 사전 예약 필수!", author: "ARTSPACE", date: "2024-01-14", views: 409 },
+    { id: "p2", type: "홍보", category: "musical", title: "얼리버드 할인 안내", excerpt: "1월 예매자 대상 최대 20% 할인. 좌석 소진 전 서둘러주세요.", author: "제휴사", date: "2024-01-11", views: 1320 },
+    { id: "p3", type: "홍보", category: "auction", title: "1월 프리뷰 전시 — 출품작 미리보기", excerpt: "출품작 프리뷰 전시가 시작됩니다. 현장 상담도 가능해요.", author: "경매팀", date: "2024-01-09", views: 980 },
+    { id: "p4", type: "홍보", category: "goods", title: "한정 수량 아트북 입고", excerpt: "리미티드 에디션 아트북이 입고되었습니다. 재고 소진 시 종료.", author: "스토어", date: "2024-01-07", views: 155 },
+    { id: "p5", type: "홍보", category: "exhibition", title: "작가와의 대화(Artist Talk) 신청 안내", excerpt: "작가의 작업 과정과 비하인드 스토리를 직접 들어보세요.", author: "ARTSPACE", date: "2024-01-04", views: 741 },
   ],
 };

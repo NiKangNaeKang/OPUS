@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import ScrollToTop from "./components/ScrollToTop";
 import Unveiling from "./pages/Unveiling";
 import OnStage from "./pages/onStage/OnStage";
+import Proposals from "./pages/Proposals";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
       {/* Light Header */}
       <Route element = {<LightHeaderLayout />}>
         <Route path="/onStage" element={<OnStage />}/>
+        <Route path="/proposals" element={<Proposals />} />
         <Route path="/unveiling" element={<Unveiling />} />
       </Route>
     </Routes>
