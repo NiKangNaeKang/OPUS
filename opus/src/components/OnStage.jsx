@@ -139,7 +139,7 @@ function WhatsOn() {
                   <div className="card__thumb">
                     <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/7dc9eb8c25-ecf4b2e7293f38ff538e.png" alt="nature photography exhibition poster landscape mountains" />
                     <span className="badge badge--dark">진행중</span>
-                  </div>
+                  </div>  
                   <h3 className="card__title">자연의 순간들</h3>
                   <p className="card__meta">2024.01.30 - 2024.03.20</p>
                   <p className="card__meta">한가람미술관</p>

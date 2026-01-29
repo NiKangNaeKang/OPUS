@@ -34,90 +34,11 @@ img{ display:block; max-width:100%; }
   padding-right: var(--pad);
 }
 
-/* ================= HEADER (index.html 방식) ================= */
-.header{
-  position:fixed;
-  top:0; left:0; right:0;
-  z-index:1000;
-  transition: background .2s ease, box-shadow .2s ease, border-color .2s ease;
-  border-bottom:1px solid transparent;
-}
-.header__inner{
-  padding:16px 0;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:24px;
-}
-.header__left{
-  display:flex;
-  align-items:center;
-  gap:42px;
-}
-
-.brand{
-  font-size:22px;
-  font-weight:800;
-  letter-spacing:-0.02em;
-}
-
-.gnb{
-  display:flex;
-  align-items:center;
-  gap:22px;
-  flex-wrap:wrap;
-}
-.gnb__link{
-  font-size:14px;
-  font-weight:500;
-  transition: color .2s ease, opacity .2s ease;
-}
-.gnb__link.is-active{ font-weight:700; }
-
-.header__right{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-
-.icon-btn{
-  border:0;
-  background:transparent;
-  cursor:pointer;
-  font-size:20px;
-  transition: color .2s ease;
-}
-
-.admin-link{
-  font-size:14px;
-  font-weight:500;
-  transition: color .2s ease;
-}
-
-/* 스크롤 상태: 배경 흰색 + 글씨 검정 (요청사항) */
-.header.is-scrolled{
-  background:#fff;
-  border-bottom-color: var(--line);
-  box-shadow: var(--shadow);
-}
-.header.is-scrolled .brand,
-.header.is-scrolled .gnb__link,
-.header.is-scrolled .icon-btn,
-.header.is-scrolled .admin-link{
-  color:#111;
-  opacity:1;
-}
-.header.is-scrolled .gnb__link:hover,
-.header.is-scrolled .icon-btn:hover,
-.header.is-scrolled .admin-link:hover{
-  color:#000;
-}
-
 /* ================= MAIN ================= */
 .main{
   /* 헤더 높이만큼 패딩 */
-  padding-top: 84px;
-  padding-bottom: 64px;
+  padding-top: 64px;
+  padding-bottom: 60px;
 }
 
 /* ================= SEARCH ================= */
