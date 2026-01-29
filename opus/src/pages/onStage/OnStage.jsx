@@ -82,17 +82,6 @@ export default function OnStage() {
     rows,
   }), [genre, status, search, dateRange.stdate, dateRange.eddate, rows]);
 
-  // 가져온 작품의 상태를 필터링할 키
-  const statusFilteredItems = useMemo(() => {
-    if(status === "all") return flatItems;
-
-    const map = {
-      ongoing : "02",
-      upcoming : "01",
-      ended : "03"
-    }
-  }, [flatItems, status])
-
   // useInfinite 사용하기 (무한 스크롤)
   const {
     data,
@@ -123,7 +112,15 @@ export default function OnStage() {
       url.searchParams.set("shcate", 'GGGA');
       url.searchParams.set("signgucode", '11');
       url.searchParams.set("kidstate", 'N');
-      url.searchParams.set("prfstate", '02');
+
+      // 가져온 작품의 상태를 필터링
+      if (status !== "all") {
+        const code = 
+          status === "ongoing" ? "02" :
+          status === "upcoming" ? "01" :
+          status === "ended" ? "03" : "";
+        if(code) url.searchParams.set("prfstate", code);
+      }
 
       // 공연명 검색 (KOPIS 파라미터는 shprfnm 사용)
       if (search.trim()) {
@@ -136,7 +133,6 @@ export default function OnStage() {
 
       // ✅ XML 응답이므로 text로 받고 파싱
       const xmlText = await res.text();
-      console.log("KOPIS 응답 앞부분:", xmlText.slice(0, 200));
       const items = parseKopisXML(xmlText);
 
       return {
@@ -152,12 +148,13 @@ export default function OnStage() {
       },
   });
 
-  // =============== 특성별 공연 ===============
+  // =============== 공연 데이터 가져오기 ===============
   // 모든 뮤지컬 공연
   const flatItems = useMemo(() => {
     return data?.pages?.flatMap((p) => p.items) ?? [];
   }, [data]);
 
+  // 가져온 작품 정렬 (카테고리별)
   // 인기 공연
   const hotItems = useMemo(() => {
     return data?.pages?.flatMap((p) => p.items) ?? [];
@@ -167,22 +164,6 @@ export default function OnStage() {
   const univItems = useMemo(() => {
     return data?.pages?.flatMap((p) => p.items) ?? [];
   }, [data]);
-
-  // =============== 진행 예정 종료작 ===============
-  // 진행작
-  const ongoingItems = useMemo(() => {
-    return flatItems.filter((item) => item.prfstate === "02");
-  }, [flatItems]);
-
-  // 예정작
-  const upcomingItems = useMemo(() => {
-    return flatItems.filter((item) => item.prfstate === "01");
-  }, [flatItems]);
-
-  // 종료작
-  const endedItems = useMemo(() => {
-    return flatItems.filter((item) => item.prfstate === "03");
-  }, [flatItems]);
 
   // =============== 무한 스크롤 ===============
   // 무한 스크롤 : 바닥 감지
@@ -315,113 +296,88 @@ export default function OnStage() {
         {/* 목록 */}
         <div id="exhibition-content" className="content">
           <section className="block" id="recommended-section">
-            <h2 className="block__title">인기 공연</h2>
-            <div className="grid grid--row">
-              {flatItems.map((item) => (
-                <article key={item.mt20id} className="card card--snap">
-                  <div className='card__thumb'>
-                    {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                    <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
-                  </div>
-                  <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
-                  <p className="card__meta">
-                    {item.prfpdfrom} ~ {item.prfpdto}
-                  </p>
-                  <p className="card__meta">{item.fcltynm}</p>
-                </article>
-              ))}
-            </div>
+            {status === "all" ? (
+              <>
+                <h2 className="block__title">인기 공연</h2>
+                <div className="grid grid--row">
+                  {flatItems.map((item) => (
+                    <article key={item.mt20id} className="card card--snap">
+                      <div className='card__thumb'>
+                        {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
+                        <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
+                      </div>
+                      <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
+                      <p className="card__meta">
+                        {item.prfpdfrom} ~ {item.prfpdto}
+                      </p>
+                      <p className="card__meta">{item.fcltynm}</p>
+                    </article>
+                  ))}
+                </div>
 
-            <h2 className="block__title">대학로 공연</h2>
-            <div className="grid grid--row">
-              {flatItems.map((item) => (
-                <article key={item.mt20id} className="card card--snap">
-                  <div className='card__thumb'>
-                    {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                    <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
-                  </div>
-                  <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
-                  <p className="card__meta">
-                    {item.prfpdfrom} ~ {item.prfpdto}
-                  </p>
-                  <p className="card__meta">{item.fcltynm}</p>
-                </article>
-              ))}
-            </div>
+                <h2 className="block__title">대학로 공연</h2>
+                <div className="grid grid--row">
+                  {flatItems.map((item) => (
+                    <article key={item.mt20id} className="card card--snap">
+                      <div className='card__thumb'>
+                        {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
+                        <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
+                      </div>
+                      <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
+                      <p className="card__meta">
+                        {item.prfpdfrom} ~ {item.prfpdto}
+                      </p>
+                      <p className="card__meta">{item.fcltynm}</p>
+                    </article>
+                  ))}
+                </div>
 
-            <h2 className="block__title">전체 공연</h2>
-            <div className="grid grid--row">
-              {flatItems.map((item) => (
-                <article key={item.mt20id} className="card card--snap">
-                  <div className='card__thumb'>
-                    {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                    <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
-                  </div>
-                  <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
-                  <p className="card__meta">
-                    {item.prfpdfrom} ~ {item.prfpdto}
-                  </p>
-                  <p className="card__meta">{item.fcltynm}</p>
-                </article>
-              ))}
-            </div>
+                <h2 className="block__title">전체 공연</h2>
+                <div className="grid grid--row">
+                  {flatItems.map((item) => (
+                    <article key={item.mt20id} className="card card--snap">
+                      <div className='card__thumb'>
+                        {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
+                        <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
+                      </div>
+                      <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
+                      <p className="card__meta">
+                        {item.prfpdfrom} ~ {item.prfpdto}
+                      </p>
+                      <p className="card__meta">{item.fcltynm}</p>
+                    </article>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className='block__title'>
+                  {status === "ongoing"}
+                  {status === "upcoming"}
+                  {status === "ended"}
+                </h2>
 
-            {/* 예정작 */}
-            <h2 className="block__title">예정작</h2>
-            <div className="grid grid--row">
-              {ongoingItems.map((item) => (
-                <article key={item.mt20id} className="card card--snap">
-                  <div className='card__thumb'>
-                    {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                    <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
-                  </div>
-                  <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
-                  <p className="card__meta">
-                    {item.prfpdfrom} ~ {item.prfpdto}
-                  </p>
-                  <p className="card__meta">{item.fcltynm}</p>
-                </article>
-              ))}
-            </div>
-
-            {/* 진행작  */}
-            <h2 className="block__title">진행작</h2>
-            <div className="grid grid--row">
-              {ongoingItems.map((item) => (
-                <article key={item.mt20id} className="card card--snap">
-                  <div className='card__thumb'>
-                    {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                    <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
-                  </div>
-                  <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
-                  <p className="card__meta">
-                    {item.prfpdfrom} ~ {item.prfpdto}
-                  </p>
-                  <p className="card__meta">{item.fcltynm}</p>
-                </article>
-              ))}
-            </div>
-
-            {/* 종료작 */}
-            <h2 className="block__title">종료작</h2>
-            <div className="grid grid--row">
-              {ongoingItems.map((item) => (
-                <article key={item.mt20id} className="card card--snap">
-                  <div className='card__thumb'>
-                    {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                    <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
-                  </div>
-                  <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
-                  <p className="card__meta">
-                    {item.prfpdfrom} ~ {item.prfpdto}
-                  </p>
-                  <p className="card__meta">{item.fcltynm}</p>
-                </article>
-              ))}
-            </div>
+                <div className='grid grid--default'>
+                  {flatItems.map((item) => (
+                    <article key={item.mt20id} className="card">
+                      <div className="card__thumb">
+                        {item.poster ? (
+                          <img src={item.poster} alt={`${item.prfnm} 포스터`} />
+                        ) : (
+                          <div style={{ height: 220 }} />
+                        )}
+                        <span className="badge badge--dark">{item.prfstate || "상태없음"}</span>
+                      </div>
+                      <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
+                      <p className="card__meta">{item.prfpdfrom} ~ {item.prfpdto}</p>
+                      <p className="card__meta">{item.fcltynm}</p>
+                    </article>
+                  ))}
+                </div>
+              </>
+            )}
 
             {/* ============================================================== */}
-
             {/* 무한 스크롤 */}
             <div ref={sentinelRef} style={{height: 1}} />
         
