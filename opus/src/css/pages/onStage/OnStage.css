@@ -1,5 +1,4 @@
 :root{
-  --black:#111;
   --text:#111;
   --muted:#6b7280;
   --line:#e5e7eb;
@@ -9,8 +8,7 @@
   --pad:32px;
 
   --radius:12px;
-  --radius-pill:999px;
-  --shadow: 0 10px 30px rgba(0,0,0,0.06);
+  --pill:999px;
 }
 
 *{ box-sizing:border-box; }
@@ -21,40 +19,35 @@ body{
   background:var(--bg);
   color:var(--text);
 }
-::-webkit-scrollbar{ display:none; }
-
 a{ color:inherit; text-decoration:none; }
 button, input{ font:inherit; }
 img{ display:block; max-width:100%; }
+::-webkit-scrollbar{ display:none; }
 
 .wrap{
   max-width: var(--wrap);
   margin: 0 auto;
-  padding-left: var(--pad);
-  padding-right: var(--pad);
+  padding: 0 var(--pad);
 }
 
 /* ================= MAIN ================= */
 .main{
-  /* 헤더 높이만큼 패딩 */
-  padding-top: 90px;
+  padding-top: 90px;   /* 헤더 높이 */
   padding-bottom: 60px;
 }
 
 /* ================= SEARCH ================= */
-.search-sec{
-  margin-bottom: 28px;
-}
+.search-sec{ margin-bottom: 28px; }
+
 .search-row{
   display:flex;
   align-items:center;
   gap:12px;
   margin-bottom:16px;
 }
-.search-box{
-  flex:1;
-  position:relative;
-}
+
+.search-box{ flex:1; position:relative; }
+
 .search-input{
   width:100%;
   height:48px;
@@ -108,7 +101,6 @@ img{ display:block; max-width:100%; }
   color:var(--muted);
   font-weight:700;
 }
-
 .divider{
   width:1px;
   height:18px;
@@ -118,32 +110,23 @@ img{ display:block; max-width:100%; }
 .chip{
   border:1px solid #d1d5db;
   background:#fff;
-  color:#6b7280;
+  color:var(--muted);
   padding:8px 14px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--pill);
   cursor:pointer;
   font-size:13px;
   font-weight:700;
-  transition: border-color .2s ease, color .2s ease, background .2s ease;
+  transition: border-color .2s, color .2s;
 }
-.chip:hover{
-  border-color:#111;
-  color:#111;
-}
-.chip.is-active{
-  border-color:#111;
-  color:#111;
-  background:#fff;
-}
+.chip:hover{ border-color:#111; color:#111; }
+.chip.is-active{ border-color:#111; color:#111; }
 
-/* ================= CONTENT BLOCKS ================= */
+/* ================= CONTENT ================= */
 .content{
   display:flex;
   flex-direction:column;
   gap:44px;
 }
-.content.is-hidden{ display:none; }
-
 .block__title{
   margin:0 0 16px;
   font-size:22px;
@@ -151,20 +134,15 @@ img{ display:block; max-width:100%; }
   letter-spacing:-0.02em;
 }
 
-/* grid */
-.grid{
-  display:grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap:18px;
-}
+/* ================= CARD BASE ================= */
+/* (grid / row 둘 다 공통) */
+.grid{ gap:20px; }
 
-.card{
-  cursor:pointer;
-}
+.card{ cursor:pointer; }
+
 .card__thumb{
   position:relative;
-  height:320px;
-  border-radius:12px;
+  border-radius: var(--radius);
   overflow:hidden;
   background:#f3f4f6;
   margin-bottom:10px;
@@ -173,12 +151,9 @@ img{ display:block; max-width:100%; }
   width:100%;
   height:100%;
   object-fit:cover;
-  transform:scale(1);
   transition: transform .3s ease;
 }
-.card:hover .card__thumb img{
-  transform:scale(1.05);
-}
+.card:hover .card__thumb img{ transform:scale(1.05); }
 
 .card__title{
   margin:0 0 6px;
@@ -188,16 +163,15 @@ img{ display:block; max-width:100%; }
 .card__meta{
   margin:0 0 2px;
   font-size:12px;
-  color:#6b7280;
+  color:var(--muted);
 }
 
-/* badges */
 .badge{
   position:absolute;
   top:12px;
   right:12px;
   padding:6px 10px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--pill);
   font-size:11px;
   font-weight:800;
 }
@@ -205,24 +179,53 @@ img{ display:block; max-width:100%; }
   background: rgba(0,0,0,0.70);
   color:#fff;
 }
-.badge--hot{
-  left:12px;
-  right:auto;
-  background:#dc2626;
-  color:#fff;
+
+/* ================= ROW RAIL ================= */
+.grid.grid--row{
+  display:flex;
+  overflow-x:auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+
+  /* 양끝 페이드(마스크) */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgba(0,0,0,1) 0%,
+    rgba(0,0,0,1) 24px,
+    rgba(0,0,0,1) calc(100% - 24px),
+    rgba(0,0,0,1) 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    rgba(0,0,0,0) 0%,
+    rgba(0,0,0,1) 24px,
+    rgba(0,0,0,1) calc(100% - 24px),
+    rgba(0,0,0,0) 100%
+  );
 }
-.badge--new{
-  left:12px;
-  right:auto;
-  background:#2563eb;
-  color:#fff;
+
+/* 가로 레일: 카드 폭 고정 + 스냅 기준 */
+.grid.grid--row .card{
+  flex: 0 0 220px;
+  scroll-snap-align: start;
 }
+.grid.grid--row .card__thumb{ height: 335px; }
+
+/* ================= GRID (기본 목록) ================= */
+/* 너는 지금 "전체 공연"도 row로 만들었으니까 grid 모드는 안 쓸 수도 있어.
+   만약 다시 세로 그리드로 돌릴 거면 아래만 켜면 됨. */
+.grid:not(.grid--row){
+  display:grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.grid:not(.grid--row) .card__thumb{ height:320px; }
 
 /* ================= LOADING ================= */
 .loading{
   text-align:center;
   padding:26px 0;
-  color:#6b7280;
+  color:var(--muted);
 }
 .loading.is-hidden{ display:none; }
 
@@ -236,33 +239,22 @@ img{ display:block; max-width:100%; }
   animation: spin 0.9s linear infinite;
   margin-bottom:8px;
 }
-@keyframes spin{
-  to{ transform: rotate(360deg); }
-}
-
-/* ================= FOOTER ================= */
-.footer{
-  border-top:1px solid var(--line);
-  padding:24px 0;
-  color:#6b7280;
-}
-.footer__inner{
-  text-align:center;
-  font-size:12px;
-}
+@keyframes spin{ to{ transform: rotate(360deg); } }
 
 /* ================= Responsive ================= */
-@media (max-width: 1200px){
-  .grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
 @media (max-width: 860px){
   :root{ --pad: 16px; }
-  .header__inner{ flex-direction:column; align-items:stretch; }
-  .header__left{ justify-content:space-between; gap:16px; }
   .search-row{ flex-direction:column; align-items:stretch; }
   .btn{ width:100%; }
+
+  .grid.grid--row .card{ flex-basis: 200px; }
+  .grid.grid--row .card__thumb{ height: 240px; }
+
+  .grid:not(.grid--row){ grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 560px){
-  .grid{ grid-template-columns: repeat(1, minmax(0, 1fr)); }
-  .card__thumb{ height:280px; }
+  .grid.grid--row .card{ flex-basis: 180px; }
+  .grid.grid--row .card__thumb{ height: 220px; }
+
+  .grid:not(.grid--row){ grid-template-columns: 1fr; }
 }
