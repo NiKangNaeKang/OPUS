@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
 import "./css/index.css";
 import "./css/slider.css";
+import "./css/Unveiling.css";
 
 // React Query 클라이언트(캐시 관리자) 생성
 const queryClient = new QueryClient({
