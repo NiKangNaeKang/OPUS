@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 // URL 경로 얻어오기
 import { useParams } from "react-router-dom";
 import { axiosApi } from "../../api/axiosAPI";
@@ -12,6 +12,9 @@ const SelectionsDetail = () => {
 
   const [goodsDetail, setGoodsDetail] = useState(null); // 상품 상세
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태
+  const [goodsImgList, setGoodsImgList] = useState(null);
+  const [sizeList, setSizeList] = useState(null);
+  const [colorList, setColorList] = useState(null);
 
   const selectGoodsDetail = async () => {
 
@@ -29,8 +32,21 @@ const SelectionsDetail = () => {
 
   }
 
+  const selectGoodsImgList = async () => {
+    try {
+      const resp = await axiosApi.get(`/selections/selectGoodsImgList?goodsNo=${goodsId}`);
+
+      if(resp.status == 200) {
+        setGoodsImgList(resp.data)
+      }
+    } catch (error) {
+      console.error("상품 이미지 조회 중 예외 발생 : ", error)
+    }
+  }
+
   useEffect(() => {
     selectGoodsDetail();
+    selectGoodsImgList();
   }, []);
 
   useEffect(() => {
@@ -39,8 +55,22 @@ const SelectionsDetail = () => {
       setIsLoading(false);
     }
 
-
   }, [goodsDetail])
+
+  if (goodsDetail) {
+
+    const sizeList = goodsDetail.map((goods, index) => <option key={index} value={goods.goodsSize}>{goods.goodsSize}</option>)
+    const colorList = goodsDetail.map((goods, index) => <option key={index} value={goods.goodsColor}>{goods.goodsColor}</option>)
+    const imgList = goodsImgList.map((img, index) => 
+    <div className="detail-image" key={index}>
+      <img src={img.goodsImgFullpath} />
+    </div>)
+
+    setGoodsImgList(imgList);
+    setSizeList(sizeList);
+    setColorList(colorList);
+    
+  }
 
   return (
     isLoading ? (
@@ -81,35 +111,50 @@ const SelectionsDetail = () => {
               </div>
             </div>
 
-            {/* <div id="product-options" className="options">
-            <div className="field">
-              <label className="field__label">옵션 선택</label>
-              <div className="select-wrap">
-                <select id="optionSelect" className="select">
-                  <option value="">옵션을 선택해주세요</option>
-                  <option value="A4">A4 사이즈 (21 x 29.7cm)</option>
-                  <option value="A3">A3 사이즈 (29.7 x 42cm)</option>
-                  <option value="A2">A2 사이즈 (42 x 59.4cm)</option>
-                </select>
-                <i className="fa-solid fa-chevron-down select__icon" aria-hidden="true"></i>
-              </div>
+
+            <div id="product-options" className="options">
+              {sizeList ?
+                (<div className="field">
+                  <label className="field__label">사이즈 선택</label>
+                  <div className="select-wrap">
+                    <select id="optionSelect" className="select">
+                      <option value="">색상을 선택해주세요</option>
+                      {sizeList}
+                    </select>: null
+                    <i className="fa-solid fa-chevron-down select__icon" aria-hidden="true"></i>
+                  </div>
+                </div>) : null}
+
+              {colorList ?
+                (<div className="field">
+                  <label className="field__label">색상 선택</label>
+                  <div className="select-wrap">
+                    <select id="optionSelect" className="select">
+                      <option value="">색상을 선택해주세요</option>
+                      {colorList}
+                    </select>
+                    <i className="fa-solid fa-chevron-down select__icon" aria-hidden="true"></i>
+                  </div>
+                </div>)
+                : null}
             </div>
 
-            <div className="field">
-              <label className="field__label">수량</label>
-              <div className="qty">
-                <button className="qty__btn" type="button" id="qtyMinus" aria-label="minus">
-                  <i className="fa-solid fa-minus" aria-hidden="true"></i>
-                </button>
+            {colorList || sizeList ?
+              null :
+              (<div class="field">
+                <label class="field__label">수량</label>
+                <div class="qty">
+                  <button class="qty__btn" type="button" id="qtyMinus" aria-label="minus">
+                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                  </button>
 
-                <input className="qty__input" type="number" id="qtyInput" value="1" min="1" />
+                  <input class="qty__input" type="number" id="qtyInput" value="1" min="1" />
 
-                <button className="qty__btn" type="button" id="qtyPlus" aria-label="plus">
-                  <i className="fa-solid fa-plus" aria-hidden="true"></i>
-                </button>
-              </div>
-            </div>
-          </div> */}
+                  <button class="qty__btn" type="button" id="qtyPlus" aria-label="plus">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>)}
 
             <div id="product-total" className="total">
               <div className="total__row">
@@ -154,19 +199,7 @@ const SelectionsDetail = () => {
                     {goodsDetail.goodsInfo}
                   </p>
 
-                  <div className="detail-image">
-                    <img
-                      src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a836af4842-f9fc24c0abdad5a48c3c.png"
-                      alt="musical les miserables poster art detail high quality print"
-                    />
-                  </div>
-
-                  <div className="detail-image">
-                    <img
-                      src="https://storage.googleapis.com/uxpilot-auth.appspot.com/7e3b69a2e4-5b2e411b3921c96684f3.png"
-                      alt="framed poster hanging on modern white wall interior design"
-                    />
-                  </div>
+                  {goodsImgList ? (goodsImgList) : null}
 
                 </div>
               </div>

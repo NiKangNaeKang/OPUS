@@ -8,6 +8,9 @@ const Selections = () => {
 
   const [goodsList, setGoodsList] = useState(null); // 상품 목록
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태
+  const [genre, setGenre] = useState("exhibition"); // 장르 상태
+  const [category, setCategory] = useState("all"); // 카테고리 상태
+  const [query, setQuery] = useState("");
 
   // 상품 목록 얻어오는 함수
   const selectGoodsList = async () => {
@@ -39,29 +42,55 @@ const Selections = () => {
 
   }, [goodsList])
 
+  const handleGenre = (genre) => setGenre(genre);
+  const handleCategory = (category) => setCategory(category);
+  const handleQuery = (query) => {
+    const refinedQuery = query.trim().toLowerCase();
+    setQuery(refinedQuery);
+  };
+
+  if (goodsList) {
+    goodsList.filter((item) => {
+      const matchesGenre = genre === item.goodsSort;
+      const matchesCategory = category === "all" ? true : item.goodsCategory === category;
+      const matchesQuery = query ? item.goodsName.toLowerCase().includes(query) : true;
+      return matchesGenre && matchesCategory && matchesQuery
+    })
+  }
+
+
   return (
     <main className="main">
       <section id="goods-filter" className="filter">
         <div className="filter__top">
           <div className="toggle" role="tablist">
-            <button className="toggle__btn is-active">뮤지컬</button>
-            <button className="toggle__btn">전시</button>
+            <button className={`toggle__btn ${genre == "exhibition" ? "is-active" : ""}`}
+              onClick={() => handleGenre("exhibition")}>전시</button>
+            <button className={`toggle__btn ${genre == "musical" ? "is-active" : ""}`}
+              onClick={() => handleGenre("musical")}>뮤지컬</button>
           </div>
         </div>
 
         <div className="filter__row">
           <div className="chips">
-            <button className="chip is-active">전체</button>
-            <button className="chip">의류</button>
-            <button className="chip">액세서리</button>
-            <button className="chip">문구</button>
-            <button className="chip">포스터/엽서</button>
-            <button className="chip">음반/DVD</button>
+            <button className={`chip ${category == "all" ? "is-active" : ""}`}
+              onClick={() => handleCategory("all")}>전체</button>
+            <button className={`chip ${category == "clothes" ? "is-active" : ""}`}
+              onClick={() => handleCategory("clothes")}>의류</button>
+            <button className={`chip ${category == "accessories" ? "is-active" : ""}`}
+              onClick={() => handleCategory("accessories")}>액세서리</button>
+            <button className={`chip ${category == "stationery" ? "is-active" : ""}`}
+              onClick={() => handleCategory("stationery")}>문구</button>
+            <button className={`chip ${category == "poster" ? "is-active" : ""}`}
+              onClick={() => handleCategory("poster")}>포스터/엽서</button>
+            <button className={`chip ${category == "record" ? "is-active" : ""}`}
+              onClick={() => handleCategory("record")}>음반/DVD</button>
           </div>
 
           <div className="search">
-            <input type="text" className="search__input" placeholder="상품명 검색" />
-            <button className="search__btn">
+            <input type="text" className="search_input" placeholder="상품명 검색" />
+            <button className="search_btn"
+              onSubmit={(e) => handleQuery(e.target.value)}>
               <i className="fa-solid fa-magnifying-glass"></i>
             </button>
           </div>

@@ -84,13 +84,25 @@
 
         <div id="product-options" class="options">
           <div class="field">
-            <label class="field__label">옵션 선택</label>
+            <label className="field__label">사이즈 선택</label>
             <div class="select-wrap">
               <select id="optionSelect" class="select">
-                <option value="">옵션을 선택해주세요</option>
+                <option value="">사이즈를 선택해주세요</option>
                 <option value="A4">A4 사이즈 (21 x 29.7cm)</option>
                 <option value="A3">A3 사이즈 (29.7 x 42cm)</option>
                 <option value="A2">A2 사이즈 (42 x 59.4cm)</option>
+              </select>
+              <i class="fa-solid fa-chevron-down select__icon" aria-hidden="true"></i>
+            </div>
+          </div>
+          <div class="field">
+            <label className="field__label">색상 선택</label>
+            <div class="select-wrap">
+              <select id="optionSelect" class="select">
+                <option value="">색상을 선택해주세요</option>
+                <option value="A4">Blue</option>
+                <option value="A3">Black</option>
+                <option value="A2">Red</option>
               </select>
               <i class="fa-solid fa-chevron-down select__icon" aria-hidden="true"></i>
             </div>
@@ -218,9 +230,9 @@
         <div class="tab-panel" id="tab-shipping">
           <div class="detail-wrap">
             <header class="policy__header">
-                <h2 class="policy__title">배송/교환/반품 정책</h2>
-                <p class="policy__subtitle">OPUS는 세련된 경험과 신뢰 가능한 운영 기준을 함께 제공합니다.</p>
-              </header>
+              <h2 class="policy__title">배송/교환/반품 정책</h2>
+              <p class="policy__subtitle">OPUS는 세련된 경험과 신뢰 가능한 운영 기준을 함께 제공합니다.</p>
+            </header>
             <!-- OPUS 배송/교환/반품 정책 (Copy & Paste) -->
             <section class="policy policy--opus" aria-label="OPUS 배송/교환/반품 정책">
               <article class="policy__section" id="shipping">
