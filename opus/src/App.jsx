@@ -7,15 +7,9 @@ import DarkHeaderLayout from "./layouts/DarkHeaderLayout";
 import LightHeaderLayout from "./layouts/LightHeaderLayout";
 import Unveiling from "./pages/Unveiling";
 import OnStage from "./pages/onStage/OnStage";
-import HeroSlider from "./components/HeroSlider";
 
 export default function App() {
-  const { pathname } = useLocation();
-  const isHome = pathname === "/";
-
   return (
-    <>
-      {isHome && <HeroSlider />}
       <Routes>
         {/* Dark Header */}
         <Route element={<DarkHeaderLayout />}>
@@ -31,6 +25,5 @@ export default function App() {
           <Route path='/selections/cart' element={<Cart />}></Route>
         </Route>
       </Routes>
-    </>
   );
 } 
