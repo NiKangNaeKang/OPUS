@@ -412,3 +412,10 @@ img{ display:block; max-width: 100%; }
 .filters .filters__right .searchbox__input{
   width: 100%;
 }
+
+/* ✅ Unveiling 경매 카드: 환경 상관없이 항상 3열 */
+.page #auction-grid .grid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+}
