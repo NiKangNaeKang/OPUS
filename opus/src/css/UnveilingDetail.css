@@ -1,0 +1,445 @@
+/* UnveilingDetail.css */
+:root{
+  --max: 1440px;
+  --text: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+
+  --bg-soft: #f9fafb;
+  --dark: #111827;
+  --dark2: #1f2937;
+
+  --amber-bg: #fffbeb;
+  --amber-line: #fcd34d;
+  --amber-text: #b45309;
+
+  --radius: 10px;
+}
+
+*{ box-sizing: border-box; }
+html, body{ height:100%; }
+
+/* ✅ 전역 body 스타일은 건드리지 않는 걸 권장 (index.css가 담당)
+   이 페이지에서만 body를 바꾸고 싶으면 .unveiling-detail 아래로 이동하세요. */
+
+.unveiling-detail{
+  min-height: 100vh;
+}
+
+/* ===== Layout ===== */
+.unveiling-detail .container{
+  width: 100%;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 40px 56px 0;
+}
+
+.unveiling-detail .back-row{ margin-bottom: 32px; }
+.unveiling-detail .back-link{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  line-height: 1;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  color:#6b7280;
+}
+.unveiling-detail .back-link:hover{ color:#374151; }
+.unveiling-detail .back-link i{
+  font-size: 11px;
+  line-height: 1;
+  transform: translateY(0);
+}
+.unveiling-detail .back-link span{
+  display: inline-block;
+  line-height: 1;           /* i와 동일한 기준 */
+}
+
+/* ===== Detail Grid ===== */
+.unveiling-detail .detail{
+  display:grid;
+  grid-template-columns: minmax(640px, 1fr) minmax(420px, 520px);
+  gap: 96px;
+  align-items: start;
+}
+
+/* ===== Image ===== */
+.unveiling-detail .image__main{
+  background: transparent;
+  aspect-ratio: 1 / 1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom: 24px;
+  padding: 0;
+
+  border-radius: 0;
+  overflow: hidden;
+  border: 0;
+  box-shadow: none;
+}
+.unveiling-detail .image__main img{
+  width:100%;
+  height:100%;
+  object-fit: contain;
+  border-radius: 0;
+}
+
+.unveiling-detail .thumbs{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.unveiling-detail .thumb{
+  border:0;
+  padding:0;
+  background:#f3f4f6;
+  aspect-ratio: 1 / 1;
+  cursor:pointer;
+  transition: opacity .2s, outline .2s;
+}
+.unveiling-detail .thumb:hover{ opacity:.75; }
+.unveiling-detail .thumb.is-active{ outline: 2px solid #111827; outline-offset: 2px; }
+.unveiling-detail .thumb img{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+}
+
+/* ===== Info ===== */
+.unveiling-detail .status{
+  display:inline-block;
+  padding: 6px 12px;
+  background:#111827;
+  color:#fff;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: .18em;
+  margin-bottom: 16px;
+}
+
+.unveiling-detail .title{
+  margin:0 0 10px;
+  font-size: 30px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+.unveiling-detail .artist{
+  margin:0 0 24px;
+  font-size: 18px;
+  color:#4b5563;
+  font-weight: 300;
+}
+
+.unveiling-detail .spec{
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  display:flex;
+  flex-direction:column;
+  gap: 14px;
+}
+.unveiling-detail .spec__row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 16px;
+}
+.unveiling-detail .spec__k{
+  font-size: 13px;
+  color:#6b7280;
+  font-weight: 300;
+}
+.unveiling-detail .spec__v{
+  font-size: 13px;
+  color:#111827;
+  font-weight: 500;
+}
+
+/* ===== Price box ===== */
+/* pricebox 카드화 제거 */
+.unveiling-detail .pricebox{
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--bg-soft); /* 필요하면 유지 */
+}
+
+.unveiling-detail .pricebox__block{ display:flex; flex-direction:column; gap:6px; }
+.unveiling-detail .pricebox__divider{
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+  margin-top: 18px;
+}
+.unveiling-detail .pricebox__label{
+  margin:0;
+  font-size: 11px;
+  color:#6b7280;
+  font-weight: 300;
+}
+.unveiling-detail .pricebox__value{
+  margin:0;
+  color:#111827;
+  font-weight: 500;
+  font-size: 16px;
+}
+.unveiling-detail .pricebox__value--lg{ font-size: 22px; font-weight: 300; }
+.unveiling-detail .pricebox__value--xl{ font-size: 32px; font-weight: 400; color: #b45309; }
+.unveiling-detail .pricebox__hint{
+  margin:0;
+  font-size: 11px;
+  color:#6b7280;
+  font-weight: 300;
+}
+
+/* ===== Timer ===== */
+.unveiling-detail .timer{
+  background: var(--dark);
+  color:#fff;
+  padding: 24px;
+  margin-bottom: 24px;
+
+  border-color: transparent; /* 어두운 박스는 border 빼고 */
+  box-shadow: 0 10px 24px rgba(17,24,39,.18);
+}
+.unveiling-detail .timer__row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.unveiling-detail .timer__label{
+  font-size: 13px;
+  font-weight: 300;
+  color:#fff;
+}
+
+.unveiling-detail .countdown{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  font-size: 28px;
+  font-weight: 300;
+}
+.unveiling-detail .countdown__unit{ text-align:center; min-width: 44px; }
+.unveiling-detail .countdown__txt{
+  display:block;
+  font-size: 11px;
+  opacity: .85;
+}
+.unveiling-detail .countdown__sep{ opacity: .85; }
+
+.unveiling-detail .timer__hint{
+  margin:0;
+  font-size: 11px;
+  color:#9ca3af;
+  font-weight: 300;
+}
+
+/* ===== Bid button ===== */
+.unveiling-detail .bid-btn{
+  width:100%;
+  border:0;
+  border-radius: 14px;
+  background: var(--dark);
+  color:#fff;
+  padding: 16px 18px;
+  cursor:pointer;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: .18em;
+  margin-bottom: 16px;
+  transition: background .2s;
+}
+.unveiling-detail .bid-btn:hover{ background: var(--dark2); }
+
+/* ===== Notice ===== */
+.unveiling-detail .notice{
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-line);
+  padding: 14px 16px;
+  border-radius: 8px;
+}
+.unveiling-detail .notice__row{
+  display:flex;
+  gap: 10px;
+  align-items:flex-start;
+}
+.unveiling-detail .notice__row i{
+  color: var(--amber-text);
+  margin-top: 2px;
+}
+.unveiling-detail .notice__row p{
+  margin:0;
+  font-size: 12px;
+  color:#374151;
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+.unveiling-detail .pricebox,
+.unveiling-detail .timer,
+.unveiling-detail .notice{
+  border-radius: 14px;
+  border: 1px solid var(--line);
+}
+
+/* ===== Sections ===== */
+.unveiling-detail .section{
+  margin-top: 80px;
+  border-top: 1px solid var(--line);
+  padding-top: 64px;
+}
+.unveiling-detail .section__title{
+  margin:0 0 32px;
+  font-size: 26px;
+  font-weight: 300;
+}
+
+.unveiling-detail .prose p{
+  margin:0 0 18px;
+  color:#374151;
+  font-weight: 300;
+  line-height: 1.9;
+}
+.unveiling-detail .prose p:last-child{ margin-bottom: 0; }
+
+/* ===== Artist ===== */
+.unveiling-detail .artist-box{
+  display:flex;
+  gap: 32px;
+  align-items:flex-start;
+}
+.unveiling-detail .artist-box__avatar{
+  width: 128px;
+  height: 128px;
+  border-radius: 999px;
+  overflow:hidden;
+  background:#f3f4f6;
+  flex: 0 0 auto;
+}
+.unveiling-detail .artist-box__avatar img{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+}
+.unveiling-detail .artist-box__name{
+  margin:0 0 12px;
+  font-size: 20px;
+  font-weight: 400;
+}
+.unveiling-detail .artist-box__desc{
+  margin:0 0 14px;
+  color:#374151;
+  font-weight: 300;
+  line-height: 1.8;
+}
+.unveiling-detail .artist-box__meta{
+  color:#6b7280;
+  font-size: 13px;
+  font-weight: 300;
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+}
+.unveiling-detail .artist-box__meta strong{ font-weight: 500; color:#111827; }
+
+/* ===== Guide ===== */
+.unveiling-detail .guide-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 48px;
+}
+.unveiling-detail .sub-title{
+  margin:0 0 16px;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.unveiling-detail .tick-table{
+  border: 1px solid var(--line);
+}
+.unveiling-detail .tick-table__head{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--line);
+}
+.unveiling-detail .tick-table__head > div{
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.unveiling-detail .tick-table__head > div:last-child{
+  border-left: 1px solid var(--line);
+}
+.unveiling-detail .tick-table__row{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--line);
+}
+.unveiling-detail .tick-table__row:last-child{ border-bottom: 0; }
+.unveiling-detail .tick-table__row > div{
+  padding: 12px 18px;
+  font-size: 13px;
+  color:#374151;
+  font-weight: 300;
+}
+.unveiling-detail .tick-table__row > div:last-child{
+  border-left: 1px solid var(--line);
+}
+
+/* ===== Bullets ===== */
+.unveiling-detail .bullets{
+  display:flex;
+  flex-direction:column;
+  gap: 14px;
+  color:#374151;
+  font-weight: 300;
+  line-height: 1.7;
+}
+.unveiling-detail .bullet{
+  display:flex;
+  gap: 10px;
+  align-items:flex-start;
+}
+.unveiling-detail .bullet i{
+  font-size: 9px;
+  color:#9ca3af;
+  margin-top: 7px;
+}
+.unveiling-detail .bullet p{ margin:0; font-size: 13px; }
+
+/* ===== Caution ===== */
+.unveiling-detail .caution{
+  background: var(--bg-soft);
+  padding: 32px;
+  border-radius: 10px;
+}
+.unveiling-detail .caution__list{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+.unveiling-detail .caution__list p{
+  margin:0;
+  font-size: 13px;
+  color:#374151;
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+/* 오른쪽 정보 영역을 더 오른쪽으로 붙는 느낌(시각적 정렬) */
+.unveiling-detail #info-section.info{
+  justify-self: end;
+  width: 100%;
+  max-width: 520px;     /* 오른쪽 칼럼 상한 고정 */
+}
+
+/* 왼쪽 이미지 영역도 칼럼 폭을 꽉 쓰게 */
+.unveiling-detail #image-section.image{
+  width: 100%;
+}

@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import ScrollToTop from "./components/ScrollToTop";
 import Unveiling from "./pages/Unveiling";
 import OnStage from "./pages/onStage/OnStage";
+import UnveilingDetail from "./pages/UnveilingDetail";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
       <Route element = {<LightHeaderLayout />}>
         <Route path="/onStage" element={<OnStage />}/>
         <Route path="/unveiling" element={<Unveiling />} />
+        <Route path="/unveiling/:id" element={<UnveilingDetail />} />
       </Route>
     </Routes>
   );
