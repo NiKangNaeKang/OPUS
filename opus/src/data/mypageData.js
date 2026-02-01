@@ -1,5 +1,3 @@
-// src/data/mypageData.js
-
 export const sidebarGroups = [
   {
     title: "내 정보",
@@ -24,7 +22,6 @@ export const userProfile = {
   phone: "010-1234-5678",
 };
 
-// ✅ counts 제거: items 기반으로 MyPage.jsx에서 자동 계산 추천
 export const wishlist = {
   items: [
     {

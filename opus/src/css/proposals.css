@@ -134,7 +134,6 @@ body {
 
 .search__btn:hover { opacity: 0.85; }
 
-/* Board List */
 .board-list {
   border-top: 2px solid var(--black);
 }

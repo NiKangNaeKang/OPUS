@@ -6,6 +6,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Unveiling from "./pages/Unveiling";
 import OnStage from "./pages/onStage/OnStage";
 import Proposals from "./pages/Proposals";
+import MyPage from "./components/MyPage";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/onStage" element={<OnStage />}/>
         <Route path="/proposals" element={<Proposals />} />
         <Route path="/unveiling" element={<Unveiling />} />
+        <Route path="/myPage" element={<MyPage />} />
       </Route>
     </Routes>
   );

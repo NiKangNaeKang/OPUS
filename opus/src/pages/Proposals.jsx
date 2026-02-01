@@ -64,7 +64,6 @@ const Proposals = () => {
     return items;
   }, [activeTab, category, sort, searchQuery]);
 
-  // ================= 렌더 =================
   return (
     <main className="container board-container">
       <div className="tabs">
@@ -146,7 +145,6 @@ const Proposals = () => {
                   </span>
 
                   <div className="item__content">
-                    {/* ✅ 공지·홍보 동일 규칙 */}
                     <h3 className="item__title">
                       {prefix}
                       {item.title}
