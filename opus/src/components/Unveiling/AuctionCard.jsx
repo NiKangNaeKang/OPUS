@@ -64,7 +64,13 @@ export default function AuctionCard({ item }) {
 
           {!isEnded && item.actionText && (
             <div className="card__hover">
-              <button className="btn btn-light" type="button">
+              <button className="btn btn-light"
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault(); // Link 이동 방지
+                        e.stopPropagation(); // 카드 클릭 이벤트 전파 방지
+                      }}
+              >
                 {item.actionText}
               </button>
             </div>

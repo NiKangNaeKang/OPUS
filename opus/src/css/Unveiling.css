@@ -427,9 +427,15 @@ img{ display:block; max-width: 100%; }
   width: 100%;
 }
 
-/* ✅ Unveiling 경매 카드: 환경 상관없이 항상 3열 */
+/* Unveiling 경매 카드: 환경 상관없이 항상 3열 */
 .page #auction-grid .grid{
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 32px;
+}
+/* auction card를 링크처럼 보이지 않게하는 처리 */
+.auction-card-link{
+  display: block;
+  color: inherit;
+  text-decoration: none;
 }

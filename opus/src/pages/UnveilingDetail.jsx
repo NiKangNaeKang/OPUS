@@ -2,21 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { unveilingData } from "../data/unveilingData";
 
-function pad2(n) {
-  return String(n).padStart(2, "0");
-}
+const pad2 = (n) => String(n).padStart(2, "0");
 
 function getRemaining(endAt) {
   const end = endAt ? new Date(endAt) : new Date("2024-01-28T15:00:00");
   const now = new Date();
   const diff = end - now;
 
-  if (Number.isNaN(end.getTime())) {
-    // endAt 파싱 실패 시 안전 fallback
-    return { done: false, days: "00", hours: "00", minutes: "00" };
-  }
-
-  if (diff <= 0) {
+  if (Number.isNaN(end.getTime()) || diff <= 0) {
     return { done: true, days: "00", hours: "00", minutes: "00" };
   }
 
@@ -24,102 +17,93 @@ function getRemaining(endAt) {
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-  return {
-    done: false,
-    days: pad2(days),
-    hours: pad2(hours),
-    minutes: pad2(minutes),
-  };
+  return { done: false, days: pad2(days), hours: pad2(hours), minutes: pad2(minutes) };
 }
+
+const STATUS = {
+  LIVE: { text: "진행중", key: "live" },
+  UPCOMING: { text: "예정", key: "soon" },
+  ENDED: { text: "종료", key: "ended" },
+};
 
 export default function UnveilingDetail() {
   const { id } = useParams();
-  const item = useMemo(
-    () => unveilingData.find((v) => v.id === Number(id)),
-    [id]
-  );
+
+  const item = useMemo(() => {
+    const num = Number(id);
+    return unveilingData.find((v) => v.id === num);
+  }, [id]);
 
   if (!item) {
     return (
       <div className="page unveiling-detail">
         <main className="container">
+          <div className="back-row">
+            <Link to="/unveiling" className="back-link">
+              <i className="fa-solid fa-chevron-left" />
+              <span>경매 목록으로 돌아가기</span>
+            </Link>
+          </div>
           <p>존재하지 않는 경매입니다.</p>
-          <Link to="/unveiling" className="back-link">
-            <i className="fa-solid fa-chevron-left" />
-            <span>경매 목록으로 돌아가기</span>
-          </Link>
         </main>
       </div>
     );
   }
 
-  // ===== 데이터 기본값 (UI 깨짐 방지) =====
   const detail = {
-    statusText: item.statusLabel ?? "진행중",
+    image: item.image,
+    alt: item.alt || "auction item image",
+
+    status: item.status ?? "LIVE",
     title: item.detailTitle ?? item.title ?? "무제 (Untitled)",
-    artist: item.artist ?? "작가 미상",
+    artist: item.artist ? `${item.artist} 작가` : "김현수 작가",
+
     year: item.year ?? "2023",
     material: item.material ?? "캔버스에 아크릴",
     size: item.size ?? "100 × 80 cm",
 
     estimate: item.estimate ?? "₩8,000,000 - ₩12,000,000",
     startPrice: item.startPrice ?? "₩6,000,000",
-    currentPrice: item.currentPrice ?? "₩9,500,000",
-    bidCount: item.bidCount ?? 15,
+    currentPrice: item.currentPrice ?? item.pricing?.display ?? "₩9,500,000",
+    bidCount: item.bidCount ?? item.stats?.count ?? 15,
 
-    endAt: item.endAt ?? "2024-01-28T15:00:00",
-    endAtLabel: item.endAtLabel ?? "2024년 1월 28일 오후 3시 마감",
+    endAt: item.endAt ?? "2026-02-28T15:00:00",
+    endAtLabel: item.endAtLabel ?? "2026년 2월 28일 오후 3시 마감",
 
     description: item.description ?? [
-      "작품 설명 데이터가 아직 준비되지 않았습니다.",
+      "김현수 작가의 '무제'는 추상표현주의의 영향을 받은 작품으로, 대담한 붓터치와 강렬한 색채의 대비를 통해 내면의 감정을 표현합니다.",
+      "이 작품은 2023년 개인전 '침묵의 소리'에서 처음 공개되었으며, 현대미술계에서 주목받는 신진 작가의 대표작 중 하나입니다.",
+      "캔버스에 아크릴로 제작된 이 작품은 빛의 각도에 따라 다양한 질감과 색감을 드러내며, 공간에 역동적인 에너지를 부여합니다.",
     ],
 
+    artistName: item.artistName ?? (item.artist ?? "김현수"),
     artistBio:
       item.artistBio ??
-      "작가 소개 데이터가 아직 준비되지 않았습니다.",
-
+      "홍익대학교 미술대학 회화과를 졸업하고, 파리 에콜 데 보자르에서 현대미술을 전공했습니다. 귀국 후 다수의 개인전과 단체전에 참여하며 한국 현대미술계의 주목받는 작가로 자리매김했습니다.",
     exhibitions:
       item.exhibitions ??
       "2023 개인전 '침묵의 소리', 2022 국립현대미술관 단체전",
-
     awards: item.awards ?? "2021 올해의 젊은 작가상",
   };
 
-  // ===== (2) 썸네일 갤러리 =====
-  const images = Array.isArray(item.images) && item.images.length > 0
-    ? item.images
-    : null;
+  const status = STATUS[detail.status] ?? STATUS.LIVE;
 
-  const [mainSrc, setMainSrc] = useState(item.image);
-  const [mainAlt, setMainAlt] = useState(item.alt ?? "");
-  const [activeIdx, setActiveIdx] = useState(0);
-
-  // item 변경 시 메인 이미지 초기화
-  useEffect(() => {
-    setMainSrc(item.image);
-    setMainAlt(item.alt ?? "");
-    setActiveIdx(0);
-  }, [item.id]); // id로 고정
-
-  // ===== (1) Countdown =====
   const [remain, setRemain] = useState(() => getRemaining(detail.endAt));
-
   useEffect(() => {
-    // 최초 1회
     setRemain(getRemaining(detail.endAt));
-
-    // 60초마다 갱신 (원본 로직 유지)
-    const t = setInterval(() => {
-      setRemain(getRemaining(detail.endAt));
-    }, 60000);
-
+    const t = setInterval(() => setRemain(getRemaining(detail.endAt)), 60000);
     return () => clearInterval(t);
   }, [detail.endAt]);
+
+  const isEnded = remain.done || detail.status === "ENDED";
+  const isSoon = detail.status === "UPCOMING";
+  const statusClass = `status status--${status.key}`;
+  const timerClass = `timer timer--${status.key}${isEnded ? " is-ended" : ""}`;
+  const bidBtnClass = `bid-btn${isSoon ? " is-soon" : ""}${isEnded ? " is-ended" : ""}`;
 
   return (
     <div className="page unveiling-detail">
       <main className="container">
-        {/* BACK */}
         <div className="back-row">
           <Link to="/unveiling" className="back-link">
             <i className="fa-solid fa-chevron-left" />
@@ -127,40 +111,16 @@ export default function UnveilingDetail() {
           </Link>
         </div>
 
-        {/* DETAIL */}
         <section id="auction-detail-section" className="detail">
-          {/* IMAGE */}
           <div id="image-section" className="image">
             <div className="image__main">
-              <img id="mainImage" src={mainSrc} alt={mainAlt} />
+              <img id="mainImage" src={detail.image} alt={detail.alt} />
             </div>
-
-            {/* thumbs: images가 있을 때만 렌더 */}
-            {images && (
-              <div id="thumbs" className="thumbs">
-                {images.map((img, idx) => (
-                  <button
-                    key={`${img.src}-${idx}`}
-                    type="button"
-                    className={`thumb ${idx === activeIdx ? "is-active" : ""}`}
-                    onClick={() => {
-                      setMainSrc(img.src);
-                      setMainAlt(img.alt ?? mainAlt);
-                      setActiveIdx(idx);
-                    }}
-                    aria-label={`썸네일 ${idx + 1}`}
-                  >
-                    <img src={img.src} alt={img.alt ?? ""} />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* INFO */}
           <div id="info-section" className="info">
             <div className="info__top">
-              <span className="status">{detail.statusText}</span>
+              <span className={statusClass}>{status.text}</span>
 
               <h1 className="title">{detail.title}</h1>
               <p className="artist">{detail.artist}</p>
@@ -184,9 +144,7 @@ export default function UnveilingDetail() {
             <div className="pricebox">
               <div className="pricebox__block">
                 <p className="pricebox__label">추정가</p>
-                <p className="pricebox__value pricebox__value--lg">
-                  {detail.estimate}
-                </p>
+                <p className="pricebox__value pricebox__value--lg">{detail.estimate}</p>
               </div>
 
               <div className="pricebox__block pricebox__divider">
@@ -196,31 +154,28 @@ export default function UnveilingDetail() {
 
               <div className="pricebox__block pricebox__divider">
                 <p className="pricebox__label">현재가</p>
-                <p className="pricebox__value pricebox__value--xl">
-                  {detail.currentPrice}
-                </p>
+                <p className="pricebox__value pricebox__value--xl">{detail.currentPrice}</p>
                 <p className="pricebox__hint">응찰 {detail.bidCount}회</p>
               </div>
             </div>
 
-            {/* TIMER: data-end 지원(구조 유지) */}
-            <div className="timer" data-end={detail.endAt}>
+            <div className={timerClass}>
               <div className="timer__row">
-                <span className="timer__label">마감까지</span>
+                <span className="timer__label">{isSoon ? "시작까지" : "마감까지"}</span>
 
                 <div className="countdown" aria-label="countdown">
                   <div className="countdown__unit">
-                    <span id="days">{remain.days}</span>
+                    <span>{remain.days}</span>
                     <span className="countdown__txt">일</span>
                   </div>
                   <span className="countdown__sep">:</span>
                   <div className="countdown__unit">
-                    <span id="hours">{remain.hours}</span>
+                    <span>{remain.hours}</span>
                     <span className="countdown__txt">시간</span>
                   </div>
                   <span className="countdown__sep">:</span>
                   <div className="countdown__unit">
-                    <span id="minutes">{remain.minutes}</span>
+                    <span>{remain.minutes}</span>
                     <span className="countdown__txt">분</span>
                   </div>
                 </div>
@@ -229,63 +184,55 @@ export default function UnveilingDetail() {
               <p className="timer__hint">{detail.endAtLabel}</p>
             </div>
 
-            <button className="bid-btn" type="button" disabled={remain.done}>
-              {remain.done ? "마감됨" : "응찰하기"}
+            <button className={bidBtnClass} type="button" disabled={isEnded || isSoon}>
+              {isEnded ? "마감됨" : isSoon ? "예정" : "응찰하기"}
             </button>
 
             <div className="notice">
               <div className="notice__row">
-                <i className="fa-solid fa-circle-info" />
+                <i className="fa-solid fa-circle-info"></i>
                 <p>
-                  응찰을 위해서는 본인 인증이 필요합니다. 경매 참여 전 회원정보에서
-                  실명 인증을 완료해주세요.
+                  응찰을 위해서는 본인 인증이 필요합니다.<br></br>경매 참여 전 회원정보에서 실명 인증을 완료해주세요.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* DESCRIPTION */}
         <section id="description-section" className="section">
           <h2 className="section__title">작품 설명</h2>
+
           <div className="prose">
-            {(Array.isArray(detail.description)
-              ? detail.description
-              : [detail.description]
-            ).map((p, idx) => (
-              <p key={idx}>{p}</p>
-            ))}
+            {(Array.isArray(detail.description) ? detail.description : [detail.description]).map(
+              (p, idx) => <p key={idx}>{p}</p>
+            )}
           </div>
         </section>
 
-        {/* ARTIST */}
         <section id="artist-section" className="section">
           <h2 className="section__title">작가 소개</h2>
 
           <div className="artist-box">
             <div className="artist-box__info">
-              <h3 className="artist-box__name">{detail.artist}</h3>
+              <h3 className="artist-box__name">{detail.artistName}</h3>
               <p className="artist-box__desc">{detail.artistBio}</p>
 
               <div className="artist-box__meta">
-                <p>
-                  <strong>주요 전시:</strong> {detail.exhibitions}
-                </p>
-                <p>
-                  <strong>수상:</strong> {detail.awards}
-                </p>
+                <p><strong>주요 전시:</strong> {detail.exhibitions}</p>
+                <p><strong>수상:</strong> {detail.awards}</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* GUIDE */}
         <section id="bidding-guide-section" className="section">
           <h2 className="section__title">응찰 안내</h2>
 
           <div className="guide-grid">
+            {/* TABLE */}
             <div>
               <h3 className="sub-title">호가표</h3>
+
               <div className="tick-table">
                 <div className="tick-table__head">
                   <div>현재가</div>
@@ -315,8 +262,10 @@ export default function UnveilingDetail() {
               </div>
             </div>
 
+            {/* MUST INFO */}
             <div>
               <h3 className="sub-title">응찰 필수 정보</h3>
+
               <div className="bullets">
                 <Bullet text="경매 참여를 위해서는 실명 인증이 필수입니다." />
                 <Bullet text="응찰 후 취소는 불가능하며, 낙찰 시 구매 의무가 발생합니다." />
@@ -339,6 +288,7 @@ export default function UnveilingDetail() {
             </div>
           </div>
         </section>
+
       </main>
     </div>
   );
@@ -347,7 +297,7 @@ export default function UnveilingDetail() {
 function Bullet({ text }) {
   return (
     <div className="bullet">
-      <i className="fa-solid fa-circle" />
+      <i className="fa-solid fa-circle"></i>
       <p>{text}</p>
     </div>
   );
