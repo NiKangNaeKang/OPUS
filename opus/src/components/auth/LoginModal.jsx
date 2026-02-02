@@ -4,10 +4,6 @@ import "../css/loginModal.css";
 import { api } from "../../lib/api";
 import { useAuthStore } from "../../store/useAuthStore";
 
-/**
- * 사용법 (Header.jsx 등에서)
- * <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
- */
 export default function LoginModal({ open, onClose }) {
   const doLogin = useAuthStore((s) => s.login);
 

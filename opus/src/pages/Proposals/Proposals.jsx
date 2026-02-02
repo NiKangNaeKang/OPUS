@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { proposalsData } from "../data/proposalsData.js";
-import "../css/proposals.css";
+import { proposalsData } from "../../data/proposalsData.js";
+import "../../css/proposals.css";
 
 const Proposals = () => {
   const [activeTab, setActiveTab] = useState("notice");
