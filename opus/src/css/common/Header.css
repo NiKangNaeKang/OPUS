@@ -114,39 +114,9 @@ img{ display:block; max-width:100%; }
 .header--light.is-scrolled .icon-btn:hover,
 .header--light.is-scrolled .admin-link:hover{
   color:#000;
+  opacity: 0.7;
 }
 
-<<<<<<< Updated upstream
-/* =========================
-   Header: On Hero (Home top)
-========================= */
-
-/* 홈 최상단(히어로 위) */
-.header.is-on-hero {
-  background: transparent; /* 배경 투명 */
-}
-
-/* 글씨/아이콘/링크 흰색 강제 + 흐릿함 제거 */
-.header.is-on-hero .brand,
-.header.is-on-hero .gnb__link,
-.header.is-on-hero .icon-btn,
-.header.is-on-hero i {
-  color: rgba(255, 255, 255, 0.95);
-  opacity: 1;
-  filter: none;
-}
-
-/* 링크 hover도 흰색 계열 */
-.header.is-on-hero .gnb__link:hover,
-.header.is-on-hero .brand:hover {
-  color: #fff;
-}
-
-/* 필요하면 가독성 강화(밝은 배경에서 대비 확보) */
-.header.is-on-hero {
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-}
-=======
 /* Dark 모드 */
 .header--dark {
   background: #000;
@@ -178,4 +148,3 @@ img{ display:block; max-width:100%; }
 .header--dark.is-scrolled .admin-link{
   color:#fff;
 }
->>>>>>> Stashed changes

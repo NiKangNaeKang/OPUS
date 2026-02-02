@@ -184,7 +184,7 @@ button{ border:0; background:none; cursor:pointer; }
 
 /* Select */
 .select-wrap{ position:relative; }
-.select{
+.optionSelect{
   width:100%;
   appearance:none;
   border: 1px solid var(--line2);
@@ -193,7 +193,7 @@ button{ border:0; background:none; cursor:pointer; }
   background:#fff;
   outline:none;
 }
-.select:focus{ border-color: var(--text); }
+.optionSelect:focus{ border-color: var(--text); }
 .select__icon{
   position:absolute;
   right: 16px;
@@ -491,6 +491,109 @@ button{ border:0; background:none; cursor:pointer; }
   padding-top: 24px;
   color:#6b7280;
   font-size: 13px;
+}
+
+.policy--opus {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 28px 18px;
+  line-height: 1.7;
+  color: #1b1b1b;
+  padding-top: 10px;
+}
+
+.policy__header {
+  margin-bottom: 18px;
+}
+
+.policy__title {
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+
+.policy__subtitle {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.policy__section {
+  padding: 18px 0;
+  border-top: 1px solid #ececec;
+}
+
+.policy__section-title {
+  font-size: 18px;
+  margin: 0 0 10px;
+}
+
+.policy__text {
+  margin: 0 0 10px;
+  color: #333;
+}
+
+.policy__note {
+  margin: 10px 0 0;
+  color: #777;
+  font-size: 13px;
+}
+
+.policy__list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.policy__list>li {
+  margin: 6px 0;
+}
+
+.policy__sublist {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.policy__sublist>li {
+  margin: 4px 0;
+}
+
+.policy__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+@media (min-width: 720px) {
+  .policy__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.policy__card {
+  border: 1px solid #ececec;
+  border-radius: 14px;
+  padding: 14px 14px;
+  background: #fff;
+}
+
+.policy__card-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.policy__steps {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.policy__steps>li {
+  margin: 6px 0;
+}
+
+.policy__footer {
+  padding-top: 18px;
+  border-top: 1px solid #ececec;
 }
 
 /* Responsive */
