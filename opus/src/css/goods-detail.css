@@ -184,7 +184,7 @@ button{ border:0; background:none; cursor:pointer; }
 
 /* Select */
 .select-wrap{ position:relative; }
-.select{
+.optionSelect{
   width:100%;
   appearance:none;
   border: 1px solid var(--line2);
@@ -193,7 +193,7 @@ button{ border:0; background:none; cursor:pointer; }
   background:#fff;
   outline:none;
 }
-.select:focus{ border-color: var(--text); }
+.optionSelect:focus{ border-color: var(--text); }
 .select__icon{
   position:absolute;
   right: 16px;

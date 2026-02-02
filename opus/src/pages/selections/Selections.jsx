@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { axiosApi } from "../../api/axiosAPI";
 import Loading from "../../components/common/Loading"
 import '../../css/goods.css'
@@ -49,15 +49,20 @@ const Selections = () => {
     setQuery(refinedQuery);
   };
 
-  if (goodsList) {
-    goodsList.filter((item) => {
-      const matchesGenre = genre === item.goodsSort;
-      const matchesCategory = category === "all" ? true : item.goodsCategory === category;
-      const matchesQuery = query ? item.goodsName.toLowerCase().includes(query) : true;
-      return matchesGenre && matchesCategory && matchesQuery
-    })
-  }
+  const filteredList = useMemo(() => {
+    if (!goodsList) return [];
 
+    return goodsList.filter((item) => {
+      const matchesGenre = genre === item.goodsSort;
+      const matchesCategory =
+        category === "all" ? true : item.goodsCategory === category;
+      const matchesQuery = query
+        ? item.goodsName.toLowerCase().includes(query)
+        : true;
+
+      return matchesGenre && matchesCategory && matchesQuery;
+    });
+  }, [goodsList, genre, category, query]);
 
   return (
     <main className="main">
@@ -88,9 +93,9 @@ const Selections = () => {
           </div>
 
           <div className="search">
-            <input type="text" className="search_input" placeholder="상품명 검색" />
-            <button className="search_btn"
-              onSubmit={(e) => handleQuery(e.target.value)}>
+            <input type="text" className="search_input" placeholder="상품명 검색" value={query}
+              onChange={(e) => setQuery(e.target.value)} />
+            <button className="search_btn" onClick={() => handleQuery(query)}>
               <i className="fa-solid fa-magnifying-glass"></i>
             </button>
           </div>
@@ -103,14 +108,14 @@ const Selections = () => {
           <p className="loading_msg">상품 목록을 로딩 중입니다.</p>
         </div>
       ) : (
-        <section id="goods-grid" className="grid">
-          <div className="grid__head">
-            <p className="grid__count">
-              총 <span id="totalCount" className="grid__countStrong">{goodsList.length}</span>개의 상품
+        <section id="goods-grid" className="goods_grid">
+          <div className="grid_head">
+            <p className="grid_count">
+              총 <span id="totalCount" className="grid_countStrong">{filteredList.length}</span>개의 상품
             </p>
 
             <div className="grid__sort">
-              <div className="select-wrap select-wrap--ghost">
+              <div className="select-wrap select-wrap-ghost">
                 <select className="select select--ghost" id="sortSelect" aria-label="정렬">
                   <option value="latest">최신순</option>
                   <option value="popular">인기순</option>
@@ -122,23 +127,21 @@ const Selections = () => {
             </div>
           </div>
 
-          <div className="grid__items" id="goodsItems">
+          <div className="grid_items" id="goodsItems">
 
-            {goodsList.length === 0 ? (
-              <p>상품 목록이 존재하지 않습니다.</p>
+            {filteredList.length === 0 ? (
+              <h3>상품 목록이 존재하지 않습니다.</h3>
             ) : (
-              goodsList.map((goods) => (
-                <NavLink to={`/selections/${goods.goodsNo}`} key={goods.goodsNo} >
+              filteredList.map((goods) => (
+                <NavLink className="card-link" to={`/selections/${goods.goodsNo}`} key={goods.goodsNo} >
                   <article className="card">
-                    <div className="card__img">
+                    <div className="card_img">
                       <img src={goods.goodsThumbnail} alt={goods.goodsName} />
-                      <button className="wish" type="button" aria-label="찜">
-                        <i className="fa-regular fa-heart"></i>
-                      </button>
                     </div>
-                    <h3 className="card__title">{goods.goodsName}</h3>
-                    <p className="card__meta">{goods.goodsType}</p>
-                    <p className="card__price">{goods.goodsPrice}</p>
+                    <h3 className="card_title">{goods.goodsName}</h3>
+                    <p className="card_price">
+                       {Number(goods.goodsPrice).toLocaleString()}원
+                      </p>
                   </article>
                 </NavLink>
               ))

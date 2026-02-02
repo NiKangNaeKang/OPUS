@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="nknk.opus.project.selections.model.mapper.SelectionsMapper">
+
+	<select id="selectGoodsList">
+		SELECT GOODS_NO, GOODS_NAME, GOODS_SORT, GOODS_CATEGORY, GOODS_PRICE, GOODS_IMG_PATH, GOODS_IMG_RE 
+		FROM GOODS LEFT JOIN GOODS_IMG USING (GOODS_NO)
+		WHERE GOODS_DEL_FL = 'N'
+		AND GOODS_IMG_ORDER = 0
+	</select>
+
+</mapper>
