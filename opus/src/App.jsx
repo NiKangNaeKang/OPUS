@@ -7,6 +7,7 @@ import DarkHeaderLayout from "./layouts/DarkHeaderLayout";
 import LightHeaderLayout from "./layouts/LightHeaderLayout";
 import Unveiling from "./pages/Unveiling";
 import OnStage from "./pages/onStage/OnStage";
+import MusicalDetail from './pages/onStage/MusicalDetail';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         {/* Light Header */}
         <Route element={<LightHeaderLayout />}>
           <Route path="/onStage" element={<OnStage />} />
+          <Route path="/onStage/:mt20id" element={<MusicalDetail />}/>
           <Route path="/unveiling" element={<Unveiling />} />
           <Route path='/selections' element={<Selections />}></Route>
           <Route path='/selections/:goodsNo' element={<SelectionsDetail />}></Route>
