@@ -218,7 +218,7 @@ export default function OnStage() {
                 value={search} onChange={(e) => setSearch(e.target.value)} />
               <i className="fa-solid fa-search search-icon" aria-hidden="true"></i>
             </div>
-            <button className="btn btn--dark" type="button">검색</button>
+            <button className="search-btn search-btn--dark" type="button">검색</button>
           </div>
 
           {/* 필터 */}
@@ -282,7 +282,7 @@ export default function OnStage() {
                   {flatItems.map((item) => (
                     <article key={item.mt20id} className="card card--snap">
                       <Link to= {`/onStage/${item.mt20id}`}>
-                          <div className='card__thumb'>
+                          <div className='poster-card__thumb'>
                           {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
                         <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
                         </div>
@@ -316,7 +316,7 @@ export default function OnStage() {
                 <div className="grid grid--row">
                   {univItems.map((item) => (
                     <article key={item.mt20id} className="card card--snap">
-                      <div className='card__thumb'>
+                      <div className='poster-card__thumb'>
                         {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
                         <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
                       </div>
@@ -333,7 +333,7 @@ export default function OnStage() {
                 <div className="grid grid--row">
                   {flatItems.map((item) => (
                     <article key={item.mt20id} className="card card--snap">
-                      <div className='card__thumb'>
+                      <div className='poster-card__thumb'>
                         {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
                         <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
                       </div>
@@ -358,7 +358,7 @@ export default function OnStage() {
                 <div className='grid grid--default'>
                   {flatItems.map((item) => (
                     <article key={item.mt20id} className="card">
-                      <div className="card__thumb">
+                      <div className="poster-card__thumb">
                         {item.poster ? (
                           <img src={item.poster} alt={`${item.prfnm} 포스터`} />
                         ) : (
