@@ -139,8 +139,7 @@ export default function MusicalDetail () {
               <div className="section" id="reviews-section">
                 <div className="reviews-head">
                   <h2 className="section-title">관람 후기</h2>
-                  <button className="btn btn-sm btn-outline" type="button">후기 더보기</button>
-                  <button className="btn btn-sm btn-outline" type="button">후기 작성</button>
+                  <button className="btn btn-sm btn-outline" id='more-review-btn' type="button">후기 더보기</button>
                 </div>
 
                 <div className="reviews">
