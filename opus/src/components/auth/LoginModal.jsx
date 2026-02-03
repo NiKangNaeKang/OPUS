@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import "../../css/loginModal.css";
 
-import { api } from "../../api/authAPI";
-import { useAuthStore } from "../../store/UseAuthStore";
+import api from "../../api/axiosAPI";
+import { useAuthStore } from "./useAuthStore";
 
 export default function LoginModal({ open, onClose }) {
   const doLogin = useAuthStore((s) => s.login);
@@ -54,7 +54,6 @@ export default function LoginModal({ open, onClose }) {
     setErrorMsg("");
 
     try {
-      // 백엔드 { accessToken: "...", user: { id, email, role } }
       const res = await api.post("/auth/login", {
         email: email.trim(),
         password: password.trim(),
@@ -85,8 +84,13 @@ export default function LoginModal({ open, onClose }) {
   if (!open) return null;
 
   return (
-    <div className="lm-overlay" onMouseDown={handleOverlayClick} role="dialog" aria-modal="true">
-      <div className="lm-modal" onMouseDown={(e) => e.stopPropagation()}>
+    <div 
+      className="lm-overlay" 
+      onClick={handleOverlayClick} 
+      role="dialog" 
+      aria-modal="true"
+    >
+      <div className="lm-modal" onClick={(e) => e.stopPropagation()}>
         <div className="lm-header">
           <h2 className="lm-title">로그인</h2>
           <button className="lm-close" type="button" onClick={onClose} aria-label="닫기">

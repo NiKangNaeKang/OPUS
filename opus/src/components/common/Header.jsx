@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, Link, NavLink } from "react-router-dom";
 import "../../css/common/Header.css";
 
-function Header({ onClickUser }) {
+function Header({ onClickUser, isLoggedIn, variant }) {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
 
@@ -23,8 +23,8 @@ function Header({ onClickUser }) {
   return (
     <header
       id="header"
-      className={`header ${scrolled ? "is-scrolled" : ""} ${onHero ? "is-on-hero" : ""
-        }`}
+      /* 아래 className 부분에 ${variant}를 추가했습니다. 이래야 색깔이 바뀝니다! */
+      className={`header ${variant} ${scrolled ? "is-scrolled" : ""} ${onHero ? "is-on-hero" : ""}`}
     >
       <div className="wrap header__inner">
         <div className="header__left">
@@ -79,10 +79,10 @@ function Header({ onClickUser }) {
           <button
             className="icon-btn" 
             type="button"
-            aria-label="마이페이지"
+            aria-label={isLoggedIn ? "로그아웃" : "마이페이지"}
             onClick={onClickUser}
           >
-            <i className="fa-regular fa-user" aria-hidden="true"></i>
+            <i className={`fa-regular ${isLoggedIn ? "fa-circle-user" : "fa-user"}`} aria-hidden="true"></i>
           </button>
 
           {location.pathname.includes("selections") ?
