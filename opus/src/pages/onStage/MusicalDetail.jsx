@@ -1,6 +1,6 @@
 import '../../css/pages/onStage/detail.css'
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 function parseKopisXML(xmlText) {
   const doc = new DOMParser().parseFromString(xmlText, "text/xml");
@@ -63,7 +63,7 @@ export default function MusicalDetail () {
               </div>
 
               <div className="poster-actions">
-                <button className="btn btn-primary" type="button"
+                <button className="btn btn-primary" id='book-btn' type="button"
                   onClick={() => {
                     if (!data.relateurl) return alert("예매 링크가 없는 공연입니다.");
                     window.open(data.relateurl, "_blank", "noopener,noreferrer");
@@ -139,8 +139,9 @@ export default function MusicalDetail () {
               <div className="section" id="reviews-section">
                 <div className="reviews-head">
                   <h2 className="section-title">관람 후기</h2>
-                  <button className="btn btn-sm btn-outline" type="button">후기 더보기</button>
-                  <button className="btn btn-sm btn-outline" type="button">후기 작성</button>
+                  <Link to={`/onStage/reviews`}>
+                    <button className="btn btn-sm btn-outline" id='more-review-btn' type="button">후기 더보기</button>
+                  </Link>
                 </div>
 
                 <div className="reviews">
