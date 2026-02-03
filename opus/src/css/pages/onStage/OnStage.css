@@ -6,9 +6,6 @@
 
   --wrap:1280px;
   --pad:32px;
-
-  --radius:12px;
-  --pill:999px;
 }
 
 *{ box-sizing:border-box; }
@@ -52,7 +49,7 @@ img{ display:block; max-width:100%; }
   width:100%;
   height:48px;
   border:1px solid #d1d5db;
-  border-radius:10px;
+  border-radius: 3px;
   padding:0 46px 0 16px;
   outline:none;
   background:#fff;
@@ -69,19 +66,19 @@ img{ display:block; max-width:100%; }
   color:#9ca3af;
 }
 
-.btn{
+.search-btn{
   height:48px;
   padding:0 22px;
-  border-radius:10px;
   border:1px solid #111;
   cursor:pointer;
   font-weight:700;
+  border-radius: 3px;
 }
-.btn--dark{
+.search-btn--dark{
   background:#111;
   color:#fff;
 }
-.btn--dark:hover{ background:#000; }
+.search-btn--dark:hover{ background:#000; }
 
 /* ================= FILTERS ================= */
 .filter-row{
@@ -107,19 +104,20 @@ img{ display:block; max-width:100%; }
   background:#d1d5db;
 }
 
-.chip{
+.chip.genre-btn, .chip.status-btn {
   border:1px solid #d1d5db;
   background:#fff;
   color:var(--muted);
   padding:8px 14px;
-  border-radius: var(--pill);
   cursor:pointer;
   font-size:13px;
   font-weight:700;
   transition: border-color .2s, color .2s;
 }
-.chip:hover{ border-color:#111; color:#111; }
-.chip.is-active{ border-color:#111; color:#111; }
+.chip.genre-btn:hover, .chip.status-btn:hover { border-color:#111; color:#111; }
+.chip.genre-btn.is-active, .chip.status-btn.is-active {
+  border-color:#111; background-color:#111; color:#fff !important; 
+}
 
 /* ================= CONTENT ================= */
 .content{
@@ -138,22 +136,25 @@ img{ display:block; max-width:100%; }
 /* (grid / row 둘 다 공통) */
 .grid{ gap:20px; }
 
-.card{ cursor:pointer; }
+.card{
+  cursor:pointer;
+  border: none !important;
+}
 
-.card__thumb{
+.poster-card__thumb{
   position:relative;
-  border-radius: var(--radius);
   overflow:hidden;
   background:#f3f4f6;
   margin-bottom:10px;
 }
-.card__thumb img{
+.poster-card__thumb img{
   width:100%;
-  height:100%;
+  height:350px;
+  border-radius: 2px;
   object-fit:cover;
   transition: transform .3s ease;
 }
-.card:hover .card__thumb img{ transform:scale(1.05); }
+.card:hover .poster-card__thumb img{ transform:scale(1.05); }
 
 .card__title{
   margin:0 0 6px;
@@ -171,12 +172,12 @@ img{ display:block; max-width:100%; }
   top:12px;
   right:12px;
   padding:6px 10px;
-  border-radius: var(--pill);
   font-size:11px;
   font-weight:800;
 }
 .badge--dark{
-  background: rgba(0,0,0,0.70);
+  background: rgba(0,0,0,0.7);
+  border-radius: 2px;
   color:#fff;
 }
 
@@ -233,7 +234,6 @@ img{ display:block; max-width:100%; }
   display:inline-block;
   width:32px;
   height:32px;
-  border-radius:999px;
   border:3px solid #d1d5db;
   border-top-color:#111;
   animation: spin 0.9s linear infinite;
