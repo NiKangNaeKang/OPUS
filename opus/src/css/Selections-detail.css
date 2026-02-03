@@ -74,7 +74,7 @@ button {
 /* Top grid */
 .top-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.8fr 1fr;
   gap: 64px;
   /* gap-16 */
   align-items: start;
@@ -89,12 +89,12 @@ button {
 
 .gallery__main {
   background: var(--soft);
-  border-radius: var(--radius);
   overflow: hidden;
   height: 600px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 50px;
 }
 
 .gallery__main-img {
@@ -112,7 +112,6 @@ button {
 
 .thumb {
   background: var(--soft);
-  border-radius: var(--radius);
   overflow: hidden;
   height: 112px;
   /* h-28 */
@@ -120,26 +119,12 @@ button {
   padding: 0;
 }
 
-.thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.thumb:hover {
-  border-color: var(--line2);
-}
-
-.thumb.is-active {
-  border-color: var(--text);
-}
-
 /* Info */
-.info {
+.goods_info {
   display: flex;
   flex-direction: column;
   gap: 32px;
+  margin-top: 50px;
 }
 
 .chips {
@@ -228,23 +213,36 @@ button {
   color: var(--text);
 }
 
+.selected-field {
+  background: var(--soft);
+  padding: 20px;
+}
+
+.selected-field .field__label,
+.selected-field .qty {
+  margin-top: 10px;
+}
+
+.selected-box {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+
 /* Select */
 .select-wrap {
   position: relative;
 }
 
-.optionSelect {
+.option_select {
   width: 100%;
   appearance: none;
   border: 1px solid var(--line2);
-  border-radius: var(--radius);
+  border-radius: 2px;
   padding: 12px 44px 12px 16px;
   background: #fff;
   outline: none;
-}
-
-.optionSelect:focus {
-  border-color: var(--text);
 }
 
 .select__icon {
@@ -278,8 +276,8 @@ button {
   background: var(--soft);
 }
 
-.qty__input {
-  width: 80px;
+.qty_input {
+  width: 160px;
   text-align: center;
   border: 1px solid var(--line2);
   border-radius: var(--radius);
@@ -287,14 +285,14 @@ button {
   outline: none;
 }
 
-.qty__input:focus {
-  border-color: var(--text);
+.qty_input::-webkit-outer-spin-button,
+.qty_input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 /* Total */
 .total {
-  background: var(--soft);
-  border-radius: var(--radius);
   padding: 24px;
 }
 
@@ -317,7 +315,7 @@ button {
   gap: 12px;
 }
 
-.btn {
+.goods_btn {
   border-radius: var(--radius);
   padding: 16px 14px;
   /* py-4 */
@@ -325,43 +323,27 @@ button {
   transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
 
-.btn--outline {
+.goods_btn--outline {
   flex: 1;
   background: #fff;
   border: 2px solid var(--text);
   color: var(--text);
 }
 
-.btn--outline:hover {
+.goods_btn--outline:hover {
   background: var(--soft);
 }
 
-.btn--solid {
+.goods_btn--solid {
   flex: 1;
   background: var(--text);
   border: 2px solid var(--text);
   color: #fff;
 }
 
-.btn--solid:hover {
+.goods_btn--solid:hover {
   background: var(--dark2);
   border-color: var(--dark2);
-}
-
-.btn-like {
-  width: 56px;
-  /* w-14 */
-  border: 1px solid var(--line2);
-  border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #4b5563;
-  font-size: 20px;
-}
-
-.btn-like:hover {
-  background: var(--soft);
 }
 
 /* Seller */
@@ -395,17 +377,19 @@ button {
 }
 
 /* Tabs */
-.tabs {
+.goods_tabs {
   margin-top: 80px;
 }
 
-.tabs__bar {
+.tabs_bar {
   border-bottom: 1px solid var(--line);
   display: flex;
   gap: 32px;
+  width: 80%;
+  margin: 0 auto;
 }
 
-.tab {
+.goods_tab {
   padding: 16px 4px;
   font-size: 13px;
   color: #4b5563;
@@ -413,24 +397,24 @@ button {
   font-weight: 700;
 }
 
-.tab:hover {
+.goods_tab:hover {
   color: var(--text);
 }
 
-.tab.is-active {
+.goods_tab.is-active {
   color: var(--text);
   border-bottom-color: var(--text);
 }
 
-.tabs__content {
+.tabs_content {
   padding: 48px 0;
 }
 
-.tab-panel {
+.goods_tab-panel {
   display: none;
 }
 
-.tab-panel.is-active {
+.goods_tab-panel.is-active {
   display: block;
 }
 
@@ -465,7 +449,6 @@ button {
 
 .detail-image {
   background: var(--soft);
-  border-radius: var(--radius);
   overflow: hidden;
   height: 384px;
   /* h-96 */
@@ -499,34 +482,6 @@ button {
 .checklist i {
   margin-top: 4px;
   color: var(--text);
-}
-
-/* Spec table */
-.spec {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.spec__table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.spec__table tr+tr td {
-  border-top: 1px solid var(--line);
-}
-
-.spec__k {
-  width: 33.333%;
-  background: var(--soft);
-  padding: 14px 18px;
-  font-weight: 800;
-}
-
-.spec__v {
-  padding: 14px 18px;
-  color: #374151;
 }
 
 /* Related */

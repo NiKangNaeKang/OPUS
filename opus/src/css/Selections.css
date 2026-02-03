@@ -10,6 +10,7 @@
   --pad: 48px;
 
   --radius-sm: 2px;
+  --radius-pill: 999px;
   /* rounded-sm 느낌 */
   --shadow: 0 10px 30px rgba(0, 0, 0, .08);
 }
@@ -140,7 +141,7 @@ img {
   background: #fff;
   color: #374151;
   padding: 10px 18px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -194,28 +195,28 @@ img {
 }
 
 /* chips */
-.chips {
+.goods_chips {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-.chip {
+.goods_chip {
   border: 1px solid #e5e7eb;
   background: #fff;
   color: #4b5563;
   padding: 9px 14px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   font-size: 13px;
   cursor: pointer;
   transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
 
-.chip:hover {
+.goods_chip:hover {
   background: #f9fafb;
 }
 
-.chip.is-active {
+.goods_chip.is-active {
   background: #f3f4f6;
   border-color: #f3f4f6;
   color: #111827;

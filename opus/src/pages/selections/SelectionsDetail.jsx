@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 // URL 경로 얻어오기
 import { useParams } from "react-router-dom";
 import { axiosApi } from "../../api/axiosAPI";
 import Loading from "../../components/common/Loading";
 import "../../css/Selections-detail.css";
-import pic1 from "../../assets/artExam.jpg";
+import pic1 from "../../assets/exhibitionExam.png";
 
 
 const SelectionsDetail = () => {
@@ -16,8 +16,12 @@ const SelectionsDetail = () => {
   const [goodsOptions, setGoodsOptions] = useState([]); // 상품 옵션 배열
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태
   const [goodsImgList, setGoodsImgList] = useState(null); // 상품 이미지 배열
-  const [selectedColor, setSelectedColor] = useState(null); // 사용자가 선택한 색상
-  const [selectedSize, setSelectedSize] = useState(null); // 사용자가 선택한 사이즈
+
+  const [selectedColor, setSelectedColor] = useState(""); // 사용자가 선택한 색상
+  const [selectedSize, setSelectedSize] = useState(""); // 사용자가 선택한 사이즈
+  const [qty, setQty] = useState(0);
+
+  const [tab, setTab] = useState("info"); // 상세 정보 or 정책 탭
 
   const selectGoodsDetail = async () => {
 
@@ -66,11 +70,81 @@ const SelectionsDetail = () => {
 
   useEffect(() => {
 
-    if (goodsDetail != null) {
-      setIsLoading(false);
-    }
+    if (goodsDetail != null && goodsImgList != null && goodsOptions != null) setIsLoading(false);
 
   }, [goodsDetail, goodsImgList, goodsOptions])
+
+  const handleQty = (qty) => {
+    if(qty < 1) {
+      setQty(qty + 1);
+      alert("최소 한 개 이상의 수량을 선택해야합니다.");
+      return;
+    }
+
+    if(qty > selectedOptionRow.stock) {
+      setQty(qty - 1);
+      alert("재고 이하의 수량을 선택해주세요.");
+      return;
+    }
+
+    setQty(qty);
+
+  }
+  const handleTab = (tab) => setTab(tab);
+
+  // 옵션 존재 여부
+  const hasSize = useMemo(() => goodsOptions.some((opt) => opt.goodsSize), [goodsOptions]);
+  const hasColor = useMemo(() => goodsOptions.some((opt) => opt.goodsColor), [goodsOptions]);
+
+  // 사이즈 목록(중복 제거)
+  const sizeList = useMemo(() => {
+    if (!hasSize) return [];
+    return [...new Set(goodsOptions.map((o) => o.goodsSize).filter(Boolean))];
+  }, [goodsOptions, hasSize]);
+
+  // 선택된 사이즈에 해당하는 색상 목록(중복 제거)
+  const colorList = useMemo(() => {
+    if (!hasColor) return [];
+    // 사이즈가 있는 구조면 사이즈 기준으로 필터링
+    if (hasSize) {
+      if (!selectedSize) return [];
+      return [
+        ...new Set(
+          goodsOptions
+            .filter((o) => o.goodsSize === selectedSize)
+            .map((o) => o.goodsColor)
+            .filter(Boolean)
+        ),
+      ];
+    }
+    // 사이즈가 없고 색상만 있으면 전체 색상 중복 제거
+    return [...new Set(goodsOptions.map((o) => o.goodsColor).filter(Boolean))];
+  }, [goodsOptions, hasColor, hasSize, selectedSize]);
+
+  // 최종 선택된 옵션 row 찾기
+  const selectedOptionRow = useMemo(() => {
+    // 사이즈/색상 둘 다 있는 경우
+    if (hasSize && hasColor) {
+      if (!selectedSize || !selectedColor) return null;
+      return goodsOptions.find(
+        (o) => o.goodsSize === selectedSize && o.goodsColor === selectedColor
+      );
+    }
+
+    // 사이즈만 있는 경우
+    if (hasSize && !hasColor) {
+      if (!selectedSize) return null;
+      return goodsOptions.find((o) => o.goodsSize === selectedSize);
+    }
+
+    // 색상만 있는 경우
+    if (!hasSize && hasColor) {
+      if (!selectedColor) return null;
+      return goodsOptions.find((o) => o.goodsColor === selectedColor);
+    }
+
+    return null;
+  }, [goodsOptions, hasSize, hasColor, selectedSize, selectedColor]);
 
   return (
     isLoading ? (
@@ -92,7 +166,7 @@ const SelectionsDetail = () => {
             </div>
           </div>
 
-          <div id="product-info" className="info">
+          <div id="product-info" className="goods_info">
             <div className="info__head">
               <h1 className="title">{goodsDetail.goodsName}</h1>
               <p className="desc">
@@ -107,90 +181,99 @@ const SelectionsDetail = () => {
               </div>
               <div className="price-row">
                 <span className="label">배송비</span>
-                <span className="value">{goodsDetail.deliveryCost == 0 ? "무료" : (Number(goodsDetail.deliveryCost).toLocaleString()) + '원' }</span>
+                <span className="value">{goodsDetail.deliveryCost == 0 ? "무료" : (Number(goodsDetail.deliveryCost).toLocaleString()) + '원'}</span>
               </div>
             </div>
 
 
-            {goodsOptions.some(opt => opt.goodsColor) && (
-              <div className="field">
-                <label className="field__label">색상 선택</label>
-                <div className="select-wrap">
-                  <select className="optionSelect" onChange={e => setSelectedColor(e.target.value)}>
-                    {goodsOptions.map((opt, index) => (
-                      <option key={index} value={opt.goodsColor}>
-                        {opt.goodsColor}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            )}
-
             <div id="product-options" className="options">
-              {goodsOptions.some(opt => opt.goodsSize) && (
+              {/* ✅ 사이즈 선택: 중복 제거된 sizeList로 출력 */}
+              {hasSize && (
                 <div className="field">
                   <label className="field__label">사이즈 선택</label>
                   <div className="select-wrap">
-                    <select className="optionSelect" onChange={e => setSelectedSize(e.target.value)}>
-                      {goodsOptions.map((opt) => (
-                        <option key={opt.goodsOptionNo} value={opt.goodsSize}>
-                          {opt.goodsSize}
+                    <select
+                      className="option_select"
+                      value={selectedSize}
+                      onChange={(e) => {
+                        setSelectedSize(e.target.value);
+                        setSelectedColor(""); // 사이즈 바뀌면 색상 초기화
+                      }}
+                    >
+                      <option value="">사이즈 선택</option>
+                      {sizeList.map((s) => (
+                        <option key={s} value={s} className="option">
+                          {s}
                         </option>
                       ))}
                     </select>
+                    <i className="fa-solid fa-chevron-down select__icon" aria-hidden="true"></i>
+                  </div>
+                </div>
+              )}
+
+              {/* ✅ 색상 선택: size 선택 후 colorList 출력 */}
+              {hasColor && (
+                <div className="field">
+                  <label className="field__label">색상 선택</label>
+                  <div className="select-wrap">
+                    <select
+                      className="option_select"
+                      value={selectedColor}
+                      onChange={(e) => setSelectedColor(e.target.value)}
+                      disabled={hasSize && !selectedSize} // 사이즈가 있으면 사이즈 먼저 선택
+                    >
+                      <option value="">색상 선택</option>
+                      {colorList.map((c) => (
+                        <option key={c} value={c} className="option">
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                    <i className="fa-solid fa-chevron-down select__icon" aria-hidden="true"></i>
                   </div>
                 </div>
               )}
 
             </div>
 
-            {selectedColor && selectedSize && (
-              <div className="field">
-                <div className="selected-box">
-                  선택된 옵션: {selectedColor} / {selectedSize}
-                </div>
+            {/* ✅ 선택 박스: 옵션 row가 확정되면 표시 */}
+            {(selectedOptionRow || (!hasSize && !hasColor)) && (
+              <div className="field selected-field">
+                {selectedOptionRow && (
+                  <div className="selected-box">
+                    선택된 옵션:
+                    {hasSize ? ` ${selectedOptionRow.goodsSize}` : ""}
+                    {hasColor ? ` / ${selectedOptionRow.goodsColor}` : ""}
+                    {` (재고: ${selectedOptionRow.stock})`}
+                  </div>
+                )}
+
                 <label className="field__label">수량</label>
                 <div className="qty">
-                  <button className="qty__btn" type="button" id="qtyMinus" aria-label="minus">
+                  <button className="qty__btn" type="button" id="qtyMinus" aria-label="minus" onClick={() => handleQty(qty - 1)}>
                     <i className="fa-solid fa-minus" aria-hidden="true"></i>
                   </button>
 
-                  <input className="qty__input" type="number" id="qtyInput" value="1" min="1" />
+                  <input className="qty_input" type="number" id="qtyInput" value={qty}/>
 
-                  <button className="qty__btn" type="button" id="qtyPlus" aria-label="plus">
+                  <button className="qty__btn" type="button" id="qtyPlus" aria-label="plus" onClick={() => handleQty(qty + 1)}>
                     <i className="fa-solid fa-plus" aria-hidden="true"></i>
                   </button>
                 </div>
               </div>
             )}
 
-            {!goodsOptions.some(opt => opt.goodsSize || opt.goodsColor) &&
-              (<div className="field">
-                <label className="field__label">수량</label>
-                <div className="qty">
-                  <button className="qty__btn" type="button" id="qtyMinus" aria-label="minus">
-                    <i className="fa-solid fa-minus" aria-hidden="true"></i>
-                  </button>
-
-                  <input className="qty__input" type="number" id="qtyInput" value="1" min="1" />
-
-                  <button className="qty__btn" type="button" id="qtyPlus" aria-label="plus">
-                    <i className="fa-solid fa-plus" aria-hidden="true"></i>
-                  </button>
-                </div>
-              </div>)}
-
             <div id="product-total" className="total">
               <div className="total__row">
                 <span className="label">총 상품금액</span>
-                <span className="total__price" id="totalPriceText">{Number(goodsDetail.goodsPrice).toLocaleString()}원</span>
+                <span className="total__price" id="totalPriceText">{Number(goodsDetail.goodsPrice * qty).toLocaleString()}원</span>
               </div>
             </div>
 
             <div id="product-actions" className="actions">
-              <button className="btn btn--outline" type="button">장바구니</button>
-              <button className="btn btn--solid" type="button">바로 구매</button>
+              <button className="goods_btn goods_btn--outline" type="button">장바구니</button>
+              <button className="goods_btn goods_btn--solid" type="button">바로 구매</button>
             </div>
 
             <div id="product-seller-info" className="seller">
@@ -207,15 +290,17 @@ const SelectionsDetail = () => {
         </section>
 
 
-        <section id="product-detail-tabs" className="tabs">
-          <div className="tabs__bar">
-            <button className="tab is-active" type="button" data-tab="detail">상세정보</button>
-            <button className="tab" type="button" data-tab="shipping">배송/교환/반품</button>
+        <section id="product-detail-tabs" className="goods_tabs">
+          <div className="tabs_bar">
+            <button className={`goods_tab ${tab == "info" ? "is-active" : ""}`}
+              type="button" data-tab="detail" onClick={() => handleTab("info")}>상세정보</button>
+            <button className={`goods_tab ${tab == "policy" ? "is-active" : ""}`}
+              type="button" data-tab="shipping" onClick={() => handleTab("policy")}>배송/교환/반품</button>
           </div>
 
-          <div className="tabs__content">
+          <div className="tabs_content">
 
-            <div className="tab-panel is-active" id="tab-detail">
+            <div className={`goods_tab-panel ${tab == "info" ? "is-active" : ""}`} id="tab-detail">
               <div className="detail-wrap">
                 <h2 className="section-title">상품 상세정보</h2>
 
@@ -236,7 +321,7 @@ const SelectionsDetail = () => {
               </div>
             </div>
 
-            <div className="tab-panel" id="tab-shipping">
+            <div className={`goods_tab-panel ${tab == "policy" ? "is-active" : ""}`} id="tab-shipping">
               <div className="detail-wrap">
                 {/* <!-- OPUS 배송/교환/반품 정책 (Copy & Paste) --> */}
                 <header className="policy__header">

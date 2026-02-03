@@ -78,18 +78,18 @@ const Selections = () => {
         </div>
 
         <div className="filter__row">
-          <div className="chips">
-            <button className={`chip ${category == "all" ? "is-active" : ""}`}
+          <div className="goods_chips">
+            <button className={`goods_chip ${category == "all" ? "is-active" : ""}`}
               onClick={() => handleCategory("all")}>전체</button>
-            <button className={`chip ${category == "clothes" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category == "clothes" ? "is-active" : ""}`}
               onClick={() => handleCategory("clothes")}>의류</button>
-            <button className={`chip ${category == "accessories" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category == "accessories" ? "is-active" : ""}`}
               onClick={() => handleCategory("accessories")}>액세서리</button>
-            <button className={`chip ${category == "stationery" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category == "stationery" ? "is-active" : ""}`}
               onClick={() => handleCategory("stationery")}>문구</button>
-            <button className={`chip ${category == "poster" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category == "poster" ? "is-active" : ""}`}
               onClick={() => handleCategory("poster")}>포스터/엽서</button>
-            <button className={`chip ${category == "record" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category == "record" ? "is-active" : ""}`}
               onClick={() => handleCategory("record")}>음반/DVD</button>
           </div>
 
