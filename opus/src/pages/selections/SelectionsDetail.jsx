@@ -19,7 +19,7 @@ const SelectionsDetail = () => {
 
   const [selectedColor, setSelectedColor] = useState(""); // 사용자가 선택한 색상
   const [selectedSize, setSelectedSize] = useState(""); // 사용자가 선택한 사이즈
-  const [qty, setQty] = useState(0);
+  const [qty, setQty] = useState(1);
 
   const [tab, setTab] = useState("info"); // 상세 정보 or 정책 탭
 
@@ -66,7 +66,7 @@ const SelectionsDetail = () => {
     selectGoodsDetail();
     selectGoodsOptions();
     selectGoodsImgList();
-  }, []);
+  }, [goodsId]);
 
   useEffect(() => {
 
@@ -74,22 +74,27 @@ const SelectionsDetail = () => {
 
   }, [goodsDetail, goodsImgList, goodsOptions])
 
-  const handleQty = (qty) => {
-    if(qty < 1) {
-      setQty(qty + 1);
-      alert("최소 한 개 이상의 수량을 선택해야합니다.");
+  const handleQty = (nextQty) => {
+
+    if (!selectedOptionRow) {
+      alert("옵션을 먼저 선택해주세요.");
       return;
     }
 
-    if(qty > selectedOptionRow.stock) {
-      setQty(qty - 1);
-      alert("재고 이하의 수량을 선택해주세요.");
+    if (nextQty < 1) {
+      alert("최소 수량은 1개입니다.");
       return;
     }
 
-    setQty(qty);
+    if (nextQty > selectedOptionRow.stock) {
+      alert("선택 가능한 재고 수량을 초과했습니다.");
+      return;
+    }
+
+    setQty(nextQty);
 
   }
+
   const handleTab = (tab) => setTab(tab);
 
   // 옵션 존재 여부
@@ -145,6 +150,16 @@ const SelectionsDetail = () => {
 
     return null;
   }, [goodsOptions, hasSize, hasColor, selectedSize, selectedColor]);
+
+  // 옵션 변경 시 재고와 선택 수량 비교 (옵션마다 재고가 다르기 때문!)
+  useEffect(() => {
+
+    if (selectedOptionRow != null && qty > selectedOptionRow.stock) {
+      alert("재고 이하의 수량만 선택 가능합니다.");
+      setQty(1);
+    }
+
+  }, [selectedOptionRow])
 
   return (
     isLoading ? (
@@ -255,7 +270,7 @@ const SelectionsDetail = () => {
                     <i className="fa-solid fa-minus" aria-hidden="true"></i>
                   </button>
 
-                  <input className="qty_input" type="number" id="qtyInput" value={qty}/>
+                  <input className="qty_input" type="number" id="qtyInput" value={qty} />
 
                   <button className="qty__btn" type="button" id="qtyPlus" aria-label="plus" onClick={() => handleQty(qty + 1)}>
                     <i className="fa-solid fa-plus" aria-hidden="true"></i>
@@ -292,9 +307,9 @@ const SelectionsDetail = () => {
 
         <section id="product-detail-tabs" className="goods_tabs">
           <div className="tabs_bar">
-            <button className={`goods_tab ${tab == "info" ? "is-active" : ""}`}
+            <button className={`goods_tab ${tab === "info" ? "is-active" : ""}`}
               type="button" data-tab="detail" onClick={() => handleTab("info")}>상세정보</button>
-            <button className={`goods_tab ${tab == "policy" ? "is-active" : ""}`}
+            <button className={`goods_tab ${tab === "policy" ? "is-active" : ""}`}
               type="button" data-tab="shipping" onClick={() => handleTab("policy")}>배송/교환/반품</button>
           </div>
 
