@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { axiosApi } from "../../api/axiosAPI";
 import Loading from "../../components/common/Loading"
-import '../../css/goods.css'
+import "../../css/Selections.css";
 import { NavLink } from "react-router-dom";
+import pic1 from "../../assets/artExam.jpg";
 
 const Selections = () => {
 
@@ -134,9 +135,9 @@ const Selections = () => {
             ) : (
               filteredList.map((goods) => (
                 <NavLink className="card-link" to={`/selections/${goods.goodsNo}`} key={goods.goodsNo} >
-                  <article className="card">
+                  <article className="goods_card">
                     <div className="card_img">
-                      <img src={goods.goodsThumbnail} alt={goods.goodsName} />
+                      <img src={pic1} alt={goods.goodsName} />
                     </div>
                     <h3 className="card_title">{goods.goodsName}</h3>
                     <p className="card_price">

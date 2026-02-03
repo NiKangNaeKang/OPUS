@@ -234,6 +234,7 @@ img {
 
 .loading_msg {
   margin: 0;
+  color: #111827;
 }
 
 /* grid */
@@ -295,6 +296,7 @@ img {
   position: relative;
   overflow: hidden;
   background: #f9fafb;
+  border-radius: 12px;
   margin-bottom: 14px;
 }
 
@@ -306,7 +308,7 @@ img {
   transition: transform .5s ease;
 }
 
-.card:hover .card_img img {
+.goods_card:hover .card_img img {
   transform: scale(1.05);
 }
 
@@ -335,23 +337,6 @@ img {
   display: flex;
   justify-content: center;
   margin-top: 64px;
-}
-
-.more__btn {
-  border: 1px solid #d1d5db;
-  background: #fff;
-  color: #374151;
-  padding: 12px 28px;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background .15s ease, border-color .15s ease;
-}
-
-.more__btn:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
 }
 
 /* responsive */

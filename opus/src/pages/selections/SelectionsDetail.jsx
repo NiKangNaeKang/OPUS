@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { axiosApi } from "../../api/axiosAPI";
 import Loading from "../../components/common/Loading";
+import "../../css/Selections-detail.css";
+import pic1 from "../../assets/artExam.jpg";
 
 
 const SelectionsDetail = () => {
@@ -84,7 +86,7 @@ const SelectionsDetail = () => {
               <img
                 id="mainImage"
                 className="gallery__main-img"
-                src={goodsDetail.goodsThumbnail}
+                src={pic1}
                 alt={goodsDetail.goodsName}
               />
             </div>
@@ -101,11 +103,11 @@ const SelectionsDetail = () => {
             <div className="price-box">
               <div className="price-row">
                 <span className="label label--strong">상품 가격</span>
-                <span className="value value--big" id="unitPriceText">{goodsDetail.goodsPrice}</span>
+                <span className="value value--big" id="unitPriceText">{Number(goodsDetail.goodsPrice).toLocaleString()}원</span>
               </div>
               <div className="price-row">
                 <span className="label">배송비</span>
-                <span className="value">{goodsDetail.deliveryCost}</span>
+                <span className="value">{goodsDetail.deliveryCost == 0 ? "무료" : (Number(goodsDetail.deliveryCost).toLocaleString()) + '원' }</span>
               </div>
             </div>
 
@@ -131,8 +133,8 @@ const SelectionsDetail = () => {
                   <label className="field__label">사이즈 선택</label>
                   <div className="select-wrap">
                     <select className="optionSelect" onChange={e => setSelectedSize(e.target.value)}>
-                      {goodsOptions.map((opt, index) => (
-                        <option key={index} value={opt.goodsSize}>
+                      {goodsOptions.map((opt) => (
+                        <option key={opt.goodsOptionNo} value={opt.goodsSize}>
                           {opt.goodsSize}
                         </option>
                       ))}
@@ -182,7 +184,7 @@ const SelectionsDetail = () => {
             <div id="product-total" className="total">
               <div className="total__row">
                 <span className="label">총 상품금액</span>
-                <span className="total__price" id="totalPriceText">{goodsDetail.goodsPrice}</span>
+                <span className="total__price" id="totalPriceText">{Number(goodsDetail.goodsPrice).toLocaleString()}원</span>
               </div>
             </div>
 
