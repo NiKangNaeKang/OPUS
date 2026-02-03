@@ -289,6 +289,53 @@ export default function UnveilingDetail() {
           </div>
         </section>
 
+        <section id="service-info-section" className="section">
+          <h2 className="section__title">경매 이용 안내</h2>
+
+          <div className="service-info">
+            <div className="service-info__item">
+              <h3 className="service-info__title">낙찰 수수료</h3>
+              <p className="service-info__desc">
+                낙찰가의 <strong>15%</strong>가 구매 수수료로 별도 부과됩니다.
+                수수료는 부가세가 포함된 금액이며, 낙찰 확정 후 최종 결제 금액에 합산됩니다.
+              </p>
+            </div>
+
+            <div className="service-info__item">
+              <h3 className="service-info__title">출고 및 수령</h3>
+              <p className="service-info__desc">
+                작품 인도는 <strong>직접 출고(대면 수령)</strong>를 원칙으로 진행됩니다.
+              </p>
+
+              <ul className="service-info__list">
+                <li>출고 가능 요일: 매주 월요일 ~ 금요일</li>
+                <li>직접 수령 가능 시간: 10:00 ~ 18:00</li>
+                <li>출고 요청 마감: 출고 요청일 기준 2일 전까지 접수</li>
+              </ul>
+
+              <p className="service-info__desc">
+                낙찰자 승용차로 작품 상차 시, 작품 전체 크기 90 × 118cm까지 적재가 가능합니다
+                (캔버스 50호 기준).
+              </p>
+
+              <p className="service-info__desc">
+                부득이하게 배송, 설치 또는 보관이 필요한 경우에는
+                낙찰 확정 후 고객센터를 통해 별도 문의가 가능합니다.
+              </p>
+            </div>
+
+
+            <div className="service-info__item">
+              <h3 className="service-info__title">설치 및 보관</h3>
+              <p className="service-info__desc">
+                설치 서비스 또는 장기 보관이 필요한 경우,
+                낙찰 후 고객센터를 통해 별도 문의가 가능합니다.
+              </p>
+            </div>
+          </div>
+        </section>
+
+
       </main>
     </div>
   );

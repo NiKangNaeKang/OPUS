@@ -50,8 +50,8 @@
 /* ===== Detail Grid ===== */
 .unveiling-detail .detail{
   display:grid;
-  grid-template-columns: 1.08fr 0.92fr;
-  gap: 84px;
+  grid-template-columns: 1fr 440px;
+  gap: 90px;
   align-items: start;
 }
 
@@ -63,12 +63,19 @@
   align-items:center;
   justify-content:center;
   margin-bottom: 24px;
-  padding: 10px;
+  
+  padding: 6px;
+  /* border-radius: 10px; */
+  overflow: hidden;
+
 }
 .unveiling-detail .image__main img{
   width:100%;
   height:100%;
   object-fit: contain;
+
+  transform: scale(1.03);
+  transform-origin: center;
 }
 
 /* Info */
@@ -78,16 +85,20 @@
   border: 0 !important;
   box-shadow: none !important;
   padding: 0 !important;  /* 흰 공간 유지 */
+
+  position: sticky;
+  top: 96px;
+  align-items: start;
 }
 
 .unveiling-detail .title{
-  margin:0 0 10px;
+  margin:0 0 6px;
   font-size: 30px;
   font-weight: 300;
   letter-spacing: -0.02em;
 }
 .unveiling-detail .artist{
-  margin:0 0 24px;
+  margin:0 0 20px;
   font-size: 18px;
   color:#4b5563;
   font-weight: 300;
@@ -98,7 +109,7 @@
   padding-top: 20px;
   display:flex;
   flex-direction:column;
-  gap: 14px;
+  gap: 12px;
 }
 .unveiling-detail .spec__row{
   display:flex;
@@ -107,9 +118,10 @@
   gap: 16px;
 }
 .unveiling-detail .spec__k{
-  font-size: 13px;
+  font-size: 12px;
   color: var(--ud-muted);
   font-weight: 300;
+  letter-spacing: -0.1px;
 }
 .unveiling-detail .spec__v{
   font-size: 13px;
@@ -122,8 +134,8 @@
   background: #f9fafb; /* 기존 var(--bg-soft) 유지 */
   /* border: 1px solid rgba(17,24,39,0.06); */
   border-radius: 6px;
-  padding: 22px 22px;
-  margin: 28px 0 18px;
+  padding: 20px 20px;
+  margin: 24px 0 16px;
 }
 .unveiling-detail .pricebox__block{ display:flex; flex-direction:column; gap:6px; }
 .unveiling-detail .pricebox__divider{
@@ -136,6 +148,7 @@
   font-size: 11px;
   color: var(--ud-muted);
   font-weight: 300;
+  letter-spacing: 0.02em;
 }
 .unveiling-detail .pricebox__value{
   margin:0;
@@ -144,12 +157,16 @@
   font-size: 16px;
 }
 .unveiling-detail .pricebox__value--lg{ font-size: 22px; font-weight: 300; }
-.unveiling-detail .pricebox__value--xl{ font-size: 32px; font-weight: 400; color: var(--ud-amber-text); }
+.unveiling-detail .pricebox__value--xl{ font-size: 28px; font-weight: 400; color: var(--ud-amber-text); }
 .unveiling-detail .pricebox__hint{
   margin:0;
   font-size: 11px;
   color: var(--ud-muted);
   font-weight: 300;
+}
+
+.unveiling-detail .pricebox .timer {
+  margin-top: 12px;
 }
 
 /* =========================================================
@@ -168,7 +185,7 @@
   letter-spacing:-0.2px;
   border:1px solid transparent;
   backdrop-filter: blur(6px);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .unveiling-detail .status--live{
@@ -237,14 +254,14 @@
 }
 .unveiling-detail .timer__label{
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   color: rgba(17,24,39,0.70);
 }
 
 .unveiling-detail .countdown{
   display:flex;
   align-items:center;
-  gap:8px;
+  gap:6px;
 }
 .unveiling-detail .countdown__unit{
   display:flex;
@@ -278,6 +295,10 @@
   font-weight: 300;
 }
 
+.unveiling-detail .timer .bid-btn{
+  margin-top: 6px;
+}
+
 /* timer accent (subtle) */
 .unveiling-detail .timer--live{ border-color: rgba(25,135,84,0.14); }
 .unveiling-detail .timer--soon{ border-color: rgba(37,99,235,0.14); }
@@ -287,12 +308,12 @@
 /* Bid button: premium primary */
 .unveiling-detail .bid-btn{
   width:100%;
-  height:52px;
+  height:48px;
   border:0;
   border-radius:6px;
   font-weight:800;
   font-size:15px;
-  letter-spacing:-0.2px;
+  letter-spacing:-0.1px;
   color:#fff;
   background: linear-gradient(135deg, #111827, #1f2937);
   /* box-shadow: 0 10px 24px rgba(17,24,39,0.18); */
@@ -358,6 +379,26 @@
 }
 
 /* ===== Sections ===== */
+.unveiling-detail #description-section,
+.unveiling-detail #artist-section{
+  max-width: calc(100% - 440px - 90px);
+}
+.unveiling-detail #description-section{
+  margin-top: 72px;     
+  padding-top: 56px;    
+}
+
+.unveiling-detail #artist-section{
+  margin-top: 48px;
+  padding-top: 48px;
+}
+.unveiling-detail #bidding-guide-section{
+  margin-top: 80px;
+  padding-top: 60px;
+}
+
+
+
 .unveiling-detail .section{
   margin-top: 80px;
   border-top: 1px solid var(--ud-line);
@@ -368,9 +409,21 @@
   font-size: 26px;
   font-weight: 300;
 }
+.unveiling-detail #description-section .section__title,
+.unveiling-detail #artist-section .section__title{
+  font-size: 24px;
+  margin-bottom: 24px; 
+}
+.unveiling-detail #bidding-guide-section .section__title{
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 40px;
+}
+
 
 .unveiling-detail .prose p{
-  margin:0 0 18px;
+  margin:0 0 20px;
   color:#374151;
   font-weight: 300;
   line-height: 1.9;
@@ -408,9 +461,18 @@
 .unveiling-detail .guide-grid{
   display:grid;
   grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  margin-bottom: 48px;
+  gap: 72px;
+  margin-bottom: 64px;
+
+  grid-template-columns: 0.9fr 1.1fr;
 }
+.unveiling-detail .guide-grid > div{
+  padding: 8px 0;
+}
+.unveiling-detail .guide-grid > div:last-child{
+  padding-left: 32px;
+}
+
 .unveiling-detail .sub-title{
   margin:0 0 16px;
   font-size: 18px;
@@ -472,7 +534,8 @@
 /* Caution */
 .unveiling-detail .caution{
   background: var(--ud-bg-soft);
-  padding: 32px;
+  margin-top: 24px;
+  padding: 36px;
   border-radius: 12px;
 }
 .unveiling-detail .caution__list{
@@ -496,4 +559,51 @@
 @media (max-width: 760px){
   .unveiling-detail .container{ padding-left: 18px; padding-right: 18px; }
   .unveiling-detail .guide-grid{ grid-template-columns: 1fr; }
+}
+
+/* ===== Service Info (경매 이용 안내) ===== */
+.unveiling-detail .service-info{
+  display:flex;
+  flex-direction:column;
+  gap: 32px;
+  max-width: 880px; /* 너무 넓지 않게 */
+}
+
+.unveiling-detail .service-info__item{
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+}
+
+.unveiling-detail .service-info__title{
+  margin:0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ud-text);
+}
+
+.unveiling-detail .service-info__desc{
+  margin:0;
+  font-size: 14px;
+  line-height: 1.8;
+  font-weight: 300;
+  color: #374151;
+}
+
+.unveiling-detail .service-info__list{
+  margin: 12px 0 16px;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #374151;
+}
+
+.unveiling-detail .service-info__list li::marker{
+  color: #9ca3af;
+}
+
+
+.unveiling-detail .service-info__desc strong{
+  font-weight: 500;
+  color: var(--ud-text);
 }
