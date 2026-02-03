@@ -76,7 +76,6 @@ function Header({ onClickUser }) {
             <i className="fa-regular fa-bell" aria-hidden="true"></i>
           </button>
 
-          {/* 로그인 모달창 오픈위해 클릭 이벤트를 props로 받음 */}
           <button
             className="icon-btn" 
             type="button"

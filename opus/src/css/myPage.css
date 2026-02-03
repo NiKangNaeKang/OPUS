@@ -1,15 +1,8 @@
-/* =========================
-   ✅ MyPage ONLY (Scoped CSS)
-   - 전역(:root, body, *, a, img) 사용 금지
-   - 모든 토큰/리셋/스타일은 .mypage 내부로 한정
-========================= */
-
 .mypage{
-  /* page tokens (ONLY inside mypage) */
   --sidebar: 256px;
   --max: 1024px;
 
-  /* ✅ 헤더가 fixed면 여기만 바꿔 */
+  /* 헤더 높이체크 */
   --header-h: 0px;
 
   --bg: #f9fafb;
@@ -27,16 +20,13 @@
 
   min-height: 100vh;
 
-  /* body 대체 */
   font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: var(--text);
   background: #fff;
 }
 
-/* ✅ 전역 리셋도 .mypage 내부만 */
 .mypage *{ box-sizing: border-box; }
 
-/* 스크롤바 숨김도 mypage 내부만 */
 .mypage ::-webkit-scrollbar{ display:none; }
 
 .mypage a{ color:inherit; text-decoration:none; }
@@ -243,7 +233,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
-.mypage .wish{ cursor:pointer; } /* 카드 전체 클릭 없으면 default로 바꿔도 됨 */
+.mypage .wish{ cursor:default; } /* 카드클릭 */
 .mypage .wish__thumb{
   position: relative;
   overflow:hidden;

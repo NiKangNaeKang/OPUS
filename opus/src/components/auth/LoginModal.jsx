@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import "../css/loginModal.css";
+import "../../css/loginModal.css";
 
-import { api } from "../../lib/api";
-import { useAuthStore } from "../../store/useAuthStore";
+import { api } from "../../api/authAPI";
+import { useAuthStore } from "../../store/UseAuthStore";
 
 export default function LoginModal({ open, onClose }) {
   const doLogin = useAuthStore((s) => s.login);
@@ -54,8 +54,7 @@ export default function LoginModal({ open, onClose }) {
     setErrorMsg("");
 
     try {
-      // 백엔드 응답을 아래 형태로 맞추는 걸 권장
-      // { accessToken: "...", user: { id, email, role } }
+      // 백엔드 { accessToken: "...", user: { id, email, role } }
       const res = await api.post("/auth/login", {
         email: email.trim(),
         password: password.trim(),

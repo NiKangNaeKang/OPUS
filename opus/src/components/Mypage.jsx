@@ -11,11 +11,7 @@ import {
 } from "../data/mypageData";
 
 export default function Mypage() {
-
-  // sidebar active
   const [activeId, setActiveId] = useState("profile-edit");
-
-  // profile
   const [phone, setPhone] = useState(userProfile.phone);
 
   const handleProfileSave = (e) => {
@@ -23,11 +19,9 @@ export default function Mypage() {
     console.log("저장:", phone);
   };
 
-  // wishlist
   const [wishTab, setWishTab] = useState("all");
   const [wishItems, setWishItems] = useState(wishlist.items);
 
-  // counts 자동 계산
   const wishCounts = useMemo(() => {
     const all = wishItems.length;
     const musical = wishItems.filter((i) => i.type === "뮤지컬").length;
@@ -37,20 +31,16 @@ export default function Mypage() {
 
   const filteredWish = useMemo(() => {
     if (wishTab === "all") return wishItems;
-    if (wishTab === "musical")
-      return wishItems.filter((i) => i.type === "뮤지컬");
+    if (wishTab === "musical") return wishItems.filter((i) => i.type === "뮤지컬");
     return wishItems.filter((i) => i.type === "전시");
   }, [wishTab, wishItems]);
 
   const toggleWish = (id) => {
     setWishItems((prev) =>
-      prev.map((i) =>
-        i.id === id ? { ...i, liked: !i.liked } : i
-      )
+      prev.map((i) => (i.id === id ? { ...i, liked: !i.liked } : i))
     );
   };
 
-  // password
   const handlePasswordChange = (e) => {
     e.preventDefault();
     console.log("비밀번호 변경");
@@ -58,7 +48,6 @@ export default function Mypage() {
 
   return (
     <div className="mypage">
-
       {/* ================= SIDEBAR ================= */}
       <aside className="sidebar">
         <div className="sidebar__inner">
@@ -72,9 +61,7 @@ export default function Mypage() {
                     <li key={item.id}>
                       <a
                         href={`#${item.id}`}
-                        className={`nav-link ${
-                          activeId === item.id ? "is-active" : ""
-                        }`}
+                        className={`nav-link ${activeId === item.id ? "is-active" : ""}`}
                         onClick={() => setActiveId(item.id)}
                       >
                         <i className={item.icon} />
@@ -89,10 +76,9 @@ export default function Mypage() {
         </div>
       </aside>
 
-      {/* ================= MAIN ================= */}
+
       <main className="main">
         <div className="main__inner">
-
           {/* ===== 1. PROFILE ===== */}
           <section id="profile-edit" className="card">
             <header className="card__head">
@@ -128,13 +114,11 @@ export default function Mypage() {
             </div>
           </section>
 
-          {/* ===== 2. PASSWORD ===== */}
+
           <section id="password-change" className="card">
             <header className="card__head">
               <h2 className="card__title">비밀번호 변경</h2>
-              <p className="card__desc">
-                안전한 비밀번호로 주기적으로 변경해주세요
-              </p>
+              <p className="card__desc">안전한 비밀번호로 주기적으로 변경해주세요</p>
             </header>
 
             <div className="card__body">
@@ -161,18 +145,17 @@ export default function Mypage() {
             </div>
           </section>
 
-          {/* ===== 3. WISHLIST ===== */}
+
           <section id="wishlist" className="card">
             <header className="card__head">
               <h2 className="card__title">찜한 리스트</h2>
-              <p className="card__desc">
-                관심있는 공연과 전시를 모아보세요
-              </p>
+              <p className="card__desc">관심있는 공연과 전시를 모아보세요</p>
             </header>
 
             <div className="card__body">
               <div className="chips">
                 <button
+                  type="button"
                   className={`chip ${wishTab === "all" ? "is-active" : ""}`}
                   onClick={() => setWishTab("all")}
                 >
@@ -180,19 +163,19 @@ export default function Mypage() {
                 </button>
 
                 <button
+                  type="button"
                   className={`chip ${wishTab === "musical" ? "is-active" : ""}`}
                   onClick={() => setWishTab("musical")}
                 >
-                  뮤지컬{" "}
-                  <span className="chip__count">{wishCounts.musical}</span>
+                  뮤지컬 <span className="chip__count">{wishCounts.musical}</span>
                 </button>
 
                 <button
+                  type="button"
                   className={`chip ${wishTab === "exhibit" ? "is-active" : ""}`}
                   onClick={() => setWishTab("exhibit")}
                 >
-                  전시{" "}
-                  <span className="chip__count">{wishCounts.exhibit}</span>
+                  전시 <span className="chip__count">{wishCounts.exhibit}</span>
                 </button>
               </div>
 
@@ -202,15 +185,13 @@ export default function Mypage() {
                     <div className="wish__thumb">
                       <img src={w.img} alt={w.alt} />
                       <button
+                        type="button"
                         className="wish__heart"
                         onClick={() => toggleWish(w.id)}
+                        aria-label="찜 토글"
                       >
                         <i
-                          className={
-                            w.liked
-                              ? "fa-solid fa-heart"
-                              : "fa-regular fa-heart"
-                          }
+                          className={w.liked ? "fa-solid fa-heart" : "fa-regular fa-heart"}
                         />
                       </button>
                     </div>
@@ -227,7 +208,7 @@ export default function Mypage() {
             </div>
           </section>
 
-          {/* ===== 4. REVIEWS ===== */}
+
           <section id="reviews" className="card">
             <header className="card__head">
               <h2 className="card__title">작성 후기</h2>
@@ -256,7 +237,7 @@ export default function Mypage() {
             </div>
           </section>
 
-          {/* ===== 5. PURCHASE ===== */}
+
           <section id="purchase-history" className="card">
             <header className="card__head">
               <h2 className="card__title">구매 내역</h2>
@@ -270,9 +251,7 @@ export default function Mypage() {
                       <p className="order__no">주문번호: {o.orderNo}</p>
                       <p className="order__time">{o.time}</p>
                     </div>
-                    <span className={`badge ${o.statusClass}`}>
-                      {o.statusLabel}
-                    </span>
+                    <span className={`badge ${o.statusClass}`}>{o.statusLabel}</span>
                   </div>
 
                   <div className="order__body">
@@ -282,15 +261,17 @@ export default function Mypage() {
 
                     <div className="order__info">
                       <h3 className="order__title">{o.title}</h3>
-                      {o.subs.map((s) => (
-                        <p key={s} className="order__sub">{s}</p>
+                      {o.subs.map((s, idx) => (
+                        <p key={idx} className="order__sub">
+                          {s}
+                        </p>
                       ))}
                       <p className="order__price">{o.price}</p>
                     </div>
 
                     <div className="order__actions">
-                      {o.actions.map((a) => (
-                        <button key={a} className="btn btn--outline">
+                      {o.actions.map((a, idx) => (
+                        <button key={idx} type="button" className="btn btn--outline">
                           {a}
                         </button>
                       ))}
@@ -301,7 +282,7 @@ export default function Mypage() {
             </div>
           </section>
 
-          {/* ===== 6. AUCTION ===== */}
+
           <section id="auction-history" className="card">
             <header className="card__head">
               <h2 className="card__title">경매 내역</h2>
@@ -334,16 +315,15 @@ export default function Mypage() {
                           </div>
                         </div>
                       </td>
+
                       <td className="td-muted">{a.artist}</td>
                       <td className="td-strong">{a.bid}</td>
-                      <td className={a.win === "-" ? "td-dash" : "td-strong2"}>
-                        {a.win}
-                      </td>
+                      <td className={a.win === "-" ? "td-dash" : "td-strong2"}>{a.win}</td>
+
                       <td>
-                        <span className={`badge ${a.statusClass}`}>
-                          {a.statusLabel}
-                        </span>
+                        <span className={`badge ${a.statusClass}`}>{a.statusLabel}</span>
                       </td>
+
                       <td className="td-date">{a.date}</td>
                     </tr>
                   ))}
@@ -351,7 +331,6 @@ export default function Mypage() {
               </table>
             </div>
           </section>
-
         </div>
       </main>
     </div>

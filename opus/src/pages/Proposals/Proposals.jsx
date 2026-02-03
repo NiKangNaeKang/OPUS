@@ -9,11 +9,9 @@ const Proposals = () => {
   const [keyword, setKeyword] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  //데이터 포맷 계산 유틸
   const formatDate = (iso) => (iso ? iso.replaceAll("-", ".") : "");
   const formatNumber = (n) => Number(n ?? 0).toLocaleString("ko-KR");
 
-  //말머리
   const categoryLabel = {
     musical: "뮤지컬",
     exhibition: "전시",
@@ -21,7 +19,6 @@ const Proposals = () => {
     goods: "굿즈",
   };
 
-  //이벤트 핸들러
   const handleSearch = () => setSearchQuery(keyword);
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleSearch();
@@ -35,7 +32,6 @@ const Proposals = () => {
     setKeyword("");
   };
 
-  // 게시글 필터링
   const filteredItems = useMemo(() => {
     if (!proposalsData?.[activeTab]) return [];
 
