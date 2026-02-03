@@ -23,9 +23,8 @@ function Header() {
   return (
     <header
       id="header"
-      className={`header ${scrolled ? "is-scrolled" : ""} ${
-        onHero ? "is-on-hero" : ""
-      }`}
+      className={`header ${scrolled ? "is-scrolled" : ""} ${onHero ? "is-on-hero" : ""
+        }`}
     >
       <div className="wrap header__inner">
         <div className="header__left">
@@ -67,9 +66,11 @@ function Header() {
           <button className="icon-btn" type="button" aria-label="마이페이지">
             <i className="fa-regular fa-user" aria-hidden="true"></i>
           </button>
-          {location.pathname.includes("goods") ? 
-          <button className="icon-btn" type="button" aria-label="장바구니">
-            <i className="fa-solid fa-cart-shopping" aria-hidden="true"></i></button> 
+          {location.pathname.includes("selections") ?
+            <NavLink to="/selections/cart">
+              <button className="icon-btn" type="button" aria-label="장바구니">
+                <i className="fa-solid fa-cart-shopping" aria-hidden="true"></i></button>
+            </NavLink>
             : null}
         </div>
       </div>
