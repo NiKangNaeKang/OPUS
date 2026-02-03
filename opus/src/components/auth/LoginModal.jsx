@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "../../css/loginModal.css";
-
-import api from "../../api/axiosAPI";
+import axiosApi from "../../api/axiosAPI"; 
 import { useAuthStore } from "./useAuthStore";
 
 export default function LoginModal({ open, onClose }) {
@@ -54,12 +53,14 @@ export default function LoginModal({ open, onClose }) {
     setErrorMsg("");
 
     try {
-      const res = await api.post("/auth/login", {
-        email: email.trim(),
-        password: password.trim(),
+      // 스프링부트 DTO(Member.java)의 변수명과 일치
+      const res = await axiosApi.post("/auth/login", {
+        memberEmail: email.trim(), // email -> memberEmail
+        memberPw: password.trim(), // password -> memberPw
       });
 
-      const accessToken = res?.data?.accessToken;
+      // 스프링부트에서 보내주는 응답과 일치돼야함
+      const accessToken = res?.data?.token || res?.data?.accessToken;
       const user = res?.data?.user;
 
       if (!accessToken || !user?.id || !user?.role) {

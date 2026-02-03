@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAuthStore } from "../components/auth/useAuthStore";
 
 const axiosApi = axios.create({
-  baseURL: "http://localhost:8080", // 스프링부트 서버 주소
+  baseURL: "http://localhost",
 });
 
 // 요청 시 토큰 자동 첨부
