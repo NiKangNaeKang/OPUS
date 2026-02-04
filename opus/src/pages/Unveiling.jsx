@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { unveilingData } from "../data/unveilingData";
 import AuctionGrid from "../components/Unveiling/AuctionGrid";
 import AuctionInfo from "../components/Unveiling/AuctionInfo";
+import "../css/Unveiling.css";
 
 const TABS = [
   { key: "ALL", label: "전체" },

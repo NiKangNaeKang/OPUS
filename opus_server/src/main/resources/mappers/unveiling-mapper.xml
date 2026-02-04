@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper
+	namespace="nknk.opus.project.unveiling.model.mapper.UnveilingMapper">
+
+	<select id="selectUnveilingForUpdate" parameterType="int"
+		resultType="Unveiling">
+		SELECT
+		UNVEILING_NO,
+		UNVEILING_TITLE,
+		PRODUCTION_ARTIST,
+		PRODUCTION_YEAR,
+		PRODUCTION_MATERIAL,
+		PRODUCTION_SIZE,
+		START_PRICE,
+		CURRENT_PRICE,
+		FINAL_PRICE,
+		BIDDING_COUNT,
+		FINISH_DATE,
+		PRODUCTION_DETAIL,
+		ARTIST_DETAIL,
+		UNVEILING_STATUS
+		FROM UNVEILING
+		WHERE UNVEILING_NO = #{unveilingNo}
+		FOR UPDATE
+	</select>
+	<!-- FOR UPDATE : 동시 응찰을 방지하기 위해 먼저 트랜잭션을 잡은 쪽만 진행, 나머지는 commit/rollback 
+		일어날 때까지 대기 -->
+
+	<update id="updateAfterBid"
+		parameterType="Unveiling">
+		UPDATE UNVEILING
+		SET
+		CURRENT_PRICE = #{currentPrice},
+		BIDDING_COUNT = BIDDING_COUNT + 1,
+		UNVEILING_STATUS = #{unveilingStatus}
+		WHERE UNVEILING_NO = #{unveilingNo}
+	</update>
+
+
+</mapper>

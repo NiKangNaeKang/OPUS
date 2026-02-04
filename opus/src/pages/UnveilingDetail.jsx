@@ -1,15 +1,23 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { unveilingData } from "../data/unveilingData";
+import "../css/UnveilingDetail.css";
+
+// (권장) 실제 경로에 맞게 CSS import 확인
+// import "./UnveilingDetail.css";
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
 function getRemaining(endAt) {
-  const end = endAt ? new Date(endAt) : new Date("2024-01-28T15:00:00");
+  const end = endAt ? new Date(endAt) : null;
+  if (!end || Number.isNaN(end.getTime())) {
+    return { done: false, days: "00", hours: "00", minutes: "00" };
+  }
+
   const now = new Date();
   const diff = end - now;
 
-  if (Number.isNaN(end.getTime()) || diff <= 0) {
+  if (diff <= 0) {
     return { done: true, days: "00", hours: "00", minutes: "00" };
   }
 
@@ -26,31 +34,10 @@ const STATUS = {
   ENDED: { text: "종료", key: "ended" },
 };
 
-export default function UnveilingDetail() {
-  const { id } = useParams();
+function normalizeFromDummy(item) {
+  return {
+    unveilingNo: item.id,
 
-  const item = useMemo(() => {
-    const num = Number(id);
-    return unveilingData.find((v) => v.id === num);
-  }, [id]);
-
-  if (!item) {
-    return (
-      <div className="page unveiling-detail">
-        <main className="container">
-          <div className="back-row">
-            <Link to="/unveiling" className="back-link">
-              <i className="fa-solid fa-chevron-left" />
-              <span>경매 목록으로 돌아가기</span>
-            </Link>
-          </div>
-          <p>존재하지 않는 경매입니다.</p>
-        </main>
-      </div>
-    );
-  }
-
-  const detail = {
     image: item.image,
     alt: item.alt || "auction item image",
 
@@ -85,25 +72,194 @@ export default function UnveilingDetail() {
       "2023 개인전 '침묵의 소리', 2022 국립현대미술관 단체전",
     awards: item.awards ?? "2021 올해의 젊은 작가상",
   };
+}
 
-  const status = STATUS[detail.status] ?? STATUS.LIVE;
+/**
+ * API 스펙 확정 전: 유연 파서
+ * - 확정되면 이 함수만 단일 DTO 스펙으로 정리하면 됨
+ */
+function normalizeFromApi(data, fallbackUnveilingNo, fallbackDetail) {
+  const pricing = data?.pricing ?? {};
+  const production = data?.production ?? {};
+  const artistObj = data?.artist ?? {};
 
+  const firstImgUrl =
+    Array.isArray(data?.images) && data.images.length > 0 ? data.images[0]?.url : null;
+
+  const formatKRW = (n) => `₩${Number(n).toLocaleString("ko-KR")}`;
+
+  const startPriceDisplay =
+    pricing.startPriceDisplay ??
+    data.startPriceDisplay ??
+    (typeof pricing.startPrice === "number" ? formatKRW(pricing.startPrice) : null) ??
+    (typeof data.startPrice === "number" ? formatKRW(data.startPrice) : null) ??
+    data.startPrice ??
+    fallbackDetail?.startPrice ??
+    "";
+
+  const currentPriceDisplay =
+    pricing.currentPriceDisplay ??
+    data.currentPriceDisplay ??
+    (typeof pricing.currentPrice === "number" ? formatKRW(pricing.currentPrice) : null) ??
+    (typeof data.currentPrice === "number" ? formatKRW(data.currentPrice) : null) ??
+    data.currentPrice ??
+    fallbackDetail?.currentPrice ??
+    "";
+
+  const estimateText =
+    pricing.estimateText ??
+    data.estimateDisplay ??
+    data.estimate ??
+    fallbackDetail?.estimate ??
+    "";
+
+  return {
+    unveilingNo: data.unveilingNo ?? data.id ?? fallbackUnveilingNo,
+
+    image: firstImgUrl ?? data.imageUrl ?? data.image ?? fallbackDetail?.image ?? "",
+    alt: data.alt ?? fallbackDetail?.alt ?? "auction item image",
+
+    status: data.status ?? fallbackDetail?.status ?? "LIVE",
+    title: data.title ?? data.detailTitle ?? fallbackDetail?.title ?? "무제 (Untitled)",
+    artist: data.artistName
+      ? `${data.artistName} 작가`
+      : data.artist
+        ? `${data.artist} 작가`
+        : fallbackDetail?.artist ?? "김현수 작가",
+
+    year: production.year ?? data.productionYear ?? data.year ?? fallbackDetail?.year ?? "",
+    material:
+      production.material ?? data.productionMaterial ?? data.material ?? fallbackDetail?.material ?? "",
+    size:
+      production.sizeText ?? data.productionSize ?? data.sizeText ?? data.size ?? fallbackDetail?.size ?? "",
+
+    estimate: estimateText,
+    startPrice: startPriceDisplay,
+    currentPrice: currentPriceDisplay,
+    bidCount: pricing.bidCount ?? data.biddingCount ?? data.bidCount ?? fallbackDetail?.bidCount ?? 0,
+
+    endAt: data.finishAt ?? data.finishDate ?? data.endAt ?? fallbackDetail?.endAt ?? null,
+    endAtLabel:
+      data.finishAtLabel ??
+      data.finishDateLabel ??
+      data.endAtLabel ??
+      fallbackDetail?.endAtLabel ??
+      "",
+
+    description:
+      production.description ??
+      data.productionDetail ??
+      data.description ??
+      fallbackDetail?.description ??
+      [],
+
+    artistName: data.artistName ?? data.artist ?? fallbackDetail?.artistName ?? "",
+    artistBio: artistObj.bio ?? data.artistBio ?? data.artistDetail ?? fallbackDetail?.artistBio ?? "",
+    exhibitions: artistObj.exhibitions ?? data.exhibitions ?? fallbackDetail?.exhibitions ?? "",
+    awards: artistObj.awards ?? data.awards ?? fallbackDetail?.awards ?? "",
+  };
+}
+
+export default function UnveilingDetail() {
+  const { id } = useParams();
+  const unveilingNo = useMemo(() => Number(id), [id]);
+
+  // ===== 더미 아이템 찾기 =====
+  const dummyItem = useMemo(() => {
+    if (!Number.isFinite(unveilingNo)) return null;
+    return unveilingData.find((v) => v.id === unveilingNo) ?? null;
+  }, [unveilingNo]);
+
+  // 없는 id 접근
+  if (!dummyItem) {
+    return (
+      <div className="page unveiling-detail">
+        <main className="container">
+          <div className="back-row">
+            <Link to="/unveiling" className="back-link">
+              <i className="fa-solid fa-chevron-left" />
+              <span>경매 목록으로 돌아가기</span>
+            </Link>
+          </div>
+          <p>존재하지 않는 경매입니다.</p>
+        </main>
+      </div>
+    );
+  }
+
+  // ===== detail state =====
+  const dummyDetail = useMemo(() => normalizeFromDummy(dummyItem), [dummyItem]);
+  const [detail, setDetail] = useState(dummyDetail);
+
+  // 라우트 이동 시 detail 리셋(더미 기준)
+  useEffect(() => {
+    setDetail(dummyDetail);
+  }, [dummyDetail]);
+
+  // ===== API 상세(있으면 덮어쓰기) =====
+  const fetchDetail = useCallback(async () => {
+    // 백엔드 전이면 조용히 더미 유지
+    try {
+      const res = await fetch(`/api/unveilings/${unveilingNo}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setDetail((prev) => normalizeFromApi(data, unveilingNo, prev));
+    } catch {
+      // noop
+    }
+  }, [unveilingNo]);
+
+  useEffect(() => {
+    fetchDetail();
+  }, [fetchDetail]);
+
+  // ===== Countdown =====
   const [remain, setRemain] = useState(() => getRemaining(detail.endAt));
   useEffect(() => {
-    setRemain(getRemaining(detail.endAt));
-    const t = setInterval(() => setRemain(getRemaining(detail.endAt)), 60000);
+    const tick = () => setRemain(getRemaining(detail.endAt));
+    tick();
+
+    const t = setInterval(tick, 60000);
     return () => clearInterval(t);
   }, [detail.endAt]);
 
-  const isEnded = remain.done || detail.status === "ENDED";
+  // ===== 상태 파생 =====
+  const status = STATUS[detail.status] ?? STATUS.LIVE;
   const isSoon = detail.status === "UPCOMING";
+  const isEnded = detail.status === "ENDED" || remain.done;
+
   const statusClass = `status status--${status.key}`;
   const timerClass = `timer timer--${status.key}${isEnded ? " is-ended" : ""}`;
   const bidBtnClass = `bid-btn${isSoon ? " is-soon" : ""}${isEnded ? " is-ended" : ""}`;
 
+  // ===== Top button =====
+  const [showTop, setShowTop] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 500);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const onTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  // ===== Bid (stub -> API로 교체) =====
+  const onBid = useCallback(async () => {
+    if (isEnded || isSoon) return;
+
+    // TODO: 백엔드 연결 시 아래 형태로 교체
+    // POST /api/unveilings/{unveilingNo}/bids
+    // 응답으로 currentPrice/bidCount 갱신
+
+    alert("응찰 기능은 백엔드 연결 후 활성화됩니다.");
+  }, [isEnded, isSoon]);
+
   return (
     <div className="page unveiling-detail">
       <main className="container">
+        {/* back-row는 header와 분리된 영역(현재 CSS에서 해결된 상태 유지) */}
         <div className="back-row">
           <Link to="/unveiling" className="back-link">
             <i className="fa-solid fa-chevron-left" />
@@ -111,13 +267,16 @@ export default function UnveilingDetail() {
           </Link>
         </div>
 
+        {/* DETAIL */}
         <section id="auction-detail-section" className="detail">
+          {/* IMAGE */}
           <div id="image-section" className="image">
             <div className="image__main">
               <img id="mainImage" src={detail.image} alt={detail.alt} />
             </div>
           </div>
 
+          {/* INFO */}
           <div id="info-section" className="info">
             <div className="info__top">
               <span className={statusClass}>{status.text}</span>
@@ -184,7 +343,7 @@ export default function UnveilingDetail() {
               <p className="timer__hint">{detail.endAtLabel}</p>
             </div>
 
-            <button className={bidBtnClass} type="button" disabled={isEnded || isSoon}>
+            <button className={bidBtnClass} type="button" disabled={isEnded || isSoon} onClick={onBid}>
               {isEnded ? "마감됨" : isSoon ? "예정" : "응찰하기"}
             </button>
 
@@ -192,16 +351,18 @@ export default function UnveilingDetail() {
               <div className="notice__row">
                 <i className="fa-solid fa-circle-info"></i>
                 <p>
-                  응찰을 위해서는 본인 인증이 필요합니다.<br></br>경매 참여 전 회원정보에서 실명 인증을 완료해주세요.
+                  응찰을 위해서는 본인 인증이 필요합니다.
+                  <br />
+                  경매 참여 전 회원정보에서 실명 인증을 완료해주세요.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
+        {/* DESCRIPTION */}
         <section id="description-section" className="section">
           <h2 className="section__title">작품 설명</h2>
-
           <div className="prose">
             {(Array.isArray(detail.description) ? detail.description : [detail.description]).map(
               (p, idx) => <p key={idx}>{p}</p>
@@ -209,6 +370,7 @@ export default function UnveilingDetail() {
           </div>
         </section>
 
+        {/* ARTIST */}
         <section id="artist-section" className="section">
           <h2 className="section__title">작가 소개</h2>
 
@@ -225,11 +387,11 @@ export default function UnveilingDetail() {
           </div>
         </section>
 
+        {/* GUIDE */}
         <section id="bidding-guide-section" className="section">
           <h2 className="section__title">응찰 안내</h2>
 
           <div className="guide-grid">
-            {/* TABLE */}
             <div>
               <h3 className="sub-title">호가표</h3>
 
@@ -262,7 +424,6 @@ export default function UnveilingDetail() {
               </div>
             </div>
 
-            {/* MUST INFO */}
             <div>
               <h3 className="sub-title">응찰 필수 정보</h3>
 
@@ -289,6 +450,7 @@ export default function UnveilingDetail() {
           </div>
         </section>
 
+        {/* SERVICE INFO */}
         <section id="service-info-section" className="section">
           <h2 className="section__title">경매 이용 안내</h2>
 
@@ -324,7 +486,6 @@ export default function UnveilingDetail() {
               </p>
             </div>
 
-
             <div className="service-info__item">
               <h3 className="service-info__title">설치 및 보관</h3>
               <p className="service-info__desc">
@@ -335,7 +496,15 @@ export default function UnveilingDetail() {
           </div>
         </section>
 
-
+        {/* TO TOP */}
+        <button
+          type="button"
+          className={`to-top ${showTop ? "is-show" : ""}`}
+          onClick={onTop}
+          aria-label="페이지 최상단으로 이동"
+        >
+          <i className="fa-solid fa-arrow-up" />
+        </button>
       </main>
     </div>
   );
