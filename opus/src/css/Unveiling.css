@@ -266,7 +266,7 @@ img{ display:block; max-width: 100%; }
 
 .card.is-ended{
   opacity: .6;
-  cursor: default;
+  cursor: pointer;
 }
 .card.is-ended .card__hover{ display:none; }
 

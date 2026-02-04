@@ -81,7 +81,7 @@ public class DBConfig {
 		// 세팅 1. mapper.xml(SQL 작성해놓을 파일) 파일이 모이는 경로 지정
 		// -> Mybatis 코드 수행 시 mapper.xml 을 읽을 수 있음.
 		// 매퍼 파일이 모여있는 경로 지정
-		sessionFactoryBean.setMapperLocations(applicationContext.getResources("classpath:/mappers/**.xml"));
+		sessionFactoryBean.setMapperLocations(applicationContext.getResources("classpath:/mappers/**/*.xml"));
 		// 현재프로젝트.자원을얻어옴.src/main/resources/mappers 하위의 모든 .xml 파일
 
 		// 세팅 2. 해당 패키지 내 모든 클래스의 별칭을 등록
@@ -96,7 +96,7 @@ public class DBConfig {
 		// 클래스 파일명이 별칭으로 등록
 
 		// ex) 원본 edu.kh.project.model.dto.Member --> Member (별칭 등록)
-		sessionFactoryBean.setTypeAliasesPackage("edu.kh.project");
+		sessionFactoryBean.setTypeAliasesPackage("nknk.opus.project");
 
 		// 세팅 3. 마이바티스 설정 파일 경로 지정
 		sessionFactoryBean.setConfigLocation(applicationContext.getResource("classpath:/mybatis-config.xml"));
