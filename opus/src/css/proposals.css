@@ -1,5 +1,5 @@
-/* :root 대신 메인 컨테이너 클래스를 사용합니다 */
-.board-container {
+/* 범위를 Proposals 페이지로 한정 */
+.proposals-page {
   --black: #111;
   --text: #111827;
   --muted: #6b7280;
@@ -7,35 +7,37 @@
   --bg: #ffffff;
   --card: #ffffff;
   --primary: #000000;
-
   --wrap: 1280px;
   --radius: 12px;
   --shadow: 0 10px 30px rgba(0, 0, 0, .06);
 
-  /* 전역 body 스타일을 이 안으로 이동 */
+  /* 기본 폰트 및 컬러 설정 */
   font-family: "Noto Sans KR", system-ui, sans-serif;
   color: var(--text);
-  background: var(--bg);
   line-height: 1.5;
-  
+}
+
+/* 내부 요소 박스모델 지정 */
+.proposals-page * { 
+  box-sizing: border-box; 
+}
+
+/* 컨테이너 레이아웃 */
+.proposals-page .board-container {
   max-width: var(--wrap);
   margin: 0 auto;
   padding: 110px 24px 100px;
 }
 
-/* 모든 요소(*) 선택자 대신 컨테이너 내부 요소만 지정 */
-.board-container * { 
-  box-sizing: border-box; 
-}
-
-.tabs {
+/* 탭 메뉴 */
+.proposals-page .tabs {
   display: flex;
   gap: 24px;
   border-bottom: 1px solid var(--line);
   margin-bottom: 24px;
 }
 
-.tab-btn {
+.proposals-page .tab-btn {
   appearance: none;
   border: none;
   background: transparent;
@@ -48,13 +50,9 @@
   transition: color 0.2s;
 }
 
-.tab-btn:hover { color: var(--black); }
-
-.tab-btn.is-active {
-  color: var(--primary);
-}
-
-.tab-btn.is-active::after {
+.proposals-page .tab-btn:hover { color: var(--black); }
+.proposals-page .tab-btn.is-active { color: var(--primary); }
+.proposals-page .tab-btn.is-active::after {
   content: "";
   position: absolute;
   left: 0; right: 0; bottom: -1px;
@@ -62,7 +60,8 @@
   background: var(--primary);
 }
 
-.filters {
+/* 필터 영역 */
+.proposals-page .filters {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -70,12 +69,9 @@
   margin-bottom: 24px;
 }
 
-.filters__left {
-  display: flex;
-  gap: 10px;
-}
+.proposals-page .filters__left { display: flex; gap: 10px; }
 
-.select {
+.proposals-page .select {
   height: 42px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -86,23 +82,11 @@
   font-weight: 500;
 }
 
-.select:focus {
-  outline: 2px solid rgba(0,0,0,.1);
-}
+.proposals-page .select:focus { outline: 2px solid rgba(0,0,0,.1); }
 
-.filters__right {
-  display: flex;
-  align-items: center;
-}
-
-.search {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.search__input {
+/* 검색 영역 */
+.proposals-page .search { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.proposals-page .search__input {
   width: 260px;
   height: 42px;
   border: 1px solid var(--line);
@@ -111,12 +95,12 @@
   font-size: 14px;
 }
 
-.search__input:focus {
+.proposals-page .search__input:focus {
   outline: 2px solid rgba(0,0,0,.1);
   border-color: var(--muted);
 }
 
-.search__btn {
+.proposals-page .search__btn {
   height: 42px;
   padding: 0 20px; 
   background: var(--primary);
@@ -126,20 +110,14 @@
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.2s;
-  white-space: nowrap;
-  flex-shrink: 0; 
   display: flex; 
   align-items: center;   
   justify-content: center; 
 }
 
-.search__btn:hover { opacity: 0.85; }
-
-.board-list {
-  border-top: 2px solid var(--black);
-}
-
-.board-item {
+/* 게시판 리스트 */
+.proposals-page .board-list { border-top: 2px solid var(--black); }
+.proposals-page .board-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -148,19 +126,11 @@
   transition: background 0.2s;
 }
 
-.board-item:hover {
-  background: #f9fafb;
-}
+.proposals-page .board-item:hover { background: #f9fafb; }
+.proposals-page .item__left { display: flex; align-items: center; gap: 20px; flex: 1; min-width: 0; }
 
-.item__left {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex: 1;
-  min-width: 0;
-}
-
-.badge {
+/* 배지 스타일 */
+.proposals-page .badge {
   flex-shrink: 0;
   width: 60px;
   text-align: center;
@@ -169,22 +139,10 @@
   padding: 4px 0;
   border-radius: 6px;
 }
+.proposals-page .badge--notice { background: #f3f4f6; color: #374151; }
+.proposals-page .badge--promotion { background: #fff1f2; color: #e11d48; }
 
-.badge--notice {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.badge--promotion {
-  background: #fff1f2;
-  color: #e11d48;
-}
-
-.item__content {
-  min-width: 0;
-}
-
-.item__title {
+.proposals-page .item__title {
   margin: 0 0 4px;
   font-size: 16px;
   font-weight: 700;
@@ -194,7 +152,7 @@
   text-overflow: ellipsis;
 }
 
-.item__excerpt {
+.proposals-page .item__excerpt {
   margin: 0;
   font-size: 14px;
   color: var(--muted);
@@ -203,7 +161,7 @@
   text-overflow: ellipsis;
 }
 
-.item__right {
+.proposals-page .item__right {
   display: flex;
   align-items: center;
   gap: 24px;
@@ -212,40 +170,17 @@
   margin-left: 20px;
 }
 
-.item__right span {
-  white-space: nowrap;
-}
-
-.item__right i {
-  margin-right: 4px;
-}
-
-.empty-state {
+.proposals-page .empty-state {
   padding: 80px 0;
   text-align: center;
   color: var(--muted);
   border-bottom: 1px solid var(--line);
 }
 
+/* 반응형 */
 @media (max-width: 768px) {
-  .filters {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .search__input {
-    flex: 1;
-  }
-
-  .board-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .item__right {
-    margin-left: 80px;
-    gap: 12px;
-    font-size: 12px;
-  }
+  .proposals-page .filters { flex-direction: column; align-items: stretch; }
+  .proposals-page .search__input { flex: 1; }
+  .proposals-page .board-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .proposals-page .item__right { margin-left: 80px; gap: 12px; font-size: 12px; }
 }
