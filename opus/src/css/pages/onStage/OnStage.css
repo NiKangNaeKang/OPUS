@@ -31,12 +31,10 @@ img{ display:block; max-width:100%; }
 
 .main{
   padding-top: 90px;
-  padding-bottom: 60px;
+  padding-bottom: 48px;
 }
 
 /* ================= SEARCH ================= */
-.search-sec{ margin-bottom: 28px; }
-
 .search-row{
   display:flex;
   gap:12px;
@@ -56,6 +54,7 @@ img{ display:block; max-width:100%; }
   border-radius:999px;
   outline:none;
 }
+
 .search-input:focus{
   border-color:#9ca3af;
   box-shadow:0 0 0 3px rgba(17,17,17,.08);
