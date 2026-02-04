@@ -1,0 +1,205 @@
+export const sidebarGroups = [
+  {
+    title: "내 정보",
+    items: [
+      { id: "profile-edit", icon: "fa-regular fa-user", label: "정보 수정" },
+      { id: "password-change", icon: "fa-solid fa-lock", label: "비밀번호 변경" },
+    ],
+  },
+  {
+    title: "활동 내역",
+    items: [
+      { id: "wishlist", icon: "fa-regular fa-heart", label: "찜한 리스트" },
+      { id: "reviews", icon: "fa-regular fa-comment", label: "작성 후기" },
+      { id: "purchase-history", icon: "fa-solid fa-receipt", label: "구매 내역" },
+      { id: "auction-history", icon: "fa-solid fa-gavel", label: "경매 내역" },
+    ],
+  },
+];
+
+export const userProfile = {
+  email: "art@example.com",
+  phone: "010-1234-5678",
+};
+
+export const wishlist = {
+  items: [
+    {
+      id: 1,
+      type: "뮤지컬",
+      title: "오페라의 유령",
+      place: "블루스퀘어 신한카드홀",
+      date: "2024.12.01 - 2025.02.28",
+      img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/8d868b0886-12fb8394127bd38e9b49.png",
+      alt: "phantom of the opera poster",
+      liked: true,
+    },
+    {
+      id: 2,
+      type: "전시",
+      title: "모던 아트 컬렉션",
+      place: "국립현대미술관",
+      date: "2024.11.15 - 2025.01.31",
+      img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/724bbde368-96542716245d4752f523.png",
+      alt: "modern art exhibition poster",
+      liked: true,
+    },
+    {
+      id: 3,
+      type: "뮤지컬",
+      title: "위키드",
+      place: "샤롯데씨어터",
+      date: "2024.10.20 - 2025.03.15",
+      img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/8d868b0886-feec3f70e996d879c312.png",
+      alt: "wicked poster",
+      liked: true,
+    },
+    {
+      id: 4,
+      type: "전시",
+      title: "인상주의 걸작전",
+      place: "예술의전당 한가람미술관",
+      date: "2024.12.10 - 2025.02.20",
+      img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/dc60bffba9-584e141a523b9357ece4.png",
+      alt: "impressionist poster",
+      liked: true,
+    },
+    {
+      id: 5,
+      type: "뮤지컬",
+      title: "레미제라블",
+      place: "LG아트센터",
+      date: "2024.11.01 - 2025.01.28",
+      img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/2f4cc12297-58cd9a35f260927c79fc.png",
+      alt: "les miserables poster",
+      liked: true,
+    },
+    {
+      id: 6,
+      type: "전시",
+      title: "현대 조각의 미학",
+      place: "리움미술관",
+      date: "2024.11.20 - 2025.02.10",
+      img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/781f04cc62-ab3cbd907bef543ebfba.png",
+      alt: "sculpture exhibition poster",
+      liked: true,
+    },
+  ],
+};
+
+export const reviews = [
+  {
+    id: 1,
+    title: "캣츠",
+    sub: "블루스퀘어 신한카드홀 · 2024.11.15 관람",
+    date: "2024.11.16",
+    img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/8d868b0886-56d27d5510b21aad1033.png",
+    alt: "cats poster",
+    text:
+      "음악과 안무가 정말 환상적이었습니다. 배우들의 연기력과 노래 실력이 뛰어나 감동적인 시간을 보냈습니다. 무대 연출도 매우 인상적이었고, 특히 조명 효과가 작품의 분위기를 극대화시켜주었어요. 다시 한번 보고 싶은 작품입니다.",
+  },
+  {
+    id: 2,
+    title: "추상미술의 세계",
+    sub: "서울시립미술관 · 2024.11.10 관람",
+    date: "2024.11.11",
+    img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/9028f5ee77-b203fcdaec016a4d5dc6.png",
+    alt: "abstract art poster",
+    text:
+      "현대 추상미술의 다양한 스펙트럼을 한눈에 볼 수 있었던 전시였습니다. 작품 하나하나에 담긴 작가의 메시지를 느낄 수 있었고, 전시 공간 구성도 매우 세련되었습니다. 특히 인터랙티브 작품들이 인상적이었어요.",
+  },
+  {
+    id: 3,
+    title: "시카고",
+    sub: "샤롯데씨어터 · 2024.10.28 관람",
+    date: "2024.10.29",
+    img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/8d868b0886-78a2f594a9842a522867.png",
+    alt: "chicago poster",
+    text:
+      "재즈와 탭댄스의 완벽한 조화! 에너지 넘치는 공연이었습니다. 배우들의 카리스마와 무대 장악력이 대단했고, 음악도 너무 좋았어요. 1920년대 시카고의 화려함과 어두움을 동시에 느낄 수 있었던 작품입니다.",
+  },
+];
+
+export const purchases = [
+  {
+    id: 1,
+    orderNo: "20241115-0012345",
+    time: "2024.11.15 14:23",
+    statusLabel: "배송완료",
+    statusClass: "badge--dark",
+    img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/416b2ea453-90909df8fe931991afb3.png",
+    alt: "phantom tote bag",
+    title: "오페라의 유령 공식 토트백",
+    subs: ["수량: 1개"],
+    price: "35,000원",
+    actions: ["주문상세", "배송조회"],
+  },
+  {
+    id: 2,
+    orderNo: "20241110-0012288",
+    time: "2024.11.10 18:45",
+    statusLabel: "예매완료",
+    statusClass: "badge--green",
+    img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/0ce651701a-cd478c1d3a35bf47977b.png",
+    alt: "wicked ticket",
+    title: "뮤지컬 위키드 티켓",
+    subs: ["2024.12.20 19:30 | R석 2매", "샤롯데씨어터"],
+    price: "300,000원",
+    actions: ["예매확인", "취소/환불"],
+  },
+  {
+    id: 3,
+    orderNo: "20241105-0011956",
+    time: "2024.11.05 11:20",
+    statusLabel: "배송중",
+    statusClass: "badge--blue",
+    img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/76e35077b2-cb47a9949fe92ddc23bf.png",
+    alt: "photobook",
+    title: "레미제라블 공식 포토북",
+    subs: ["수량: 1개"],
+    price: "48,000원",
+    actions: ["주문상세", "배송조회"],
+  },
+];
+
+export const auctions = [
+  {
+    id: 1,
+    workTitle: "Urban Dreams",
+    workSub: "캔버스에 아크릴, 80×100cm",
+    artist: "김현대",
+    bid: "8,500,000원",
+    win: "9,200,000원",
+    statusLabel: "유찰",
+    statusClass: "badge--red",
+    date: "2024.11.12",
+    img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/98f4093957-12dcdb3189b9d2fff4b3.png",
+    alt: "abstract painting",
+  },
+  {
+    id: 2,
+    workTitle: "Silence",
+    workSub: "대리석, 45×30×25cm",
+    artist: "박조각",
+    bid: "12,000,000원",
+    win: "12,000,000원",
+    statusLabel: "낙찰",
+    statusClass: "badge--green",
+    date: "2024.10.28",
+    img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/ba3dfc4f7e-30acac26766b4a6fffa4.png",
+    alt: "sculpture",
+  },
+  {
+    id: 3,
+    workTitle: "가을 정원",
+    workSub: "캔버스에 유채, 60×80cm",
+    artist: "이자연",
+    bid: "5,200,000원",
+    win: "-",
+    statusLabel: "진행중",
+    statusClass: "badge--blue",
+    date: "2024.11.18 마감",
+    img: "https://storage.googleapis.com/uxpilot-auth.appspot.com/1bf9e1260c-af80fcc301edd4ea9280.png",
+    alt: "landscape painting",
+  },
+];

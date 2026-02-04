@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, Link, NavLink } from "react-router-dom";
 import "../../css/common/Header.css";
 
-function Header() {
+function Header({ onClickUser, isLoggedIn, variant }) {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
 
@@ -23,8 +23,8 @@ function Header() {
   return (
     <header
       id="header"
-      className={`header ${scrolled ? "is-scrolled" : ""} ${onHero ? "is-on-hero" : ""
-        }`}
+      /* 아래 className 부분에 ${variant}를 추가했습니다. 이래야 색깔이 바뀝니다! */
+      className={`header ${variant} ${scrolled ? "is-scrolled" : ""} ${onHero ? "is-on-hero" : ""}`}
     >
       <div className="wrap header__inner">
         <div className="header__left">
@@ -33,27 +33,39 @@ function Header() {
           </Link>
 
           <nav className="gnb">
-            <NavLink to="/onStage" className={({ isActive }) =>
-              `gnb__link ${isActive ? "is-active" : ""}`
-            }>
+            <NavLink
+              to="/onStage"
+              className={({ isActive }) =>
+                `gnb__link ${isActive ? "is-active" : ""}`
+              }
+            >
               On-Stage
             </NavLink>
 
-            <NavLink to="/proposals" className={({ isActive }) =>
-              `gnb__link ${isActive ? "is-active" : ""}`
-            }>
+            <NavLink
+              to="/proposals"
+              className={({ isActive }) =>
+                `gnb__link ${isActive ? "is-active" : ""}`
+              }
+            >
               Proposals
             </NavLink>
 
-            <NavLink to="/unveiling" className={({ isActive }) =>
-              `gnb__link ${isActive ? "is-active" : ""}`
-            }>
+            <NavLink
+              to="/unveiling"
+              className={({ isActive }) =>
+                `gnb__link ${isActive ? "is-active" : ""}`
+              }
+            >
               Unveiling
             </NavLink>
 
-            <NavLink to="/selections" className={({ isActive }) =>
-              `gnb__link ${isActive ? "is-active" : ""}`
-            }>
+            <NavLink
+              to="/selections"
+              className={({ isActive }) =>
+                `gnb__link ${isActive ? "is-active" : ""}`
+              }
+            >
               Selections
             </NavLink>
           </nav>
@@ -63,15 +75,23 @@ function Header() {
           <button className="icon-btn" type="button" aria-label="알림">
             <i className="fa-regular fa-bell" aria-hidden="true"></i>
           </button>
-          <button className="icon-btn" type="button" aria-label="마이페이지">
-            <i className="fa-regular fa-user" aria-hidden="true"></i>
+
+          <button
+            className="icon-btn" 
+            type="button"
+            aria-label={isLoggedIn ? "로그아웃" : "마이페이지"}
+            onClick={onClickUser}
+          >
+            <i className={`fa-regular ${isLoggedIn ? "fa-circle-user" : "fa-user"}`} aria-hidden="true"></i>
           </button>
+
           {location.pathname.includes("selections") ?
             <NavLink to="/selections/cart">
               <button className="icon-btn" type="button" aria-label="장바구니">
                 <i className="fa-solid fa-cart-shopping" aria-hidden="true"></i></button>
             </NavLink>
             : null}
+
         </div>
       </div>
     </header>

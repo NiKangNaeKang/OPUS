@@ -10,27 +10,31 @@ import OnStage from "./pages/onStage/OnStage";
 import UnveilingDetail from "./pages/UnveilingDetail";
 import MusicalDetail from './pages/onStage/MusicalDetail';
 import Reviews from "./pages/onStage/Reviews";
-
+import Proposals from "./pages/Proposals/Proposals"; // 1. Proposals 임포트 추가
 
 export default function App() {
   return (
     <Routes>
-      {/* Dark Header */}
+      {/* Dark Header (Home 등) */}
       <Route element={<DarkHeaderLayout />}>
         <Route path="/" element={<Home />} />
       </Route>
 
-        {/* Light Header */}
-        <Route element={<LightHeaderLayout />}>
-          <Route path="/onStage" element={<OnStage />} />
-          <Route path="/onStage/:mt20id" element={<MusicalDetail />}/>
-          <Route path="/onStage/reviews" element={<Reviews />}/>
-          <Route path="/unveiling" element={<Unveiling />} />
-          <Route path="/unveiling/:id" element={<UnveilingDetail />} />
-          <Route path='/selections' element={<Selections />}></Route>
-          <Route path='/selections/:goodsNo' element={<SelectionsDetail />}></Route>
-          <Route path='/selections/cart' element={<Cart />}></Route>
-        </Route>
+      {/* Light Header (게시판, 상세페이지 등) */}
+      <Route element={<LightHeaderLayout />}>
+        <Route path="/onStage" element={<OnStage />} />
+        <Route path="/onStage/:mt20id" element={<MusicalDetail />} />
+        <Route path="/onStage/reviews" element={<Reviews />} />
+        
+        {/* 2. Proposals 경로 추가 */}
+        <Route path="/proposals" element={<Proposals />} />
+
+        <Route path="/unveiling" element={<Unveiling />} />
+        <Route path="/unveiling/:id" element={<UnveilingDetail />} />
+        <Route path='/selections' element={<Selections />} />
+        <Route path='/selections/:goodsNo' element={<SelectionsDetail />} />
+        <Route path='/selections/cart' element={<Cart />} />
+      </Route>
     </Routes>
   );
-} 
+}

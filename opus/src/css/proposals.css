@@ -1,0 +1,251 @@
+/* :root 대신 메인 컨테이너 클래스를 사용합니다 */
+.board-container {
+  --black: #111;
+  --text: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --bg: #ffffff;
+  --card: #ffffff;
+  --primary: #000000;
+
+  --wrap: 1280px;
+  --radius: 12px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .06);
+
+  /* 전역 body 스타일을 이 안으로 이동 */
+  font-family: "Noto Sans KR", system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+  
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 110px 24px 100px;
+}
+
+/* 모든 요소(*) 선택자 대신 컨테이너 내부 요소만 지정 */
+.board-container * { 
+  box-sizing: border-box; 
+}
+
+.tabs {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
+}
+
+.tab-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 12px 4px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--muted);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.tab-btn:hover { color: var(--black); }
+
+.tab-btn.is-active {
+  color: var(--primary);
+}
+
+.tab-btn.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 3px;
+  background: var(--primary);
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.filters__left {
+  display: flex;
+  gap: 10px;
+}
+
+.select {
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 12px;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.select:focus {
+  outline: 2px solid rgba(0,0,0,.1);
+}
+
+.filters__right {
+  display: flex;
+  align-items: center;
+}
+
+.search {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.search__input {
+  width: 260px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.search__input:focus {
+  outline: 2px solid rgba(0,0,0,.1);
+  border-color: var(--muted);
+}
+
+.search__btn {
+  height: 42px;
+  padding: 0 20px; 
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0; 
+  display: flex; 
+  align-items: center;   
+  justify-content: center; 
+}
+
+.search__btn:hover { opacity: 0.85; }
+
+.board-list {
+  border-top: 2px solid var(--black);
+}
+
+.board-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 12px;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.2s;
+}
+
+.board-item:hover {
+  background: #f9fafb;
+}
+
+.item__left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  min-width: 0;
+}
+
+.badge {
+  flex-shrink: 0;
+  width: 60px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 0;
+  border-radius: 6px;
+}
+
+.badge--notice {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.badge--promotion {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+.item__content {
+  min-width: 0;
+}
+
+.item__title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item__excerpt {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item__right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 14px;
+  color: var(--muted);
+  margin-left: 20px;
+}
+
+.item__right span {
+  white-space: nowrap;
+}
+
+.item__right i {
+  margin-right: 4px;
+}
+
+.empty-state {
+  padding: 80px 0;
+  text-align: center;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search__input {
+    flex: 1;
+  }
+
+  .board-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .item__right {
+    margin-left: 80px;
+    gap: 12px;
+    font-size: 12px;
+  }
+}

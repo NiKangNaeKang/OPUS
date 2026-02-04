@@ -1,5 +1,6 @@
 import '../../css/pages/onStage/detail.css'
 import { useQuery } from '@tanstack/react-query';
+import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 function parseKopisXML(xmlText) {
@@ -30,7 +31,7 @@ function parseKopisXML(xmlText) {
 
 export default function MusicalDetail () {
   const { mt20id } = useParams();
-
+  
   const { isPending, error, data } = useQuery({
     queryKey : ['mt20id', mt20id],
     enabled : Boolean(mt20id),
@@ -41,15 +42,18 @@ export default function MusicalDetail () {
       
       const xmlText = await res.text();
       const items = parseKopisXML(xmlText);
-
+      
       return items[0] ?? null;
     },
   });
-
+  
+  // SNS 공유
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const modalBackground = useRef(); // 모달의 바깥 영역
+  
   if (isPending) return 'Loading...'
   if (error) return error.message
   if (!data) return 'No data'
-
   return (
     <main className="detail-page">
       <div className="container" id="main-content">
@@ -93,11 +97,33 @@ export default function MusicalDetail () {
             <div className="info" id="info-section">
               <div className='info-badge-row'>
                 <span className='info-badge' id='badge-name'>뮤지컬</span>
-                <button className='info-badge' id='share-row'>
+                <button className='info-badge' id='share-row' onClick={() => setShareModalOpen(true)}>
                   <i className="fa-solid fa-share-nodes" aria-hidden="true"></i>
                   <span>공유</span>
                 </button>
               </div>
+
+              {shareModalOpen &&
+                <div className={'share-modal-container'} ref={modalBackground} onClick={e => {
+                  if(e.target === modalBackground.current) {
+                    setShareModalOpen(false);
+                  }
+                }}>
+                  <div className='share-modal-content'>
+                    <button className={'share-modal-close-btn'} onClick={() => setShareModalOpen(false)}>&times;</button>
+                    <div className='share-modal-row'>
+                      <h3>공유하기</h3>
+                    </div>
+                    <div className='share-modal-row'>
+                      <button type="button" className="sns-icon-btn">트위터로 공유하기</button>
+                      <button type="button" className="sns-icon-btn">페이스북으로 공유하기</button>
+                      <button type="button" className="sns-icon-btn">카카오톡으로 공유하기</button>
+                      <button type="button" className="sns-icon-btn">카카오스토리로 공유하기</button>
+                    </div>
+                    <div className='share-modal-row'></div>
+                  </div>
+                </div>
+              }
 
               <h1 className="title">{data.prfnm || "(제목 없음)"}</h1>
 

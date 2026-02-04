@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom"
-import Header from "../components/common/Header"
+import HeaderModal from "../components/auth/HeaderModal";
 import Footer from "../components/common/Footer"
 import ScrollToTop from "../components/ScrollToTop";
 
@@ -7,7 +7,7 @@ export default function DarkHeaderLayout() {
   return (
     <>
       <ScrollToTop />
-      <Header variant = "dark" />
+      <HeaderModal variant="dark" />
       <main>
         <Outlet />
       </main>
