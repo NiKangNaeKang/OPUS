@@ -1,4 +1,4 @@
-/* 배경 오버레이 */
+/* 1. 배경 오버레이 (공통) */
 .lm-overlay {
   position: fixed;
   inset: 0;
@@ -10,7 +10,7 @@
   z-index: 9999;
 }
 
-/* 모달 박스 */
+/* 2. 모달 박스 (공통) */
 .lm-modal {
   width: 420px;
   max-width: 100%;
@@ -20,7 +20,7 @@
   overflow: hidden;
 }
 
-/* 모달 내부 헤더(모달 상단 제목 영역) */
+/* 3. 헤더 영역 (공통) */
 .lm-header {
   display: flex;
   align-items: center;
@@ -37,22 +37,21 @@
   color: #111827;
 }
 
-/* 닫기 버튼 */
 .lm-close {
   border: none;
   background: transparent;
   cursor: pointer;
   font-size: 18px;
-  line-height: 1;
   padding: 8px;
   border-radius: 10px;
+  transition: background 0.2s;
 }
 
 .lm-close:hover {
   background: rgba(0, 0, 0, 0.06);
 }
 
-/* 본문(form) */
+/* 4. 본문 폼 영역 (공통) */
 .lm-body {
   padding: 16px 18px 18px;
   display: flex;
@@ -66,9 +65,10 @@
   gap: 6px;
   font-size: 13px;
   color: #111827;
+  font-weight: 600;
 }
 
-/* 입력 */
+/* 5. 입력창 (공통) */
 .lm-input {
   height: 42px;
   border: 1px solid #d1d5db;
@@ -78,29 +78,60 @@
   outline: none;
   background: #fff;
   color: #111827;
-}
-
-.lm-input::placeholder {
-  color: #9ca3af;
+  transition: border-color 0.2s;
 }
 
 .lm-input:focus {
   border-color: #111827;
 }
 
-/* 에러 메시지 */
+/* 6. ⭐ 회원가입용: 중복확인 버튼 + 인풋 나란히 배치 */
+.lm-input-group {
+  display: flex;
+  gap: 8px; /* 인풋과 버튼 사이 간격 */
+}
+
+.lm-input-group .lm-input {
+  flex: 1; /* 인풋창이 남는 공간 다 차지 */
+}
+
+/* 중복확인 버튼 (회원가입 전용) */
+.lm-link {
+  height: 42px;
+  border: 1px solid #111827;
+  background: #fff;
+  color: #111827;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap; /* 글자 줄바꿈 방지 */
+  transition: all 0.2s;
+}
+
+.lm-link:hover {
+  background: #f3f4f6;
+}
+
+.lm-link:disabled {
+  border-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* 7. 에러 메시지 */
 .lm-error {
   margin: 0;
   color: #b91c1c;
   font-size: 13px;
-  line-height: 1.3;
   background: rgba(185, 28, 28, 0.08);
   border: 1px solid rgba(185, 28, 28, 0.18);
   padding: 10px 12px;
   border-radius: 12px;
 }
 
-/* 로그인 버튼 */
+/* 8. 제출 버튼 (로그인/가입하기 공통) */
 .lm-submit {
   height: 44px;
   border: none;
@@ -111,25 +142,14 @@
   font-weight: 700;
   cursor: pointer;
   margin-top: 4px;
+  transition: opacity 0.2s;
+}
+
+.lm-submit:hover {
+  opacity: 0.9;
 }
 
 .lm-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-/* (선택) 푸터/링크 */
-.lm-footer {
-  margin-top: 6px;
-  display: flex;
-  justify-content: center;
-}
-
-.lm-link {
-  border: none;
-  background: transparent;
-  color: #111827;
-  cursor: pointer;
-  text-decoration: underline;
-  font-size: 13px;
 }
