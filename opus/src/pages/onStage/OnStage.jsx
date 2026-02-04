@@ -284,16 +284,16 @@ export default function OnStage() {
                   {flatItems.map((item) => (
                     <article key={item.mt20id} className="show-card show-card--snap">
                       <Link to= {`/onStage/${item.mt20id}`}>
-                          <div className='show-card__thumb'>
+                        <div className='show-card__thumb'>
                           {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                        <span className='show-badge show-badge--dark'>{item.prfstate || "상태없음"}</span>
+                            <span className='show-badge show-badge--dark'>{item.prfstate || "상태없음"}</span>
                         </div>
+                        <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
+                        <p className="show-card__meta">
+                          {item.prfpdfrom} ~ {item.prfpdto}
+                        </p>
+                        <p className="show-card__meta">{item.fcltynm}</p>
                       </Link>
-                      <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
-                      <p className="show-card__meta">
-                        {item.prfpdfrom} ~ {item.prfpdto}
-                      </p>
-                      <p className="show-card__meta">{item.fcltynm}</p>
                     </article>
                   ))}
                 </div>
@@ -319,15 +319,17 @@ export default function OnStage() {
                 <div className="show-grid show-grid--row">
                   {flatItems.map((item) => (
                     <article key={item.mt20id} className="show-card show-card--snap">
-                      <div className='show-card__thumb'>
-                        {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                        <span className='show-badge show-badge--dark'>{item.prfstate || "상태없음"}</span>
-                      </div>
-                      <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
-                      <p className="show-card__meta">
-                        {item.prfpdfrom} ~ {item.prfpdto}
-                      </p>
-                      <p className="show-card__meta">{item.fcltynm}</p>
+                      <Link to={`/onStage/${item.mt20id}`}>
+                        <div className='show-card__thumb'>
+                          {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
+                          <span className='show-badge show-badge--dark'>{item.prfstate || "상태없음"}</span>
+                        </div>
+                        <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
+                        <p className="show-card__meta">
+                          {item.prfpdfrom} ~ {item.prfpdto}
+                        </p>
+                        <p className="show-card__meta">{item.fcltynm}</p>
+                      </Link>
                     </article>
                   ))}
                 </div>
@@ -344,17 +346,19 @@ export default function OnStage() {
                 <div className='show-grid'>
                   {filteredItems.map((item) => (
                     <article key={item.mt20id} className="show-card">
-                      <div className="show-card__thumb">
-                        {item.poster ? (
-                          <img src={item.poster} alt={`${item.prfnm} 포스터`} />
-                        ) : (
-                          <div style={{ height: 220 }} />
-                        )}
-                        <span className="show-badge show-badge--dark">{item.prfstate || "상태없음"}</span>
-                      </div>
-                      <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
-                      <p className="show-card__meta">{item.prfpdfrom} ~ {item.prfpdto}</p>
-                      <p className="show-card__meta">{item.fcltynm}</p>
+                      <Link to = {`/onStage/${item.mt20id}`}>
+                        <div className="show-card__thumb">
+                          {item.poster ? (
+                            <img src={item.poster} alt={`${item.prfnm} 포스터`} />
+                          ) : (
+                            <div style={{ height: 220 }} />
+                          )}
+                          <span className="show-badge show-badge--dark">{item.prfstate || "상태없음"}</span>
+                        </div>
+                        <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
+                        <p className="show-card__meta">{item.prfpdfrom} ~ {item.prfpdto}</p>
+                        <p className="show-card__meta">{item.fcltynm}</p>
+                      </Link>
                     </article>
                   ))}
                 </div>

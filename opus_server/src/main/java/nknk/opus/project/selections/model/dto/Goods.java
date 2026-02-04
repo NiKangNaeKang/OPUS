@@ -20,7 +20,7 @@ public class Goods {
 	private String goodsSeller;
 	private int goodsPrice;
 	private int deliveryCost;
-	private String goodsRegDate;
+	private String goodsRegDate;	
 	private String goodsDelFl;
 	
 	// 굿즈 썸네일
