@@ -3,7 +3,7 @@ import "../../css/loginModal.css";
 import axiosApi from "../../api/axiosAPI"; 
 import { useAuthStore } from "./useAuthStore";
 
-export default function LoginModal({ open, onClose }) {
+export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const doLogin = useAuthStore((s) => s.login);
 
   const [email, setEmail] = useState("");
@@ -133,7 +133,9 @@ export default function LoginModal({ open, onClose }) {
           </button>
 
           <div className="lm-footer">
-            <button type="button" className="lm-link">회원가입</button>
+            <button type="button" className="lm-link">아이디 찾기</button>
+            <button type="button" className="lm-link">비밀번호 찾기</button>
+            <button type="button" className="lm-link" onClick={onSwitchSignup}>회원가입</button>
           </div>
         </form>
       </div>
