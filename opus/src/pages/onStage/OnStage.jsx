@@ -98,15 +98,6 @@ export default function OnStage() {
       url.searchParams.set("signgucode", '11');
       url.searchParams.set("kidstate", 'N');
 
-      // 가져온 작품의 상태를 필터링
-      if (status !== "all") {
-        const code = 
-          status === "ongoing" ? "02" :
-          status === "upcoming" ? "01" :
-          status === "ended" ? "03" : "";
-        if(code) url.searchParams.set("prfstate", code);
-      }
-
       // 공연명 검색 (KOPIS 파라미터는 shprfnm 사용)
       if (search.trim()) {
         url.searchParams.set("shprfnm", search.trim());
@@ -137,6 +128,17 @@ export default function OnStage() {
   const flatItems = useMemo(() => {
     return data?.pages?.flatMap((p) => p.items) ?? [];
   }, [data]);
+
+  const filteredItems = useMemo(() => {
+    if(status === "all") return flatItems;
+
+    return flatItems.filter(item => {
+      if (status === "02") return item.prfstate === "공연중" || item.prfstate === "02";
+      if (status === "01") return item.prfstate === "공연예정" || item.prfstate === "01";
+      if (status === "03") return item.prfstate === "공연완료" || item.prfstate === "03";
+      return true;
+    });
+  }, [flatItems, status])
 
   // 가져온 작품 정렬 (카테고리별)
   // 인기 공연
@@ -250,19 +252,19 @@ export default function OnStage() {
                   전체
               </button>
               <button type = "button"
-                className={`chip status-btn ${status === "ongoing" ? "is-active" : ""}`}
+                className={`chip status-btn ${status === "02" ? "is-active" : ""}`}
                 data-status="ongoing"
                 onClick={() => setStatus("02")}>
                   진행작
               </button>
               <button type = "button"
-                className={`chip status-btn ${status === "upcoming" ? "is-active" : ""}`}
+                className={`chip status-btn ${status === "01" ? "is-active" : ""}`}
                 data-status="upcoming"
                 onClick={() => setStatus("01")}>
                   예정작
               </button>
               <button type = "button"
-                className={`chip status-btn ${status === "ended" ? "is-active" : ""}`}
+                className={`chip status-btn ${status === "03" ? "is-active" : ""}`}
                 data-status="ended"
                 onClick={() => setStatus("03")}>
                   종료작
@@ -334,13 +336,13 @@ export default function OnStage() {
               // ========== 진행 상태별 ==========
               <>
                 <h2 className='block__title'>
-                  {status === "02"}
-                  {status === "01"}
-                  {status === "03"}
+                  {status === "02" && "진행작"}
+                  {status === "01" && "예정작"}
+                  {status === "03" && "종료작"}
                 </h2>
 
-                <div className='grid grid--default'>
-                  {flatItems.map((item) => (
+                <div className='show-grid'>
+                  {filteredItems.map((item) => (
                     <article key={item.mt20id} className="show-card">
                       <div className="show-card__thumb">
                         {item.poster ? (
