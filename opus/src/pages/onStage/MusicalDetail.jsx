@@ -13,21 +13,35 @@ function parseKopisXML(xmlText) {
     return {
       mt20id : get("mt20id"),
       poster : get("poster"),
-      relateurl : get("relateurl"),
       prfnm : get("prfnm"),
       prfpdfrom : get("prfpdfrom"),
       prfpdto : get("prfpdto"),
       fcltynm : get("fcltynm"),
       prfruntime : get("prfruntime"),
       prfage : get("prfage"),
-      styurl : get("styurl"),
       prfcast : get("prfcast"),
+      styurls : parseStyurls(db),
+      relates : parseRelates(db)
     }
   })
 
   return items;
 }
 
+// 상세 정보 이미지 리스트 형태로
+function parseStyurls(db) {
+  return Array.from(db.getElementsByTagName("styurl")).map(
+    (node) => node.textContent.trim()
+  )
+}
+
+// 예매처 정보(예매처명, URL) 리스트 형태로
+function parseRelates(db) {
+  return Array.from(db.getElementsByTagName("relate")).map((relate) => ({
+    name : relate.getElementsByTagName("relatenm")?.[0]?.textContent?.trim() ?? "",
+    url : relate.getElementsByTagName("relateurl")?.[0]?.textContent?.trim() ?? "",
+  }))
+}
 
 export default function MusicalDetail () {
   const { mt20id } = useParams();
@@ -37,9 +51,9 @@ export default function MusicalDetail () {
     enabled : Boolean(mt20id),
     queryFn: async () => {
       const res = await fetch(`/kopis/openApi/restful/pblprfr/${mt20id}?service=f8d2111671454d7bb5b0102d85c7cf1c`);
-      
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      
+
       const xmlText = await res.text();
       const items = parseKopisXML(xmlText);
       
@@ -54,6 +68,7 @@ export default function MusicalDetail () {
   if (isPending) return 'Loading...'
   if (error) return error.message
   if (!data) return 'No data'
+  
   return (
     <main className="detail-page">
       <div className="container" id="main-content">
@@ -67,13 +82,18 @@ export default function MusicalDetail () {
               </div>
 
               <div className="poster-actions">
-                <button className="btn btn-primary" id='book-btn' type="button"
-                  onClick={() => {
-                    if (!data.relateurl) return alert("예매 링크가 없는 공연입니다.");
-                    window.open(data.relateurl, "_blank", "noopener,noreferrer");
+                {data.relates.map((relate, idx) => (
+                  <button className="btn btn-primary" id='book-btn' type="button" key={idx}
+                    onClick={() => {
+                      if (!relate.url) {
+                        alert("예매 링크가 없는 공연입니다.");
+                        return;
+                      }
+                      window.open(relate.url, "_blank", "noopener,noreferrer");
                     }}>
-                    티켓 예매하기
-                </button>
+                      {relate.name}에서 예매하기
+                  </button>
+                ))}
 
                 <div className="actions-row">
                   <button className="btn btn-outline" type="button">
@@ -150,10 +170,14 @@ export default function MusicalDetail () {
                 <h2 className="section-title">상세 정보</h2>
 
                 <div className="desc" id="descText">
-                  <div className='desc'>
-                    {data.styurl ? <img className='desc-img' src={data.styurl} alt={`${data.prfnm} 포스터`} />
-                      : "" }
-                  </div>
+                  {data.styurls.length > 0 && (
+                    <div className='desc'>
+                      {data.styurls.map((url, idx) => (
+                        <img key = {idx} className='desc-img'
+                          src={url} alt={`${data.prfnm} 상세 이미지 ${idx + 1}`} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
