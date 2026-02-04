@@ -9,6 +9,9 @@ import { Link, useParams } from 'react-router-dom';
 
 export default function MusicalDetail () {
   const { mt20id } = useParams();
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const modalBackground = useRef(); // 모달의 바깥 영역
+  
   const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
   
   const { isPending, error, data } = useQuery({
@@ -16,16 +19,24 @@ export default function MusicalDetail () {
     queryFn: async () => getMusicalDetail(SERVICE_KEY, mt20id),
   });
   
+  if (isPending) return 'Loading...'
+  if (error) return error.message
+  if (!data) return 'No data'
+
   // SNS 공유
-  const [shareModalOpen, setShareModalOpen] = useState(false);
-  const modalBackground = useRef(); // 모달의 바깥 영역
   
   const title = data.prfnm;
   const url = window.location.href;
+  const currentUrl = window.location.href;
   
   const shareFacebook = () => {
-    const sharedLink = encodeURIComponent(url);
-    openWidnow(`http://www.facebook.com/sharer/sharer.php?u=${sharedLink}`);
+    const shareURL = encodeURIComponent(window.location.href);
+
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
+      "_blank",
+      "noopener,noreferrer"
+    )
   };
   
   const shareX = () => {
@@ -39,9 +50,10 @@ export default function MusicalDetail () {
     )
   }
 
-  if (isPending) return 'Loading...'
-  if (error) return error.message
-  if (!data) return 'No data'
+    const copyUrl = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    alert("링크가 복사되었습니다!");
+  };
   
   return (
     <main className="detail-page">
@@ -110,11 +122,11 @@ export default function MusicalDetail () {
                       <button className={'share-modal-close-btn'} onClick={() => setShareModalOpen(false)}>&times;</button>
                     </div>
                     <div className='share-modal-second-row'>
-                      <div className='share-modal-second-row-item' onClick={() => shareX()}>
+                      <div className='share-modal-second-row-item' onClick={shareFacebook}>
                         <img className='sns-logo' src={facebookIcon} alt="페이스북 로고" />
                         <div className='sns-name'>Facebook</div>
                       </div>
-                      <div className='share-modal-second-row-item' onClick={() => shareFacebook()}>
+                      <div className='share-modal-second-row-item' onClick={shareX}>
                         <img className='sns-logo' src={xIcon} alt="X 로고" />
                         <div className='sns-name'>X</div>
                       </div>
@@ -124,8 +136,8 @@ export default function MusicalDetail () {
                       </div>
                     </div>
                     <div className='share-modal-third-row'>
-                      <div></div>
-                      <button type='button' className='url-copy-btn'>복사</button>
+                      <input type='text' value={currentUrl}></input>
+                      <button type='button' className='url-copy-btn' onClick={copyUrl}>복사</button>
                     </div>
                   </div>
                 </div>
