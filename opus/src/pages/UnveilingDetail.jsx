@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { unveilingData } from "../data/unveilingData";
+import "../css/UnveilingDetail.css";
 
 // (권장) 실제 경로에 맞게 CSS import 확인
 // import "./UnveilingDetail.css";
