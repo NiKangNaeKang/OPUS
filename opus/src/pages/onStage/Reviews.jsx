@@ -15,6 +15,9 @@ export default function Reviews() {
     setWriteReview("");
   }
 
+  const [isKebabOpen, setIsKebabOpen] = useState(false);
+  
+
   return (
     <main className="reviews-page">
       <section id="review-header" className="section section--mb-lg">

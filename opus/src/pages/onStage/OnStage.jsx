@@ -98,15 +98,6 @@ export default function OnStage() {
       url.searchParams.set("signgucode", '11');
       url.searchParams.set("kidstate", 'N');
 
-      // 가져온 작품의 상태를 필터링
-      if (status !== "all") {
-        const code = 
-          status === "ongoing" ? "02" :
-          status === "upcoming" ? "01" :
-          status === "ended" ? "03" : "";
-        if(code) url.searchParams.set("prfstate", code);
-      }
-
       // 공연명 검색 (KOPIS 파라미터는 shprfnm 사용)
       if (search.trim()) {
         url.searchParams.set("shprfnm", search.trim());
@@ -137,6 +128,17 @@ export default function OnStage() {
   const flatItems = useMemo(() => {
     return data?.pages?.flatMap((p) => p.items) ?? [];
   }, [data]);
+
+  const filteredItems = useMemo(() => {
+    if(status === "all") return flatItems;
+
+    return flatItems.filter(item => {
+      if (status === "02") return item.prfstate === "공연중" || item.prfstate === "02";
+      if (status === "01") return item.prfstate === "공연예정" || item.prfstate === "01";
+      if (status === "03") return item.prfstate === "공연완료" || item.prfstate === "03";
+      return true;
+    });
+  }, [flatItems, status])
 
   // 가져온 작품 정렬 (카테고리별)
   // 인기 공연
@@ -250,19 +252,19 @@ export default function OnStage() {
                   전체
               </button>
               <button type = "button"
-                className={`chip status-btn ${status === "ongoing" ? "is-active" : ""}`}
+                className={`chip status-btn ${status === "02" ? "is-active" : ""}`}
                 data-status="ongoing"
                 onClick={() => setStatus("02")}>
                   진행작
               </button>
               <button type = "button"
-                className={`chip status-btn ${status === "upcoming" ? "is-active" : ""}`}
+                className={`chip status-btn ${status === "01" ? "is-active" : ""}`}
                 data-status="upcoming"
                 onClick={() => setStatus("01")}>
                   예정작
               </button>
               <button type = "button"
-                className={`chip status-btn ${status === "ended" ? "is-active" : ""}`}
+                className={`chip status-btn ${status === "03" ? "is-active" : ""}`}
                 data-status="ended"
                 onClick={() => setStatus("03")}>
                   종료작
@@ -278,70 +280,54 @@ export default function OnStage() {
             {status === "all" ? (
               <>
                 <h2 className="block__title">인기 공연</h2>
-                <div className="grid grid--row">
+                <div className="show-grid show-grid--row">
                   {flatItems.map((item) => (
-                    <article key={item.mt20id} className="card card--snap">
+                    <article key={item.mt20id} className="show-card show-card--snap">
                       <Link to= {`/onStage/${item.mt20id}`}>
-                          <div className='poster-card__thumb'>
+                          <div className='show-card__thumb'>
                           {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                        <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
+                        <span className='show-badge show-badge--dark'>{item.prfstate || "상태없음"}</span>
                         </div>
                       </Link>
-                      <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
-                      <p className="card__meta">
+                      <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
+                      <p className="show-card__meta">
                         {item.prfpdfrom} ~ {item.prfpdto}
                       </p>
-                      <p className="card__meta">{item.fcltynm}</p>
+                      <p className="show-card__meta">{item.fcltynm}</p>
                     </article>
                   ))}
                 </div>
-                
-                {/* ============================================================== */}
-                {/* 무한 스크롤 */}
-                <div ref={sentinelRef} style={{height: 1}} />
-            
-                {/* Loading... */}
-                <div className={`loading ${isFetchingNextPage ? "" : "is-hidden"}`} style={{ marginTop: 16 }}>
-                  <div className="spinner" aria-hidden="true"></div>
-                  <p>더 많은 콘텐츠를 불러오는 중...</p>
-                </div>
 
-                {!hasNextPage && (
-                  <p style={{ marginTop: 16, color: "#6b7280" }}>
-                    더 불러올 데이터가 없습니다.
-                  </p>
-                )}
-
-                <h2 className="block__title">대학로 공연</h2>
-                <div className="grid grid--row">
+                {/* <h2 className="block__title">대학로 공연</h2>
+                <div className="show-grid show-grid--row">
                   {univItems.map((item) => (
-                    <article key={item.mt20id} className="card card--snap">
-                      <div className='poster-card__thumb'>
+                    <article key={item.mt20id} className="show-card show-card--snap">
+                      <div className='show-card__thumb'>
                         {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                        <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
+                        <span className='show-badge show-badge--dark'>{item.prfstate || "상태없음"}</span>
                       </div>
-                      <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
-                      <p className="card__meta">
+                      <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
+                      <p className="show-card__meta">
                         {item.prfpdfrom} ~ {item.prfpdto}
                       </p>
-                      <p className="card__meta">{item.fcltynm}</p>
+                      <p className="show-card__meta">{item.fcltynm}</p>
                     </article>
                   ))}
-                </div>
+                </div> */}
 
                 <h2 className="block__title">전체 공연</h2>
-                <div className="grid grid--row">
+                <div className="show-grid show-grid--row">
                   {flatItems.map((item) => (
-                    <article key={item.mt20id} className="card card--snap">
-                      <div className='poster-card__thumb'>
+                    <article key={item.mt20id} className="show-card show-card--snap">
+                      <div className='show-card__thumb'>
                         {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                        <span className='badge badge--dark'>{item.prfstate || "상태없음"}</span>
+                        <span className='show-badge show-badge--dark'>{item.prfstate || "상태없음"}</span>
                       </div>
-                      <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
-                      <p className="card__meta">
+                      <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
+                      <p className="show-card__meta">
                         {item.prfpdfrom} ~ {item.prfpdto}
                       </p>
-                      <p className="card__meta">{item.fcltynm}</p>
+                      <p className="show-card__meta">{item.fcltynm}</p>
                     </article>
                   ))}
                 </div>
@@ -350,25 +336,25 @@ export default function OnStage() {
               // ========== 진행 상태별 ==========
               <>
                 <h2 className='block__title'>
-                  {status === "02"}
-                  {status === "01"}
-                  {status === "03"}
+                  {status === "02" && "진행작"}
+                  {status === "01" && "예정작"}
+                  {status === "03" && "종료작"}
                 </h2>
 
-                <div className='grid grid--default'>
-                  {flatItems.map((item) => (
-                    <article key={item.mt20id} className="card">
-                      <div className="poster-card__thumb">
+                <div className='show-grid'>
+                  {filteredItems.map((item) => (
+                    <article key={item.mt20id} className="show-card">
+                      <div className="show-card__thumb">
                         {item.poster ? (
                           <img src={item.poster} alt={`${item.prfnm} 포스터`} />
                         ) : (
                           <div style={{ height: 220 }} />
                         )}
-                        <span className="badge badge--dark">{item.prfstate || "상태없음"}</span>
+                        <span className="show-badge show-badge--dark">{item.prfstate || "상태없음"}</span>
                       </div>
-                      <h3 className="card__title">{item.prfnm || "(제목 없음)"}</h3>
-                      <p className="card__meta">{item.prfpdfrom} ~ {item.prfpdto}</p>
-                      <p className="card__meta">{item.fcltynm}</p>
+                      <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
+                      <p className="show-card__meta">{item.prfpdfrom} ~ {item.prfpdto}</p>
+                      <p className="show-card__meta">{item.fcltynm}</p>
                     </article>
                   ))}
                 </div>
@@ -377,10 +363,10 @@ export default function OnStage() {
 
             {/* ============================================================== */}
             {/* 무한 스크롤 */}
-            <div ref={sentinelRef} style={{height: 1}} />
+            {/* <div ref={sentinelRef} style={{height: 1}} /> */}
         
             {/* Loading... */}
-            <div className={`loading ${isFetchingNextPage ? "" : "is-hidden"}`} style={{ marginTop: 16 }}>
+            {/* <div className={`loading ${isFetchingNextPage ? "" : "is-hidden"}`} style={{ marginTop: 16 }}>
               <div className="spinner" aria-hidden="true"></div>
               <p>더 많은 콘텐츠를 불러오는 중...</p>
             </div>
@@ -389,7 +375,7 @@ export default function OnStage() {
               <p style={{ marginTop: 16, color: "#6b7280" }}>
                 더 불러올 데이터가 없습니다.
               </p>
-            )}
+            )} */}
           </section>
         </div>
       </div>
