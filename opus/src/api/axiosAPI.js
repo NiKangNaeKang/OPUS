@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAuthStore } from "../components/auth/useAuthStore";
 
 const axiosApi = axios.create({
-  baseURL: "http://localhost",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 // 요청 시 토큰 자동 첨부

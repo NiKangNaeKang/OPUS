@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { axiosApi } from "../../api/axiosAPI";
 import Loading from "../../components/common/Loading"
-import '../../css/goods.css'
+import "../../css/Selections.css";
 import { NavLink } from "react-router-dom";
 
 const Selections = () => {
@@ -77,18 +77,18 @@ const Selections = () => {
         </div>
 
         <div className="filter__row">
-          <div className="chips">
-            <button className={`chip ${category == "all" ? "is-active" : ""}`}
+          <div className="goods_chips">
+            <button className={`goods_chip ${category == "all" ? "is-active" : ""}`}
               onClick={() => handleCategory("all")}>전체</button>
-            <button className={`chip ${category == "clothes" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category == "clothes" ? "is-active" : ""}`}
               onClick={() => handleCategory("clothes")}>의류</button>
-            <button className={`chip ${category == "accessories" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category == "accessories" ? "is-active" : ""}`}
               onClick={() => handleCategory("accessories")}>액세서리</button>
-            <button className={`chip ${category == "stationery" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category == "stationery" ? "is-active" : ""}`}
               onClick={() => handleCategory("stationery")}>문구</button>
-            <button className={`chip ${category == "poster" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category == "poster" ? "is-active" : ""}`}
               onClick={() => handleCategory("poster")}>포스터/엽서</button>
-            <button className={`chip ${category == "record" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category == "record" ? "is-active" : ""}`}
               onClick={() => handleCategory("record")}>음반/DVD</button>
           </div>
 
@@ -134,9 +134,9 @@ const Selections = () => {
             ) : (
               filteredList.map((goods) => (
                 <NavLink className="card-link" to={`/selections/${goods.goodsNo}`} key={goods.goodsNo} >
-                  <article className="card">
+                  <article className="goods_card">
                     <div className="card_img">
-                      <img src={goods.goodsThumbnail} alt={goods.goodsName} />
+                      <img src={`${import.meta.env.VITE_API_URL}${goods.goodsThumbnail}`} alt={goods.goodsName} />
                     </div>
                     <h3 className="card_title">{goods.goodsName}</h3>
                     <p className="card_price">
