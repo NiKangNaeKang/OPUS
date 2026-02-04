@@ -1,4 +1,7 @@
 import '../../css/pages/onStage/detail.css'
+import facebookIcon from '../../assets/snsLogo/facebook.png';
+import xIcon from '../../assets/snsLogo/x.png';
+import kakaoIcon from '../../assets/snsLogo/kakao.png';
 import { getMusicalDetail } from '../../api/kopisAPI';
 import { useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
@@ -17,6 +20,25 @@ export default function MusicalDetail () {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const modalBackground = useRef(); // 모달의 바깥 영역
   
+  const title = data.prfnm;
+  const url = window.location.href;
+  
+  const shareFacebook = () => {
+    const sharedLink = encodeURIComponent(url);
+    openWidnow(`http://www.facebook.com/sharer/sharer.php?u=${sharedLink}`);
+  };
+  
+  const shareX = () => {
+    const text = encodeURIComponent(`${data.prfnm}\n`);
+    const shareURL = encodeURIComponent(window.location.href);
+
+    window.open(
+      `https://twitter.com/intent/tweet?text=${text}&url=${shareUrl}`,
+      "_blank",
+      "noopener,noreferrer"
+    )
+  }
+
   if (isPending) return 'Loading...'
   if (error) return error.message
   if (!data) return 'No data'
@@ -87,13 +109,24 @@ export default function MusicalDetail () {
                       <h3 id='share-modal-first-row-title'>공유하기</h3>
                       <button className={'share-modal-close-btn'} onClick={() => setShareModalOpen(false)}>&times;</button>
                     </div>
-                    <div className='share-modal-row'>
-                      <button type="button" className="sns-icon-btn">트위터로 공유하기</button>
-                      <button type="button" className="sns-icon-btn">페이스북으로 공유하기</button>
-                      <button type="button" className="sns-icon-btn">카카오톡으로 공유하기</button>
-                      <button type="button" className="sns-icon-btn">카카오스토리로 공유하기</button>
+                    <div className='share-modal-second-row'>
+                      <div className='share-modal-second-row-item' onClick={() => shareX()}>
+                        <img className='sns-logo' src={facebookIcon} alt="페이스북 로고" />
+                        <div className='sns-name'>Facebook</div>
+                      </div>
+                      <div className='share-modal-second-row-item' onClick={() => shareFacebook()}>
+                        <img className='sns-logo' src={xIcon} alt="X 로고" />
+                        <div className='sns-name'>X</div>
+                      </div>
+                      <div className='share-modal-second-row-item'>
+                        <img className='sns-logo' src={kakaoIcon} alt="카카오톡 로고" />
+                        <div className='sns-name'>카카오톡</div>
+                      </div>
                     </div>
-                    <div className='share-modal-row'></div>
+                    <div className='share-modal-third-row'>
+                      <div></div>
+                      <button type='button' className='url-copy-btn'>복사</button>
+                    </div>
                   </div>
                 </div>
               }

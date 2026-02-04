@@ -394,7 +394,7 @@
 .share-modal-content {
   background-color: #fff;
   width: 300px;
-  min-height: 250px;
+  min-height: 200px;
   padding: 15px;
   border-radius: 3px;
 
@@ -420,4 +420,28 @@
 
 #share-modal-first-row-title {
   margin: 0;
+}
+
+.share-modal-second-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-bottom: 15px;
+}
+
+.share-modal-second-row-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.sns-logo {
+  width: 50px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+}
+
+.sns-name {
+  font-size: 13px;
 }
