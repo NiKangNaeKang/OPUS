@@ -31,27 +31,10 @@ function parseKopisXML(xmlText) {
       prfruntime : get("prfruntime"),
       prfage : get("prfage"),
       prfcast : get("prfcast"),
-      styurls : parseStyurls("db"),
-      relates : parseRelates("db")
     };
   });
 
   return items;
-}
-
-// styurls
-function parseStyurls(db) {
-  return Array.from(db.getElementsByTagName("styurl")).map(
-    (node) => node.textContent.trim()
-  )
-}
-
-// relates
-function parseRelates(db) {
-  return Array.from(db.getElementsByTagName("relateurl")).map((relate) => ({
-    name : relate.getElementsByTagName("relatenm")?.[0]?.textContent?.trim() ?? "",
-    url : relate.getElementsByTagName("relateurl")?.[0]?.textContent?.trim() ?? "",
-  }))
 }
 
 export default function OnStage() {
