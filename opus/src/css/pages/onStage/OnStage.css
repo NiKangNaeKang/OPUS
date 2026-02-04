@@ -43,13 +43,15 @@ img{ display:block; max-width:100%; }
   margin-bottom:16px;
 }
 
-.search-box{ flex:1; position:relative; }
+.search-box{
+  flex:1; position:relative;
+}
 
 .search-input{
   width:100%;
   height:48px;
   border:1px solid #d1d5db;
-  border-radius: 3px;
+  border-radius: 999px;
   padding:0 46px 0 16px;
   outline:none;
   background:#fff;
@@ -72,7 +74,7 @@ img{ display:block; max-width:100%; }
   border:1px solid #111;
   cursor:pointer;
   font-weight:700;
-  border-radius: 3px;
+  border-radius: 999px;
 }
 .search-btn--dark{
   background:#111;
@@ -106,6 +108,7 @@ img{ display:block; max-width:100%; }
 
 .chip.genre-btn, .chip.status-btn {
   border:1px solid #d1d5db;
+  border-radius: 999px;
   background:#fff;
   color:var(--muted);
   padding:8px 14px;
@@ -123,7 +126,7 @@ img{ display:block; max-width:100%; }
 .content{
   display:flex;
   flex-direction:column;
-  gap:44px;
+  gap:40px;
 }
 .block__title{
   margin:0 0 16px;
@@ -146,11 +149,11 @@ img{ display:block; max-width:100%; }
   overflow:hidden;
   background:#f3f4f6;
   margin-bottom:10px;
+  border-radius: 15px;
 }
 .poster-card__thumb img{
   width:100%;
   height:350px;
-  border-radius: 2px;
   object-fit:cover;
   transition: transform .3s ease;
 }
@@ -176,8 +179,8 @@ img{ display:block; max-width:100%; }
   font-weight:800;
 }
 .badge--dark{
-  background: rgba(0,0,0,0.7);
-  border-radius: 2px;
+  background: rgba(0,0,0,0.75);
+  border-radius: 999px;
   color:#fff;
 }
 
@@ -188,6 +191,7 @@ img{ display:block; max-width:100%; }
   padding-bottom: 8px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
+  gap: 17px;
 
   /* 양끝 페이드(마스크) */
   -webkit-mask-image: linear-gradient(
