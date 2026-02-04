@@ -8,6 +8,7 @@
   --pad:32px;
 }
 
+/* ================= RESET ================= */
 *{ box-sizing:border-box; }
 html,body{ height:100%; }
 body{
@@ -21,15 +22,15 @@ button, input{ font:inherit; }
 img{ display:block; max-width:100%; }
 ::-webkit-scrollbar{ display:none; }
 
+/* ================= LAYOUT ================= */
 .wrap{
   max-width: var(--wrap);
   margin: 0 auto;
   padding: 0 var(--pad);
 }
 
-/* ================= MAIN ================= */
 .main{
-  padding-top: 90px;   /* 헤더 높이 */
+  padding-top: 90px;
   padding-bottom: 60px;
 }
 
@@ -38,26 +39,28 @@ img{ display:block; max-width:100%; }
 
 .search-row{
   display:flex;
-  align-items:center;
   gap:12px;
   margin-bottom:16px;
 }
 
-.search-box{ flex:1; position:relative; }
+.search-box{
+  flex:1;
+  position:relative;
+}
 
 .search-input{
   width:100%;
   height:48px;
-  border:1px solid #d1d5db;
-  border-radius: 3px;
   padding:0 46px 0 16px;
+  border:1px solid #d1d5db;
+  border-radius:999px;
   outline:none;
-  background:#fff;
 }
 .search-input:focus{
-  box-shadow: 0 0 0 3px rgba(17,17,17,.08);
   border-color:#9ca3af;
+  box-shadow:0 0 0 3px rgba(17,17,17,.08);
 }
+
 .search-icon{
   position:absolute;
   right:16px;
@@ -70,132 +73,88 @@ img{ display:block; max-width:100%; }
   height:48px;
   padding:0 22px;
   border:1px solid #111;
-  cursor:pointer;
-  font-weight:700;
-  border-radius: 3px;
-}
-.search-btn--dark{
+  border-radius:999px;
   background:#111;
   color:#fff;
+  font-weight:700;
+  cursor:pointer;
 }
-.search-btn--dark:hover{ background:#000; }
 
-/* ================= FILTERS ================= */
+/* ================= FILTER ================= */
 .filter-row{
   display:flex;
-  align-items:center;
   gap:18px;
   flex-wrap:wrap;
+  align-items: center;
 }
+
 .filter-group{
   display:flex;
-  align-items:center;
   gap:10px;
-  flex-wrap:wrap;
+  align-items:center;
 }
+
 .filter-label{
   font-size:13px;
-  color:var(--muted);
   font-weight:700;
+  color:var(--muted);
 }
+
 .divider{
   width:1px;
   height:18px;
   background:#d1d5db;
 }
 
-.chip.genre-btn, .chip.status-btn {
+.chip{
+  padding:8px 14px;
+  border-radius:999px;
   border:1px solid #d1d5db;
   background:#fff;
-  color:var(--muted);
-  padding:8px 14px;
-  cursor:pointer;
   font-size:13px;
   font-weight:700;
-  transition: border-color .2s, color .2s;
+  color:var(--muted);
+  cursor:pointer;
 }
-.chip.genre-btn:hover, .chip.status-btn:hover { border-color:#111; color:#111; }
-.chip.genre-btn.is-active, .chip.status-btn.is-active {
-  border-color:#111; background-color:#111; color:#fff !important; 
+.chip.is-active{
+  background:#111;
+  border-color:#111;
+  color:#fff;
 }
 
 /* ================= CONTENT ================= */
 .content{
   display:flex;
   flex-direction:column;
-  gap:44px;
+  gap:40px;
 }
+
 .block__title{
-  margin:0 0 16px;
+  margin: 16px 0;
   font-size:22px;
   font-weight:800;
-  letter-spacing:-0.02em;
 }
 
-/* ================= CARD BASE ================= */
-/* (grid / row 둘 다 공통) */
-.grid{ gap:20px; }
-
-.card{
-  cursor:pointer;
-  border: none !important;
+/* ================= SHOW GRID ================= */
+.show-grid{
+  gap:20px;
 }
 
-.poster-card__thumb{
-  position:relative;
-  overflow:hidden;
-  background:#f3f4f6;
-  margin-bottom:10px;
-}
-.poster-card__thumb img{
-  width:100%;
-  height:350px;
-  border-radius: 2px;
-  object-fit:cover;
-  transition: transform .3s ease;
-}
-.card:hover .poster-card__thumb img{ transform:scale(1.05); }
-
-.card__title{
-  margin:0 0 6px;
-  font-size:14px;
-  font-weight:800;
-}
-.card__meta{
-  margin:0 0 2px;
-  font-size:12px;
-  color:var(--muted);
-}
-
-.badge{
-  position:absolute;
-  top:12px;
-  right:12px;
-  padding:6px 10px;
-  font-size:11px;
-  font-weight:800;
-}
-.badge--dark{
-  background: rgba(0,0,0,0.7);
-  border-radius: 2px;
-  color:#fff;
-}
-
-/* ================= ROW RAIL ================= */
-.grid.grid--row{
+/* 가로 스크롤 레일 */
+.show-grid--row{
   display:flex;
+  gap:17px;
+  padding-left:16px;
   overflow-x:auto;
-  padding-bottom: 8px;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
+  scroll-snap-type:x mandatory;
 
-  /* 양끝 페이드(마스크) */
+  /* fade */
   -webkit-mask-image: linear-gradient(
     to right,
-    rgba(0,0,0,1) 0%,
+    rgba(0,0,0,0) 0%,
     rgba(0,0,0,1) 24px,
     rgba(0,0,0,1) calc(100% - 24px),
-    rgba(0,0,0,1) 100%
+    rgba(0,0,0,0) 100%
   );
   mask-image: linear-gradient(
     to right,
@@ -206,55 +165,87 @@ img{ display:block; max-width:100%; }
   );
 }
 
-/* 가로 레일: 카드 폭 고정 + 스냅 기준 */
-.grid.grid--row .card{
-  flex: 0 0 220px;
-  scroll-snap-align: start;
-}
-.grid.grid--row .card__thumb{ height: 335px; }
-
-/* ================= GRID (기본 목록) ================= */
-/* 너는 지금 "전체 공연"도 row로 만들었으니까 grid 모드는 안 쓸 수도 있어.
-   만약 다시 세로 그리드로 돌릴 거면 아래만 켜면 됨. */
-.grid:not(.grid--row){
+/* 기본 grid */
+.show-grid:not(.show-grid--row){
   display:grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns:repeat(5, minmax(0, 1fr));
 }
-.grid:not(.grid--row) .card__thumb{ height:320px; }
 
-/* ================= LOADING ================= */
-.loading{
-  text-align:center;
-  padding:26px 0;
+/* ================= SHOW CARD ================= */
+.show-card{
+  cursor:pointer;
+}
+
+/* 가로 카드 폭 */
+.show-grid--row .show-card{
+  flex:0 0 220px;
+  scroll-snap-align:start;
+}
+
+/* ================= THUMB ================= */
+.show-card__thumb{
+  position:relative;
+  overflow:hidden;
+  margin-bottom:10px;
+  border-radius:15px;
+  background:#f3f4f6;
+
+  /* ⭐ 포스터 크기 통일 */
+  aspect-ratio: 2 / 3;
+}
+
+.show-card__thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* ================= BADGE ================= */
+.show-badge{
+  position:absolute;
+  top:12px;
+  right:12px;
+  padding:6px 10px;
+  font-size:11px;
+  font-weight:800;
+  border-radius:999px;
+  background:rgba(0,0,0,0.75);
+  color:#fff;
+}
+
+/* ================= TEXT ================= */
+.show-card__title{
+  margin:0 0 6px;
+  font-size:14px;
+  font-weight:800;
+}
+.show-card__meta{
+  margin:0;
+  font-size:12px;
   color:var(--muted);
 }
-.loading.is-hidden{ display:none; }
 
-.spinner{
-  display:inline-block;
-  width:32px;
-  height:32px;
-  border:3px solid #d1d5db;
-  border-top-color:#111;
-  animation: spin 0.9s linear infinite;
-  margin-bottom:8px;
-}
-@keyframes spin{ to{ transform: rotate(360deg); } }
-
-/* ================= Responsive ================= */
+/* ================= RESPONSIVE ================= */
 @media (max-width: 860px){
-  :root{ --pad: 16px; }
-  .search-row{ flex-direction:column; align-items:stretch; }
-  .btn{ width:100%; }
+  :root{ --pad:16px; }
 
-  .grid.grid--row .card{ flex-basis: 200px; }
-  .grid.grid--row .card__thumb{ height: 240px; }
+  .search-row{ flex-direction:column; }
 
-  .grid:not(.grid--row){ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .show-grid--row .show-card{
+    flex-basis:200px;
+  }
+
+  .show-grid:not(.show-grid--row){
+    grid-template-columns:repeat(3, 1fr);
+  }
 }
-@media (max-width: 560px){
-  .grid.grid--row .card{ flex-basis: 180px; }
-  .grid.grid--row .card__thumb{ height: 220px; }
 
-  .grid:not(.grid--row){ grid-template-columns: 1fr; }
+@media (max-width: 560px){
+  .show-grid--row .show-card{
+    flex-basis:180px;
+  }
+
+  .show-grid:not(.show-grid--row){
+    grid-template-columns:1fr;
+  }
 }
