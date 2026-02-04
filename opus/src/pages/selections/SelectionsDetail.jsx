@@ -175,7 +175,7 @@ const SelectionsDetail = () => {
               <img
                 id="mainImage"
                 className="gallery__main-img"
-                src={pic1}
+                src={`${import.meta.env.VITE_API_URL}${goodsDetail.goodsThumbnail}`}
                 alt={goodsDetail.goodsName}
               />
             </div>
@@ -205,7 +205,7 @@ const SelectionsDetail = () => {
               {/* 사이즈 선택: 중복 제거된 sizeList로 출력 */}
               {hasSize && (
                 <div className="field">
-                  <label className="field__label">사이즈 선택</label>
+                  <label className="field__label">사이즈 / 수량</label>
                   <div className="select-wrap">
                     <select
                       className="option_select"
@@ -215,7 +215,7 @@ const SelectionsDetail = () => {
                         setSelectedColor(""); // 사이즈 바뀌면 색상 초기화
                       }}
                     >
-                      <option value="">사이즈 선택</option>
+                      <option value="">사이즈/수량 선택</option>
                       {sizeList.map((s) => (
                         <option key={s} value={s} className="option">
                           {s}
@@ -230,7 +230,7 @@ const SelectionsDetail = () => {
               {/* 색상 선택: size 선택 후 colorList 출력 */}
               {hasColor && (
                 <div className="field">
-                  <label className="field__label">색상 선택</label>
+                  <label className="field__label">색상 / 타입</label>
                   <div className="select-wrap">
                     <select
                       className="option_select"
@@ -238,7 +238,7 @@ const SelectionsDetail = () => {
                       onChange={(e) => setSelectedColor(e.target.value)}
                       disabled={hasSize && !selectedSize} // 사이즈가 있으면 사이즈 먼저 선택
                     >
-                      <option value="">색상 선택</option>
+                      <option value="">색상/타입 선택</option>
                       {colorList.map((c) => (
                         <option key={c} value={c} className="option">
                           {c}
