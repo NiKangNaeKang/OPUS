@@ -1,4 +1,5 @@
-:root {
+/* :root 대신 메인 컨테이너 클래스를 사용합니다 */
+.board-container {
   --black: #111;
   --text: #111827;
   --muted: #6b7280;
@@ -10,21 +11,21 @@
   --wrap: 1280px;
   --radius: 12px;
   --shadow: 0 10px 30px rgba(0, 0, 0, .06);
-}
 
-* { box-sizing: border-box; }
-body {
-  margin: 0;
+  /* 전역 body 스타일을 이 안으로 이동 */
   font-family: "Noto Sans KR", system-ui, sans-serif;
   color: var(--text);
   background: var(--bg);
   line-height: 1.5;
-}
-
-.board-container {
+  
   max-width: var(--wrap);
   margin: 0 auto;
   padding: 110px 24px 100px;
+}
+
+/* 모든 요소(*) 선택자 대신 컨테이너 내부 요소만 지정 */
+.board-container * { 
+  box-sizing: border-box; 
 }
 
 .tabs {
