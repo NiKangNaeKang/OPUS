@@ -202,7 +202,7 @@ const SelectionsDetail = () => {
 
 
             <div id="product-options" className="options">
-              {/* ✅ 사이즈 선택: 중복 제거된 sizeList로 출력 */}
+              {/* 사이즈 선택: 중복 제거된 sizeList로 출력 */}
               {hasSize && (
                 <div className="field">
                   <label className="field__label">사이즈 선택</label>
@@ -227,7 +227,7 @@ const SelectionsDetail = () => {
                 </div>
               )}
 
-              {/* ✅ 색상 선택: size 선택 후 colorList 출력 */}
+              {/* 색상 선택: size 선택 후 colorList 출력 */}
               {hasColor && (
                 <div className="field">
                   <label className="field__label">색상 선택</label>
@@ -252,7 +252,7 @@ const SelectionsDetail = () => {
 
             </div>
 
-            {/* ✅ 선택 박스: 옵션 row가 확정되면 표시 */}
+            {/* 선택 박스: 옵션 row가 확정되면 표시 */}
             {(selectedOptionRow || (!hasSize && !hasColor)) && (
               <div className="field selected-field">
                 {selectedOptionRow && (
@@ -338,7 +338,7 @@ const SelectionsDetail = () => {
 
             <div className={`goods_tab-panel ${tab == "policy" ? "is-active" : ""}`} id="tab-shipping">
               <div className="detail-wrap">
-                {/* <!-- OPUS 배송/교환/반품 정책 (Copy & Paste) --> */}
+                {/*  OPUS 배송/교환/반품 정책 (Copy & Paste) */}
                 <header className="policy__header">
                   <h2 className="policy__title">배송/교환/반품 정책</h2>
                   <p className="policy__subtitle">OPUS는 세련된 경험과 신뢰 가능한 운영 기준을 함께 제공합니다.</p>
