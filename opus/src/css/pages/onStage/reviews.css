@@ -63,7 +63,7 @@ input, textarea{ outline:none; }
 /* Card */
 .card{
   background: var(--card);
-  border: 1px solid var(--line);
+  /* border: 1px solid var(--line); */
   box-shadow: var(--shadow);
 }
 .card--p-lg{
@@ -118,7 +118,7 @@ input, textarea{ outline:none; }
 /* ===== Card ===== */
 .card{
   background: var(--card);
-  border: 1px solid var(--line);
+  /* border: 1px solid var(--line); */
   box-shadow: var(--shadow);
 }
 .card--p-lg{ padding: 32px; }
