@@ -93,4 +93,8 @@ public class MemberController {
         log.info("로그아웃 요청 수신");
         return ResponseEntity.ok("로그아웃 되었습니다.");
     }
+    
+    
+    
+    
 }
