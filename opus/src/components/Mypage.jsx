@@ -76,7 +76,6 @@ export default function Mypage() {
         </div>
       </aside>
 
-
       <main className="main">
         <div className="main__inner">
           {/* ===== 1. PROFILE ===== */}
@@ -114,7 +113,6 @@ export default function Mypage() {
             </div>
           </section>
 
-
           <section id="password-change" className="card">
             <header className="card__head">
               <h2 className="card__title">비밀번호 변경</h2>
@@ -144,7 +142,6 @@ export default function Mypage() {
               </form>
             </div>
           </section>
-
 
           <section id="wishlist" className="card">
             <header className="card__head">
@@ -208,7 +205,6 @@ export default function Mypage() {
             </div>
           </section>
 
-
           <section id="reviews" className="card">
             <header className="card__head">
               <h2 className="card__title">작성 후기</h2>
@@ -236,7 +232,6 @@ export default function Mypage() {
               ))}
             </div>
           </section>
-
 
           <section id="purchase-history" className="card">
             <header className="card__head">
@@ -281,7 +276,6 @@ export default function Mypage() {
               ))}
             </div>
           </section>
-
 
           <section id="auction-history" className="card">
             <header className="card__head">
