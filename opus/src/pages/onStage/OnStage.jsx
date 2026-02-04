@@ -1,41 +1,8 @@
+import '../../css/pages/onStage/OnStage.css'
+import { getAllMusicals, formatYYYYMMDD } from "../../api/kopisAPI";
+import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import '../../css/pages/onStage/OnStage.css'
-import { Link } from 'react-router-dom';
-
-// JS Date의 형식을 YYYYMMDD로 만들기(stdate, eddate에 적용)
-function formatYYYYMMDD(d) {
-  const yyyy = String(d.getFullYear());
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  
-  return `${yyyy}${mm}${dd}`;
-}
-
-// XML을 JS 배열 형태로 변환하기
-function parseKopisXML(xmlText) {
-  const doc = new DOMParser().parseFromString(xmlText, "text/xml");
-  const dbNodes = Array.from(doc.getElementsByTagName("db"));
-
-  const items = dbNodes.map((db) => {
-    const get = (tag) => db.getElementsByTagName(tag)?.[0]?.textContent?.trim() ?? "";
-
-    return {
-      mt20id : get("mt20id"),
-      poster : get("poster"),
-      prfnm : get("prfnm"),
-      prfstate : get("prfstate"),
-      prfpdfrom : get("prfpdfrom"),
-      prfpdto : get("prfpdto"),
-      fcltynm : get("fcltynm"),
-      prfruntime : get("prfruntime"),
-      prfage : get("prfage"),
-      prfcast : get("prfcast"),
-    };
-  });
-
-  return items;
-}
 
 export default function OnStage() {
   // Genre :  / Status : All, 진행예정(01), 진행중(02), 진행완료(03)
@@ -44,9 +11,7 @@ export default function OnStage() {
   const [search, setSearch] = useState("");
   const [rangeEnd, setRangeEnd] = useState(() => new Date());
 
-  // !! 보안을 위해 빼두기 !!
-  const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
-
+  // 가져올 데이터의 날짜 설정 (최대 한 달)
   const dateRange = useMemo(() => {
     const end = new Date();
     const start = new Date(end);
@@ -71,6 +36,8 @@ export default function OnStage() {
     rows,
   }), [genre, status, search, dateRange.stdate, dateRange.eddate, rows]);
 
+  const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
+
   // useInfinite 사용하기 (무한 스크롤)
   const {
     data,
@@ -85,39 +52,17 @@ export default function OnStage() {
     initialPageParam : 1,
     enabled : Boolean(SERVICE_KEY) && genre !== "exhibition", // 전시 탭인 경우, KOPIS 호출 막아주기
     
-    queryFn: async ({ pageParam }) => {
-      if (!SERVICE_KEY) throw new Error("SERVICE_KEY 오류");
+    queryFn: ({ pageParam }) => getAllMusicals({
+      serviceKey : SERVICE_KEY,
+      startDate : dateRange.stdate,
+      endDate : dateRange.eddate,
+      page : pageParam,
+      rows,
+      search
+    }),
 
-      const url = new URL("/kopis/openApi/restful/pblprfr", window.location.origin);
-      url.searchParams.set("service", SERVICE_KEY);
-      url.searchParams.set("stdate", dateRange.stdate);
-      url.searchParams.set("eddate", dateRange.eddate);
-      url.searchParams.set("cpage", String(pageParam));
-      url.searchParams.set("rows", String(rows));
-      url.searchParams.set("shcate", 'GGGA');
-      url.searchParams.set("signgucode", '11');
-      url.searchParams.set("kidstate", 'N');
-
-      // 공연명 검색 (KOPIS 파라미터는 shprfnm 사용)
-      if (search.trim()) {
-        url.searchParams.set("shprfnm", search.trim());
-      }
-
-      const res = await fetch(`/kopis/openApi/restful/pblprfr?${url.searchParams.toString()}`);
-
-      if (!res.ok) throw new Error(`KOPIS 요청 실패 : HTTP ${res.status}`);
-
-      const xmlText = await res.text(); // XML 응답이므로 text로 받고 파싱
-      const items = parseKopisXML(xmlText);
-
-      return {
-        items,
-        page: pageParam,
-      };
-    },
-      // 다음 페이지 결정
+    // 다음 페이지 결정 ((이번 페이지의 길이 < 지정된 행) => 마지막 페이지로 판단)
       getNextPageParam: (lastPage, allPages) => {
-        // (이번 페이지의 길이 < 지정된 행) => 마지막 페이지로 판단
         if(!lastPage.items || lastPage.items.length < rows) return undefined;
         return allPages.length + 1;
       },

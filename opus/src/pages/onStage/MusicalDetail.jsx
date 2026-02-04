@@ -1,64 +1,16 @@
 import '../../css/pages/onStage/detail.css'
+import { getMusicalDetail } from '../../api/kopisAPI';
 import { useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
-function parseKopisXML(xmlText) {
-  const doc = new DOMParser().parseFromString(xmlText, "text/xml");
-  const dbNodes = Array.from(doc.getElementsByTagName("db"));
-
-  const items = dbNodes.map((db) => {
-    const get = (tag) => db.getElementsByTagName(tag)?.[0]?.textContent?.trim() ?? "";
-
-    return {
-      mt20id : get("mt20id"),
-      poster : get("poster"),
-      prfnm : get("prfnm"),
-      prfpdfrom : get("prfpdfrom"),
-      prfpdto : get("prfpdto"),
-      fcltynm : get("fcltynm"),
-      prfruntime : get("prfruntime"),
-      prfage : get("prfage"),
-      prfcast : get("prfcast"),
-      styurls : parseStyurls(db),
-      relates : parseRelates(db)
-    }
-  })
-
-  return items;
-}
-
-// 상세 정보 이미지 리스트 형태로
-function parseStyurls(db) {
-  return Array.from(db.getElementsByTagName("styurl")).map(
-    (node) => node.textContent.trim()
-  )
-}
-
-// 예매처 정보(예매처명, URL) 리스트 형태로
-function parseRelates(db) {
-  return Array.from(db.getElementsByTagName("relate")).map((relate) => ({
-    name : relate.getElementsByTagName("relatenm")?.[0]?.textContent?.trim() ?? "",
-    url : relate.getElementsByTagName("relateurl")?.[0]?.textContent?.trim() ?? "",
-  }))
-}
-
 export default function MusicalDetail () {
   const { mt20id } = useParams();
+  const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
   
   const { isPending, error, data } = useQuery({
-    queryKey : ['mt20id', mt20id],
-    enabled : Boolean(mt20id),
-    queryFn: async () => {
-      const res = await fetch(`/kopis/openApi/restful/pblprfr/${mt20id}?service=f8d2111671454d7bb5b0102d85c7cf1c`);
-
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const xmlText = await res.text();
-      const items = parseKopisXML(xmlText);
-      
-      return items[0] ?? null;
-    },
+    queryKey : ["kopis", "detail", mt20id],
+    queryFn: async () => getMusicalDetail(SERVICE_KEY, mt20id),
   });
   
   // SNS 공유
@@ -130,9 +82,10 @@ export default function MusicalDetail () {
                   }
                 }}>
                   <div className='share-modal-content'>
-                    <button className={'share-modal-close-btn'} onClick={() => setShareModalOpen(false)}>&times;</button>
-                    <div className='share-modal-row'>
-                      <h3>공유하기</h3>
+                    <div className='share-modal-first-row'>
+                      <div className='space'></div>
+                      <h3 id='share-modal-first-row-title'>공유하기</h3>
+                      <button className={'share-modal-close-btn'} onClick={() => setShareModalOpen(false)}>&times;</button>
                     </div>
                     <div className='share-modal-row'>
                       <button type="button" className="sns-icon-btn">트위터로 공유하기</button>
