@@ -1,74 +1,39 @@
 import '../../css/pages/onStage/detail.css'
+import { EmailShareButton, FacebookShareButton, LineShareButton, ThreadsShareButton, TwitterShareButton } from "react-share";
+import { EmailIcon, FacebookIcon, LineIcon, ThreadsIcon, XIcon } from "react-share";
+import { getMusicalDetail } from '../../api/kopisAPI';
 import { useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
-function parseKopisXML(xmlText) {
-  const doc = new DOMParser().parseFromString(xmlText, "text/xml");
-  const dbNodes = Array.from(doc.getElementsByTagName("db"));
-
-  const items = dbNodes.map((db) => {
-    const get = (tag) => db.getElementsByTagName(tag)?.[0]?.textContent?.trim() ?? "";
-
-    return {
-      mt20id : get("mt20id"),
-      poster : get("poster"),
-      prfnm : get("prfnm"),
-      prfpdfrom : get("prfpdfrom"),
-      prfpdto : get("prfpdto"),
-      fcltynm : get("fcltynm"),
-      prfruntime : get("prfruntime"),
-      prfage : get("prfage"),
-      prfcast : get("prfcast"),
-      styurls : parseStyurls(db),
-      relates : parseRelates(db)
-    }
-  })
-
-  return items;
-}
-
-// 상세 정보 이미지 리스트 형태로
-function parseStyurls(db) {
-  return Array.from(db.getElementsByTagName("styurl")).map(
-    (node) => node.textContent.trim()
-  )
-}
-
-// 예매처 정보(예매처명, URL) 리스트 형태로
-function parseRelates(db) {
-  return Array.from(db.getElementsByTagName("relate")).map((relate) => ({
-    name : relate.getElementsByTagName("relatenm")?.[0]?.textContent?.trim() ?? "",
-    url : relate.getElementsByTagName("relateurl")?.[0]?.textContent?.trim() ?? "",
-  }))
-}
-
 export default function MusicalDetail () {
   const { mt20id } = useParams();
-  
-  const { isPending, error, data } = useQuery({
-    queryKey : ['mt20id', mt20id],
-    enabled : Boolean(mt20id),
-    queryFn: async () => {
-      const res = await fetch(`/kopis/openApi/restful/pblprfr/${mt20id}?service=f8d2111671454d7bb5b0102d85c7cf1c`);
-
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const xmlText = await res.text();
-      const items = parseKopisXML(xmlText);
-      
-      return items[0] ?? null;
-    },
-  });
-  
-  // SNS 공유
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const modalBackground = useRef(); // 모달의 바깥 영역
+  
+  const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
+  
+  const { isPending, error, data } = useQuery({
+    queryKey : ["kopis", "detail", mt20id],
+    queryFn: async () => getMusicalDetail(SERVICE_KEY, mt20id),
+  });
   
   if (isPending) return 'Loading...'
   if (error) return error.message
   if (!data) return 'No data'
-  
+
+  // =============== react-share 사용하기 ===============
+  const currentURL = window.location.href;
+
+  const copyURL = async () => {
+    try {
+      await navigator.clipboard.writeText(currentURL);
+      alert('URL이 복사되었습니다');
+    } catch (err) {
+      alert('복사에 실패했습니다');
+    }
+  };
+
   return (
     <main className="detail-page">
       <div className="container" id="main-content">
@@ -130,17 +95,32 @@ export default function MusicalDetail () {
                   }
                 }}>
                   <div className='share-modal-content'>
-                    <button className={'share-modal-close-btn'} onClick={() => setShareModalOpen(false)}>&times;</button>
                     <div className='share-modal-row'>
-                      <h3>공유하기</h3>
+                      <div className='share-modal-empty'>&times;</div>
+                      <div className='share-modal-title'>공유하기</div>
+                      <div className='share-modal-close-btn' onClick={() => setShareModalOpen(false)}>&times;</div>
                     </div>
-                    <div className='share-modal-row'>
-                      <button type="button" className="sns-icon-btn">트위터로 공유하기</button>
-                      <button type="button" className="sns-icon-btn">페이스북으로 공유하기</button>
-                      <button type="button" className="sns-icon-btn">카카오톡으로 공유하기</button>
-                      <button type="button" className="sns-icon-btn">카카오스토리로 공유하기</button>
+                    <div className='share-modal-icon-row'>
+                      <EmailShareButton url={currentURL}>
+                        <EmailIcon size={50} round={true} />
+                      </EmailShareButton>
+                      <FacebookShareButton url={currentURL}>
+                        <FacebookIcon size={50} round={true} />
+                      </FacebookShareButton>
+                      <LineShareButton url={currentURL}>
+                        <LineIcon size={50} round={true} />
+                      </LineShareButton>
+                      <ThreadsShareButton url={currentURL}>
+                        <ThreadsIcon size={50} round={true} />
+                      </ThreadsShareButton>
+                      <TwitterShareButton url={currentURL}>
+                        <XIcon size={50} round={true} />
+                      </TwitterShareButton>
                     </div>
-                    <div className='share-modal-row'></div>
+                    <div className='share-modal-copy-row'>
+                      <div>{currentURL}</div>
+                      <div className='share-modal-copy-btn' onClick={copyURL}>복사</div>
+                    </div>
                   </div>
                 </div>
               }
