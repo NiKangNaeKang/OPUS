@@ -11,10 +11,11 @@ export default function Reviews() {
   const [isMeatOpen, setIsMeatOpen] = useState(false);
   const meatBackground = useRef();
   const meatCloseHandler = (e) => {
-    if(isMeatOpen && ! meatBackground.current.contains(e.target)) {
+    if(isMeatOpen && meatBackground.current && ! meatBackground.current.contains(e.target)) {
       setIsMeatOpen(false);
     }
   };
+
   useEffect(() => {
     document.addEventListener('mousedown', meatCloseHandler);
     return () => {
@@ -25,6 +26,10 @@ export default function Reviews() {
   const toggleMeatOpen = () => {
     setIsMeatOpen(isMeatOpen => !isMeatOpen);
   }
+
+  const originReview = "정말 감동적인 무대였습니다. 배우들의 연기력과 무대 연출이 완벽하게 조화를 이루었고 정말 감동적인 무대였습니다. 배우들의 연기력과 무대 연출이 완벽하게 조화를 이루었고 정말 감동적인 무대였습니다. 배우들의 연기력과 무대 연출이 완벽하게 조화를 이루었고 정말 감동적인 무대였습니다. 배우들의 연기력과 무대 연출이 완벽하게 조화를 이루었고 ";
+  const [isEditing, setIsEditing] = useState(false);
+  const [editReview, setEditReview] = useState(originReview);
 
   const submitReview = () => {
     if(!writeReview.trim()) return;
@@ -93,32 +98,33 @@ export default function Reviews() {
               <button className="icon-btn icon-btn--muted" type="button" aria-label="더보기" onClick={() => toggleMeatOpen()}>
                 <i className="fa-solid fa-ellipsis" aria-hidden="true"></i>
               </button>
-
-              {/* ========== 조건부 렌더링 ========== */}
-
               {
                 isMeatOpen &&
                 <div className={`meat-container ${isMeatOpen ? "" : "hidden"}`}
-                ref={meatBackground}
                 onClick={e => {
                   if(e.target === meatBackground.current) {
                     setIsMeatOpen(false);
                   }
                 }}>
-                <div className='meat-content-update'>수정</div>
+                <div className='meat-content-update'
+                  onClick={() => {
+                    setIsEditing(true);
+                    setIsMeatOpen(false);
+                  }}>
+                    수정
+                  </div>
                 <div className='meat-content-delete'>삭제</div>
-                
               </div>
               }
             </div>
           </div>
           
           <div className="review__body">
-            <p className="text">
-              정말 감동적인 무대였습니다. 배우들의 연기력과 무대 연출이 완벽하게 조화를 이루었고,
-              특히 음향 효과가 인상 깊었습니다. 오페라의 유령을 이렇게 생생하게 느낄 수 있는 공연은
-              처음이었어요. 강력 추천합니다!
-            </p>
+            {!isEditing ? (
+              <p className='text'>{editReview}</p>
+            ) : (
+              <textarea className='text-edit' value={editReview} onChange={(e) => setEditReview(e.target.value)}></textarea>
+            )}
           </div>     
           
           <div className="review__actions">
