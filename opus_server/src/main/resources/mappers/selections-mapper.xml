@@ -7,6 +7,7 @@
 		FROM GOODS LEFT JOIN GOODS_IMG USING (GOODS_NO)
 		WHERE GOODS_DEL_FL = 'N'
 		AND GOODS_IMG_ORDER = 0
+		ORDER BY GOODS_NO DESC
 	</select>
 	
 	<select id="selectGoodsDetail">
@@ -19,7 +20,7 @@
 	</select>
 	
 	<select id="selectGoodsOptions">
-		SELECT GOODS_OPTION_NO, GOODS_SIZE, GOODS_COLOR, STOCK, OPTION_PRICE
+		SELECT GOODS_OPTION_NO, GOODS_SIZE, GOODS_COLOR, STOCK
 		FROM GOODS_OPTION
 		WHERE GOODS_NO = ${goodsNo}
 	</select>
