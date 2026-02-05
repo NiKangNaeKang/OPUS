@@ -526,3 +526,27 @@ input, textarea{ outline:none; }
 #review-header {
   margin-bottom: 32px;
 }
+
+.meat-container {
+  width: 100px;
+  height: 80px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
+  border-radius: 3spx;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+.meat-content-update, .meat-content-delete {
+  width: 100%;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.meat-content-update:hover, .meat-content-delete:hover {
+  background-color: #e5e5e5;
+}
