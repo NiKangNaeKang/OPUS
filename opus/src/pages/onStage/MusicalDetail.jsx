@@ -1,7 +1,6 @@
 import '../../css/pages/onStage/detail.css'
-import facebookIcon from '../../assets/snsLogo/facebook.png';
-import xIcon from '../../assets/snsLogo/x.png';
-import kakaoIcon from '../../assets/snsLogo/kakao.png';
+import { EmailShareButton, FacebookShareButton, LineShareButton, ThreadsShareButton, TwitterShareButton } from "react-share";
+import { EmailIcon, FacebookIcon, LineIcon, ThreadsIcon, XIcon } from "react-share";
 import { getMusicalDetail } from '../../api/kopisAPI';
 import { useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
@@ -23,38 +22,18 @@ export default function MusicalDetail () {
   if (error) return error.message
   if (!data) return 'No data'
 
-  // SNS 공유
-  
-  const title = data.prfnm;
-  const url = window.location.href;
-  const currentUrl = window.location.href;
-  
-  const shareFacebook = () => {
-    const shareURL = encodeURIComponent(window.location.href);
+  // =============== react-share 사용하기 ===============
+  const currentURL = window.location.href;
 
-    window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
-      "_blank",
-      "noopener,noreferrer"
-    )
+  const copyURL = async () => {
+    try {
+      await navigator.clipboard.writeText(currentURL);
+      alert('URL이 복사되었습니다');
+    } catch (err) {
+      alert('복사에 실패했습니다');
+    }
   };
-  
-  const shareX = () => {
-    const text = encodeURIComponent(`${data.prfnm}\n`);
-    const shareURL = encodeURIComponent(window.location.href);
 
-    window.open(
-      `https://twitter.com/intent/tweet?text=${text}&url=${shareUrl}`,
-      "_blank",
-      "noopener,noreferrer"
-    )
-  }
-
-    const copyUrl = async () => {
-    await navigator.clipboard.writeText(window.location.href);
-    alert("링크가 복사되었습니다!");
-  };
-  
   return (
     <main className="detail-page">
       <div className="container" id="main-content">
@@ -116,28 +95,31 @@ export default function MusicalDetail () {
                   }
                 }}>
                   <div className='share-modal-content'>
-                    <div className='share-modal-first-row'>
-                      <div className='space'></div>
-                      <h3 id='share-modal-first-row-title'>공유하기</h3>
-                      <button className={'share-modal-close-btn'} onClick={() => setShareModalOpen(false)}>&times;</button>
+                    <div className='share-modal-row'>
+                      <div className='share-modal-empty'>&times;</div>
+                      <div className='share-modal-title'>공유하기</div>
+                      <div className='share-modal-close-btn' onClick={() => setShareModalOpen(false)}>&times;</div>
                     </div>
-                    <div className='share-modal-second-row'>
-                      <div className='share-modal-second-row-item' onClick={shareFacebook}>
-                        <img className='sns-logo' src={facebookIcon} alt="페이스북 로고" />
-                        <div className='sns-name'>Facebook</div>
-                      </div>
-                      <div className='share-modal-second-row-item' onClick={shareX}>
-                        <img className='sns-logo' src={xIcon} alt="X 로고" />
-                        <div className='sns-name'>X</div>
-                      </div>
-                      <div className='share-modal-second-row-item'>
-                        <img className='sns-logo' src={kakaoIcon} alt="카카오톡 로고" />
-                        <div className='sns-name'>카카오톡</div>
-                      </div>
+                    <div className='share-modal-icon-row'>
+                      <EmailShareButton url={currentURL}>
+                        <EmailIcon size={50} round={true} />
+                      </EmailShareButton>
+                      <FacebookShareButton url={currentURL}>
+                        <FacebookIcon size={50} round={true} />
+                      </FacebookShareButton>
+                      <LineShareButton url={currentURL}>
+                        <LineIcon size={50} round={true} />
+                      </LineShareButton>
+                      <ThreadsShareButton url={currentURL}>
+                        <ThreadsIcon size={50} round={true} />
+                      </ThreadsShareButton>
+                      <TwitterShareButton url={currentURL}>
+                        <XIcon size={50} round={true} />
+                      </TwitterShareButton>
                     </div>
-                    <div className='share-modal-third-row'>
-                      <input type='text' value={currentUrl}></input>
-                      <button type='button' className='url-copy-btn' onClick={copyUrl}>복사</button>
+                    <div className='share-modal-copy-row'>
+                      <div>{currentURL}</div>
+                      <div className='share-modal-copy-btn' onClick={copyURL}>복사</div>
                     </div>
                   </div>
                 </div>
