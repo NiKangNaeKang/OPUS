@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 // URL 경로 얻어오기
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { axiosApi } from "../../api/axiosAPI";
 import Loading from "../../components/common/Loading";
 import "../../css/Selections-detail.css";
-import pic1 from "../../assets/exhibitionExam.png";
+import { useCartStore } from "../../store/cartStore";
+import CartSuccessModal from "./CartSuccessModal";
 
 
 const SelectionsDetail = () => {
@@ -22,6 +23,8 @@ const SelectionsDetail = () => {
   const [qty, setQty] = useState(1);
 
   const [tab, setTab] = useState("info"); // 상세 정보 or 정책 탭
+
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
 
   const selectGoodsDetail = async () => {
 
@@ -74,9 +77,11 @@ const SelectionsDetail = () => {
 
   }, [goodsDetail, goodsImgList, goodsOptions])
 
+  const handleTab = (tab) => setTab(tab);
+
   const handleQty = (nextQty) => {
 
-    if (!selectedOptionRow) {
+    if ((hasSize || hasColor) && !selectedOptionRow) {
       alert("옵션을 먼저 선택해주세요.");
       return;
     }
@@ -86,7 +91,9 @@ const SelectionsDetail = () => {
       return;
     }
 
-    if (nextQty > selectedOptionRow.stock) {
+    const stock = effectiveOptionRow?.stock;
+
+    if (stock != null && nextQty > stock) {
       alert("선택 가능한 재고 수량을 초과했습니다.");
       return;
     }
@@ -94,8 +101,6 @@ const SelectionsDetail = () => {
     setQty(nextQty);
 
   }
-
-  const handleTab = (tab) => setTab(tab);
 
   // 옵션 존재 여부
   const hasSize = useMemo(() => goodsOptions.some((opt) => opt.goodsSize), [goodsOptions]);
@@ -151,15 +156,76 @@ const SelectionsDetail = () => {
     return null;
   }, [goodsOptions, hasSize, hasColor, selectedSize, selectedColor]);
 
+  // 옵션이 없는 상품일 때(사이즈/색상 모두 없음) 재고 기준이 될 row
+  const baseOptionRow = useMemo(() => {
+    return goodsOptions?.[0] ?? null; // 보통 1행 있음(둘 다 NULL + stock)
+  }, [goodsOptions]);
+
+  // 실제 수량 제한에 사용할 row (옵션 있으면 선택된 row, 없으면 base row)
+  const effectiveOptionRow = useMemo(() => {
+    if (hasSize || hasColor) return selectedOptionRow; // 옵션 상품
+    return baseOptionRow; // 옵션 없는 상품
+  }, [hasSize, hasColor, selectedOptionRow, baseOptionRow]);
+
   // 옵션 변경 시 재고와 선택 수량 비교 (옵션마다 재고가 다르기 때문!)
   useEffect(() => {
-
-    if (selectedOptionRow != null && qty > selectedOptionRow.stock) {
+    if (effectiveOptionRow != null && qty > effectiveOptionRow.stock) {
       alert("재고 이하의 수량만 선택 가능합니다.");
       setQty(1);
     }
+  }, [effectiveOptionRow, qty]);
 
-  }, [selectedOptionRow])
+  useEffect(() => {
+    setQty(1);
+  }, [selectedOptionRow]);
+
+  // ===== 장바구니 =====
+  const addItem = useCartStore((state) => state.addItem);
+
+  const handleAddToCart = () => {
+    // 옵션 검증
+    if ((hasSize || hasColor) && !selectedOptionRow) {
+      alert("옵션을 먼저 선택해주세요.");
+      return;
+    }
+
+    const row = effectiveOptionRow;
+    if (!row) {
+      alert("상품 정보를 불러오지 못했습니다.");
+      return;
+    }
+
+    // 재고 검증
+    if (row.stock != null && qty > row.stock) {
+      alert("선택 가능한 재고 수량을 초과했습니다.");
+      return;
+    }
+
+    const size = hasSize ? selectedOptionRow?.goodsSize ?? null : null;
+    const color = hasColor ? selectedOptionRow?.goodsColor ?? null : null;
+
+    // 옵션 PK가 있으면 그걸로 cartKey를 만드는 게 가장 안전함
+    // (없으면 goodsNo + size + color 조합으로)
+    const cartKey = row.goodsOptionNo;
+
+    addItem({
+      cartKey,
+      goodsNo: goodsDetail.goodsNo,
+      goodsOptionNo: row.goodsOptionNo ?? null,
+      goodsName: goodsDetail.goodsName,
+      thumbnail: goodsDetail.goodsThumbnail,
+      unitPrice: Number(goodsDetail.goodsPrice),
+      deliveryCost: Number(goodsDetail.deliveryCost ?? 0),
+      size,
+      color,
+      qty,
+      stock: row.stock ?? null,
+    });
+
+    setIsCartModalOpen(true);
+  };
+
+  const navigate = useNavigate();
 
   return (
     isLoading ? (
@@ -184,9 +250,6 @@ const SelectionsDetail = () => {
           <div id="product-info" className="goods_info">
             <div className="info__head">
               <h1 className="title">{goodsDetail.goodsName}</h1>
-              <p className="desc">
-                {goodsDetail.goodsInfo}
-              </p>
             </div>
 
             <div className="price-box">
@@ -253,8 +316,10 @@ const SelectionsDetail = () => {
             </div>
 
             {/* 선택 박스: 옵션 row가 확정되면 표시 */}
-            {(selectedOptionRow || (!hasSize && !hasColor)) && (
+            {(selectedOptionRow || (!hasSize && !hasColor && effectiveOptionRow)) && (
               <div className="field selected-field">
+
+                {/* 옵션 있는 경우 */}
                 {selectedOptionRow && (
                   <div className="selected-box">
                     선택된 옵션:
@@ -264,13 +329,20 @@ const SelectionsDetail = () => {
                   </div>
                 )}
 
+                {/* 옵션 없는 경우 */}
+                {!hasSize && !hasColor && effectiveOptionRow && (
+                  <div className="selected-box">
+                    재고: {effectiveOptionRow.stock}
+                  </div>
+                )}
+
                 <label className="field__label">수량</label>
                 <div className="qty">
                   <button className="qty__btn" type="button" id="qtyMinus" aria-label="minus" onClick={() => handleQty(qty - 1)}>
                     <i className="fa-solid fa-minus" aria-hidden="true"></i>
                   </button>
 
-                  <input className="qty_input" type="number" id="qtyInput" value={qty} />
+                  <input className="qty_input" type="number" id="qtyInput" value={qty} readOnly />
 
                   <button className="qty__btn" type="button" id="qtyPlus" aria-label="plus" onClick={() => handleQty(qty + 1)}>
                     <i className="fa-solid fa-plus" aria-hidden="true"></i>
@@ -287,7 +359,7 @@ const SelectionsDetail = () => {
             </div>
 
             <div id="product-actions" className="actions">
-              <button className="goods_btn goods_btn--outline" type="button">장바구니</button>
+              <button className="goods_btn goods_btn--outline" type="button" onClick={handleAddToCart}>장바구니</button>
               <button className="goods_btn goods_btn--solid" type="button">바로 구매</button>
             </div>
 
@@ -320,14 +392,14 @@ const SelectionsDetail = () => {
                 <h2 className="section-title">상품 상세정보</h2>
 
                 <div className="prose">
-                  <p>
+                  <pre>
                     {goodsDetail.goodsInfo}
-                  </p>
+                  </pre>
 
                   <div>
                     {goodsImgList?.map((img) => (
                       <div className="detail-image" key={img.goodsImgNo}>
-                        <img src={img.goodsImgFullpath} />
+                        <img src={`${import.meta.env.VITE_API_URL}${img.goodsImgFullpath}`} />
                       </div>
                     ))}
                   </div>
@@ -456,6 +528,16 @@ const SelectionsDetail = () => {
             </div>
           </div>
         </section>
+        <CartSuccessModal
+          isOpen={isCartModalOpen}
+          goods={goodsDetail}
+          qty={qty}
+          selectedOption={selectedOptionRow}
+          onClose={() => setIsCartModalOpen(false)}
+          onContinue={() => setIsCartModalOpen(false)}
+          onGoCart={() => navigate("/selections/cart")}
+        />
+
       </main>
     )
   )

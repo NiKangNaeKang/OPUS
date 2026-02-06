@@ -69,27 +69,28 @@ const Selections = () => {
       <section id="goods-filter" className="filter">
         <div className="filter__top">
           <div className="toggle" role="tablist">
-            <button className={`toggle__btn ${genre == "exhibition" ? "is-active" : ""}`}
+            <button className={`toggle__btn ${genre === "exhibition" ? "is-active" : ""}`}
               onClick={() => handleGenre("exhibition")}>전시</button>
-            <button className={`toggle__btn ${genre == "musical" ? "is-active" : ""}`}
+            <button className={`toggle__btn ${genre === "musical" ? "is-active" : ""}`}
               onClick={() => handleGenre("musical")}>뮤지컬</button>
           </div>
         </div>
 
         <div className="filter__row">
           <div className="goods_chips">
-            <button className={`goods_chip ${category == "all" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category === "all" ? "is-active" : ""}`}
               onClick={() => handleCategory("all")}>전체</button>
-            <button className={`goods_chip ${category == "clothes" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category === "clothes" ? "is-active" : ""}`}
               onClick={() => handleCategory("clothes")}>의류</button>
-            <button className={`goods_chip ${category == "accessories" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category === "accessories" ? "is-active" : ""}`}
               onClick={() => handleCategory("accessories")}>액세서리</button>
-            <button className={`goods_chip ${category == "stationery" ? "is-active" : ""}`}
-              onClick={() => handleCategory("stationery")}>문구</button>
-            <button className={`goods_chip ${category == "poster" ? "is-active" : ""}`}
+            <button className={`goods_chip ${category === "poster" ? "is-active" : ""}`}
               onClick={() => handleCategory("poster")}>포스터/엽서</button>
-            <button className={`goods_chip ${category == "record" ? "is-active" : ""}`}
-              onClick={() => handleCategory("record")}>음반/DVD</button>
+            { genre === "musical" && 
+            <button className={`goods_chip ${category === "record" ? "is-active" : ""}`}
+              onClick={() => handleCategory("record")}>음반/DVD</button>}
+            <button className={`goods_chip ${category === "etc" ? "is-active" : ""}`}
+              onClick={() => handleCategory("etc")}>잡화</button>
           </div>
 
           <div className="search">
@@ -113,18 +114,6 @@ const Selections = () => {
             <p className="grid_count">
               총 <span id="totalCount" className="grid_countStrong">{filteredList.length}</span>개의 상품
             </p>
-
-            <div className="grid__sort">
-              <div className="select-wrap select-wrap-ghost">
-                <select className="select select--ghost" id="sortSelect" aria-label="정렬">
-                  <option value="latest">최신순</option>
-                  <option value="popular">인기순</option>
-                  <option value="priceLow">낮은 가격순</option>
-                  <option value="priceHigh">높은 가격순</option>
-                </select>
-                <i className="fa-solid fa-chevron-down select__icon" aria-hidden="true"></i>
-              </div>
-            </div>
           </div>
 
           <div className="grid_items" id="goodsItems">
