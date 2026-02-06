@@ -1,3 +1,5 @@
+import "../../css/Checkout.css"
+
 const Checkout = () => {
 
   return (<main class="main checkout">

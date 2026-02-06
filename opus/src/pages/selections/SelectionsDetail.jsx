@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 // URL 경로 얻어오기
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { axiosApi } from "../../api/axiosAPI";
 import Loading from "../../components/common/Loading";
 import "../../css/Selections-detail.css";
 import { useCartStore } from "../../store/cartStore";
+import CartSuccessModal from "./CartSuccessModal";
 
 
 const SelectionsDetail = () => {
@@ -22,6 +23,8 @@ const SelectionsDetail = () => {
   const [qty, setQty] = useState(1);
 
   const [tab, setTab] = useState("info"); // 상세 정보 or 정책 탭
+
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
 
   const selectGoodsDetail = async () => {
 
@@ -177,7 +180,7 @@ const SelectionsDetail = () => {
   }, [selectedOptionRow]);
 
   // ===== 장바구니 =====
-  const addItem = useCartStore((s) => s.addItem);
+  const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = () => {
     // 옵션 검증
@@ -203,11 +206,12 @@ const SelectionsDetail = () => {
 
     // 옵션 PK가 있으면 그걸로 cartKey를 만드는 게 가장 안전함
     // (없으면 goodsNo + size + color 조합으로)
-    const cartKey = `${goodsDetail.goodsNo}|${size ?? "base"}|${color ?? "base"}`;
+    const cartKey = row.goodsOptionNo;
 
     addItem({
       cartKey,
       goodsNo: goodsDetail.goodsNo,
+      goodsOptionNo: row.goodsOptionNo ?? null,
       goodsName: goodsDetail.goodsName,
       thumbnail: goodsDetail.goodsThumbnail,
       unitPrice: Number(goodsDetail.goodsPrice),
@@ -218,8 +222,10 @@ const SelectionsDetail = () => {
       stock: row.stock ?? null,
     });
 
-    alert("장바구니에 담겼습니다.");
+    setIsCartModalOpen(true);
   };
+
+  const navigate = useNavigate();
 
   return (
     isLoading ? (
@@ -522,6 +528,16 @@ const SelectionsDetail = () => {
             </div>
           </div>
         </section>
+        <CartSuccessModal
+          isOpen={isCartModalOpen}
+          goods={goodsDetail}
+          qty={qty}
+          selectedOption={selectedOptionRow}
+          onClose={() => setIsCartModalOpen(false)}
+          onContinue={() => setIsCartModalOpen(false)}
+          onGoCart={() => navigate("/selections/cart")}
+        />
+
       </main>
     )
   )

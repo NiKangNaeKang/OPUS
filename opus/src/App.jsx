@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Selections from "./pages/selections/Selections";
 import SelectionsDetail from "./pages/selections/SelectionsDetail";
 import Cart from "./pages/selections/Cart";
+import Checkout from "./pages/selections/Checkout";
 import DarkHeaderLayout from "./layouts/DarkHeaderLayout";
 import LightHeaderLayout from "./layouts/LightHeaderLayout";
 import Unveiling from "./pages/Unveiling";
@@ -34,6 +35,7 @@ export default function App() {
         <Route path='/selections' element={<Selections />} />
         <Route path='/selections/:goodsNo' element={<SelectionsDetail />} />
         <Route path='/selections/cart' element={<Cart />} />
+        <Route path='/selections/checkout' element={<Checkout />} />
       </Route>
     </Routes>
   );

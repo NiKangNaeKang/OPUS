@@ -705,7 +705,8 @@ button {
 .detail-wrap pre {
   margin: 0;
   padding: 24px 28px;
-  background: var(--soft);        /* 너무 튀지 않는 배경 */
+  background: var(--soft);
+  /* 너무 튀지 않는 배경 */
   border-radius: 12px;
   border: 1px solid var(--line);
 
@@ -717,8 +718,10 @@ button {
   font-weight: 400;
 
   /* pre 기본 느낌 제거 */
-  white-space: pre-wrap;          /* 줄바꿈 유지 + 모바일 대응 */
-  word-break: keep-all;           /* 한글 단어 깨짐 방지 */
+  white-space: pre-wrap;
+  /* 줄바꿈 유지 + 모바일 대응 */
+  word-break: keep-all;
+  /* 한글 단어 깨짐 방지 */
   overflow-wrap: break-word;
 }
 

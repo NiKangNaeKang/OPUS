@@ -5,9 +5,12 @@ export const useCartStore = create(
   persist(
     (set, get) => ({
       items: [],
+      checkedKeys: [],
 
       // 서버에서 장바구니를 받아 한 번에 주입할 때(로그인/새로고침 후)
       setItems: (items) => set({ items: Array.isArray(items) ? items : [] }),
+
+      setCheckedKeys: (keys) => set({ checkedKeys: Array.isArray(keys) ? keys : [] }),
 
       // 장바구니 담기(동일 옵션이면 qty 누적)
       addItem: (item) => {
@@ -59,9 +62,12 @@ export const useCartStore = create(
       },
 
       // 삭제
-      removeItem: (cartKey) => {
-        set({ items: get().items.filter((i) => i.cartKey !== cartKey) });
-      },
+      removeItems: (cartKeys) =>
+        set((state) => ({
+          items: state.items.filter(
+            (item) => !cartKeys.includes(item.cartKey)
+          ),
+        })),
 
       // 비우기
       clear: () => set({ items: [] }),
@@ -70,7 +76,10 @@ export const useCartStore = create(
       getTotals: () => {
         const items = get().items;
         const goodsTotal = items.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
-        const shippingTotal = items.reduce((sum, i) => sum + (i.deliveryCost ?? 0), 0);
+        let shippingTotal = items.reduce((sum, i) => sum + (i.deliveryCost ?? 0), 0);
+
+        if (goodsTotal >= 50000) shippingTotal = 0;
+
         const grandTotal = goodsTotal + shippingTotal;
         return { goodsTotal, shippingTotal, grandTotal };
       },

@@ -1,12 +1,65 @@
+import { useEffect, useState } from "react";
 import "../../css/Cart.css"
 import { useCartStore } from "../../store/cartStore";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
 
-  const items = useCartStore((s) => s.items);
-  const setQty = useCartStore((s) => s.setQty);
-  const removeItem = useCartStore((s) => s.removeItem);
-  const getTotals = useCartStore((s) => s.getTotals);
+  const items = useCartStore((state) => state.items);
+  const setQty = useCartStore((state) => state.setQty);
+  const removeItems = useCartStore((state) => state.removeItems);
+  const clear = useCartStore((state) => state.clear);
+  const checkedKeys = useCartStore((state) => state.checkedKeys);
+  const setCheckedKeys = useCartStore((state) => state.setCheckedKeys);
+
+  // 기본값으로 전체 체크
+  useEffect(() => {
+    if (items.length > 0) {
+      setCheckedKeys(items.map(item => item.cartKey));
+    } else {
+      setCheckedKeys([]);
+    }
+  }, [items, setCheckedKeys]);
+
+  // 개별 체크박스 클릭
+  const handleChecked = (cartKey) => {
+    setCheckedKeys(
+      checkedKeys.includes(cartKey)
+        ? checkedKeys.filter((key) => key !== cartKey)
+        : [...checkedKeys, cartKey]
+    );
+  };
+
+  // 전체 선택 여부 (전체 체크인 경우 true)
+  const isAllChecked = items.length > 0 && checkedKeys.length === items.length;
+
+  // 전체 선택 클릭
+  const handleAllChecked = (e) => {
+    setCheckedKeys(e.target.checked ? items.map(item => item.cartKey) : []);
+  };
+
+  const handleDeleteSelected = () => {
+    removeItems(checkedKeys);
+    setCheckedKeys([]);
+  };
+
+  const selectedItems = items.filter(item => checkedKeys.includes(item.cartKey));
+
+  const goodsTotalChecked = selectedItems.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
+  let shippingTotalChecked = selectedItems.reduce((sum, i) => sum + (i.deliveryCost ?? 0), 0);
+  if (goodsTotalChecked >= 50000) shippingTotalChecked = 0;
+  const grandTotalChecked = goodsTotalChecked + shippingTotalChecked;
+
+  // 상품을 하나라도 선택했는지 여부
+  const hasSelectedItems = items.length > 0 && checkedKeys.length > 0;
+
+  // 결제 페이지 이동 함수
+  const navigate = useNavigate();
+
+  const onGoCheckout = () => {
+    if (checkedKeys.length === 0) return; // 선택 없으면 무시
+    navigate("/selections/checkout");
+  }
 
   return (
     // <!-- MAIN -->
@@ -23,13 +76,15 @@ const Cart = () => {
         <div className="cart-left">
           <div className="cart-toolbar">
             <label className="check">
-              <input type="checkbox" />
+              <input type="checkbox"
+                checked={isAllChecked}
+                onChange={handleAllChecked} />
               <span>전체 선택</span>
             </label>
 
             <div className="cart-toolbar__actions">
-              <button className="ghost-btn" type="button">선택 삭제</button>
-              <button className="ghost-btn" type="button">전체 삭제</button>
+              <button className="ghost-btn" type="button" onClick={handleDeleteSelected}>선택 삭제</button>
+              <button className="ghost-btn" type="button" onClick={clear}>전체 삭제</button>
             </div>
           </div>
 
@@ -42,11 +97,12 @@ const Cart = () => {
               <div className="cart-head__cell cart-head__sum">합계</div>
             </div>
 
-            {/* <!-- row 1 --> */}
-            {items.map((item, index) => {
-              <article className="cart-row">
+            {items.map((item) => (
+              <article className="cart-row" key={item.cartKey}>
                 <div className="cart-cell cart-cell--check">
-                  <input type="checkbox" />
+                  <input type="checkbox"
+                    checked={checkedKeys.includes(item.cartKey)}
+                    onChange={() => handleChecked(item.cartKey)} />
                 </div>
 
                 <div className="cart-cell cart-cell--item">
@@ -58,33 +114,34 @@ const Cart = () => {
 
                     <div className="cart-item__info">
                       <p className="cart-item__title">{item.goodsName}</p>
-                      <p className="cart-item__option">{`옵션 : ${item.size} / ${item.color}`}</p>
+                      <p className="cart-item__option">{item.size && item.color ? `옵션 : ${item.size} / ${item.color}` : item.size
+                        ? `옵션 : ${item.size}` : item.color
+                          ? `옵션 : ${item.color}` : ""}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="cart-cell cart-cell--price">
-                  <p className="money">{item.unitPrice}</p>
+                  <p className="money">{Number(item.unitPrice).toLocaleString()}원</p>
                 </div>
 
                 <div className="cart-cell cart-cell--qty">
                   <div className="qty">
-                    <button className="qty__btn" type="button" aria-label="minus">
+                    <button className="qty__btn" type="button" aria-label="minus" onClick={() => setQty(item.cartKey, item.qty - 1)}>
                       <i className="fa-solid fa-minus"></i>
                     </button>
-                    <input className="qty__input" type="number" value="1" min="1"
-                      oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
-                    <button className="qty__btn" type="button" aria-label="plus">
+                    <input className="qty__input" type="number" value={item.qty} min="1" readOnly />
+                    <button className="qty__btn" type="button" aria-label="plus" onClick={() => setQty(item.cartKey, item.qty + 1)}>
                       <i className="fa-solid fa-plus"></i>
                     </button>
                   </div>
                 </div>
 
                 <div className="cart-cell cart-cell--sum">
-                  <p className="money money--strong">45,000원</p>
+                  <p className="money money--strong">{Number(item.unitPrice * item.qty).toLocaleString()}원</p>
                 </div>
               </article>
-            })}
+            ))}
           </div>
         </div>
 
@@ -96,22 +153,22 @@ const Cart = () => {
             <div className="summary__rows">
               <div className="summary__row">
                 <span className="k">상품금액</span>
-                <span className="v">95,000원</span>
+                <span className="v">{Number(goodsTotalChecked).toLocaleString()}원</span>
               </div>
               <div className="summary__row">
                 <span className="k">배송비</span>
-                <span className="v">0원</span>
+                <span className="v">{Number(shippingTotalChecked).toLocaleString()}원</span>
               </div>
             </div>
 
             <div className="summary__total">
               <span className="k">결제 예정 금액</span>
-              <span className="v">95,000원</span>
+              <span className="v">{Number(grandTotalChecked).toLocaleString()}원</span>
             </div>
 
             <div className="summary__actions">
-              <button className="btn btn-solid" type="button">주문하기</button>
-              <button className="btn btn-outline" id="option-order" type="button">선택 상품 주문</button>
+              <button className="btn btn-solid" type="button" disabled={!hasSelectedItems} onClick={onGoCheckout} >
+                {hasSelectedItems ? "주문하기" : "상품을 선택해주세요"}</button>
             </div>
 
             <p className="summary__note">
