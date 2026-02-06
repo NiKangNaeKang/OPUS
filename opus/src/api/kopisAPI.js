@@ -1,12 +1,3 @@
-// JS Date의 형식을 YYYYMMDD로 만들기(stdate, eddate에 적용)
-export function formatYYYYMMDD(d) {
-  const yyyy = String(d.getFullYear());
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  
-  return `${yyyy}${mm}${dd}`;
-}
-
 // XML을 JS 배열 형태로 변환하기
 export function parseKopisXML(xmlText) {
   const doc = new DOMParser().parseFromString(xmlText, "text/xml");
@@ -32,7 +23,49 @@ export function parseKopisXML(xmlText) {
   return items;
 }
 
-// 전체 뮤지컬 공연 조회
+// JS Date의 형식을 YYYYMMDD로 만들기(stdate, eddate에 적용)
+export function formatYYYYMMDD(d) {
+  const yyyy = String(d.getFullYear());
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  
+  return `${yyyy}${mm}${dd}`;
+}
+
+// 날짜 구간 설정
+function setDay(today, days) {
+  const newDay = new Date(today);
+  newDay.setDate(today.getDate() + days);
+  
+  return newDay;
+}
+
+const today = new Date();
+
+const dateRange = [
+  {
+    // 보름 전 (어제~15일 전)
+    start : formatYYYYMMDD(setDay(today, -15)),
+    end : formatYYYYMMDD(setDay(today, -1))
+  },
+  {
+    // 이번 한 달 (오늘~31일 후)
+    start : formatYYYYMMDD(today),
+    end : formatYYYYMMDD(setDay(today, 31))
+  },
+  {
+    // 두 달 후
+    start : formatYYYYMMDD(setDay(today, 32)),
+    end : formatYYYYMMDD(setDay(today, 62))
+  },
+  {
+    // 세 달 후
+    start : formatYYYYMMDD(setDay(today, 63)),
+    end : formatYYYYMMDD(setDay(today, 93))
+  }
+]
+
+// 뮤지컬 공연 조회
 export async function getAllMusicals({serviceKey, startDate, endDate, page = 1, rows = 100, search=""}) {
   if(!serviceKey) throw new Error("발급받은 서비스 키가 없습니다.");
   
@@ -61,6 +94,22 @@ export async function getAllMusicals({serviceKey, startDate, endDate, page = 1, 
   const items = parseKopisXML(xmlText);
   
   return { items, page }
+}
+
+// 뮤지컬 공연 조회 결과 하나로
+export async function getMergedMusicals({ serviceKey }) {
+  const responses = await Promise.all(dateRange.map((r) => getAllMusicals({serviceKey, startDate : r.start, endDate : r.end})));
+
+  // 하나의 결과로 합치기 (flatMap 사용)
+  const mergedMap = responses.flatMap((res) => res.items);
+
+  // 중복 제거
+  const resultMap = new Map();
+  mergedMap.forEach((item) => {
+    resultMap.set(item.mt20id, item);
+  })
+
+  return Array.from(resultMap.values());
 }
 
 // 상세 정보 이미지 리스트 형태로

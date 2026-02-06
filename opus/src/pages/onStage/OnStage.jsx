@@ -1,102 +1,62 @@
 import '../../css/pages/onStage/OnStage.css'
-import { getAllMusicals, formatYYYYMMDD } from "../../api/kopisAPI";
+import { getMergedMusicals } from "../../api/kopisAPI";
 import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState, useRef } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query'
 
 export default function OnStage() {
   // Genre :  / Status : All, 진행예정(01), 진행중(02), 진행완료(03)
   const [genre, setGenre] = useState("musical"); // Exhibition, Musical KOPIS API를 사용하기 위해 기본값을 musical로 해둠
   const [status, setStatus] = useState("all");
   const [search, setSearch] = useState("");
-  const [rangeEnd, setRangeEnd] = useState(() => new Date());
 
-  // 가져올 데이터의 날짜 설정 (최대 한 달)
-  const dateRange = useMemo(() => {
-    const end = new Date();
-    const start = new Date(end);
-    start.setDate(start.getDate() - 30);
+  // 무한 스크롤
+  const PAGE_SIZE = 20;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-    return {
-      stdate : formatYYYYMMDD(start),
-      eddate : formatYYYYMMDD(end),
-    };
-  }, []);
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [status, search]);
 
-  // 한 번에 몇 행씩 가지고 올 건지? (KOPIS : 최대 100행)
-  const rows = 100;
-
-  // 가져올 작품을 필터링할 키 (계산한 값을 메모리에 저장 후 재사용해야 함 -> useMemo() 사용)
-  const filtersForQueryKey = useMemo(() => ({
-    genre,
-    status,
-    search,
-    stdate: dateRange.stdate,
-    eddate: dateRange.eddate,
-    rows,
-  }), [genre, status, search, dateRange.stdate, dateRange.eddate, rows]);
 
   const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
 
-  // useInfinite 사용하기 (무한 스크롤)
   const {
     data,
-    status : queryStatus,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    refetch,
-    error
-  } = useInfiniteQuery({
-    queryKey : ["kopis", "pblprfr", filtersForQueryKey],
-    initialPageParam : 1,
-    enabled : Boolean(SERVICE_KEY) && genre !== "exhibition", // 전시 탭인 경우, KOPIS 호출 막아주기
-    
-    queryFn: ({ pageParam }) => getAllMusicals({
-      serviceKey : SERVICE_KEY,
-      startDate : dateRange.stdate,
-      endDate : dateRange.eddate,
-      page : pageParam,
-      rows,
-      search
-    }),
-
-    // 다음 페이지 결정 ((이번 페이지의 길이 < 지정된 행) => 마지막 페이지로 판단)
-      getNextPageParam: (lastPage, allPages) => {
-        if(!lastPage.items || lastPage.items.length < rows) return undefined;
-        return allPages.length + 1;
-      },
+    status: queryStatus,
+    error,
+  } = useQuery({
+    queryKey: ["kopis", "merged", genre],
+    enabled: Boolean(SERVICE_KEY) && genre !== "exhibition",
+    queryFn: () =>
+      getMergedMusicals({
+        serviceKey: SERVICE_KEY,
+      }),
   });
 
   // =============== 공연 데이터 가져오기 ===============
   // 모든 뮤지컬 공연
-  const flatItems = useMemo(() => {
-    return data?.pages?.flatMap((p) => p.items) ?? [];
+  const allItems = useMemo(() => {
+    return data ?? [];
   }, [data]);
 
   const filteredItems = useMemo(() => {
-    if(status === "all") return flatItems;
+    if(status === "all") return allItems;
 
-    return flatItems.filter(item => {
+    return allItems.filter(item => {
       if (status === "02") return item.prfstate === "공연중" || item.prfstate === "02";
       if (status === "01") return item.prfstate === "공연예정" || item.prfstate === "01";
       if (status === "03") return item.prfstate === "공연완료" || item.prfstate === "03";
       return true;
     });
-  }, [flatItems, status])
-
-  // 가져온 작품 정렬 (카테고리별)
-  // 인기 공연
-  const hotItems = useMemo(() => {
-    return data?.pages?.flatMap((p) => p.items) ?? [];
-  }, [data]);
-
-  // 대학로 공연
-  const univItems = useMemo(() => {
-    return flatItems.filter(item => item.fcltychartr === "4");
-  }, [flatItems]);
+  }, [allItems, status])
 
   // =============== 무한 스크롤 ===============
+    // 무한 스크롤용 slice
+  const visibleItems = useMemo(() => {
+    return filteredItems.slice(0, visibleCount);
+  }, [filteredItems, visibleCount]);
+
   // 무한 스크롤 : 바닥 감지
   const sentinelRef = useRef(null);
 
@@ -108,22 +68,19 @@ export default function OnStage() {
     // 인스턴스(obs)로 Observer 초기화, 관찰할 대상(Element) 지정
     // 콜백 함수 > 관찰할 대상(Target)이 등록되거나 가시성에 변화가 생길 때 실행
     const obs = new IntersectionObserver((entries) => {
-      const first = entries[0];
-      // 아직 바닥이 보이지 않을 때
-      if(!first.isIntersecting) return;
-      // 다음 페이지가 없을 때
-      if(!hasNextPage) return;
-      // 이미 다음 페이지 로딩 중일 때
-      if(isFetchingNextPage) return;
-      // 다음 페이지 요청!
-      fetchNextPage();
-    }, {root : null, threshold : 0.1}) // threshold : 옵저버 실행 위해 관찰 대상의 가시성을 백분율로 표시
+      if (!entries[0].isIntersecting) return;
+
+      setVisibleCount(prev => {
+        if (prev >= filteredItems.length) return prev;
+        return prev + PAGE_SIZE;
+      });
+    }, { threshold: 0.1 });
 
     // 관찰할 대상 등록
     obs.observe(el)
     // 클린업 (컴포넌트가 사라지거나 deps가 바뀔 때 observer를 해제해서 메모리 누수/중복 감지 방지)
     return () => obs.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [filteredItems.length]);
 
   // =============== 랜더링 ===============
   if(!SERVICE_KEY) {
@@ -226,48 +183,12 @@ export default function OnStage() {
               <>
                 <h2 className="block__title">인기 공연</h2>
                 <div className="show-grid show-grid--row">
-                  {flatItems.map((item) => (
+                  {visibleItems.map((item) => (
                     <article key={item.mt20id} className="show-card show-card--snap">
                       <Link to= {`/onStage/${item.mt20id}`}>
                         <div className='show-card__thumb'>
                           {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
                             <span className='show-badge show-badge--dark'>{item.prfstate || "상태없음"}</span>
-                        </div>
-                        <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
-                        <p className="show-card__meta">
-                          {item.prfpdfrom} ~ {item.prfpdto}
-                        </p>
-                        <p className="show-card__meta">{item.fcltynm}</p>
-                      </Link>
-                    </article>
-                  ))}
-                </div>
-
-                {/* <h2 className="block__title">대학로 공연</h2>
-                <div className="show-grid show-grid--row">
-                  {univItems.map((item) => (
-                    <article key={item.mt20id} className="show-card show-card--snap">
-                      <div className='show-card__thumb'>
-                        {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                        <span className='show-badge show-badge--dark'>{item.prfstate || "상태없음"}</span>
-                      </div>
-                      <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
-                      <p className="show-card__meta">
-                        {item.prfpdfrom} ~ {item.prfpdto}
-                      </p>
-                      <p className="show-card__meta">{item.fcltynm}</p>
-                    </article>
-                  ))}
-                </div> */}
-
-                <h2 className="block__title">전체 공연</h2>
-                <div className="show-grid show-grid--row">
-                  {flatItems.map((item) => (
-                    <article key={item.mt20id} className="show-card show-card--snap">
-                      <Link to={`/onStage/${item.mt20id}`}>
-                        <div className='show-card__thumb'>
-                          {item.poster ? <img src={item.poster} alt={`${item.prfnm} 포스터`}/> : <div style={{height : 220}} />}
-                          <span className='show-badge show-badge--dark'>{item.prfstate || "상태없음"}</span>
                         </div>
                         <h3 className="show-card__title">{item.prfnm || "(제목 없음)"}</h3>
                         <p className="show-card__meta">
@@ -289,7 +210,7 @@ export default function OnStage() {
                 </h2>
 
                 <div className='show-grid'>
-                  {filteredItems.map((item) => (
+                  {visibleItems.map((item) => (
                     <article key={item.mt20id} className="show-card">
                       <Link to = {`/onStage/${item.mt20id}`}>
                         <div className="show-card__thumb">
@@ -312,7 +233,7 @@ export default function OnStage() {
 
             {/* ============================================================== */}
             {/* 무한 스크롤 */}
-            {/* <div ref={sentinelRef} style={{height: 1}} /> */}
+            <div ref={sentinelRef} style={{height: 1}} />
         
             {/* Loading... */}
             {/* <div className={`loading ${isFetchingNextPage ? "" : "is-hidden"}`} style={{ marginTop: 16 }}>
