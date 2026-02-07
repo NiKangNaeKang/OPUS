@@ -2,10 +2,77 @@
 import { useState } from "react";
 import "../../css/Checkout.css";
 import AddressModal from "./AddressModal";
+import { useCartStore } from "../../store/cartStore";
+import { useNavigate } from "react-router-dom";
 
 const Checkout = () => {
 
+  const items = useCartStore((state) => state.items);
+  const checkedKeys = useCartStore((state) => state.checkedKeys);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [onTextarea, setOnTextarea] = useState(false);
+  const [form, setForm] = useState({
+    recipient: "",
+    phone: "",
+    zipcode: "",
+    addr1: "",
+    addr2: "",
+    memo: ""
+  });
+
+  // 장바구니에서 체크된 상품들
+  const selectedItems = items.filter(item => checkedKeys.includes(item.cartKey));
+
+  // 가격 모음
+  const goodsTotalChecked = selectedItems.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
+  let shippingTotalChecked = selectedItems.reduce((sum, i) => sum + (i.deliveryCost ?? 0), 0);
+  if (goodsTotalChecked >= 50000) shippingTotalChecked = 0;
+  const grandTotalChecked = goodsTotalChecked + shippingTotalChecked;
+
+  const navigate = useNavigate();
+
+  const onGoCart = () => {
+    navigate("/selections/cart");
+  }
+
+  const handleMemo = (e) => {
+    setForm({ ...form, memo: e.target.value })
+
+    if (e.target.value === "직접 입력") {
+      setOnTextarea(true);
+    } else {
+      setOnTextarea(false);
+    }
+
+  }
+
+  const [selectedAddressId, setSelectedAddressId] = useState(1);
+
+  const mockAddresses = [
+    {
+      id: 1,
+      recipient: "홍길동",
+      phone: "010-1234-5678",
+      zipcode: "06236",
+      addr1: "서울특별시 강남구 테헤란로 123",
+      addr2: "101동 1004호",
+      address: "서울특별시 강남구 테헤란로 123 101동 1004호",
+      memo: "문 앞에 놓아주세요",
+      isDefault : true
+    },
+    {
+      id: 2,
+      recipient: "김철수",
+      phone: "010-9876-5432",
+      zipcode: "04147",
+      addr1: "서울특별시 마포구 월드컵북로 56",
+      addr2: "3층",
+      address: "서울특별시 마포구 월드컵북로 56 3층",
+      memo: "배송 전 연락 부탁드려요",
+      isDefault : false
+    }
+  ];
+
 
   return (
     <main className="main checkout">
@@ -22,38 +89,38 @@ const Checkout = () => {
           <section className="checkout_card checkout_orderCard">
             <div className="checkout_card__head">
               <h2 className="checkout_card__title">주문 상품</h2>
-              <a href="#" className="checkout_card__link">장바구니로 돌아가기</a>
+              <button className="checkout_card__link" onClick={onGoCart}>장바구니로 돌아가기</button>
             </div>
 
-            <div className="checkout_mini-items">
-              <div className="checkout_mini-item">
-                <div className="checkout_mini-item__thumb">
-                  <img
-                    src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a7f5aa7753-078f8203afee3d340d1f.png"
-                    alt="레미제라블 티셔츠"
-                  />
+            {selectedItems.map((item) => (
+              <div className="checkout_mini-items" key={item.cartKey}>
+                <div className="checkout_mini-item">
+                  <div className="checkout_mini-item__thumb">
+                    <img
+                      src={`${import.meta.env.VITE_API_URL}${item.thumbnail}`}
+                      alt={item.goodsName}
+                    />
+                  </div>
+                  <div className="checkout_mini-item__info">
+                    <p className="checkout_mini-item__name">{item.goodsName}</p>
+                    <p className="checkout_mini-item__meta">
+                      수량 <strong>{item.qty}</strong>
+                      {item.color && (
+                        <>
+                          <span className="dot">·</span>
+                          <span>
+                            {item.color || ""}
+                            {item.size
+                              ? ` / ${item.size}`
+                              : ""}
+                          </span>
+                        </>
+                      )}</p>
+                  </div>
+                  <p className="checkout_mini-item__price">{Number(item.unitPrice).toLocaleString()}원</p>
                 </div>
-                <div className="checkout_mini-item__info">
-                  <p className="checkout_mini-item__name">레미제라블 티셔츠</p>
-                  <p className="checkout_mini-item__meta">옵션: L / 블랙 · 수량 1</p>
-                </div>
-                <p className="checkout_mini-item__price">45,000원</p>
               </div>
-
-              <div className="checkout_mini-item">
-                <div className="checkout_mini-item__thumb">
-                  <img
-                    src="https://storage.googleapis.com/uxpilot-auth.appspot.com/09fbe5dfb3-854f6874ce67ddda6d1e.png"
-                    alt="오페라의 유령 포스터"
-                  />
-                </div>
-                <div className="checkout_mini-item__info">
-                  <p className="checkout_mini-item__name">오페라의 유령 포스터</p>
-                  <p className="checkout_mini-item__meta">옵션: A3 / 액자(블랙) · 수량 2</p>
-                </div>
-                <p className="checkout_mini-item__price">50,000원</p>
-              </div>
-            </div>
+            ))}
           </section>
 
           {/* 배송 정보 */}
@@ -104,14 +171,16 @@ const Checkout = () => {
 
               <div className="checkout_field">
                 <label className="checkout_label" htmlFor="memo">배송 메모</label>
-                <select className="checkout_select" id="memo">
+                <select className="checkout_select" id="memo" value={form.memo} onChange={(e) => handleMemo(e)}>
                   <option value="">선택 안 함</option>
                   <option>문 앞에 놓아주세요</option>
                   <option>경비실에 맡겨주세요</option>
                   <option>배송 전 연락 부탁드려요</option>
                   <option>직접 입력</option>
                 </select>
-                <textarea className="checkout_textarea" placeholder="직접 입력(선택)" rows="3"></textarea>
+                {onTextarea &&
+                  <textarea className="checkout_textarea" placeholder="직접 입력(선택)"
+                    rows="3" onChange={(e) => setForm({ ...form, memo: e.target.value })}></textarea>}
               </div>
             </form>
           </section>
@@ -135,8 +204,7 @@ const Checkout = () => {
               <div className="checkout_ship__row">
                 <span className="checkout_ship__k">배송비</span>
                 <span className="checkout_ship__v">
-                  <strong>3,000원</strong>
-                  <span className="checkout_muted">· 일정 금액 이상 구매 시 무료</span>
+                  <strong>{Number(shippingTotalChecked).toLocaleString()}원</strong>
                 </span>
               </div>
               <div className="checkout_ship__row">
@@ -288,25 +356,21 @@ const Checkout = () => {
             <div className="checkout_summary__rows">
               <div className="checkout_summary__row">
                 <span className="checkout_summary__k">상품금액</span>
-                <span className="checkout_summary__v">95,000원</span>
+                <span className="checkout_summary__v">{Number(goodsTotalChecked).toLocaleString()}원</span>
               </div>
               <div className="checkout_summary__row">
                 <span className="checkout_summary__k">배송비</span>
-                <span className="checkout_summary__v">3,000원</span>
-              </div>
-              <div className="checkout_summary__row">
-                <span className="checkout_summary__k">할인</span>
-                <span className="checkout_summary__v">0원</span>
+                <span className="checkout_summary__v">{Number(shippingTotalChecked).toLocaleString()}원</span>
               </div>
             </div>
 
             <div className="checkout_summary__total">
               <span className="checkout_summary__k">총 결제 금액</span>
-              <span className="checkout_summary__v checkout_summary__v--big">98,000원</span>
+              <span className="checkout_summary__v checkout_summary__v--big">{Number(grandTotalChecked).toLocaleString()}원</span>
             </div>
 
             <button className="checkout_btn checkout_btn--solid checkout_btn--block" type="button">
-              98,000원 결제하기
+              {Number(grandTotalChecked).toLocaleString()}원 결제하기
             </button>
 
             <p className="checkout_summary__note">
@@ -333,10 +397,10 @@ const Checkout = () => {
       <AddressModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        // onApply={handleApply}
-        // addresses={addresses}
-        // selectedAddressId={selectedAddressId}
-        // setSelectedAddressId={setSelectedAddressId}
+        onApply={(id) => console.log("선택된 배송지 ID:", id)}
+        addresses={mockAddresses}
+        selectedAddressId={selectedAddressId}
+        setSelectedAddressId={setSelectedAddressId}
       />
     </main>
   );

@@ -80,15 +80,18 @@ const Selections = () => {
           <div className="goods_chips">
             <button className={`goods_chip ${category === "all" ? "is-active" : ""}`}
               onClick={() => handleCategory("all")}>전체</button>
-            <button className={`goods_chip ${category === "clothes" ? "is-active" : ""}`}
-              onClick={() => handleCategory("clothes")}>의류</button>
-            <button className={`goods_chip ${category === "accessories" ? "is-active" : ""}`}
-              onClick={() => handleCategory("accessories")}>액세서리</button>
-            <button className={`goods_chip ${category === "poster" ? "is-active" : ""}`}
-              onClick={() => handleCategory("poster")}>포스터/엽서</button>
+            { genre === "musical" && 
+            <button className={`goods_chip ${category === "archive" ? "is-active" : ""}`}
+            onClick={() => handleCategory("archive")}>아카이브</button>}
             { genre === "musical" && 
             <button className={`goods_chip ${category === "record" ? "is-active" : ""}`}
-              onClick={() => handleCategory("record")}>음반/DVD</button>}
+            onClick={() => handleCategory("record")}>음반/DVD</button>}
+            <button className={`goods_chip ${category === "poster" ? "is-active" : ""}`}
+              onClick={() => handleCategory("poster")}>포스터/엽서</button>
+            <button className={`goods_chip ${category === "accessories" ? "is-active" : ""}`}
+              onClick={() => handleCategory("accessories")}>액세서리</button>
+            <button className={`goods_chip ${category === "clothes" ? "is-active" : ""}`}
+              onClick={() => handleCategory("clothes")}>의류</button>
             <button className={`goods_chip ${category === "etc" ? "is-active" : ""}`}
               onClick={() => handleCategory("etc")}>잡화</button>
           </div>
