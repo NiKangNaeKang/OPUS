@@ -39,7 +39,6 @@ const Selections = () => {
       setIsLoading(false);
     }
 
-
   }, [goodsList])
 
   const handleGenre = (genre) => setGenre(genre);
