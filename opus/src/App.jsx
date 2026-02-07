@@ -11,10 +11,7 @@ import OnStage from "./pages/onStage/OnStage";
 import UnveilingDetail from "./pages/UnveilingDetail";
 import MusicalDetail from './pages/onStage/MusicalDetail';
 import Reviews from "./pages/onStage/Reviews";
-<<<<<<< Updated upstream
 import Proposals from "./pages/Proposals/Proposals"; // 1. Proposals 임포트 추가
-=======
->>>>>>> Stashed changes
 
 export default function App() {
   return (
