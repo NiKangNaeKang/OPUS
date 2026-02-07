@@ -1,115 +1,13 @@
 import '../../css/pages/onStage/OnStage.css'
-import { getMergedMusicals } from "../../api/kopisAPI";
+import ExhibitionList from './ExhibitionList';
+import MusicalList from './MusicalList';
 import { Link } from 'react-router-dom';
-import { useEffect, useMemo, useState, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react';
 
 export default function OnStage() {
-  // Genre :  / Status : All, 진행예정(01), 진행중(02), 진행완료(03)
-  const [genre, setGenre] = useState("musical"); // Exhibition, Musical KOPIS API를 사용하기 위해 기본값을 musical로 해둠
-  const [status, setStatus] = useState("all");
+  const [genre, setGenre] = useState("exhibition");
+  const [status, setStatus] = useState("all"); // All, 진행예정(01), 진행중(02), 진행완료(03)
   const [search, setSearch] = useState("");
-
-  // 무한 스크롤
-  const PAGE_SIZE = 20;
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-
-  useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
-  }, [status, search]);
-
-
-  const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
-
-  const {
-    data,
-    status: queryStatus,
-    error,
-  } = useQuery({
-    queryKey: ["kopis", "merged", genre],
-    enabled: Boolean(SERVICE_KEY) && genre !== "exhibition",
-    queryFn: () =>
-      getMergedMusicals({
-        serviceKey: SERVICE_KEY,
-      }),
-  });
-
-  // =============== 공연 데이터 가져오기 ===============
-  // 모든 뮤지컬 공연
-  const allItems = useMemo(() => {
-    return data ?? [];
-  }, [data]);
-
-  const filteredItems = useMemo(() => {
-    if(status === "all") return allItems;
-
-    return allItems.filter(item => {
-      if (status === "02") return item.prfstate === "공연중" || item.prfstate === "02";
-      if (status === "01") return item.prfstate === "공연예정" || item.prfstate === "01";
-      if (status === "03") return item.prfstate === "공연완료" || item.prfstate === "03";
-      return true;
-    });
-  }, [allItems, status])
-
-  // =============== 무한 스크롤 ===============
-    // 무한 스크롤용 slice
-  const visibleItems = useMemo(() => {
-    return filteredItems.slice(0, visibleCount);
-  }, [filteredItems, visibleCount]);
-
-  // 무한 스크롤 : 바닥 감지
-  const sentinelRef = useRef(null);
-
-  // Intersection Observer
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if(!el) return;
-
-    // 인스턴스(obs)로 Observer 초기화, 관찰할 대상(Element) 지정
-    // 콜백 함수 > 관찰할 대상(Target)이 등록되거나 가시성에 변화가 생길 때 실행
-    const obs = new IntersectionObserver((entries) => {
-      if (!entries[0].isIntersecting) return;
-
-      setVisibleCount(prev => {
-        if (prev >= filteredItems.length) return prev;
-        return prev + PAGE_SIZE;
-      });
-    }, { threshold: 0.1 });
-
-    // 관찰할 대상 등록
-    obs.observe(el)
-    // 클린업 (컴포넌트가 사라지거나 deps가 바뀔 때 observer를 해제해서 메모리 누수/중복 감지 방지)
-    return () => obs.disconnect();
-  }, [filteredItems.length]);
-
-  // =============== 랜더링 ===============
-  if(!SERVICE_KEY) {
-    return (
-      <div style={{padding : 16}}>
-        <p>발급키를 넣은 후 실행해주세요.</p>
-      </div>
-    )
-  }
-
-  if(genre === "exhibition") {
-    return(
-      <div>
-          <p>전시는 API 연동이 필요합니다.</p>
-      </div>
-    )
-  }
-
-  if(queryStatus === "pending") {
-    return <div style={{padding : 100}}>Loading...</div>;
-  }
-
-  if(queryStatus === "error") {
-    return(
-      <div style={{padding : 100}}>
-        <p>오류 : {String(error?.message ?? error)}</p>
-      </div>
-    );
-  }
 
   return (
     <main id="main-content" className="main">
@@ -177,8 +75,16 @@ export default function OnStage() {
 
         {/* 목록 */}
         <div id="exhibition-content" className="content">
-          <section className="block" id="recommended-section">
+          {genre === "exhibition" && (
+            <ExhibitionList status={status} search={search}/>
+          )}
+
+          {genre === "musical" && (
+            <MusicalList status={status} search={search} />
+          )}
+
             {/* ========== 전체 ========== */}
+          {/* <section className="block" id="recommended-section">
             {status === "all" ? (
               <>
                 <h2 className="block__title">인기 공연</h2>
@@ -230,10 +136,10 @@ export default function OnStage() {
                 </div>
               </>
             )}
-
+ */}
             {/* ============================================================== */}
             {/* 무한 스크롤 */}
-            <div ref={sentinelRef} style={{height: 1}} />
+            {/* <div ref={sentinelRef} style={{height: 1}} /> */}
         
             {/* Loading... */}
             {/* <div className={`loading ${isFetchingNextPage ? "" : "is-hidden"}`} style={{ marginTop: 16 }}>
@@ -246,7 +152,7 @@ export default function OnStage() {
                 더 불러올 데이터가 없습니다.
               </p>
             )} */}
-          </section>
+          {/* </section> */}
         </div>
       </div>
     </main>
