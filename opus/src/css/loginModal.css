@@ -153,3 +153,42 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* 9. 푸터 영역 (아이디/비번찾기, 회원가입) */
+.lm-footer {
+  display: flex;
+  justify-content: center; /* 가운데 정렬 */
+  align-items: center;
+  gap: 12px;               /* 버튼 사이 간격 */
+  margin-top: 16px;
+}
+
+/* 푸터 전용 버튼 스타일 (테두리 제거) */
+.lm-footer .lm-link {
+  height: auto;            /* 기존 높이 해제 */
+  border: none;            /* 테두리 제거 */
+  background: none;        /* 배경 제거 */
+  padding: 0;              /* 패딩 제거 */
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;          /* 회색 계열 */
+  display: flex;
+  align-items: center;
+}
+
+/* 세로 구분선 구현 (|) */
+.lm-footer .lm-link:not(:last-child)::after {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 12px;
+  background-color: #d1d5db; /* 구분선 색상 */
+  margin-left: 12px;         /* 선 오른쪽 간격 */
+  cursor: default;
+}
+
+.lm-footer .lm-link:hover {
+  background: none;        /* 기존 hover 효과 제거 */
+  color: #111827;          /* 진한 색으로 변경 */
+  text-decoration: underline;
+}
