@@ -15,5 +15,27 @@
         WHERE MEMBER_EMAIL = #{memberEmail}
         AND MEMBER_DEL_FL = 'N'
     </select>
+    
+	<insert id="signup" parameterType="Member">
+	    INSERT INTO "MEMBER" (
+	        MEMBER_NO,
+	        MEMBER_EMAIL,
+	        MEMBER_PW,
+	        MEMBER_TEL,
+	        ENROLL_DATE,
+	        MEMBER_DEL_FL,
+	        AUTHOR_LEVEL,
+	        LOGIN_TYPE
+	    ) VALUES (
+	        SEQ_MEMBER_NO.NEXTVAL,
+	        #{memberEmail},
+	        #{memberPw},
+	        #{memberTel},
+	        DEFAULT,
+	        DEFAULT,
+	        1,
+	        'NORMAL'
+	    )
+	</insert>
 
 </mapper>
