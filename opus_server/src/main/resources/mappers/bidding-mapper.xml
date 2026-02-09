@@ -3,6 +3,15 @@
 
 <mapper namespace="nknk.opus.project.bidding.model.mapper.BiddingMapper">
 
-
+	<insert id="insertBidding" parameterType="Bidding">
+		<selectKey keyProperty="bidNo"
+					resultType="int"
+					order="BEFORE">
+			SELECT BID_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO BIDDING
+		(BID_NO, UNVEILING_NO, MEMBER_NO, BID_PRICE, BID_DATE)
+		VALUES (#{bidNo}, #{unveilingNo}, #{memberNo}, #{bidPrice}, SYSDATE)
+	</insert>
 
 </mapper>
