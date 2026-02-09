@@ -2,6 +2,7 @@ package nknk.opus.project.bidding.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,12 +19,11 @@ public class BiddingController {
 	@Autowired
 	private BiddingService biddingService;
 	
-    @PostMapping
-    public ResponseEntity<BidResponse> placeBid(@RequestBody Bidding bidding) {
+    @PostMapping("/{unveilingNo}")
+    public ResponseEntity<BidResponse> placeBid(@PathVariable("unveilingNo") int unveilingNo,
+    											@RequestBody Bidding bidding) {
     	
-        bidding.setBidNo(0);
-        bidding.setBidPrice(0);
-        bidding.setBidDate(null);
+    	bidding.setUnveilingNo(unveilingNo);
 
         BidResponse res = biddingService.placeBid(bidding);
        

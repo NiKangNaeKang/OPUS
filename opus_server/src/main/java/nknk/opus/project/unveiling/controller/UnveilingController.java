@@ -2,6 +2,7 @@ package nknk.opus.project.unveiling.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +18,8 @@ public class UnveilingController {
 	@Autowired
 	private UnveilingService unveilingService;
 	
-	public ResponseEntity<Unveiling> detail(@PathVariable int unveilingNo) {
+	@GetMapping("/{unveilingNo}")
+	public ResponseEntity<Unveiling> detail(@PathVariable("unveilingNo") int unveilingNo) {
 		return ResponseEntity.ok(unveilingService.getDetail(unveilingNo));
 	}
 
