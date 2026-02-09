@@ -4,6 +4,7 @@ import "../../css/Checkout.css";
 import AddressModal from "./AddressModal";
 import { useCartStore } from "../../store/cartStore";
 import { useNavigate } from "react-router-dom";
+import DaumPostcode from 'react-daum-postcode';
 
 const Checkout = () => {
 
@@ -46,6 +47,31 @@ const Checkout = () => {
 
   }
 
+  // 다음 주소 API용 상태 및 함수
+  const [zonecode, setZonecode] = useState('');
+  const [address, setAddress] = useState('');
+  const [isDaumOpen, setIsDaumOpen] = useState('false');
+
+  const completeHandler = (data) => {
+    const { address, zonecode } = data;
+    setZonecode(zonecode);
+    setAddress(address);
+  };
+
+
+  const closeHandler = (state) => {
+    if (state === 'FORCE_CLOSE') {
+      setIsDaumOpen(false);
+    } else if (state === 'COMPLETE_CLOSE') {
+      setIsDaumOpen(false);
+    }
+  };
+
+  const toggleHandler = () => {
+    setIsDaumOpen((prevOpenState) => !prevOpenState);
+  };
+
+  // 주소 가데이터
   const [selectedAddressId, setSelectedAddressId] = useState(1);
 
   const mockAddresses = [
@@ -58,7 +84,7 @@ const Checkout = () => {
       addr2: "101동 1004호",
       address: "서울특별시 강남구 테헤란로 123 101동 1004호",
       memo: "문 앞에 놓아주세요",
-      isDefault : true
+      isDefault: true
     },
     {
       id: 2,
@@ -69,10 +95,9 @@ const Checkout = () => {
       addr2: "3층",
       address: "서울특별시 마포구 월드컵북로 56 3층",
       memo: "배송 전 연락 부탁드려요",
-      isDefault : false
+      isDefault: false
     }
   ];
-
 
   return (
     <main className="main checkout">
@@ -154,9 +179,16 @@ const Checkout = () => {
                   <label className="checkout_label" htmlFor="addr1">주소</label>
                   <div className="checkout_addr-row">
                     <input className="checkout_input" id="addr1" type="text" placeholder="우편번호" />
-                    <button className="checkout_btn checkout_btn--outline checkout_btn--sm" type="button">
+                    <button className="checkout_btn checkout_btn--outline checkout_btn--sm" type="button" onClick={toggleHandler} >
                       주소 검색
                     </button>
+                    {isDaumOpen &&
+                      <div>
+                        <DaumPostcode
+                          onComplete={completeHandler}
+                          onClose={closeHandler} />
+                      </div>
+                    }
                   </div>
                 </div>
 
