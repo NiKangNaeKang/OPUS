@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, Link, NavLink } from "react-router-dom";
 import "../../css/common/Header.css";
 
-function Header({ onClickUser, isLoggedIn, variant }) {
+function Header({ onClickUser, onLogout, isLoggedIn, variant }) {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
 
@@ -79,16 +79,28 @@ function Header({ onClickUser, isLoggedIn, variant }) {
           <button
             className="icon-btn" 
             type="button"
-            aria-label={isLoggedIn ? "로그아웃" : "마이페이지"}
+            aria-label={isLoggedIn ? "마이페이지" : "로그인"}
             onClick={onClickUser}
           >
             <i className={`fa-regular ${isLoggedIn ? "fa-circle-user" : "fa-user"}`} aria-hidden="true"></i>
           </button>
 
+          {isLoggedIn && (
+            <button
+              className="icon-btn"
+              type="button"
+              aria-label="로그아웃"
+              onClick={onLogout}
+            >
+              <i className="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+            </button>
+          )}
+
           {location.pathname.includes("selections") ?
             <NavLink to="/selections/cart">
               <button className="icon-btn" type="button" aria-label="장바구니">
-                <i className="fa-solid fa-cart-shopping" aria-hidden="true"></i></button>
+                <i className="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+              </button>
             </NavLink>
             : null}
 

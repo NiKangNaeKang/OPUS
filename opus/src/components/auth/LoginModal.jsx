@@ -1,21 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import "../../css/loginModal.css";
-import axiosApi from "../../api/axiosAPI"; 
+import axiosApi from "../../api/axiosAPI";
 import { useAuthStore } from "./useAuthStore";
+import { toast } from "react-toastify";
 
 export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const doLogin = useAuthStore((s) => s.login);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  // 제출 가능 여부 체크 (이메일/비번 입력됨 + 로딩 중 아님)
   const canSubmit = useMemo(() => {
     return email.trim().length > 0 && password.trim().length > 0 && !loading;
   }, [email, password, loading]);
 
+  // 모달이 닫힐 때 상태값 초기화
   useEffect(() => {
     if (!open) return;
     setEmail("");
@@ -24,27 +26,19 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
     setLoading(false);
   }, [open]);
 
+  // 모달 오픈 시 배경 스크롤 방지
   useEffect(() => {
     if (!open) return;
-
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") onClose?.();
-    };
 
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = prevOverflow;
     };
-  }, [open, onClose]);
+  }, [open]);
 
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) onClose?.();
-  };
-
+  // 로그인 제출 함수
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
@@ -53,13 +47,11 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
     setErrorMsg("");
 
     try {
-      // 스프링부트 DTO(Member.java)의 변수명과 일치
       const res = await axiosApi.post("/auth/login", {
-        memberEmail: email.trim(), // email -> memberEmail
-        memberPw: password.trim(), // password -> memberPw
+        memberEmail: email.trim(),
+        memberPw: password.trim(),
       });
 
-      // 스프링부트에서 보내주는 응답과 일치돼야함
       const accessToken = res?.data?.token || res?.data?.accessToken;
       const user = res?.data?.user;
 
@@ -67,16 +59,24 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
         throw new Error("로그인 응답 형식이 올바르지 않습니다.");
       }
 
-      doLogin({ token: accessToken, user });
+      // `${user.memberName || "회원"}님, 환영합니다!` <**수정!!!!!!!!!!!!
+      toast.success("환영합니다!", {icon: false});
 
+      doLogin({ token: accessToken, user });
       onClose?.();
     } catch (err) {
-      const serverMsg =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err?.message;
+      const status = err?.response?.status;
 
-      setErrorMsg(serverMsg || "로그인에 실패했습니다. 다시 시도해주세요.");
+      if (status === 401) {
+        setErrorMsg("이메일 또는 비밀번호가 틀렸습니다.");
+      } else {
+        const serverMsg =
+          err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          err?.message;
+
+        setErrorMsg(serverMsg || "로그인에 실패했습니다. 다시 시도해주세요.");
+      }
     } finally {
       setLoading(false);
     }
@@ -85,16 +85,16 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
   if (!open) return null;
 
   return (
-    <div 
-      className="lm-overlay" 
-      onClick={handleOverlayClick} 
-      role="dialog" 
-      aria-modal="true"
-    >
-      <div className="lm-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="lm-overlay" role="dialog" aria-modal="true">
+      <div className="lm-modal">
         <div className="lm-header">
           <h2 className="lm-title">로그인</h2>
-          <button className="lm-close" type="button" onClick={onClose} aria-label="닫기">
+          <button
+            className="lm-close"
+            type="button"
+            onClick={onClose}
+            aria-label="닫기"
+          >
             ✕
           </button>
         </div>
@@ -135,7 +135,9 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
           <div className="lm-footer">
             <button type="button" className="lm-link">아이디 찾기</button>
             <button type="button" className="lm-link">비밀번호 찾기</button>
-            <button type="button" className="lm-link" onClick={onSwitchSignup}>회원가입</button>
+            <button type="button" className="lm-link" onClick={onSwitchSignup}>
+              회원가입
+            </button>
           </div>
         </form>
       </div>
