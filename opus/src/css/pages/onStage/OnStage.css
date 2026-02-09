@@ -136,6 +136,7 @@ img{ display:block; max-width:100%; }
 
 /* ================= SHOW GRID ================= */
 .show-grid{
+  margin-top: 20px;
   gap:20px;
 }
 
