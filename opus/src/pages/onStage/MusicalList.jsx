@@ -20,8 +20,8 @@ export default function MusicalList({ status, search }) {
     status: queryStatus,
     error,
   } = useQuery({
-    queryKey: ["kopis", "merged", genre],
-    enabled: Boolean(SERVICE_KEY) && genre !== "exhibition",
+    queryKey: ["kopis", "merged", search],
+    enabled: Boolean(SERVICE_KEY),
     queryFn: () =>
       getMergedMusicals({
         serviceKey: SERVICE_KEY,
@@ -35,15 +35,19 @@ export default function MusicalList({ status, search }) {
     }, [data]);
   
     const filteredItems = useMemo(() => {
-      if(status === "all") return allItems;
-  
       return allItems.filter(item => {
-        if (status === "02") return item.prfstate === "공연중" || item.prfstate === "02";
-        if (status === "01") return item.prfstate === "공연예정" || item.prfstate === "01";
-        if (status === "03") return item.prfstate === "공연완료" || item.prfstate === "03";
-        return true;
+        const matchStatus =
+          status === "all" ||
+          (status === "02" && item.prfstate === "공연중") ||
+          (status === "01" && item.prfstate === "공연예정") ||
+          (status === "03" && item.prfstate === "공연완료");
+      
+        const matchSearch =
+          !search.trim() || item.prfnm?.includes(search.trim());
+      
+        return matchStatus && matchSearch;
       });
-    }, [allItems, status])
+    }, [allItems, status, search]);
 
     const visibleItems = useMemo(
       () => filteredItems.slice(0, visibleCount),
@@ -52,6 +56,14 @@ export default function MusicalList({ status, search }) {
 
     const sentinelRef = useRef(null);
 
+    useEffect(() => {
+      console.log("뮤지컬 전체 개수:", allItems.length);
+      console.log("필터 후 개수:", filteredItems.length);
+      console.log("status:", status);
+      console.log("예시 prfstate:", allItems[0]?.prfstate);
+    }, [allItems, filteredItems, status]);
+    
+    
     useEffect(() => {
       const el = sentinelRef.current;
       if (!el) return;
