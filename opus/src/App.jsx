@@ -11,10 +11,14 @@ import OnStage from "./pages/onStage/OnStage";
 import UnveilingDetail from "./pages/UnveilingDetail";
 import MusicalDetail from './pages/onStage/MusicalDetail';
 import Reviews from "./pages/onStage/Reviews";
-import Proposals from "./pages/Proposals/Proposals"; // 1. Proposals 임포트 추가
+import Proposals from "./pages/Proposals/Proposals";
+import ToastConfig from "./components/common/ToastConfig";
 
 export default function App() {
   return (
+   <>
+    <ToastConfig />
+
     <Routes>
       {/* Dark Header (Home 등) */}
       <Route element={<DarkHeaderLayout />}>
@@ -38,5 +42,7 @@ export default function App() {
         <Route path='/selections/checkout' element={<Checkout />} />
       </Route>
     </Routes>
+    
+   </>
   );
 }
