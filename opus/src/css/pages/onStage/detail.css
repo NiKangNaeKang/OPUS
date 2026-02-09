@@ -375,6 +375,7 @@
 
 #more-review-btn {
   border-radius: 3px;
+<<<<<<< Updated upstream
 }
 
 .share-modal-container {
@@ -445,4 +446,6 @@
   border-radius: 999px;
   cursor: pointer;
   font-size: 15px;
+=======
+>>>>>>> Stashed changes
 }

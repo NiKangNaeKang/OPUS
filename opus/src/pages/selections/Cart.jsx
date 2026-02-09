@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import "../../css/Cart.css"
+import { useEffect } from "react";
 import { useCartStore } from "../../store/cartStore";
 import { useNavigate } from "react-router-dom";
+import "../../css/Cart.css"
 
 const Cart = () => {
 

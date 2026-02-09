@@ -1,11 +1,123 @@
 /* Checkout.jsx */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../css/Checkout.css";
 import AddressModal from "./AddressModal";
+import { useCartStore } from "../../store/cartStore";
+import { useNavigate } from "react-router-dom";
+import { useDaumPostcodePopup } from 'react-daum-postcode'; // 다음 주소 API
+import { useAddressStore } from "../../store/addressStroe";
 
 const Checkout = () => {
 
+  const items = useCartStore((state) => state.items);
+  const checkedKeys = useCartStore((state) => state.checkedKeys);
+  const { addresses, selectedAddressId, fetchAddresses, selectAddress } = useAddressStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [onTextarea, setOnTextarea] = useState(false);
+  const [form, setForm] = useState({
+    recipient: "",
+    recipientTel: "",
+    postcode: "",
+    basicAddress: "",
+    detailAddress: "",
+    deliveryReq: ""
+  });
+
+  // 장바구니에서 체크된 상품들
+  const selectedItems = items.filter(item => checkedKeys.includes(item.cartKey));
+
+  // 가격 모음
+  const goodsTotalChecked = selectedItems.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
+  let shippingTotalChecked = selectedItems.reduce((sum, i) => sum + (i.deliveryCost ?? 0), 0);
+  if (goodsTotalChecked >= 50000) shippingTotalChecked = 0;
+  const grandTotalChecked = goodsTotalChecked + shippingTotalChecked;
+
+  const navigate = useNavigate();
+
+  const onGoCart = () => {
+    navigate("/selections/cart");
+  }
+
+  const handleMemo = (e) => {
+    const value = e.target.value;
+
+    setOnTextarea(value === "직접 입력");
+
+    setForm(prev => ({
+      ...prev,
+      deliveryReq: value === "직접 입력" ? "" : value
+    }));
+  };
+
+  useEffect(() => {
+    fetchAddresses(); // 진입 시 배송지 목록 로드 (기본배송지 selectedAddressId 세팅되게)
+  }, [fetchAddresses]);
+
+  // selectedAddressId가 바뀔 때마다 기본 배송지 정보로 form 초기화
+  useEffect(() => {
+    const selectedAddr = addresses.find(a => a.deliveryInfoNo === selectedAddressId);
+    if (selectedAddr) {
+      setForm({
+        recipient: selectedAddr.recipient,
+        recipientTel: selectedAddr.recipientTel,
+        postcode: selectedAddr.postcode,
+        basicAddress: selectedAddr.basicAddress,
+        detailAddress: selectedAddr.detailAddress ?? "",
+        deliveryReq: selectedAddr.deliveryReq ?? ""
+      });
+    }
+  }, [selectedAddressId, addresses]);
+
+  const handleApplyAddress = (deliveryInfoNo) => {
+    const addr = addresses.find(
+      a => a.deliveryInfoNo === deliveryInfoNo
+    );
+    if (!addr) return;
+
+    setForm({
+      recipient: addr.recipient,
+      recipientTel: addr.recipientTel,
+      postcode: addr.postcode,
+      basicAddress: addr.basicAddress,
+      detailAddress: addr.detailAddress ?? "",
+      deliveryReq: addr.deliveryReq ?? ""
+    });
+
+    setIsModalOpen(false);
+  };
+
+
+  // 다음 주소 API
+  const open = useDaumPostcodePopup(import.meta.env.VITE_DAUM_API);
+
+  const handleComplete = (data) => {
+    let fullAddress = data.address;
+    let extraAddress = '';
+    let postcode = data.zonecode;
+
+    if (data.addressType === 'R') {
+      if (data.bname !== '') {
+        extraAddress += data.bname;
+      }
+      if (data.buildingName !== '') {
+        extraAddress += extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName;
+      }
+      fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
+    }
+
+    setForm(prev => ({
+      ...prev,
+      basicAddress: fullAddress,
+      postcode,
+      detailAddress: "",
+      deliveryReq: ""
+    }));
+
+  };
+
+  const handleClick = () => {
+    open({ onComplete: handleComplete });
+  };
 
   return (
     <main className="main checkout">
@@ -22,38 +134,38 @@ const Checkout = () => {
           <section className="checkout_card checkout_orderCard">
             <div className="checkout_card__head">
               <h2 className="checkout_card__title">주문 상품</h2>
-              <a href="#" className="checkout_card__link">장바구니로 돌아가기</a>
+              <button className="checkout_card__link" onClick={onGoCart}>장바구니로 돌아가기</button>
             </div>
 
-            <div className="checkout_mini-items">
-              <div className="checkout_mini-item">
-                <div className="checkout_mini-item__thumb">
-                  <img
-                    src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a7f5aa7753-078f8203afee3d340d1f.png"
-                    alt="레미제라블 티셔츠"
-                  />
+            {selectedItems.map((item) => (
+              <div className="checkout_mini-items" key={item.cartKey}>
+                <div className="checkout_mini-item">
+                  <div className="checkout_mini-item__thumb">
+                    <img
+                      src={`${import.meta.env.VITE_API_URL}${item.thumbnail}`}
+                      alt={item.goodsName}
+                    />
+                  </div>
+                  <div className="checkout_mini-item__info">
+                    <p className="checkout_mini-item__name">{item.goodsName}</p>
+                    <p className="checkout_mini-item__meta">
+                      수량 <strong>{item.qty}</strong>
+                      {item.color && (
+                        <>
+                          <span className="dot">·</span>
+                          <span>
+                            {item.color || ""}
+                            {item.size
+                              ? ` / ${item.size}`
+                              : ""}
+                          </span>
+                        </>
+                      )}</p>
+                  </div>
+                  <p className="checkout_mini-item__price">{Number(item.unitPrice).toLocaleString()}원</p>
                 </div>
-                <div className="checkout_mini-item__info">
-                  <p className="checkout_mini-item__name">레미제라블 티셔츠</p>
-                  <p className="checkout_mini-item__meta">옵션: L / 블랙 · 수량 1</p>
-                </div>
-                <p className="checkout_mini-item__price">45,000원</p>
               </div>
-
-              <div className="checkout_mini-item">
-                <div className="checkout_mini-item__thumb">
-                  <img
-                    src="https://storage.googleapis.com/uxpilot-auth.appspot.com/09fbe5dfb3-854f6874ce67ddda6d1e.png"
-                    alt="오페라의 유령 포스터"
-                  />
-                </div>
-                <div className="checkout_mini-item__info">
-                  <p className="checkout_mini-item__name">오페라의 유령 포스터</p>
-                  <p className="checkout_mini-item__meta">옵션: A3 / 액자(블랙) · 수량 2</p>
-                </div>
-                <p className="checkout_mini-item__price">50,000원</p>
-              </div>
-            </div>
+            ))}
           </section>
 
           {/* 배송 정보 */}
@@ -73,12 +185,14 @@ const Checkout = () => {
               <div className="checkout_grid">
                 <div className="checkout_field">
                   <label className="checkout_label" htmlFor="receiver">수령인</label>
-                  <input className="checkout_input" id="receiver" type="text" placeholder="이름" />
+                  <input className="checkout_input" id="receiver" type="text" placeholder="이름"
+                    value={form.recipient} onChange={(e) => { setForm(prev => ({ ...prev, recipient: e.target.value })) }} />
                 </div>
 
                 <div className="checkout_field">
                   <label className="checkout_label" htmlFor="phone">연락처</label>
-                  <input className="checkout_input" id="phone" type="tel" placeholder="010-0000-0000" />
+                  <input className="checkout_input" id="phone" type="tel" placeholder="010-0000-0000"
+                    value={form.recipientTel} onChange={(e) => { setForm(prev => ({ ...prev, recipientTel: e.target.value })) }} />
                 </div>
               </div>
 
@@ -86,32 +200,37 @@ const Checkout = () => {
                 <div className="checkout_field checkout_field--wide">
                   <label className="checkout_label" htmlFor="addr1">주소</label>
                   <div className="checkout_addr-row">
-                    <input className="checkout_input" id="addr1" type="text" placeholder="우편번호" />
-                    <button className="checkout_btn checkout_btn--outline checkout_btn--sm" type="button">
+                    <input className="checkout_input" id="addr1" type="text" placeholder="우편번호"
+                      value={form.postcode} readOnly />
+                    <button className="checkout_btn checkout_btn--outline checkout_btn--sm" type="button" onClick={handleClick}>
                       주소 검색
                     </button>
                   </div>
                 </div>
 
                 <div className="checkout_field checkout_field--wide">
-                  <input className="checkout_input" type="text" placeholder="기본 주소" />
+                  <input className="checkout_input" type="text" placeholder="기본 주소"
+                    value={form.basicAddress} readOnly />
                 </div>
 
                 <div className="checkout_field checkout_field--wide">
-                  <input className="checkout_input" type="text" placeholder="상세 주소" />
+                  <input className="checkout_input" type="text" placeholder="상세 주소"
+                    value={form.detailAddress} onChange={(e) => { setForm(prev => ({ ...prev, detailAddress: e.target.value })) }} />
                 </div>
               </div>
 
               <div className="checkout_field">
                 <label className="checkout_label" htmlFor="memo">배송 메모</label>
-                <select className="checkout_select" id="memo">
+                <select className="checkout_select" id="memo" value={form.deliveryReq} onChange={(e) => handleMemo(e)}>
                   <option value="">선택 안 함</option>
                   <option>문 앞에 놓아주세요</option>
                   <option>경비실에 맡겨주세요</option>
                   <option>배송 전 연락 부탁드려요</option>
                   <option>직접 입력</option>
                 </select>
-                <textarea className="checkout_textarea" placeholder="직접 입력(선택)" rows="3"></textarea>
+                {onTextarea &&
+                  <textarea className="checkout_textarea" placeholder="직접 입력(선택)"
+                    rows="3" onChange={(e) => setForm(prev => ({ ...prev, deliveryReq: e.target.value }))}></textarea>}
               </div>
             </form>
           </section>
@@ -135,8 +254,7 @@ const Checkout = () => {
               <div className="checkout_ship__row">
                 <span className="checkout_ship__k">배송비</span>
                 <span className="checkout_ship__v">
-                  <strong>3,000원</strong>
-                  <span className="checkout_muted">· 일정 금액 이상 구매 시 무료</span>
+                  <strong>{Number(shippingTotalChecked).toLocaleString()}원</strong>
                 </span>
               </div>
               <div className="checkout_ship__row">
@@ -288,25 +406,21 @@ const Checkout = () => {
             <div className="checkout_summary__rows">
               <div className="checkout_summary__row">
                 <span className="checkout_summary__k">상품금액</span>
-                <span className="checkout_summary__v">95,000원</span>
+                <span className="checkout_summary__v">{Number(goodsTotalChecked).toLocaleString()}원</span>
               </div>
               <div className="checkout_summary__row">
                 <span className="checkout_summary__k">배송비</span>
-                <span className="checkout_summary__v">3,000원</span>
-              </div>
-              <div className="checkout_summary__row">
-                <span className="checkout_summary__k">할인</span>
-                <span className="checkout_summary__v">0원</span>
+                <span className="checkout_summary__v">{Number(shippingTotalChecked).toLocaleString()}원</span>
               </div>
             </div>
 
             <div className="checkout_summary__total">
               <span className="checkout_summary__k">총 결제 금액</span>
-              <span className="checkout_summary__v checkout_summary__v--big">98,000원</span>
+              <span className="checkout_summary__v checkout_summary__v--big">{Number(grandTotalChecked).toLocaleString()}원</span>
             </div>
 
             <button className="checkout_btn checkout_btn--solid checkout_btn--block" type="button">
-              98,000원 결제하기
+              {Number(grandTotalChecked).toLocaleString()}원 결제하기
             </button>
 
             <p className="checkout_summary__note">
@@ -333,10 +447,7 @@ const Checkout = () => {
       <AddressModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        // onApply={handleApply}
-        // addresses={addresses}
-        // selectedAddressId={selectedAddressId}
-        // setSelectedAddressId={setSelectedAddressId}
+        onApply={handleApplyAddress}
       />
     </main>
   );
