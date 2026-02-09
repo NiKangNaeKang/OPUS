@@ -12,12 +12,27 @@ export async function getAllExhibitions({ serviceKey, search }) {
     title : search.trim() || "",
   });
 
-  const res = await fetch(`https://api.kcisa.kr/openapi/CNV_060/request?${params.toString()}`);
+  const res = await fetch(`/kcisa/openapi/CNV_060/request?${params.toString()}`);
 
   if(!res.ok) {
     throw new Error("전시 정보 요청 실패");
   }
 
-  const data = await res.json();
-  return data;
+  const text = await res.text();
+
+  // XML 파싱하기
+  const xmlParser = new DOMParser();
+  const xml = xmlParser.parseFromString(text, "text/xml");
+
+  const items = [...xml.getElementsByTagName("item")].map(item => ({
+    title : item.getElementsByTagName("title")[0]?.textContent,
+    period : item.getElementsByTagName("period")[0]?.textContent,
+    eventPeriod : item.getElementsByTagName("eventPeriod")[0]?.textContent,
+    eventSite : item.getElementsByTagName("eventSite")[0]?.textContent,
+    url : item.getElementsByTagName("url")[0]?.textContent,
+    imageObject : item.getElementsByTagName("imageObject")[0]?.textContent,
+    description : item.getElementsByTagName("description")[0]?.textContent,
+  }))
+  
+  return items;
 } 

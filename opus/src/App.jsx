@@ -16,7 +16,7 @@ import ToastConfig from "./components/common/ToastConfig";
 
 export default function App() {
   return (
-   <>
+  <>
     <ToastConfig />
 
     <Routes>
