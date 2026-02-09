@@ -1,24 +1,26 @@
 /* Checkout.jsx */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../css/Checkout.css";
 import AddressModal from "./AddressModal";
 import { useCartStore } from "../../store/cartStore";
 import { useNavigate } from "react-router-dom";
-import DaumPostcode from 'react-daum-postcode';
+import { useDaumPostcodePopup } from 'react-daum-postcode'; // 다음 주소 API
+import { useAddressStore } from "../../store/addressStroe";
 
 const Checkout = () => {
 
   const items = useCartStore((state) => state.items);
   const checkedKeys = useCartStore((state) => state.checkedKeys);
+  const { addresses, selectedAddressId, fetchAddresses, selectAddress } = useAddressStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [onTextarea, setOnTextarea] = useState(false);
   const [form, setForm] = useState({
     recipient: "",
-    phone: "",
-    zipcode: "",
-    addr1: "",
-    addr2: "",
-    memo: ""
+    recipientTel: "",
+    postcode: "",
+    basicAddress: "",
+    detailAddress: "",
+    deliveryReq: ""
   });
 
   // 장바구니에서 체크된 상품들
@@ -37,67 +39,85 @@ const Checkout = () => {
   }
 
   const handleMemo = (e) => {
-    setForm({ ...form, memo: e.target.value })
+    const value = e.target.value;
 
-    if (e.target.value === "직접 입력") {
-      setOnTextarea(true);
-    } else {
-      setOnTextarea(false);
+    setOnTextarea(value === "직접 입력");
+
+    setForm(prev => ({
+      ...prev,
+      deliveryReq: value === "직접 입력" ? "" : value
+    }));
+  };
+
+  useEffect(() => {
+    fetchAddresses(); // 진입 시 배송지 목록 로드 (기본배송지 selectedAddressId 세팅되게)
+  }, [fetchAddresses]);
+
+  // selectedAddressId가 바뀔 때마다 기본 배송지 정보로 form 초기화
+  useEffect(() => {
+    const selectedAddr = addresses.find(a => a.deliveryInfoNo === selectedAddressId);
+    if (selectedAddr) {
+      setForm({
+        recipient: selectedAddr.recipient,
+        recipientTel: selectedAddr.recipientTel,
+        postcode: selectedAddr.postcode,
+        basicAddress: selectedAddr.basicAddress,
+        detailAddress: selectedAddr.detailAddress ?? "",
+        deliveryReq: selectedAddr.deliveryReq ?? ""
+      });
     }
+  }, [selectedAddressId, addresses]);
 
-  }
+  const handleApplyAddress = (deliveryInfoNo) => {
+    const addr = addresses.find(
+      a => a.deliveryInfoNo === deliveryInfoNo
+    );
+    if (!addr) return;
 
-  // 다음 주소 API용 상태 및 함수
-  const [zonecode, setZonecode] = useState('');
-  const [address, setAddress] = useState('');
-  const [isDaumOpen, setIsDaumOpen] = useState('false');
+    setForm({
+      recipient: addr.recipient,
+      recipientTel: addr.recipientTel,
+      postcode: addr.postcode,
+      basicAddress: addr.basicAddress,
+      detailAddress: addr.detailAddress ?? "",
+      deliveryReq: addr.deliveryReq ?? ""
+    });
 
-  const completeHandler = (data) => {
-    const { address, zonecode } = data;
-    setZonecode(zonecode);
-    setAddress(address);
+    setIsModalOpen(false);
   };
 
 
-  const closeHandler = (state) => {
-    if (state === 'FORCE_CLOSE') {
-      setIsDaumOpen(false);
-    } else if (state === 'COMPLETE_CLOSE') {
-      setIsDaumOpen(false);
+  // 다음 주소 API
+  const open = useDaumPostcodePopup(import.meta.env.VITE_DAUM_API);
+
+  const handleComplete = (data) => {
+    let fullAddress = data.address;
+    let extraAddress = '';
+    let postcode = data.zonecode;
+
+    if (data.addressType === 'R') {
+      if (data.bname !== '') {
+        extraAddress += data.bname;
+      }
+      if (data.buildingName !== '') {
+        extraAddress += extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName;
+      }
+      fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
     }
+
+    setForm(prev => ({
+      ...prev,
+      basicAddress: fullAddress,
+      postcode,
+      detailAddress: "",
+      deliveryReq: ""
+    }));
+
   };
 
-  const toggleHandler = () => {
-    setIsDaumOpen((prevOpenState) => !prevOpenState);
+  const handleClick = () => {
+    open({ onComplete: handleComplete });
   };
-
-  // 주소 가데이터
-  const [selectedAddressId, setSelectedAddressId] = useState(1);
-
-  const mockAddresses = [
-    {
-      id: 1,
-      recipient: "홍길동",
-      phone: "010-1234-5678",
-      zipcode: "06236",
-      addr1: "서울특별시 강남구 테헤란로 123",
-      addr2: "101동 1004호",
-      address: "서울특별시 강남구 테헤란로 123 101동 1004호",
-      memo: "문 앞에 놓아주세요",
-      isDefault: true
-    },
-    {
-      id: 2,
-      recipient: "김철수",
-      phone: "010-9876-5432",
-      zipcode: "04147",
-      addr1: "서울특별시 마포구 월드컵북로 56",
-      addr2: "3층",
-      address: "서울특별시 마포구 월드컵북로 56 3층",
-      memo: "배송 전 연락 부탁드려요",
-      isDefault: false
-    }
-  ];
 
   return (
     <main className="main checkout">
@@ -165,12 +185,14 @@ const Checkout = () => {
               <div className="checkout_grid">
                 <div className="checkout_field">
                   <label className="checkout_label" htmlFor="receiver">수령인</label>
-                  <input className="checkout_input" id="receiver" type="text" placeholder="이름" />
+                  <input className="checkout_input" id="receiver" type="text" placeholder="이름"
+                    value={form.recipient} onChange={(e) => { setForm(prev => ({ ...prev, recipient: e.target.value })) }} />
                 </div>
 
                 <div className="checkout_field">
                   <label className="checkout_label" htmlFor="phone">연락처</label>
-                  <input className="checkout_input" id="phone" type="tel" placeholder="010-0000-0000" />
+                  <input className="checkout_input" id="phone" type="tel" placeholder="010-0000-0000"
+                    value={form.recipientTel} onChange={(e) => { setForm(prev => ({ ...prev, recipientTel: e.target.value })) }} />
                 </div>
               </div>
 
@@ -178,32 +200,28 @@ const Checkout = () => {
                 <div className="checkout_field checkout_field--wide">
                   <label className="checkout_label" htmlFor="addr1">주소</label>
                   <div className="checkout_addr-row">
-                    <input className="checkout_input" id="addr1" type="text" placeholder="우편번호" />
-                    <button className="checkout_btn checkout_btn--outline checkout_btn--sm" type="button" onClick={toggleHandler} >
+                    <input className="checkout_input" id="addr1" type="text" placeholder="우편번호"
+                      value={form.postcode} readOnly />
+                    <button className="checkout_btn checkout_btn--outline checkout_btn--sm" type="button" onClick={handleClick}>
                       주소 검색
                     </button>
-                    {isDaumOpen &&
-                      <div>
-                        <DaumPostcode
-                          onComplete={completeHandler}
-                          onClose={closeHandler} />
-                      </div>
-                    }
                   </div>
                 </div>
 
                 <div className="checkout_field checkout_field--wide">
-                  <input className="checkout_input" type="text" placeholder="기본 주소" />
+                  <input className="checkout_input" type="text" placeholder="기본 주소"
+                    value={form.basicAddress} readOnly />
                 </div>
 
                 <div className="checkout_field checkout_field--wide">
-                  <input className="checkout_input" type="text" placeholder="상세 주소" />
+                  <input className="checkout_input" type="text" placeholder="상세 주소"
+                    value={form.detailAddress} onChange={(e) => { setForm(prev => ({ ...prev, detailAddress: e.target.value })) }} />
                 </div>
               </div>
 
               <div className="checkout_field">
                 <label className="checkout_label" htmlFor="memo">배송 메모</label>
-                <select className="checkout_select" id="memo" value={form.memo} onChange={(e) => handleMemo(e)}>
+                <select className="checkout_select" id="memo" value={form.deliveryReq} onChange={(e) => handleMemo(e)}>
                   <option value="">선택 안 함</option>
                   <option>문 앞에 놓아주세요</option>
                   <option>경비실에 맡겨주세요</option>
@@ -212,7 +230,7 @@ const Checkout = () => {
                 </select>
                 {onTextarea &&
                   <textarea className="checkout_textarea" placeholder="직접 입력(선택)"
-                    rows="3" onChange={(e) => setForm({ ...form, memo: e.target.value })}></textarea>}
+                    rows="3" onChange={(e) => setForm(prev => ({ ...prev, deliveryReq: e.target.value }))}></textarea>}
               </div>
             </form>
           </section>
@@ -429,10 +447,7 @@ const Checkout = () => {
       <AddressModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onApply={(id) => console.log("선택된 배송지 ID:", id)}
-        addresses={mockAddresses}
-        selectedAddressId={selectedAddressId}
-        setSelectedAddressId={setSelectedAddressId}
+        onApply={handleApplyAddress}
       />
     </main>
   );

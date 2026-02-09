@@ -410,6 +410,12 @@
   background: #fee2e2;
 }
 
+.addr-msg {
+  padding-left: 10px;
+  font-size: 15px;
+  color: #6b7280;
+}
+
 @media (max-width: 520px) {
   .checkout_modal__tools {
     flex-direction: column;

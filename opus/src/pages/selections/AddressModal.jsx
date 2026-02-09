@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
 import "../../css/AddressModal.css";
+import { useAddressStore } from "../../store/addressStroe";
+import { useDaumPostcodePopup } from "react-daum-postcode";
 
-const AddressModal = ({
-  isOpen,
-  onClose,
-  onApply,
-  addresses = [],
-  selectedAddressId,
-  setSelectedAddressId
-}) => {
+const AddressModal = ({ isOpen, onClose, onApply }) => {
 
   const [mode, setMode] = useState("SELECT"); // SELECT | MANAGE | FORM
   const [editingAddress, setEditingAddress] = useState(null);
@@ -16,26 +11,93 @@ const AddressModal = ({
 
   const [form, setForm] = useState({
     recipient: "",
-    phone: "",
-    zipcode: "",
-    addr1: "",
-    addr2: "",
-    memo: ""
+    recipientTel: "",
+    postcode: "",
+    basicAddress: "",
+    detailAddress: "",
+    deliveryReq: "",
+    isDefault: "N"
   });
+
+  const {
+    addresses,
+    selectedAddressId,
+    setDefaultAddress,
+    selectAddress,
+    addAddress,
+    updateAddress,
+    deleteAddress
+  } = useAddressStore();
+
+  const [tempSelectedId, setTempSelectedId] = useState(null);
+
+  const handleSave = async () => {
+    if (editingAddress) {
+      // 수정
+      await updateAddress({
+        deliveryInfoNo: editingAddress.deliveryInfoNo,
+        form
+      });
+    } else {
+      // 신규 추가
+      await addAddress(form);
+    }
+
+    // 공통 후처리
+    setEditingAddress(null);
+    setMode("MANAGE");
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm("배송지를 삭제하시겠습니까?")) return;
+    await deleteAddress(id);
+  };
+
+  const handleSetDefault = async (id) => {
+    await setDefaultAddress(id);
+    selectAddress(id); // 기본 배송지로 바꾸면서 선택도 같이
+  };
 
   /* 모달 열릴 때 초기화 */
   useEffect(() => {
     if (!isOpen) return;
-    
-    const defaultAddr = addresses.find(a => a.isDefault);
-    if (defaultAddr) {
-      setSelectedAddressId(defaultAddr.id);
-    }
-    
-    setMode("SELECT");
-    setEditingAddress(null);
 
-  }, [isOpen]);
+    const defaultAddr = addresses.find(a => a.isDefault === "Y");
+    setTempSelectedId(selectedAddressId ?? defaultAddr?.deliveryInfoNo ?? null);
+
+    setMode("SELECT");
+  }, [isOpen, addresses, selectedAddressId]);
+
+  // 다음 주소 API
+  const open = useDaumPostcodePopup(import.meta.env.VITE_DAUM_API);
+
+  const handleComplete = (data) => {
+    let fullAddress = data.address;
+    let extraAddress = '';
+    let postcode = data.zonecode;
+
+    if (data.addressType === 'R') {
+      if (data.bname !== '') {
+        extraAddress += data.bname;
+      }
+      if (data.buildingName !== '') {
+        extraAddress += extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName;
+      }
+      fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
+    }
+
+    setForm(prev => ({
+      ...prev,
+      basicAddress: fullAddress,
+      postcode
+    }));
+
+  };
+
+  const handleClick = () => {
+    open({ onComplete: handleComplete });
+  };
+
 
   /* FORM 진입 시 값 세팅 */
   useEffect(() => {
@@ -43,35 +105,37 @@ const AddressModal = ({
 
     if (editingAddress) {
       setForm({
-        recipient: editingAddress.recipient ?? "",
-        phone: editingAddress.phone ?? "",
-        zipcode: editingAddress.zipcode ?? "",
-        addr1: editingAddress.addr1 ?? "",
-        addr2: editingAddress.addr2 ?? "",
-        memo: editingAddress.memo ?? ""
+        recipient: editingAddress.recipient,
+        recipientTel: editingAddress.recipientTel,
+        postcode: editingAddress.postcode,
+        basicAddress: editingAddress.basicAddress,
+        detailAddress: editingAddress.detailAddress ?? "",
+        deliveryReq: editingAddress.deliveryReq ?? "",
+        isDefault: editingAddress.isDefault ?? "N"
       });
     } else {
       setForm({
         recipient: "",
-        phone: "",
-        zipcode: "",
-        addr1: "",
-        addr2: "",
-        memo: ""
+        recipientTel: "",
+        postcode: "",
+        basicAddress: "",
+        detailAddress: "",
+        deliveryReq: "",
+        isDefault: "N"
       });
     }
   }, [mode, editingAddress]);
 
   const handleMemo = (e) => {
-    setForm({ ...form, memo: e.target.value })
+    const value = e.target.value;
 
-    if (e.target.value === "직접 입력") {
-      setOnTextarea(true);
-    } else {
-      setOnTextarea(false);
-    }
+    setOnTextarea(value === "직접 입력");
 
-  }
+    setForm(prev => ({
+      ...prev,
+      deliveryReq: value === "직접 입력" ? "" : value
+    }));
+  };
 
   if (!isOpen) return null;
 
@@ -134,83 +198,87 @@ const AddressModal = ({
           {/* 주소 리스트 */}
           {(mode === "SELECT" || mode === "MANAGE") && (
             <div className="checkout_addr-list">
-              {addresses.map((addr) =>
-                mode === "SELECT" ? (
-                  <label
-                    key={addr.id}
-                    className="checkout__addr-item"
-                    data-selectable="true"
-                  >
-                    {/* SELECT일 때만 radio */}
-                    <input
-                      className="checkout__addr-radio"
-                      type="radio"
-                      name="savedAddr"
-                      checked={selectedAddressId === addr.id}
-                      onChange={() => setSelectedAddressId(addr.id)}
-                    />
+              {addresses.length === 0 ? (
+                <p className="addr-msg">저장된 배송지가 없습니다.</p>
+              ) : (
+                addresses.map((addr) =>
+                  mode === "SELECT" ? (
+                    <label
+                      key={addr.deliveryInfoNo}
+                      className="checkout__addr-item"
+                      data-selectable="true"
+                    >
+                      {/* SELECT일 때만 radio */}
+                      <input
+                        className="checkout__addr-radio"
+                        type="radio"
+                        name="savedAddr"
+                        checked={tempSelectedId === addr.deliveryInfoNo}
+                        onChange={() => setTempSelectedId(addr.deliveryInfoNo)}
+                      />
 
-                    <div className="checkout__addr-item__box">
-                      <div className="checkout_addr-item__top" />
+                      <div className="checkout__addr-item__box">
+                        <div className="checkout_addr-item__top" />
 
-                      <p className="checkout_addr-item__who">
-                        {addr.recipient} · {addr.phone}
-                      </p>
-                      <p className="checkout_addr-item__addr">{addr.address}</p>
+                        <p className="checkout_addr-item__who">
+                          {addr.recipient} · {addr.recipientTel}
+                        </p>
+                        <p className="checkout_addr-item__addr">{addr.basicAddress} {addr.detailAddress}</p>
 
-                      {addr.isDefault && (
-                        <span className="checkout_addr-badge">기본 배송지</span>
-                      )}
-                    </div>
-                  </label>
-                ) : (
-                  <div
-                    key={addr.id}
-                    className="checkout__addr-item"
-                    data-selectable="false"
-                  >
-                    <div className="checkout__addr-item__box">
-                      <div className="checkout_addr-item__top" />
+                        {addr.isDefault === "Y" && (
+                          <span className="checkout_addr-badge">기본 배송지</span>
+                        )}
+                      </div>
+                    </label>
+                  ) : (
+                    <div
+                      key={addr.deliveryInfoNo}
+                      className="checkout__addr-item"
+                      data-selectable="false"
+                    >
+                      <div className="checkout__addr-item__box">
+                        <div className="checkout_addr-item__top" />
 
-                      <p className="checkout_addr-item__who">
-                        {addr.recipient} · {addr.phone}
-                      </p>
-                      <p className="checkout_addr-item__addr">{addr.address}</p>
+                        <p className="checkout_addr-item__who">
+                          {addr.recipient} · {addr.recipientTel}
+                        </p>
+                        <p className="checkout_addr-item__addr">{addr.basicAddress} {addr.detailAddress}</p>
 
-                      {/* MANAGE일 때만 버튼 */}
-                      <div className="checkout_addr-actions">
-                        {!addr.isDefault && (
+                        {/* MANAGE일 때만 버튼 */}
+                        <div className="checkout_addr-actions">
+                          {addr.isDefault !== "Y" && (
+                            <button
+                              type="button"
+                              className="addr-btn addr-btn--outline addr-btn--sm"
+                              id="default-btn"
+                              onClick={() => handleSetDefault(addr.deliveryInfoNo)}
+                            >
+                              기본 배송지로 설정
+                            </button>
+                          )}
+
                           <button
                             type="button"
                             className="addr-btn addr-btn--outline addr-btn--sm"
-                            id="default-btn"
-                            onClick={() => handleSetDefault(addr.id)}
+                            onClick={() => {
+                              setEditingAddress(addr);
+                              setMode("FORM");
+                            }}
                           >
-                            기본 배송지로 설정
+                            수정
                           </button>
-                        )}
 
-                        <button
-                          type="button"
-                          className="addr-btn addr-btn--outline addr-btn--sm"
-                          onClick={() => {
-                            setEditingAddress(addr);
-                            setMode("FORM");
-                          }}
-                        >
-                          수정
-                        </button>
-
-                        <button
-                          type="button"
-                          className="checkout_btn checkout_btn--danger addr-btn--sm"
-                          onClick={() => handleDelete(addr.id)}
-                        >
-                          삭제
-                        </button>
+                          <button
+                            type="button"
+                            className="checkout_btn checkout_btn--danger addr-btn--sm"
+                            onClick={() => handleDelete(addr.deliveryInfoNo)}
+                          >
+                            삭제
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )
                 )
               )}
             </div>
@@ -229,7 +297,7 @@ const AddressModal = ({
                       type="text"
                       placeholder="이름"
                       value={form.recipient}
-                      onChange={(e) => setForm({ ...form, recipient: e.target.value })}
+                      onChange={(e) => setForm(prev => ({ ...prev, recipient: e.target.value }))}
                     />
                   </div>
 
@@ -239,8 +307,8 @@ const AddressModal = ({
                       className="checkout__input"
                       type="tel"
                       placeholder="010-0000-0000"
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                      value={form.recipientTel}
+                      onChange={(e) => setForm(prev => ({ ...prev, recipientTel: e.target.value }))}
                     />
                   </div>
                 </div>
@@ -253,15 +321,13 @@ const AddressModal = ({
                         className="checkout__input"
                         type="text"
                         placeholder="우편번호"
-                        value={form.zipcode}
-                        onChange={(e) => setForm({ ...form, zipcode: e.target.value })}
+                        value={form.postcode}
+                        readOnly
                       />
                       <button
                         className="addr-btn addr-btn--outline addr-btn--sm"
                         type="button"
-                        onClick={() => {
-                          // TODO: 주소 검색 로직 연결
-                        }}
+                        onClick={handleClick}
                       >
                         주소 검색
                       </button>
@@ -273,8 +339,8 @@ const AddressModal = ({
                       className="checkout__input"
                       type="text"
                       placeholder="기본 주소"
-                      value={form.addr1}
-                      onChange={(e) => setForm({ ...form, addr1: e.target.value })}
+                      value={form.basicAddress}
+                      readOnly
                     />
                   </div>
 
@@ -283,8 +349,8 @@ const AddressModal = ({
                       className="checkout__input"
                       type="text"
                       placeholder="상세 주소"
-                      value={form.addr2}
-                      onChange={(e) => setForm({ ...form, addr2: e.target.value })}
+                      value={form.detailAddress}
+                      onChange={(e) => setForm(prev => ({ ...prev, detailAddress: e.target.value }))}
                     />
                   </div>
                 </div>
@@ -293,8 +359,8 @@ const AddressModal = ({
                   <label className="checkout__label">배송 메모</label>
                   <select
                     className="checkout__select"
-                    value={form.memo}
-                    onChange={(e) => handleMemo(e)}
+                    value={form.deliveryReq}
+                    onChange={handleMemo}
                   >
                     <option value="">선택 안 함</option>
                     <option value="문 앞에 놓아주세요">문 앞에 놓아주세요</option>
@@ -303,7 +369,8 @@ const AddressModal = ({
                     <option value="직접 입력">직접 입력</option>
                   </select>
                   {onTextarea &&
-                    <textarea className="checkout__textarea" placeholder="직접 입력(선택)" rows="3"></textarea>
+                    <textarea className="checkout__textarea" placeholder="직접 입력(선택)" rows="3"
+                      value={form.deliveryReq} onChange={(e) => setForm(prev => ({ ...prev, deliveryReq: e.target.value }))}></textarea>
                   }
                 </div>
               </form>
@@ -321,7 +388,7 @@ const AddressModal = ({
               <button
                 type="button"
                 className="addr-btn addr-btn--solid"
-                onClick={() => onApply(selectedAddressId)}
+                onClick={() => onApply(tempSelectedId)}
               >
                 선택한 배송지 적용
               </button>
@@ -343,9 +410,9 @@ const AddressModal = ({
               <button
                 type="button"
                 className="addr-btn addr-btn--solid"
-                onClick={() => handleSave(form)}
+                onClick={handleSave}
               >
-                저장
+                {editingAddress ? "수정 저장" : "배송지 추가"}
               </button>
             </>
           )}
