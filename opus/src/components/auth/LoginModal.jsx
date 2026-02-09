@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import "../../css/loginModal.css";
 import axiosApi from "../../api/axiosAPI";
 import { useAuthStore } from "./useAuthStore";
+import { toast } from "react-toastify";
 
 export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const doLogin = useAuthStore((s) => s.login);
@@ -57,6 +58,9 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
       if (!accessToken || !user?.id || !user?.role) {
         throw new Error("로그인 응답 형식이 올바르지 않습니다.");
       }
+
+      // `${user.memberName || "회원"}님, 환영합니다!` <**수정!!!!!!!!!!!!
+      toast.success("환영합니다!", {icon: false});
 
       doLogin({ token: accessToken, user });
       onClose?.();

@@ -192,3 +192,8 @@
   color: #111827;          /* 진한 색으로 변경 */
   text-decoration: underline;
 }
+
+/* 1. 토스트 위치 조정 (헤더 아래 중앙) */
+.Toastify__toast-container--top-right {
+  top: 80px !important; /* 현재 사이트 헤더 높이에 맞춰 조정하세요 */
+}
