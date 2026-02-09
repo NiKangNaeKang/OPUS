@@ -59,7 +59,7 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
         throw new Error("로그인 응답 형식이 올바르지 않습니다.");
       }
 
-      // `${user.memberName || "회원"}님, 환영합니다!` <**수정!!!!!!!!!!!!
+      // `${user.memberName || "회원"}님, 환영합니다!` <수정!!!!!!!!!!!!
       toast.success("환영합니다!", {icon: false});
 
       doLogin({ token: accessToken, user });
