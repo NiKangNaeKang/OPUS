@@ -5,7 +5,7 @@ import AddressModal from "./AddressModal";
 import { useCartStore } from "../../store/cartStore";
 import { useNavigate } from "react-router-dom";
 import { useDaumPostcodePopup } from 'react-daum-postcode'; // 다음 주소 API
-import { useAddressStore } from "../../store/addressStroe";
+import { useAddressStore } from "../../store/useAddressStore";
 
 const Checkout = () => {
 
@@ -55,7 +55,7 @@ const Checkout = () => {
 
   // selectedAddressId가 바뀔 때마다 기본 배송지 정보로 form 초기화
   useEffect(() => {
-    const selectedAddr = addresses.find(a => a.deliveryInfoNo === selectedAddressId);
+    const selectedAddr = addresses.find(a => a.addressNo === selectedAddressId);
     if (selectedAddr) {
       setForm({
         recipient: selectedAddr.recipient,
@@ -68,9 +68,9 @@ const Checkout = () => {
     }
   }, [selectedAddressId, addresses]);
 
-  const handleApplyAddress = (deliveryInfoNo) => {
+  const handleApplyAddress = (addressNo) => {
     const addr = addresses.find(
-      a => a.deliveryInfoNo === deliveryInfoNo
+      a => a.addressNo === addressNo
     );
     if (!addr) return;
 

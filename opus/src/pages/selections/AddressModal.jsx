@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "../../css/AddressModal.css";
-import { useAddressStore } from "../../store/addressStroe";
+import { useAddressStore } from "../../store/useAddressStore";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 
 const AddressModal = ({ isOpen, onClose, onApply }) => {
@@ -34,10 +34,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
   const handleSave = async () => {
     if (editingAddress) {
       // 수정
-      await updateAddress({
-        deliveryInfoNo: editingAddress.deliveryInfoNo,
-        form
-      });
+      await updateAddress(editingAddress.addressNo, form);
     } else {
       // 신규 추가
       await addAddress(form);
@@ -63,7 +60,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
     if (!isOpen) return;
 
     const defaultAddr = addresses.find(a => a.isDefault === "Y");
-    setTempSelectedId(selectedAddressId ?? defaultAddr?.deliveryInfoNo ?? null);
+    setTempSelectedId(selectedAddressId ?? defaultAddr?.addressNo ?? null);
 
     setMode("SELECT");
   }, [isOpen, addresses, selectedAddressId]);
@@ -204,7 +201,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
                 addresses.map((addr) =>
                   mode === "SELECT" ? (
                     <label
-                      key={addr.deliveryInfoNo}
+                      key={addr.addressNo}
                       className="checkout__addr-item"
                       data-selectable="true"
                     >
@@ -213,8 +210,8 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
                         className="checkout__addr-radio"
                         type="radio"
                         name="savedAddr"
-                        checked={tempSelectedId === addr.deliveryInfoNo}
-                        onChange={() => setTempSelectedId(addr.deliveryInfoNo)}
+                        checked={tempSelectedId === addr.addressNo}
+                        onChange={() => setTempSelectedId(addr.addressNo)}
                       />
 
                       <div className="checkout__addr-item__box">
@@ -232,7 +229,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
                     </label>
                   ) : (
                     <div
-                      key={addr.deliveryInfoNo}
+                      key={addr.addressNo}
                       className="checkout__addr-item"
                       data-selectable="false"
                     >
@@ -251,7 +248,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
                               type="button"
                               className="addr-btn addr-btn--outline addr-btn--sm"
                               id="default-btn"
-                              onClick={() => handleSetDefault(addr.deliveryInfoNo)}
+                              onClick={() => handleSetDefault(addr.addressNo)}
                             >
                               기본 배송지로 설정
                             </button>
@@ -271,7 +268,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
                           <button
                             type="button"
                             className="checkout_btn checkout_btn--danger addr-btn--sm"
-                            onClick={() => handleDelete(addr.deliveryInfoNo)}
+                            onClick={() => handleDelete(addr.addressNo)}
                           >
                             삭제
                           </button>

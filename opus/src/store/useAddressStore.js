@@ -2,35 +2,15 @@ import { create } from "zustand";
 import axiosApi from "../api/axiosAPI";
 
 export const useAddressStore = create((set, get) => ({
-  addresses: [{
-    deliveryInfoNo: 1,
-    recipient: "홍길동",
-    recipientTel: "010-1234-5678",
-    postcode: "12345",
-    basicAddress: "서울특별시 강남구 테헤란로 123",
-    detailAddress: "101동 202호",
-    deliveryReq: "문 앞에 놓아주세요",
-    isDefault: "Y" // 기본 배송지
-  },
-  {
-    deliveryInfoNo: 2,
-    recipient: "김철수",
-    recipientTel: "010-8765-4321",
-    postcode: "54321",
-    basicAddress: "서울특별시 마포구 월드컵북로 456",
-    detailAddress: "303호",
-    deliveryReq: "",
-    isDefault: "N"
-  }],
+  addresses: [],
   selectedAddressId: null,
   isLoading: false,
-  
 
   /* 배송지 목록 조회 */
   fetchAddresses: async () => {
     set({ isLoading: true });
     try {
-      const resp = await axiosApi.get("/selections/deliveryInfo");
+      const resp = await axiosApi.get("/address/addresses");
 
       const list = resp.data ?? [];
       const defaultAddr = list.find(a => a.isDefault === "Y");
@@ -38,7 +18,7 @@ export const useAddressStore = create((set, get) => ({
       set({
         addresses: list,
         selectedAddressId:
-          defaultAddr?.deliveryInfoNo ?? list[0]?.deliveryInfoNo ?? null,
+          defaultAddr?.addressNo ?? list[0]?.addressNo ?? null,
         isLoading: false
       });
     } catch (e) {
@@ -50,7 +30,7 @@ export const useAddressStore = create((set, get) => ({
   selectAddress: (id) => set({ selectedAddressId: id }),
 
   addAddress: async (form) => {
-    await axiosApi.post("/selections/deliveryInfo", {
+    await axiosApi.post("/address/addresses", {
       recipient: form.recipient,
       recipientTel: form.recipientTel,
       postcode: form.postcode,
@@ -63,7 +43,7 @@ export const useAddressStore = create((set, get) => ({
   },
 
   updateAddress: async (id, form) => {
-    await axiosApi.put(`/selections/deliveryInfo/${id}`, {
+    await axiosApi.put(`/address/addresses/${id}`, {
       recipient: form.recipient,
       recipientTel: form.recipientTel,
       postcode: form.postcode,
@@ -76,12 +56,12 @@ export const useAddressStore = create((set, get) => ({
   },
 
   deleteAddress: async (id) => {
-    await axiosApi.delete(`/selections/deliveryInfo/${id}`);
+    await axiosApi.delete(`/address/addresses/${id}`);
     await get().fetchAddresses();
   },
 
   setDefaultAddress: async (id) => {
-    await axiosApi.put(`/selections/deliveryInfo/${id}/default`);
+    await axiosApi.put(`/address/addresses/${id}/default`);
     await get().fetchAddresses();
   }
 }));
