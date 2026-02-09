@@ -9,7 +9,13 @@ export default defineConfig({
         target : 'https://api.kcisa.kr',
         changeOrigin : true,
         rewrite: (path) => path.replace(/^\/kcisa/, ''),
-      }
+      },
+
+      '/kopis': {
+        target: 'http://www.kopis.or.kr',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/kopis/, ''),
+      },
     }
   }
 })
