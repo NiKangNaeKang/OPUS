@@ -1,7 +1,6 @@
 import '../../css/pages/onStage/OnStage.css'
 import ExhibitionList from './ExhibitionList';
 import MusicalList from './MusicalList';
-import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
 export default function OnStage() {
