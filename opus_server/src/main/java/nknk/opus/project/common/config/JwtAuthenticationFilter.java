@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 						null, Collections.singletonList(new SimpleGrantedAuthority(role)));
 				// 서버 내부 메모리에 인증 정보 저장
 				SecurityContextHolder.getContext().setAuthentication(authentication);
-				
+
 			} else {
 				// 토큰이 존재하지만 유효하지 않은 경우 (만료, 변조 등)
 				// 프론트엔드에서 401 에러를 감지하여 자동 로그아웃 처리를 할 수 있게 함

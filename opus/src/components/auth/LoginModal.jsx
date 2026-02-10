@@ -12,12 +12,12 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // 제출 가능 여부 체크 (이메일/비번 입력됨 + 로딩 중 아님)
+  // 제출 가능 여부 체크
   const canSubmit = useMemo(() => {
     return email.trim().length > 0 && password.trim().length > 0 && !loading;
   }, [email, password, loading]);
 
-  // 모달이 닫릴 때 상태값 초기화
+  // 모달 닫힐 때 상태 초기화
   useEffect(() => {
     if (!open) return;
     setEmail("");
@@ -29,10 +29,8 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
   // 모달 오픈 시 배경 스크롤 방지
   useEffect(() => {
     if (!open) return;
-
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
     return () => {
       document.body.style.overflow = prevOverflow;
     };
@@ -52,19 +50,19 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
         memberPw: password.trim(),
       });
 
-      // MemberController 응답 구조에 맞춤
+      // 백엔드 응답 구조: { token: "...", member: { memberNo: 1, memberEmail: "...", memberTel: "...", ... } }
       const token = res?.data?.token;
-      const user = res?.data?.user;
+      const member = res?.data?.member;
 
-      if (!token || !user?.memberNo || user?.authorLevel === undefined) {
+      if (!token || !member?.memberNo) {
         throw new Error("로그인 응답 형식이 올바르지 않습니다.");
       }
 
-      const userName = user.memberEmail.split('@')[0]; 
+      const userName = member.memberEmail.split('@')[0]; 
       toast.success(`${userName}님, 환영합니다!`, { icon: false });
 
-      // Zustand 스토어 저장 및 모달 닫기
-      doLogin({ token, user });
+      // Zustand 스토어에 데이터 저장 (token과 member 전달)
+      doLogin({ token, member });
       onClose?.();
 
     } catch (err) {
@@ -72,8 +70,7 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
       const serverData = err?.response?.data;
 
       if (status === 401) {
-        // 서버에서 반환한 "아이디 또는 비밀번호가 일치하지 않습니다" 메시지 우선 사용
-        setErrorMsg(typeof serverData === 'string' ? serverData : "이메일 또는 비밀번호가 틀렸습니다.");
+        setErrorMsg(typeof serverData === 'string' ? serverData : "이메일 또는 비밀번호가 일치하지 않습니다.");
       } else {
         setErrorMsg(
           typeof serverData === 'string' ? serverData : 
@@ -92,14 +89,7 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
       <div className="lm-modal">
         <div className="lm-header">
           <h2 className="lm-title">로그인</h2>
-          <button
-            className="lm-close"
-            type="button"
-            onClick={onClose}
-            aria-label="닫기"
-          >
-            ✕
-          </button>
+          <button className="lm-close" type="button" onClick={onClose} aria-label="닫기">✕</button>
         </div>
 
         <form className="lm-body" onSubmit={handleSubmit}>
@@ -138,9 +128,7 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
           <div className="lm-footer">
             <button type="button" className="lm-link">아이디 찾기</button>
             <button type="button" className="lm-link">비밀번호 찾기</button>
-            <button type="button" className="lm-link" onClick={onSwitchSignup}>
-              회원가입
-            </button>
+            <button type="button" className="lm-link" onClick={onSwitchSignup}>회원가입</button>
           </div>
         </form>
       </div>
