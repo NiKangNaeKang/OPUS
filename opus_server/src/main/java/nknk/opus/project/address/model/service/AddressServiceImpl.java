@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import nknk.opus.project.address.model.dto.Address;
 import nknk.opus.project.address.model.mapper.AddressMapper;
+import nknk.opus.project.common.exception.BusinessException;
 
 @Transactional(rollbackFor = Exception.class)
 @Service
@@ -31,7 +32,7 @@ public class AddressServiceImpl implements AddressService {
 		int result = mapper.addAddress(address);
 
 		if (result != 1) {
-			throw new RuntimeException();
+			throw new BusinessException("배송지 추가에 실패했습니다.");
 		}
 
 		return address;
@@ -46,7 +47,7 @@ public class AddressServiceImpl implements AddressService {
 		int result = mapper.updateAddress(address);
 
 		if (result != 1) {
-			throw new RuntimeException();
+			throw new BusinessException("배송지 수정에 실패했습니다.");
 		}
 
 		return address;
@@ -63,7 +64,7 @@ public class AddressServiceImpl implements AddressService {
 		int result = mapper.deleteAddress(map);
 
 		if (result != 1) {
-			throw new RuntimeException();
+			throw new BusinessException("배송지 삭제에 실패했습니다.");
 		}
 
 	}
@@ -78,7 +79,7 @@ public class AddressServiceImpl implements AddressService {
 		int result = mapper.setDefaultAddress(addressNo);
 		
 		if (result != 1) {
-			throw new RuntimeException();
+			throw new BusinessException("기본 배송지 설정에 실패했습니다.");
 		}
 		
 	}
