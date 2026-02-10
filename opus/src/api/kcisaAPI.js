@@ -1,5 +1,5 @@
 // 전시 조회
-export async function getAllExhibitions({ serviceKey, search }) {
+export async function getAllExhibitions({ serviceKey }) {
   if(!serviceKey) {
     throw new Error("발급받은 서비스 키가 없습니다.");
   }
@@ -8,31 +8,36 @@ export async function getAllExhibitions({ serviceKey, search }) {
     serviceKey : serviceKey,
     numOfRows : 20,
     pageNo : 1,
-    dtype : "전시",
-    title : search.trim() || "",
   });
 
-  const res = await fetch(`/kcisa/openapi/CNV_060/request?${params.toString()}`);
+  // https://api.kcisa.kr/openapi/API_CCA_145/request?serviceKey=bcec5111-252e-47c3-9dca-4b943cf5a0ed&numOfRows=10&pageNo=1
+  const res = await fetch(`/kcisa/openapi/API_CCA_145/request?${params.toString()}`);
 
   if(!res.ok) {
     throw new Error("전시 정보 요청 실패");
   }
 
-  const text = await res.text();
+  const text = await res.text();  
 
   // XML 파싱하기
-  const xmlParser = new DOMParser();
-  const xml = xmlParser.parseFromString(text, "text/xml");
+  const xml = new DOMParser().parseFromString(text, "text/xml");
 
-  const items = [...xml.getElementsByTagName("item")].map(item => ({
-    title : item.getElementsByTagName("title")[0]?.textContent,
-    period : item.getElementsByTagName("period")[0]?.textContent,
-    eventPeriod : item.getElementsByTagName("eventPeriod")[0]?.textContent,
-    eventSite : item.getElementsByTagName("eventSite")[0]?.textContent,
-    url : item.getElementsByTagName("url")[0]?.textContent,
-    imageObject : item.getElementsByTagName("imageObject")[0]?.textContent,
-    description : item.getElementsByTagName("description")[0]?.textContent,
-  }))
-  
+  const items = [...xml.getElementsByTagName("item")].map(item => {
+    return {
+      title : item.getElementsByTagName("TITLE")[0]?.textContent,
+      image : item.getElementsByTagName("IMAGE_OBJECT")[0]?.textContent,
+      exhibitionId : item.getElementsByTagName("LOCAL_ID")[0]?.textContent,
+      place : item.getElementsByTagName("EVENT_SITE")[0]?.textContent,
+      genre : item.getElementsByTagName("GENRE")[0]?.textContent,
+      age : item.getElementsByTagName("AUDIENCE")[0]?.textContent,
+      period : item.getElementsByTagName("PERIOD")[0]?.textContent,
+    }
+  })
+
   return items;
-} 
+}
+
+// 상세 전시 조회
+export async function getExhibitionDetail(serviceKey, exhibitionId) {
+  
+}
