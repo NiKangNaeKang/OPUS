@@ -156,7 +156,7 @@ export default function SignupModal({ open, onClose }) {
     e.preventDefault();
     const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
     if (!pwRegex.test(formData.memberPw)) {
-      return alert("비밀번호는 8~16자의 영문과 숫자를 혼합해야 합니다.");
+      return alert("비밀번호는 영문, 숫자를 포함하여 8~16자여야 합니다.");
     }
     if (!isEmailVerified) return alert("이메일 인증을 완료해주세요.");
     if (formData.memberPw !== formData.memberPwConfirm) {
@@ -173,7 +173,7 @@ export default function SignupModal({ open, onClose }) {
       alert("회원가입이 완료되었습니다!");
       onClose();
     } catch (err) {
-      alert("회원가입에 실패했습니다. " + (err.response?.data?.message || "다시 확인해 주세요."));
+      alert("회원가입에 실패했습니다. " + (err.response?.data || "다시 확인해 주세요."));
     } finally {
       setLoading(false);
     }
