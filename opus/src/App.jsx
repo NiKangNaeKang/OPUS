@@ -13,36 +13,38 @@ import MusicalDetail from './pages/onStage/MusicalDetail';
 import Reviews from "./pages/onStage/Reviews";
 import Proposals from "./pages/Proposals/Proposals";
 import ToastConfig from "./components/common/ToastConfig";
+import AuthInitializer from "./components/common/AuthInitializer";
 
 export default function App() {
   return (
-  <>
-    <ToastConfig />
+    <>
+      <AuthInitializer />
+      <ToastConfig />
 
-    <Routes>
-      {/* Dark Header (Home 등) */}
-      <Route element={<DarkHeaderLayout />}>
-        <Route path="/" element={<Home />} />
-      </Route>
+      <Routes>
+        {/* Dark Header (Home 등) */}
+        <Route element={<DarkHeaderLayout />}>
+          <Route path="/" element={<Home />} />
+        </Route>
 
-      {/* Light Header (게시판, 상세페이지 등) */}
-      <Route element={<LightHeaderLayout />}>
-        <Route path="/onStage" element={<OnStage />} />
-        <Route path="/onStage/:mt20id" element={<MusicalDetail />} />
-        <Route path="/onStage/reviews" element={<Reviews />} />
-        
-        {/* 2. Proposals 경로 추가 */}
-        <Route path="/proposals" element={<Proposals />} />
+        {/* Light Header (게시판, 상세페이지 등) */}
+        <Route element={<LightHeaderLayout />}>
+          <Route path="/onStage" element={<OnStage />} />
+          <Route path="/onStage/:mt20id" element={<MusicalDetail />} />
+          <Route path="/onStage/reviews" element={<Reviews />} />
 
-        <Route path="/unveiling" element={<Unveiling />} />
-        <Route path="/unveiling/:id" element={<UnveilingDetail />} />
-        <Route path='/selections' element={<Selections />} />
-        <Route path='/selections/:goodsNo' element={<SelectionsDetail />} />
-        <Route path='/selections/cart' element={<Cart />} />
-        <Route path='/selections/checkout' element={<Checkout />} />
-      </Route>
-    </Routes>
-    
-   </>
+          {/* 2. Proposals 경로 추가 */}
+          <Route path="/proposals" element={<Proposals />} />
+
+          <Route path="/unveiling" element={<Unveiling />} />
+          <Route path="/unveiling/:id" element={<UnveilingDetail />} />
+          <Route path='/selections' element={<Selections />} />
+          <Route path='/selections/:goodsNo' element={<SelectionsDetail />} />
+          <Route path='/selections/cart' element={<Cart />} />
+          <Route path='/selections/checkout' element={<Checkout />} />
+        </Route>
+      </Routes>
+
+    </>
   );
 }

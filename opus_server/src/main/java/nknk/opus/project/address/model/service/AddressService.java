@@ -8,4 +8,8 @@ public interface AddressService {
 
 	List<Address> selectAddresses(int memberNo);
 
+	Address addAddress(int memberNo, Address address);
+
+	Address updateAddress(int memberNo, Address address, int addressNo);
+
 }

@@ -32,22 +32,42 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
   const [tempSelectedId, setTempSelectedId] = useState(null);
 
   const handleSave = async () => {
-    if (editingAddress) {
-      // 수정
-      await updateAddress(editingAddress.addressNo, form);
-    } else {
-      // 신규 추가
-      await addAddress(form);
+    try {
+
+      if (editingAddress) {
+        // 수정
+        const resp = await updateAddress(editingAddress.addressNo, form);
+        console.log(resp.data);
+        alert("배송지가 수정되었습니다!");
+      } else {
+        // 신규 추가
+        const resp = await addAddress(form);
+        console.log(resp.data);
+        alert("배송지가 추가되었습니다!");
+      }
+
+      // 공통 후처리
+      setEditingAddress(null);
+      setMode("MANAGE");
+
+    } catch (error) {
+      console.error(err);
+      alert("저장에 실패했습니다.");
     }
 
-    // 공통 후처리
-    setEditingAddress(null);
-    setMode("MANAGE");
   };
 
   const handleDelete = async (id) => {
     if (!confirm("배송지를 삭제하시겠습니까?")) return;
-    await deleteAddress(id);
+
+    try {
+      await deleteAddress(id);
+      alert("배송지가 삭제되었습니다!");
+    } catch (error) {
+      console.error(err);
+      alert("삭제에 실패했습니다.");
+    }
+
   };
 
   const handleSetDefault = async (id) => {

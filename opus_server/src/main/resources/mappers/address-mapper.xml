@@ -1,13 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
-<mapper namespace="nknk.opus.project.address.model.mapper.AddressMapper">
+<mapper
+	namespace="nknk.opus.project.address.model.mapper.AddressMapper">
 
 	<select id="selectAddresses">
-		SELECT ADDRESS_NO, RECIPIENT, RECIPIENT_TEL, POSTCODE, 
+		SELECT ADDRESS_NO, RECIPIENT, RECIPIENT_TEL,
+		POSTCODE,
 		BASIC_ADDRESS, DETAIL_ADDRESS, IS_DEFAULT, DELIVERY_REQ
 		FROM ADDRESS
-		WHERE MEMBER_NO = #{memberNo}
+		WHERE MEMBER_NO =
+		#{memberNo}
 	</select>
-   
+
+	<insert id="addAddress">
+		INSERT INTO ADDRESS VALUES(
+		SEQ_ADDRESS_NEXTVAL, #{memberNo}, #{recipient},
+		#{recipientTel}, #{postcode}, #{basicAddress},
+		#{detailAddress}, #{isDefault}, #{deliveryReq}, SYSDATE, NULL)
+	</insert>
+
+	<update id="updateAddress">
+		UPDATE ADDRESS SET
+		RECIPIENT = #{recipient},
+		RECIPIENT_TEL = #{recipientTel},
+		POSTCODE = #{postcode},
+		BASIC_ADDRESS = #{basicAddress},
+		DETAIL_ADDRESS = #{detailAddress},
+		DELIVERY_REQ = #{deliveryReq},
+		ADDRESS_UPDATE_DATE = SYSDATE
+		WHERE ADDRESS_NO = #{addressNo}
+		AND MEMBER_NO = #{memberNo}
+	</update>
+
 </mapper>

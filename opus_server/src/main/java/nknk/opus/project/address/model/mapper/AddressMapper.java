@@ -10,6 +10,10 @@ import nknk.opus.project.address.model.dto.Address;
 public interface AddressMapper {
 
 	List<Address> selectAddresses(int memberNo);
+
+	int addAddress(Address address);
+
+	int updateAddress(Address address);
 	
 	
 

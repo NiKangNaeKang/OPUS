@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import axiosApi from "../api/axiosAPI";
+import addressAPI from "../api/addressAPI";
 
 export const useAddressStore = create((set, get) => ({
   addresses: [],
@@ -10,7 +10,7 @@ export const useAddressStore = create((set, get) => ({
   fetchAddresses: async () => {
     set({ isLoading: true });
     try {
-      const resp = await axiosApi.get("/address/addresses");
+      const resp = await addressAPI.fetchAddresses();
 
       const list = resp.data ?? [];
       const defaultAddr = list.find(a => a.isDefault === "Y");
@@ -30,7 +30,7 @@ export const useAddressStore = create((set, get) => ({
   selectAddress: (id) => set({ selectedAddressId: id }),
 
   addAddress: async (form) => {
-    await axiosApi.post("/address/addresses", {
+    await addressAPI.addAddress({
       recipient: form.recipient,
       recipientTel: form.recipientTel,
       postcode: form.postcode,
@@ -39,11 +39,12 @@ export const useAddressStore = create((set, get) => ({
       deliveryReq: form.deliveryReq,
       isDefault: form.isDefault ?? "N"
     });
+
     await get().fetchAddresses();
   },
 
   updateAddress: async (id, form) => {
-    await axiosApi.put(`/address/addresses/${id}`, {
+    await addressAPI.updateAddress(id, {
       recipient: form.recipient,
       recipientTel: form.recipientTel,
       postcode: form.postcode,
@@ -56,12 +57,23 @@ export const useAddressStore = create((set, get) => ({
   },
 
   deleteAddress: async (id) => {
-    await axiosApi.delete(`/address/addresses/${id}`);
+    await addressAPI.deleteAddress(id);
     await get().fetchAddresses();
   },
 
+  // 기존 배송지 설정
   setDefaultAddress: async (id) => {
-    await axiosApi.put(`/address/addresses/${id}/default`);
-    await get().fetchAddresses();
-  }
+    try {
+      // 기존 기본 배송지 해제
+      await addressAPI.clearDefaultAddress();
+
+      // 새 기본 배송지 설정
+      await addressAPI.setDefaultAddress(id);
+
+      // 다시 조회
+      await get().fetchAddresses();
+    } catch (error) {
+      console.error("기본 배송지 설정 실패", error);
+    }
+  },
 }));

@@ -21,4 +21,33 @@ public class AddressServiceImpl implements AddressService{
 		return mapper.selectAddresses(memberNo);
 	}
 
+	@Override
+	public Address addAddress(int memberNo, Address address) {
+		
+		address.setMemberNo(memberNo);
+		
+		int result = mapper.addAddress(address);
+		
+		if(result != 1) {
+			throw new RuntimeException();
+		}
+		
+		return address;
+	}
+
+	@Override
+	public Address updateAddress(int memberNo, Address address, int addressNo) {
+		
+		address.setAddressNo(addressNo);
+		address.setMemberNo(memberNo);
+		
+		int result = mapper.updateAddress(address);
+		
+		if(result != 1) {
+			throw new RuntimeException();
+		}
+		
+		return address;
+	}
+
 }
