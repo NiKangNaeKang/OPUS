@@ -7,7 +7,7 @@ const addressAPI = {
     axiosApi.get("/addresses"),
 
   // 배송지 추가
-  addAddress: (data) =>
+  addAddress: (data) => 
     axiosApi.post("/addresses", data),
 
   // 배송지 수정

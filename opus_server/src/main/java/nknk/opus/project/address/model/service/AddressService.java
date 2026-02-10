@@ -12,4 +12,8 @@ public interface AddressService {
 
 	Address updateAddress(int memberNo, Address address, int addressNo);
 
+	void deleteAddress(int memberNo, int addressNo);
+
+	void setDefaultAddress(int addressNo, int memberNo);
+
 }

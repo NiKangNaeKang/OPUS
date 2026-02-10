@@ -128,6 +128,12 @@ export const useCartStore = create(
         if (isLoggedIn) {
           // 서버에서 수량 변경
           try {
+
+            if (!target.cartNo) {
+              console.error("cartNo가 없습니다:", target);
+              return;
+            }
+
             await cartApi.updateCartQty(target.cartNo, qty);
             await get().fetchFromServer();
           } catch (error) {
@@ -136,8 +142,9 @@ export const useCartStore = create(
           }
         } else {
           // 로컬에서만 변경
-          const nextItems = [...items];
-          nextItems[idx] = { ...target, qty };
+          const nextItems = items.map((i) =>
+            i.cartKey === cartKey ? { ...i, qty } : i
+          );
           set({ items: nextItems });
         }
       },

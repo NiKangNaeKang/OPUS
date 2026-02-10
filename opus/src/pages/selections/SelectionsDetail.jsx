@@ -201,8 +201,8 @@ const SelectionsDetail = () => {
       return;
     }
 
-    const size = hasSize ? selectedOptionRow?.goodsSize ?? null : null;
-    const color = hasColor ? selectedOptionRow?.goodsColor ?? null : null;
+    const goodsSize = hasSize ? selectedOptionRow?.goodsSize ?? null : null;
+    const goodsColor = hasColor ? selectedOptionRow?.goodsColor ?? null : null;
 
     // 옵션 PK가 있으면 그걸로 cartKey를 만드는 게 가장 안전함
     // (없으면 goodsNo + size + color 조합으로)
@@ -216,8 +216,8 @@ const SelectionsDetail = () => {
       thumbnail: goodsDetail.goodsThumbnail,
       unitPrice: Number(goodsDetail.goodsPrice),
       deliveryCost: Number(goodsDetail.deliveryCost ?? 0),
-      size,
-      color,
+      goodsSize,
+      goodsColor,
       qty,
       stock: row.stock ?? null,
     });

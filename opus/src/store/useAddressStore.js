@@ -64,9 +64,6 @@ export const useAddressStore = create((set, get) => ({
   // 기존 배송지 설정
   setDefaultAddress: async (id) => {
     try {
-      // 기존 기본 배송지 해제
-      await addressAPI.clearDefaultAddress();
-
       // 새 기본 배송지 설정
       await addressAPI.setDefaultAddress(id);
 

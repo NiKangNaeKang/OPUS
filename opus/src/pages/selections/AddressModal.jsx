@@ -36,13 +36,11 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
 
       if (editingAddress) {
         // 수정
-        const resp = await updateAddress(editingAddress.addressNo, form);
-        console.log(resp.data);
+        await updateAddress(editingAddress.addressNo, form);
         alert("배송지가 수정되었습니다!");
       } else {
         // 신규 추가
-        const resp = await addAddress(form);
-        console.log(resp.data);
+        await addAddress(form);
         alert("배송지가 추가되었습니다!");
       }
 
@@ -51,7 +49,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
       setMode("MANAGE");
 
     } catch (error) {
-      console.error(err);
+      console.error(error);
       alert("저장에 실패했습니다.");
     }
 
