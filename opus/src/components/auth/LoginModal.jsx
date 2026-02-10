@@ -17,7 +17,7 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
     return email.trim().length > 0 && password.trim().length > 0 && !loading;
   }, [email, password, loading]);
 
-  // 모달이 닫힐 때 상태값 초기화
+  // 모달이 닫릴 때 상태값 초기화
   useEffect(() => {
     if (!open) return;
     setEmail("");
@@ -52,30 +52,33 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
         memberPw: password.trim(),
       });
 
-      const accessToken = res?.data?.token || res?.data?.accessToken;
+      // MemberController 응답 구조에 맞춤
+      const token = res?.data?.token;
       const user = res?.data?.user;
 
-      if (!accessToken || !user?.id || !user?.role) {
+      if (!token || !user?.memberNo || user?.authorLevel === undefined) {
         throw new Error("로그인 응답 형식이 올바르지 않습니다.");
       }
 
-      // `${user.memberName || "회원"}님, 환영합니다!` <**수정!!!!!!!!!!!!
-      toast.success("환영합니다!", {icon: false});
+      const userName = user.memberEmail.split('@')[0]; 
+      toast.success(`${userName}님, 환영합니다!`, { icon: false });
 
-      doLogin({ token: accessToken, user });
+      // Zustand 스토어 저장 및 모달 닫기
+      doLogin({ token, user });
       onClose?.();
+
     } catch (err) {
       const status = err?.response?.status;
+      const serverData = err?.response?.data;
 
       if (status === 401) {
-        setErrorMsg("이메일 또는 비밀번호가 틀렸습니다.");
+        // 서버에서 반환한 "아이디 또는 비밀번호가 일치하지 않습니다" 메시지 우선 사용
+        setErrorMsg(typeof serverData === 'string' ? serverData : "이메일 또는 비밀번호가 틀렸습니다.");
       } else {
-        const serverMsg =
-          err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          err?.message;
-
-        setErrorMsg(serverMsg || "로그인에 실패했습니다. 다시 시도해주세요.");
+        setErrorMsg(
+          typeof serverData === 'string' ? serverData : 
+          (serverData?.message || err?.message || "로그인에 실패했습니다. 다시 시도해주세요.")
+        );
       }
     } finally {
       setLoading(false);
