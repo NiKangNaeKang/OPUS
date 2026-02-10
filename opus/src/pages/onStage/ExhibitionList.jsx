@@ -73,9 +73,9 @@ export default function ExhibitionList({ search, status }) {
   return(
     <>
       <div className="show-grid">
-        {filteredItems.map((item, index) => (
-          <article key={`${item.exhibitionId} - ${index}`} className="show-card">
-            <Link to={`/onStage/exhibition/${item.exhibitionId}`}>
+        {filteredItems.map((item, idx) => (
+          <article key={`${item.exhibitionId}-${idx}`} className="show-card">
+            <Link to={`/onStage/exhibition/${item.exhibitionId}`} state={{item}}>
               <div className="show-card__thumb">
                 {item.image ? (
                   <img src={item.image} alt={item.title} />
@@ -87,7 +87,7 @@ export default function ExhibitionList({ search, status }) {
                 </span>
               </div>
               <h3 className="show-card__title">{item.title || "(제목 없음)"}</h3>
-              <p className="show-card__meta">{item.period}</p>
+              <p className="show-card__meta">{item.period || item.eventPeriod}</p>
               <p className="show-card__meta">{item.place}</p>
             </Link>
           </article>

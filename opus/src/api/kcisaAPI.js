@@ -25,19 +25,19 @@ export async function getAllExhibitions({ serviceKey }) {
   const items = [...xml.getElementsByTagName("item")].map(item => {
     return {
       title : item.getElementsByTagName("TITLE")[0]?.textContent,
+      place : item.getElementsByTagName("CNTC_INSTT_NM")[0]?.textContent,
+      desc : item.getElementsByTagName("DESCRIPTION")[0]?.textContent,
       image : item.getElementsByTagName("IMAGE_OBJECT")[0]?.textContent,
       exhibitionId : item.getElementsByTagName("LOCAL_ID")[0]?.textContent,
-      place : item.getElementsByTagName("EVENT_SITE")[0]?.textContent,
-      genre : item.getElementsByTagName("GENRE")[0]?.textContent,
+      url : item.getElementsByTagName("URL")[0]?.textContent,
+      author : item.getElementsByTagName("AUTHOR")[0]?.textContent,
+      contributor : item.getElementsByTagName("CONTRIBUTOR")[0]?.textContent,
+      contact : item.getElementsByTagName("CONTACT_POINT")[0]?.textContent,
       age : item.getElementsByTagName("AUDIENCE")[0]?.textContent,
       period : item.getElementsByTagName("PERIOD")[0]?.textContent,
+      eventPeriod : item.getElementsByTagName("EVENT_PERIOD")[0]?.textContent,
     }
   })
 
   return items;
-}
-
-// 상세 전시 조회
-export async function getExhibitionDetail(serviceKey, exhibitionId) {
-  
 }

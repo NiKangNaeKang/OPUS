@@ -1,27 +1,20 @@
 import '../../css/pages/onStage/detail.css'
 import { EmailShareButton, FacebookShareButton, LineShareButton, ThreadsShareButton, TwitterShareButton } from "react-share";
 import { EmailIcon, FacebookIcon, LineIcon, ThreadsIcon, XIcon } from "react-share";
-import { getMusicalDetail } from '../../api/kopisAPI';
-import { useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function ExhibitionDetail () {
-  const { exhibitionId } = useParams();
+  const { state } = useLocation();
+  const item = state?.item;
+
+  if(!item) {
+    return <div>잘못된 접근입니다.</div>
+  }
+
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const modalBackground = useRef();
   
-  const SERVICE_KEY = "bcec5111-252e-47c3-9dca-4b943cf5a0ed";
-  
-  const { isPending, error, data } = useQuery({
-    queryKey : [exhibitionId],
-    queryFn: async () => getMusicalDetail(SERVICE_KEY, mt20id),
-  });
-  
-  if (isPending) return 'Loading...'
-  if (error) return error.message
-  if (!data) return 'No data'
-
   const currentURL = window.location.href;
 
   const copyURL = async () => {
@@ -40,13 +33,13 @@ export default function ExhibitionDetail () {
           <section className="left-col">
             <div className="poster-sticky" id="poster-section">
               <div className="poster-box">
-                {data.poster? <img className="poster-img" src={data.poster} alt={`${data.prfnm} 포스터`} />
-                  :  <div className="poster-img" style={{height : 220}} />
+                {item.image? <img className="poster-img" src={item.image} alt={`${item.title} 포스터`} />
+                  : <div className="poster-img" style={{height : 220}} />
                 }
               </div>
 
               <div className="poster-actions">
-                {data.relates.map((relate, idx) => (
+                {/* {data.relates.map((relate, idx) => (
                   <button className="btn btn-primary" id='book-btn' type="button" key={idx}
                     onClick={() => {
                       if (!relate.url) {
@@ -57,7 +50,7 @@ export default function ExhibitionDetail () {
                     }}>
                       {relate.name}에서 예매하기
                   </button>
-                ))}
+                ))} */}
 
                 <div className="actions-row">
                   <button className="btn btn-outline" type="button">
@@ -124,45 +117,35 @@ export default function ExhibitionDetail () {
                 </div>
               }
 
-              <h1 className="title">{data.prfnm || "(제목 없음)"}</h1>
+              <h1 className="title">{item.title || "(제목 없음)"}</h1>
 
               <div className="meta-box">
                 <div className="meta-row">
                   <div className="meta-label">일정</div>
-                  <div className="meta-value">{data.prfpdfrom} ~ {data.prfpdto}</div>
+                  <div className='meta-value'>{item.period ? <span dangerouslySetInnerHTML={{__html : item.period}}></span> : "(알 수 없음)"}</div>
                 </div>
                 <div className="meta-row">
                   <div className="meta-label">장소</div>
-                  <div className="meta-value">{data.fcltynm || "(알 수 없음)"}</div>
+                  <div className='meta-value'>{item.place ? <span dangerouslySetInnerHTML={{__html : item.place}}></span> : "(알 수 없음)"}</div>
                 </div>
                 <div className="meta-row">
                   <div className="meta-label">관람시간</div>
-                  <div className="meta-value">{data.prfruntime || "(알 수 없음)"}</div>
+                  <div className='meta-value'>{item.eventPeriod ? <span dangerouslySetInnerHTML={{__html : item.eventPeriod}}></span> : "(알 수 없음)"}</div>
                 </div>
                 <div className="meta-row">
                   <div className="meta-label">관람등급</div>
-                  <div className="meta-value">{data.prfage || "(알 수 없음)"}</div>
+                  <div className="meta-value">{item.age ? <span dangerouslySetInnerHTML={{__html : item.age}}></span> : "(알 수 없음)"}</div>
                 </div>
               </div>
 
               <div className="section">
                 <h2 className="section-title">상세 정보</h2>
-
-                <div className="desc" id="descText">
-                  {data.styurls.length > 0 && (
-                    <div className='desc'>
-                      {data.styurls.map((url, idx) => (
-                        <img key = {idx} className='desc-img'
-                          src={url} alt={`${data.prfnm} 상세 이미지 ${idx + 1}`} />
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <div className='desc' id='descText'>{item.desc ? <span dangerouslySetInnerHTML={{__html : item.desc}}></span>: "(알 수 없음)"}</div>
               </div>
 
               <div className="section section-divider" id="cast-section">
-                <h2 className="section-title">출연진</h2>
-                <div className="desc" id='cast-desc-div'>{data.prfcast || "(알 수 없음)"}</div>
+                <h2 className="section-title">작가</h2>
+                <div className="desc" id='cast-desc-div'>{item.author ? <span dangerouslySetInnerHTML={{__html : item.author}}></span> : "(알 수 없음)"}</div>
               </div>
 
               <div className="section" id="reviews-section">
