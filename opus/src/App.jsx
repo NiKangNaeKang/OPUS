@@ -13,6 +13,8 @@ import MusicalDetail from './pages/onStage/MusicalDetail';
 import Reviews from "./pages/onStage/Reviews";
 import Proposals from "./pages/Proposals/Proposals";
 import ToastConfig from "./components/common/ToastConfig";
+import ExhibitionList from "./pages/onStage/ExhibitionList";
+import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
 
 export default function App() {
   return (
@@ -27,13 +29,13 @@ export default function App() {
 
       {/* Light Header (게시판, 상세페이지 등) */}
       <Route element={<LightHeaderLayout />}>
-        <Route path="/onStage" element={<OnStage />} />
-        <Route path="/onStage/:mt20id" element={<MusicalDetail />} />
+        <Route path="/onStage" element={<OnStage />} /> 
+        <Route path="/onStage/exhibition/:exhibitionId" element={<ExhibitionDetail />} />
+        <Route path="/onStage/musical/:mt20id" element={<MusicalDetail />} />
         <Route path="/onStage/reviews" element={<Reviews />} />
         
         {/* 2. Proposals 경로 추가 */}
         <Route path="/proposals" element={<Proposals />} />
-
         <Route path="/unveiling" element={<Unveiling />} />
         <Route path="/unveiling/:id" element={<UnveilingDetail />} />
         <Route path='/selections' element={<Selections />} />
@@ -43,6 +45,6 @@ export default function App() {
       </Route>
     </Routes>
     
-   </>
+  </>
   );
 }
