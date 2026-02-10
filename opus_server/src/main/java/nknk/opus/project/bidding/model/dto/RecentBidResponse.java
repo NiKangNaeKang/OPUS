@@ -5,15 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Builder
-public class BidResponse {
-
-	private int unveilingNo;
-	private int currentPrice;
-	private int biddingCount;
-	private String unveilingStatus;
+public class RecentBidResponse {
 	
+	private int bidPrice;
+	private String bidDate;
+	private String bidderLabel; // 낙찰자 정보 익명으로 전달할 용도
+
 }

@@ -38,16 +38,31 @@ public class BiddingServiceImpl implements BiddingService{
         Unveiling u = unveilingMapper.selectUnveilingForUpdate(unveilingNo);
         
         if (u == null) throw new IllegalArgumentException("존재하지 않는 경매입니다.");
+        
+        // 2) 마감 여부/상태 검증
+        int finishedFl = unveilingMapper.selectIsFinished(unveilingNo);
+        
 
-        // 2) 상태/마감 검증 (=> LIVE만 응찰 허용)
+        if (finishedFl == 1) {
+            
+        	unveilingMapper.updateStatusEnded(unveilingNo); // 경매 상태를 DB 상 'ENDED'로 전환
+            
+        	throw new IllegalStateException("마감된 경매입니다.");
+        }
+
         String status = u.getUnveilingStatus();
         
         if (status == null || !"LIVE".equalsIgnoreCase(status)) { // 대소문자 구분없이 비교
-            throw new IllegalStateException("진행중인 경매만 응찰할 수 있습니다.");
+            
+        	throw new IllegalStateException("진행중인 경매만 응찰할 수 있습니다.");
         }
 
         // 3) 현재가 결정(없으면 시작가)
-        int current = (u.getCurrentPrice() > 0) ? u.getCurrentPrice() : u.getStartPrice();
+        int baseCurrent = (u.getCurrentPrice() > 0) ? u.getCurrentPrice() : u.getStartPrice();
+        
+        int maxBid = biddingMapper.selectMaxBidPrice(unveilingNo);
+        
+        int current = Math.max(baseCurrent, maxBid);
         
         // 4) 호가 단위 계산 + 다음 입찰가격 산출
         int nextPrice = current + calcTick(current);
@@ -75,7 +90,7 @@ public class BiddingServiceImpl implements BiddingService{
         return BidResponse.builder().unveilingNo(unveilingNo)
         							.currentPrice(nextPrice)
         							.biddingCount(u.getBiddingCount())
-        							.status(u.getUnveilingStatus())
+        							.unveilingStatus(u.getUnveilingStatus())
         							.build();
 	}
 	

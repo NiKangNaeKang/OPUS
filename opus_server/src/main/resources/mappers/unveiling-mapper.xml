@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
-<mapper
-	namespace="nknk.opus.project.unveiling.model.mapper.UnveilingMapper">
+<mapper namespace="nknk.opus.project.unveiling.model.mapper.UnveilingMapper">
 
 	<select id="selectUnveilingForUpdate"
 			parameterType="int"
 			resultType="Unveiling">
 		SELECT UNVEILING_NO, UNVEILING_TITLE, PRODUCTION_ARTIST, PRODUCTION_YEAR,
 			PRODUCTION_MATERIAL, PRODUCTION_SIZE, START_PRICE, CURRENT_PRICE, FINAL_PRICE,
-			BIDDING_COUNT, FINISH_DATE, PRODUCTION_DETAIL,	ARTIST_DETAIL, UNVEILING_STATUS
+			BIDDING_COUNT, FINISH_DATE, PRODUCTION_DETAIL, ARTIST_DETAIL, UNVEILING_STATUS,
+			MEMBER_NO, FINALIZED_FL, PAYMENT_STATUS, PAYMENT_DUE_DATE, PAID_DATE
 		FROM UNVEILING
 		WHERE UNVEILING_NO = #{unveilingNo}
 		FOR UPDATE
@@ -31,10 +31,79 @@
 			resultType="Unveiling">
 		SELECT UNVEILING_NO, UNVEILING_TITLE, PRODUCTION_ARTIST, PRODUCTION_YEAR,
 			PRODUCTION_MATERIAL, PRODUCTION_SIZE, START_PRICE, CURRENT_PRICE, FINAL_PRICE,
-			BIDDING_COUNT, FINISH_DATE, PRODUCTION_DETAIL, ARTIST_DETAIL, UNVEILING_STATUS
+			BIDDING_COUNT, FINISH_DATE, PRODUCTION_DETAIL, ARTIST_DETAIL, UNVEILING_STATUS,
+			MEMBER_NO, FINALIZED_FL, PAYMENT_STATUS
 		FROM UNVEILING
 		WHERE UNVEILING_NO = #{unveilingNo}
 	</select>
 
+	<!-- 마감 여부 조회 => 마감:1, 그 외:0 -->
+	<select id="selectIsFinished" parameterType="int" resultType="int">
+    	<![CDATA[
+    		SELECT CASE
+             	WHEN FINISH_DATE IS NOT NULL
+              		AND FINISH_DATE <= SYSDATE
+             	THEN 1
+             	ELSE 0
+           		END
+    		FROM UNVEILING
+    		WHERE UNVEILING_NO = #{unveilingNo}
+    	]]>
+	</select>
+
+	<!-- 경매 상태를 종료로 전환 -->
+	<update id="updateStatusEnded" parameterType="int">
+    	UPDATE UNVEILING
+    	SET UNVEILING_STATUS = 'ENDED'
+    	WHERE UNVEILING_NO = #{unveilingNo}
+	</update>
+
+	<!-- 낙찰자 회원번호를 이용해 경매 로직 종료 -->
+	<update id="finalizeAuctionUsingMemberNo" parameterType="Unveiling">
+	  UPDATE UNVEILING SET
+	  	MEMBER_NO = #{memberNo},          
+	    FINAL_PRICE = #{finalPrice},
+	    FINALIZED_FL = 1,
+	    PAYMENT_STATUS = 'PENDING',
+	    PAYMENT_DUE_DATE = SYSDATE + 1
+	  WHERE UNVEILING_NO = #{unveilingNo}
+	</update>
+
+	<!-- 가결제 완료 처리 -->
+	<update id="markPaid" parameterType="int">
+	  UPDATE UNVEILING SET
+	  	PAYMENT_STATUS = 'PAID',
+	    PAID_DATE = SYSDATE
+	  WHERE UNVEILING_NO = #{unveilingNo}
+	</update>
+
+	<!-- 결제 기한 만료 여부 => 만료:1, 미만료:0 -->
+	<select id="selectIsPaymentExpired" parameterType="int" resultType="int">
+	  <![CDATA[
+	  	SELECT CASE
+	           WHEN PAYMENT_STATUS = 'PENDING'
+	            AND PAYMENT_DUE_DATE IS NOT NULL
+	            AND SYSDATE > PAYMENT_DUE_DATE
+	           THEN 1
+	           ELSE 0
+	         END
+	  	FROM UNVEILING
+	  	HERE UNVEILING_NO = #{unveilingNo}
+	  ]]>
+	</select>
+	
+	<!-- 결제 상태 전환 -->
+	<update id="markPaymentExpired" parameterType="int">
+		UPDATE UNVEILING SET
+			PAYMENT_STATUS = 'EXPIRED'
+	  	WHERE UNVEILING_NO = #{unveilingNo}
+	    AND PAYMENT_STATUS = 'PENDING'
+	</update>
+	
+
 
 </mapper>
+
+
+
+
