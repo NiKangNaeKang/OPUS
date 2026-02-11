@@ -15,7 +15,8 @@
 		ENROLL_DATE,
 		MEMBER_DEL_FL
 		FROM "MEMBER"
-		WHERE MEMBER_EMAIL =
+		WHERE MEMBER_EMAIL
+		=
 		#{memberEmail}
 		AND MEMBER_DEL_FL = 'N'
 	</select>
@@ -41,5 +42,13 @@
 		'NORMAL'
 		)
 	</insert>
+
+	<update id="updateTel">
+		UPDATE "MEMBER" SET
+		MEMBER_TEL = #{memberTel}
+		WHERE MEMBER_NO = #{memberNo}
+	</update>
+
+
 
 </mapper>

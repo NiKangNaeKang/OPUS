@@ -14,4 +14,6 @@ public interface MemberService {
 
 	boolean checkEmail(String email);
 
+	int updateTel(Member inputMember);
+
 }

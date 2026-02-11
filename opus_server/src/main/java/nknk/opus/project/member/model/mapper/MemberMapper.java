@@ -11,4 +11,6 @@ public interface MemberMapper {
 
 	int signup(Member inputMember);
 
+	int updateTel(Member inputMember);
+
 }

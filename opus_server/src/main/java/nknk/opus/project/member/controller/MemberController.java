@@ -8,6 +8,7 @@ import nknk.opus.project.member.model.service.MemberService;
 import nknk.opus.project.common.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -129,4 +130,19 @@ public class MemberController {
 	public ResponseEntity<?> logout() {
 		return ResponseEntity.ok("로그아웃 되었습니다.");
 	}
+
+	/* 연락처 수정 */
+	@PostMapping("updateTel")
+	public ResponseEntity<String> updateTel(@RequestBody Member inputMember) {
+		int result = service.updateTel(inputMember);
+
+		if (result > 0) {
+			return ResponseEntity.ok("연락처 수정 성공");
+
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("연락처 수정 실패");
+		}
+
+	}
+
 }

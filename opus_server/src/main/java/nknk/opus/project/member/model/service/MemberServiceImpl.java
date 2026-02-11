@@ -31,7 +31,6 @@ public class MemberServiceImpl implements MemberService {
 
 	/**
 	 * 로그인 서비스
-	 * 
 	 * @param inputMember (이메일, 비밀번호)
 	 * @return 로그인된 회원 정보 (비밀번호 제외)
 	 */
@@ -97,7 +96,6 @@ public class MemberServiceImpl implements MemberService {
 
 	/**
 	 * 회원가입 서비스
-	 * 
 	 * @param inputMember (이메일, 평문 비밀번호, 전화번호 등)
 	 * @return 성공 시 1, 실패 시 0
 	 */
@@ -118,5 +116,11 @@ public class MemberServiceImpl implements MemberService {
 
 		// 3. DB 삽입 및 결과 반환
 		return mapper.signup(inputMember);
+	}
+	
+	@Transactional(rollbackFor = Exception.class)
+	@Override
+	public int updateTel(Member inputMember) {
+		return mapper.updateTel(inputMember);
 	}
 }
