@@ -15,6 +15,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -22,7 +24,7 @@ public class SecurityConfig {
 	@Autowired
 	private JwtAuthenticationFilter jwtAuthenticationFilter; // 검증 필터 주입
 
-	@Bean // 비밀번호 암호화 객체 빈 등록
+	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
@@ -38,6 +40,12 @@ public class SecurityConfig {
 
 				// CORS 활성화
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+				.exceptionHandling(
+						exception -> exception.authenticationEntryPoint((request, response, authException) -> {
+							// 인증되지 않은 사용자가 접근 시 401 에러를 명시적으로 전달
+							response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UnAuthorized");
+						}))
 				
 				// 2. 경로별 권한 설정
 				.authorizeHttpRequests(auth -> auth

@@ -1,7 +1,7 @@
 .mypage {
   --sidebar: 256px;
   --max: 1024px;
-  --header-h: 0px;
+  --header-h: 80px;
   --bg: #f9fafb;
   --card: #ffffff;
   --text: #111827;
@@ -41,7 +41,7 @@
 .mypage .nav-group__title {
   margin: 0 0 10px;
   padding: 0 12px;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 600;
   color: #9ca3af;
   letter-spacing: .14em;
@@ -66,7 +66,7 @@
 .mypage .main__inner {
   max-width: calc(var(--max) + 96px);
   margin:0 auto;
-  padding: calc(32px + var(--header-h)) 32px 32px;
+  padding: 0 32px 32px;
 }
 
 /* Cards */
@@ -80,7 +80,6 @@
 }
 .mypage .card__head { padding: 22px 28px; border-bottom: 1px solid #f3f4f6; }
 .mypage .card__title { margin:0; font-size: 22px; font-weight: 700; }
-.mypage .card__desc { margin:6px 0 0; font-size: 13px; color: var(--muted); }
 .mypage .card__body { padding: 28px; }
 
 /* Forms */

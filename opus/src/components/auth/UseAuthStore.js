@@ -3,17 +3,16 @@ import { persist } from "zustand/middleware";
 
 export const useAuthStore = create(
   persist(
-    (set) => ({
-      isLoggedIn: false,
+    (set, get) => ({
       token: null,
-      user: null,
+      member: null,
+      isLoggedIn: false,
 
-
-      login: ({ token, user }) => {
+      login: (data) => {
         set({
           isLoggedIn: true,
-          token,
-          user,
+          token: data.token,
+          member: data.member,
         });
       },
 
@@ -21,12 +20,13 @@ export const useAuthStore = create(
         set({
           isLoggedIn: false,
           token: null,
-          user: null,
+          member: null,
         });
+        localStorage.removeItem("auth-storage"); // persist 이름과 동일하게
       },
     }),
     {
-      name: "auth-storage",
+      name: "auth-storage", // 로컬스토리지 저장 키
     }
   )
 );
