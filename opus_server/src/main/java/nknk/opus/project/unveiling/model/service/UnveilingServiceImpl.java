@@ -23,7 +23,7 @@ public class UnveilingServiceImpl implements UnveilingService{
 
 	@Autowired
 	private BiddingMapper biddingMapper;
-
+	
 	@Override
 	public Unveiling getDetail(int unveilingNo) {
 
@@ -184,41 +184,67 @@ public class UnveilingServiceImpl implements UnveilingService{
 	@Override
 	public Map<String, Object> mockPay(int unveilingNo, int memberNo) {
 	    
-		if (memberNo <= 0) throw new IllegalArgumentException("회원번호가 올바르지 않습니다.");
+        if (unveilingNo <= 0) {
+            return Map.of("statusCode", 400, "message", "경매번호가 올바르지 않습니다.", "unveilingNo", unveilingNo);
+        }
+        if (memberNo <= 0) {
+            return Map.of("statusCode", 400, "message", "회원번호가 올바르지 않습니다.", "unveilingNo", unveilingNo);
+        }
 
-	    Unveiling u = unveilingMapper.selectUnveilingForUpdate(unveilingNo);
-	    
-	    if (u == null) throw new IllegalArgumentException("존재하지 않는 경매입니다.");
+        // ✅ 락으로 정합성 확보
+        Unveiling u = unveilingMapper.selectUnveilingForUpdate(unveilingNo);
+        if (u == null) {
+            return Map.of("statusCode", 404, "message", "존재하지 않는 경매입니다.", "unveilingNo", unveilingNo);
+        }
 
-	    if (u.getFinalizedFl() != 1) throw new IllegalStateException("낙찰 확정 후 결제할 수 있습니다.");
+        // 낙찰 확정 전이면 결제 불가
+        if (u.getFinalizedFl() != 1) {
+            return Map.of("statusCode", 409, "message", "낙찰 확정 후 결제할 수 있습니다.", "unveilingNo", unveilingNo);
+        }
 
-	    int expiredFl = unveilingMapper.selectIsPaymentExpired(unveilingNo);
-	    
-	    if (expiredFl == 1) {
-	    	
-	    	unveilingMapper.markPaymentExpired(unveilingNo);
-	    	
-	    	throw new IllegalStateException("결제 기한이 만료되었습니다.");
-	    }
-	    
-	    // ✅ 낙찰자만 결제 가능: UNVEILING.MEMBER_NO와 비교
-	    if (u.getMemberNo() == 0 || u.getMemberNo() != memberNo) {
-	        throw new IllegalStateException("낙찰자만 결제할 수 있습니다.");
-	    }
+        // 낙찰자만 결제 가능
+        if (u.getMemberNo() <= 0 || u.getMemberNo() != memberNo) {
+            return Map.of("statusCode", 409, "message", "낙찰자만 결제할 수 있습니다.", "unveilingNo", unveilingNo);
+        }
 
-	    if (!"PENDING".equalsIgnoreCase(String.valueOf(u.getPaymentStatus()))) {
-	        throw new IllegalStateException("결제 가능한 상태가 아닙니다.");
-	    }
+        String paymentStatus = (u.getPaymentStatus() == null) ? "NONE" : u.getPaymentStatus();
 
-	    int r = unveilingMapper.markPaid(unveilingNo);
-	    if (r == 0) throw new IllegalStateException("결제 처리에 실패했습니다.");
+        // 이미 만료면 만료 응답(업데이트 불필요)
+        if ("EXPIRED".equalsIgnoreCase(paymentStatus)) {
+            return Map.of("statusCode", 409, "message", "결제 기한이 만료되었습니다.", "unveilingNo", unveilingNo, "paymentStatus", "EXPIRED");
+        }
 
-	    return Map.of(
-	        "unveilingNo", unveilingNo,
-	        "paymentStatus", "PAID",
-	        "paidFl", true
-	    );
-	}
+        // ✅ PENDING인데 기한 초과면: DB를 EXPIRED로 업데이트하고 "정상 반환" (커밋됨)
+        int expiredFl = unveilingMapper.selectIsPaymentExpired(unveilingNo);
+        if (expiredFl == 1) {
+            unveilingMapper.markPaymentExpired(unveilingNo);
+
+            return Map.of(
+                    "statusCode", 409,
+                    "message", "결제 기한이 만료되었습니다.",
+                    "unveilingNo", unveilingNo,
+                    "paymentStatus", "EXPIRED"
+            );
+        }
+
+        // 결제 가능한 상태는 PENDING만
+        if (!"PENDING".equalsIgnoreCase(paymentStatus)) {
+            return Map.of("statusCode", 409, "message", "결제 가능한 상태가 아닙니다.", "unveilingNo", unveilingNo, "paymentStatus", paymentStatus);
+        }
+
+        // ✅ 결제 완료 처리
+        int r = unveilingMapper.markPaid(unveilingNo);
+        if (r == 0) {
+            return Map.of("statusCode", 500, "message", "결제 처리에 실패했습니다.", "unveilingNo", unveilingNo);
+        }
+
+        return Map.of(
+                "statusCode", 200,
+                "message", "결제가 완료되었습니다.",
+                "unveilingNo", unveilingNo,
+                "paymentStatus", "PAID"
+        );
+    }
 	
 	
 }

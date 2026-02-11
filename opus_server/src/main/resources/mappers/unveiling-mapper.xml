@@ -75,6 +75,7 @@
 	  	PAYMENT_STATUS = 'PAID',
 	    PAID_DATE = SYSDATE
 	  WHERE UNVEILING_NO = #{unveilingNo}
+	  	AND PAYMENT_STATUS = 'PENDING'
 	</update>
 
 	<!-- 결제 기한 만료 여부 => 만료:1, 미만료:0 -->
@@ -88,7 +89,7 @@
 	           ELSE 0
 	         END
 	  	FROM UNVEILING
-	  	HERE UNVEILING_NO = #{unveilingNo}
+	  	WHERE UNVEILING_NO = #{unveilingNo}
 	  ]]>
 	</select>
 	

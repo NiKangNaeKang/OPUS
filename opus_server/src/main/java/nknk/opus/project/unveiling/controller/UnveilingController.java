@@ -50,13 +50,20 @@ public class UnveilingController {
 	    return ResponseEntity.ok(unveilingService.finalizeAuction(unveilingNo));
 	}
 
-	@PostMapping("/{unveilingNo}/pay")
-	public ResponseEntity<Map<String, Object>> pay(@PathVariable("unveilingNo") int unveilingNo,
-        										   @RequestBody Map<String, Integer> body) {
-	    
-		Integer memberNo = body.get("memberNo");
-	    return ResponseEntity.ok(unveilingService.mockPay(unveilingNo, memberNo == null ? 0 : memberNo));
-	}
+    @PostMapping("/{unveilingNo}/pay")
+    public ResponseEntity<Map<String, Object>> pay(@PathVariable("unveilingNo") int unveilingNo,
+            									   @RequestBody Map<String, Integer> body) {
+        
+    	int memberNo = (body == null || body.get("memberNo") == null) ? 0 : body.get("memberNo");
+
+        Map<String, Object> res = unveilingService.mockPay(unveilingNo, memberNo);
+
+        // 서비스가 결제 불가(만료 포함) 상태를 "statusCode"로 넘겨주면 그대로 사용
+        Object statusObj = res.get("statusCode");
+        int statusCode = (statusObj instanceof Number) ? ((Number) statusObj).intValue() : 200;
+
+        return ResponseEntity.status(statusCode).body(res);
+    }
 	
 	
 	
