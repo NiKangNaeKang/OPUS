@@ -23,7 +23,7 @@ import nknk.opus.project.selections.model.service.SelectionsService;
 public class SelectionsController {
 
 	@Autowired
-	public SelectionsService service;
+	private SelectionsService service;
 	
 	@GetMapping("selectGoodsList")
 	public ResponseEntity<Object> selectGoodsList() {
@@ -84,6 +84,5 @@ public class SelectionsController {
 		}
 		
 	}
-	
 	
 }

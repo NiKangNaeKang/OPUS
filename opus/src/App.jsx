@@ -13,6 +13,7 @@ import MusicalDetail from './pages/onStage/MusicalDetail';
 import Reviews from "./pages/onStage/Reviews";
 import Proposals from "./pages/proposals/Proposals";
 import ToastConfig from "./components/common/ToastConfig";
+import AuthInitializer from "./components/common/AuthInitializer";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyPage from "./pages/mypage/MyPage";
 import ExhibitionList from "./pages/onStage/ExhibitionList";
@@ -21,14 +22,15 @@ import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
 
 export default function App() {
   return (
-  <>
-    <ToastConfig />
+    <>
+      <AuthInitializer />
+      <ToastConfig />
 
-    <Routes>
-      {/* Dark Header (Home 등) */}
-      <Route element={<DarkHeaderLayout />}>
-        <Route path="/" element={<Home />} />
-      </Route>
+      <Routes>
+        {/* Dark Header (Home 등) */}
+        <Route element={<DarkHeaderLayout />}>
+          <Route path="/" element={<Home />} />
+        </Route>
 
       {/* Light Header (게시판, 상세페이지 등) */}
       <Route element={<LightHeaderLayout />}>
