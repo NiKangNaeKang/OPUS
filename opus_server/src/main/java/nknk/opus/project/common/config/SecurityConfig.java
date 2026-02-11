@@ -9,6 +9,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -16,7 +18,7 @@ public class SecurityConfig {
 	@Autowired
 	private JwtAuthenticationFilter jwtAuthenticationFilter; // 검증 필터 주입
 
-	@Bean // 비밀번호 암호화 객체 빈 등록
+	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
@@ -25,8 +27,15 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 				// 1. REST API 설정을 위해 기본 기능 비활성화
-				//(데이터(JSON)만 주고받는 REST API 방식으로 세션 기반의 보안이나 기본 로그인 창 끔)
+				// (데이터(JSON)만 주고받는 REST API 방식으로 세션 기반의 보안이나 기본 로그인 창 끔)
 				.csrf(csrf -> csrf.disable()).formLogin(form -> form.disable()).httpBasic(basic -> basic.disable())
+
+				// 추가: 인증 실패 시 처리 로직
+				.exceptionHandling(
+						exception -> exception.authenticationEntryPoint((request, response, authException) -> {
+							// 인증되지 않은 사용자가 접근 시 401 에러를 명시적으로 전달
+							response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UnAuthorized");
+						}))
 
 				// 2. 경로별 권한 설정
 				.authorizeHttpRequests(auth -> auth

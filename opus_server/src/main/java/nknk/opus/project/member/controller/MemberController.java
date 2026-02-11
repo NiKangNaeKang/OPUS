@@ -38,19 +38,18 @@ public class MemberController {
 			}
 
 			// JWT 토큰 생성
-			String token = jwtUtil.createToken(
-					loginMember.getMemberNo(),
-					loginMember.getMemberEmail(),
+			String token = jwtUtil.createToken(loginMember.getMemberNo(), loginMember.getMemberEmail(),
 					loginMember.getAuthorLevel());
 
 			// 프론트엔드 응답용 데이터 구성
 			Map<String, Object> result = new HashMap<>();
 			result.put("token", token);
-			
-			Map<String, Object> user = new HashMap<>(); // 리액트가 user.memberNo와 user.authorLevel을 체크하므로 키값을 정확히 맞춤
-			user.put("memberNo", loginMember.getMemberNo());   
-            user.put("memberEmail", loginMember.getMemberEmail());
-            user.put("authorLevel", loginMember.getAuthorLevel());
+
+			Map<String, Object> memberInfo = new HashMap<>();
+			memberInfo.put("memberNo", loginMember.getMemberNo());
+			memberInfo.put("memberEmail", loginMember.getMemberEmail());
+			memberInfo.put("memberTel", loginMember.getMemberTel());
+			memberInfo.put("authorLevel", loginMember.getAuthorLevel());
 
 			// 권한 문자열 설정 (시큐리티 권한 체크용)
 			String role = switch (loginMember.getAuthorLevel()) {
@@ -59,8 +58,9 @@ public class MemberController {
 			case 3 -> "ADMIN";
 			default -> "USER";
 			};
-			user.put("role", role);
-			result.put("user", user);
+
+			memberInfo.put("role", role);
+			result.put("member", memberInfo);
 
 			// 아이디 저장 쿠키 로직
 			Cookie cookie = new Cookie("saveId", loginMember.getMemberEmail());

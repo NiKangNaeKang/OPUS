@@ -39,9 +39,7 @@ public class JwtUtil {
 		default -> "ROLE_USER";
 		};
 
-		return Jwts.builder().subject(String.valueOf(memberNo)) // 회원번호 저장
-				.claim("memberEmail", memberEmail) // 이메일 저장
-				.claim("role", role) // 권한 정보 추가
+		return Jwts.builder().subject(String.valueOf(memberNo)).claim("memberEmail", memberEmail).claim("role", role)
 				.issuedAt(now) // 생성 시간
 				.expiration(expiryDate) // 만료 시간
 				.signWith(getSigningKey()) // 서명
@@ -50,11 +48,13 @@ public class JwtUtil {
 
 	// 3. 토큰 유효성 검사
 	public boolean validateToken(String token) {
+
 		try {
 			Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
+
 			return true;
-		} catch (Exception e) {
-			// 토큰이 변조되었거나, 만료되었을 때 발생
+		} catch (Exception e) { // 토큰이 변조되었거나, 만료되었을 때
+
 			return false;
 		}
 	}
