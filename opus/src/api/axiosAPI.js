@@ -44,7 +44,6 @@ axiosApi.interceptors.response.use(
       alert(serverMsg);
 
       useAuthStore.getState().logout(); // 토큰 비움
-      // window.location.href = '/login';
 
     }
     return Promise.reject(error);

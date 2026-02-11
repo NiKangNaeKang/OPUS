@@ -57,14 +57,6 @@ export default function MusicalList({ status, search }) {
     const sentinelRef = useRef(null);
 
     useEffect(() => {
-      console.log("뮤지컬 전체 개수:", allItems.length);
-      console.log("필터 후 개수:", filteredItems.length);
-      console.log("status:", status);
-      console.log("예시 prfstate:", allItems[0]?.prfstate);
-    }, [allItems, filteredItems, status]);
-    
-    
-    useEffect(() => {
       const el = sentinelRef.current;
       if (!el) return;
 
@@ -93,11 +85,11 @@ export default function MusicalList({ status, search }) {
   }
 
   return (
-        <>
+    <>
       <div className="show-grid">
         {visibleItems.map((item) => (
           <article key={item.mt20id} className="show-card">
-            <Link to={`/onStage/${item.mt20id}`}>
+            <Link to={`/onStage/musical/${item.mt20id}`}>
               <div className="show-card__thumb">
                 {item.poster ? (
                   <img src={item.poster} alt={item.prfnm} />
