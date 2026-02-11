@@ -26,14 +26,9 @@ public class MemberServiceImpl implements MemberService {
 	@Autowired
 	private JavaMailSender mailSender;
 
-	// 인증번호를 임시로 저장할 맵 (이메일 : 인증번호)
 	private Map<String, String> authStorage = new HashMap<>();
 
-	/**
-	 * 로그인 서비스
-	 * @param inputMember (이메일, 비밀번호)
-	 * @return 로그인된 회원 정보 (비밀번호 제외)
-	 */
+	/* 로그인 */
 	@Override
 	public Member login(Member inputMember) {
 
@@ -57,6 +52,12 @@ public class MemberServiceImpl implements MemberService {
 		return loginMember;
 	}
 
+	/* 연락처 중복 체크 */
+	@Override
+	public boolean checkTel(String tel) {
+		return mapper.checkTel(tel) > 0;
+	}
+
 	/* 이메일 중복 체크 */
 	@Override
 	public boolean checkEmail(String email) {
@@ -65,11 +66,10 @@ public class MemberServiceImpl implements MemberService {
 		return member != null;
 	}
 
-	/* 회원가입 인증 이메일 발송 */
+	/* 이메일 인증번호 발송 */
 	@Override
 	public void sendEmail(String email) {
 
-		// 1. 이미 가입된 이메일인지 확인
 		if (checkEmail(email)) {
 			throw new RuntimeException("사용 중인 이메일입니다.");
 		}
@@ -87,23 +87,18 @@ public class MemberServiceImpl implements MemberService {
 		mailSender.send(message);
 	}
 
-	/* 이메일 인증번호 검증 */
+	/* 이메일 인증번호 확인 */
 	@Override
 	public boolean verifyCode(String email, String code) {
 		String savedCode = authStorage.get(email);
 		return savedCode != null && savedCode.equals(code);
 	}
 
-	/**
-	 * 회원가입 서비스
-	 * @param inputMember (이메일, 평문 비밀번호, 전화번호 등)
-	 * @return 성공 시 1, 실패 시 0
-	 */
+	/* 회원가입 서비스 */
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int signup(Member inputMember) {
 
-		// 1. 비밀번호 유효성 검사 (영문, 숫자 포함 8~16자)
 		String pw = inputMember.getMemberPw();
 		String pwRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,16}$";
 
@@ -111,16 +106,41 @@ public class MemberServiceImpl implements MemberService {
 			throw new RuntimeException("비밀번호는 영문, 숫자를 포함하여 8~16자여야 합니다.");
 		}
 
-		// 2. 비밀번호 암호화 후 DTO에 다시 세팅
+		// 비밀번호 암호화 후 DTO에 다시 세팅
 		inputMember.setMemberPw(encoder.encode(pw));
 
-		// 3. DB 삽입 및 결과 반환
 		return mapper.signup(inputMember);
 	}
-	
+
+	/* 연락처 수정 */
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int updateTel(Member inputMember) {
 		return mapper.updateTel(inputMember);
+	}
+
+	/* 비밀번호 변경 */
+	@Transactional(rollbackFor = Exception.class)
+	@Override
+	public int changePw(Map<String, Object> param) {
+		int memberNo = Integer.parseInt(String.valueOf(param.get("memberNo")));
+		String currentPw = (String) param.get("currentPw");
+		String newPw = (String) param.get("newPw");
+
+		String pwRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,16}$";
+		if (newPw == null || !newPw.matches(pwRegex)) {
+			throw new RuntimeException("새 비밀번호는 영문, 숫자를 포함하여 8~16자여야 합니다.");
+		}
+
+		String savedPw = mapper.selectCurrentPw(memberNo);
+
+		if (!encoder.matches(currentPw, savedPw)) {
+			return 0; // 컨트롤러에서 400 에러 처리
+		}
+
+		param.put("newPw", encoder.encode(newPw));
+		param.put("memberNo", memberNo);
+
+		return mapper.changePw(param);
 	}
 }
