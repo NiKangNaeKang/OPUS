@@ -2,7 +2,6 @@
   import { useInfiniteQuery } from "@tanstack/react-query";
   import { getAllExhibitions } from "../../api/kcisaAPI";
   import Loading from "../../components/common/Loading.jsx"
-
   import { Link } from "react-router-dom";
 
   const SERVICE_KEY = "bcec5111-252e-47c3-9dca-4b943cf5a0ed";

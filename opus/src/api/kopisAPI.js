@@ -42,7 +42,7 @@ function setDay(today, days) {
 
 const today = new Date();
 
-const dateRange = [
+export const dateRange = [
   {
     // 보름 전 (어제~15일 전)
     start : formatYYYYMMDD(setDay(today, -15)),
@@ -66,14 +66,14 @@ const dateRange = [
 ]
 
 // 뮤지컬 공연 조회
-export async function getAllMusicals({serviceKey, startDate, endDate, page = 1, rows = 100, search=""}) {
+export async function getAllMusicals({serviceKey, startDate, endDate, pageParam, rows = 100, search=""}) {
   if(!serviceKey) throw new Error("발급받은 서비스 키가 없습니다.");
   
   const params = new URLSearchParams({
     service : serviceKey,
     stdate : startDate,
     eddate : endDate,
-    cpage : page,
+    cpage : pageParam,
     rows,
     shcate : 'GGGA',
     signgucode : 11,
@@ -93,7 +93,7 @@ export async function getAllMusicals({serviceKey, startDate, endDate, page = 1, 
   const xmlText = await res.text();
   const items = parseKopisXML(xmlText);
   
-  return { items, page }
+  return { items, hasNext: items.length === rows }
 }
 
 // 뮤지컬 공연 조회 결과 하나로
