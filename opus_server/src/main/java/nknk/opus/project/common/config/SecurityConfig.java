@@ -1,49 +1,86 @@
 package nknk.opus.project.common.config;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
-	// BCryptPasswordEncoder : 평문을 BCrypt 패턴을 통해 암호화 & 평문과 암호화된 문자열을 비교하여 같은 값인지 판단
+	@Autowired
+	private JwtAuthenticationFilter jwtAuthenticationFilter; // 검증 필터 주입
+
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
+	@Bean // HTTP 보안 설정 (필터 체인)
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+				// 1. REST API 설정을 위해 기본 기능 비활성화
+				//(데이터(JSON)만 주고받는 REST API 방식으로 세션 기반의 보안이나 기본 로그인 창 끔)
+				.csrf(csrf -> csrf.disable())
+				.formLogin(form -> form.disable())
+				.httpBasic(basic -> basic.disable())
+
+				// CORS 활성화
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+				.exceptionHandling(
+						exception -> exception.authenticationEntryPoint((request, response, authException) -> {
+							// 인증되지 않은 사용자가 접근 시 401 에러를 명시적으로 전달
+							response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UnAuthorized");
+						}))
+				
+				// 2. 경로별 권한 설정
+				.authorizeHttpRequests(auth -> auth
+						// preflight 요청 허용
+		                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						// 로그인, 회원가입, 공통 경로는 토큰 없이 허용(인증 전 수행)
+						.requestMatchers("/auth/**", "/common/**").permitAll()
+						// 비로그인 회원도 조회는 가능하도록
+						.requestMatchers("/selections/**", "/images/**", "/unveiling/**").permitAll()
+						// 그 외 모든 요청은 인증(토큰)이 필요함
+						.anyRequest().authenticated())
+
+				// 3. JWT 필터를 시큐리티 필터 체인에 등록
+				// UsernamePasswordAuthenticationFilter 단계 전 jwtAuthenticationFilter를 먼저 거치게 함
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+		return http.build();
+	}
 	
-    /**
-     * 개발 단계용 Security 설정
-     * - React(프론트) + REST(API) 호출을 막지 않도록 /api/** permitAll
-     * - CSRF는 일단 disable (POST/PUT/DELETE 403 방지)
-     * - formLogin/basic 인증 비활성화
-     */
+	 // CORS 설정 Bean
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public CorsConfigurationSource corsConfigurationSource() {
 
-        http
-            .csrf(csrf -> csrf.disable())
+        CorsConfiguration config = new CorsConfiguration();
+        
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
 
-            .authorizeHttpRequests(auth -> auth
-                // API는 우선 전부 허용 (로그인 붙일 때 여기만 조이면 됨)
-                .requestMatchers("/api/**").permitAll()
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
 
-                // 정적 리소스(필요 시)
-                .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-
-                // 그 외도 일단 허용 (원하면 authenticated로 바꿀 수 있음)
-                .anyRequest().permitAll()
-            )
-
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable())
-            .cors(Customizer.withDefaults());
-
-        return http.build();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
+    
 }

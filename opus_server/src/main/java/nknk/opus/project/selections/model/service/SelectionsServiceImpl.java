@@ -16,7 +16,7 @@ import nknk.opus.project.selections.model.mapper.SelectionsMapper;
 public class SelectionsServiceImpl implements SelectionsService{
 	
 	@Autowired
-	public SelectionsMapper mapper;
+	private SelectionsMapper mapper;
 
 	@Override
 	public List<Goods> selectGoodsList() {

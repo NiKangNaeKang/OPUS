@@ -1,27 +1,3 @@
-export const sidebarGroups = [
-  {
-    title: "내 정보",
-    items: [
-      { id: "profile-edit", icon: "fa-regular fa-user", label: "정보 수정" },
-      { id: "password-change", icon: "fa-solid fa-lock", label: "비밀번호 변경" },
-    ],
-  },
-  {
-    title: "활동 내역",
-    items: [
-      { id: "wishlist", icon: "fa-regular fa-heart", label: "찜한 리스트" },
-      { id: "reviews", icon: "fa-regular fa-comment", label: "작성 후기" },
-      { id: "purchase-history", icon: "fa-solid fa-receipt", label: "구매 내역" },
-      { id: "auction-history", icon: "fa-solid fa-gavel", label: "경매 내역" },
-    ],
-  },
-];
-
-export const userProfile = {
-  email: "art@example.com",
-  phone: "010-1234-5678",
-};
-
 export const wishlist = {
   items: [
     {

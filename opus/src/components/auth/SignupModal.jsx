@@ -88,7 +88,7 @@ export default function SignupModal({ open, onClose }) {
     if (!formData.memberEmail) return alert("이메일을 입력해주세요.");
     
     if (!emailRegex.test(formData.memberEmail)) {
-      return alert("올바른 이메일 형식이 아닙니다. 다시 확인해 주세요.");
+      return alert("올바른 이메일 형식이 아닙니다. 다시 확인해주세요.");
     }
 
     try {
@@ -104,7 +104,7 @@ export default function SignupModal({ open, onClose }) {
         setIsEmailChecked(true);
       }
     } catch (err) {
-      alert("이메일 중복 확인에 실패했습니다. " + (err.response?.data || "잠시 후 다시 시도해 주세요."));
+      alert("이메일 중복 확인에 실패했습니다. " + (err.response?.data || "잠시 후 다시 시도해주세요."));
     } finally {
       setLoading(false);
     }
@@ -115,7 +115,7 @@ export default function SignupModal({ open, onClose }) {
 
     // 이중 체크: 전송 직전 형식 다시 확인
     if (!emailRegex.test(formData.memberEmail)) {
-      return alert("올바른 이메일 형식이 아닙니다. 다시 확인해 주세요.");
+      return alert("올바른 이메일 형식이 아닙니다. 다시 확인해주세요.");
     }
 
     try {
@@ -126,7 +126,7 @@ export default function SignupModal({ open, onClose }) {
       setTimeLeft(300);
       setIsTimerActive(true);
     } catch (err) {
-      alert("인증번호 발송에 실패했습니다. " + (err.response?.data || "잠시 후 다시 시도해 주세요."));
+      alert("인증번호 발송에 실패했습니다. " + (err.response?.data || "잠시 후 다시 시도해주세요."));
     } finally {
       setLoading(false);
     }
@@ -156,7 +156,7 @@ export default function SignupModal({ open, onClose }) {
     e.preventDefault();
     const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
     if (!pwRegex.test(formData.memberPw)) {
-      return alert("비밀번호는 8~16자의 영문과 숫자를 혼합해야 합니다.");
+      return alert("비밀번호는 영문, 숫자를 포함하여 8~16자여야 합니다.");
     }
     if (!isEmailVerified) return alert("이메일 인증을 완료해주세요.");
     if (formData.memberPw !== formData.memberPwConfirm) {
@@ -173,7 +173,7 @@ export default function SignupModal({ open, onClose }) {
       alert("회원가입이 완료되었습니다!");
       onClose();
     } catch (err) {
-      alert("회원가입에 실패했습니다. " + (err.response?.data?.message || "다시 확인해 주세요."));
+      alert("회원가입에 실패했습니다. " + (err.response?.data || "다시 확인해주세요."));
     } finally {
       setLoading(false);
     }

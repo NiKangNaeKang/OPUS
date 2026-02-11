@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +22,7 @@ import nknk.opus.project.selections.model.service.SelectionsService;
 public class SelectionsController {
 
 	@Autowired
-	public SelectionsService service;
+	private SelectionsService service;
 	
 	@GetMapping("selectGoodsList")
 	public ResponseEntity<Object> selectGoodsList() {
@@ -84,6 +83,5 @@ public class SelectionsController {
 		}
 		
 	}
-	
 	
 }

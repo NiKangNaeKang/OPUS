@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import "../../css/Cart.css"
+import { useEffect } from "react";
 import { useCartStore } from "../../store/cartStore";
 import { useNavigate } from "react-router-dom";
+import "../../css/Cart.css"
 
 const Cart = () => {
 
@@ -114,9 +114,9 @@ const Cart = () => {
 
                     <div className="cart-item__info">
                       <p className="cart-item__title">{item.goodsName}</p>
-                      <p className="cart-item__option">{item.size && item.color ? `옵션 : ${item.size} / ${item.color}` : item.size
-                        ? `옵션 : ${item.size}` : item.color
-                          ? `옵션 : ${item.color}` : ""}</p>
+                      <p className="cart-item__option">{item.goodsSize && item.goodsColor ? `옵션 : ${item.goodsSize} / ${item.goodsColor}` : item.goodsSize
+                        ? `옵션 : ${item.goodsSize}` : item.goodsColor
+                          ? `옵션 : ${item.goodsColor}` : ""}</p>
                     </div>
                   </div>
                 </div>
