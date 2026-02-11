@@ -1,5 +1,5 @@
 // 전시 조회
-export async function getAllExhibitions({ serviceKey }) {
+export async function getAllExhibitions({ serviceKey, pageParam }) {
   if(!serviceKey) {
     throw new Error("발급받은 서비스 키가 없습니다.");
   }
@@ -7,7 +7,7 @@ export async function getAllExhibitions({ serviceKey }) {
   const params = new URLSearchParams({
     serviceKey : serviceKey,
     numOfRows : 20,
-    pageNo : 1,
+    pageNo : pageParam,
   });
 
   // https://api.kcisa.kr/openapi/API_CCA_145/request?serviceKey=bcec5111-252e-47c3-9dca-4b943cf5a0ed&numOfRows=10&pageNo=1
