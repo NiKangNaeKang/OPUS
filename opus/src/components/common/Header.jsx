@@ -85,16 +85,6 @@ function Header({ onClickUser, onLogout, isLoggedIn, variant }) {
             <i className={`fa-regular ${isLoggedIn ? "fa-circle-user" : "fa-user"}`} aria-hidden="true"></i>
           </button>
 
-          {isLoggedIn && (
-            <button
-              className="icon-btn"
-              type="button"
-              aria-label="로그아웃"
-              onClick={onLogout}
-            >
-              <i className="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
-            </button>
-          )}
 
           {location.pathname.includes("selections") ?
             <NavLink to="/selections/cart">
@@ -104,6 +94,16 @@ function Header({ onClickUser, onLogout, isLoggedIn, variant }) {
             </NavLink>
             : null}
 
+            {isLoggedIn && (
+              <button
+                className="icon-btn"
+                type="button"
+                aria-label="로그아웃"
+                onClick={onLogout}
+              >
+                <i className="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+              </button>
+            )}
         </div>
       </div>
     </header>
