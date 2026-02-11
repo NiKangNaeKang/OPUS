@@ -74,6 +74,7 @@
   color: #374151;
   font-weight: 800;
   border-bottom: 1px solid #d1d5db;
+  padding: 1px;
 }
 
 .checkout_card__link:hover { color: #111827; }
@@ -161,9 +162,9 @@
 }
 
 .checkout_input,
-.checkout_select,
-.checkout_textarea {
+.checkout_select {
   width: 100%;
+  font-size: 14px;
   border: 1px solid var(--line2);
   border-radius: var(--radius-sm);
   padding: 12px 12px;
@@ -171,7 +172,21 @@
   background: #fff;
 }
 
-.checkout_textarea { resize: vertical; }
+.checkout_textarea { 
+  width: 100%;
+  min-height: 96px;
+  padding: 12px 14px;
+
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111;
+
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background-color: #fff;
+
+  resize: none;
+}
 
 .checkout_input:focus,
 .checkout_select:focus,
@@ -626,7 +641,7 @@ details[open] .checkout_policy__summary::after {
   pointer-events: none;
 }
 
-.checkout_addr-item__box {
+.checkout__addr-item__box {
   border: 1px solid var(--line2);
   border-radius: var(--radius-sm);
   background: #fff;
@@ -634,15 +649,15 @@ details[open] .checkout_policy__summary::after {
   transition: background .15s ease, border-color .15s ease, transform .15s ease;
 }
 
-.checkout_addr-item:hover .checkout_addr-item__box {
+.checkout_addr-item:hover .checkout__addr-item__box {
   background: var(--soft2);
   border-color: #9ca3af;
-  transform: translateY(-1px);
 }
 
-.checkout_addr-item input:checked + .checkout_addr-item__box {
+.checkout_addr-item:has(input:checked) .checkout__addr-item__box {
   border-color: #111827;
   box-shadow: 0 0 0 1px #111827 inset;
+  background: #f9fafb;
 }
 
 .checkout_addr-item__top {
