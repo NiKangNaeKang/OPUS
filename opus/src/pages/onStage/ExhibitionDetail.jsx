@@ -39,18 +39,16 @@ export default function ExhibitionDetail () {
               </div>
 
               <div className="poster-actions">
-                {/* {data.relates.map((relate, idx) => (
-                  <button className="btn btn-primary" id='book-btn' type="button" key={idx}
-                    onClick={() => {
-                      if (!relate.url) {
-                        alert("예매 링크가 없는 공연입니다.");
-                        return;
-                      }
-                      window.open(relate.url, "_blank", "noopener,noreferrer");
-                    }}>
-                      {relate.name}에서 예매하기
+                <button className='btn btn-primary' id='book-btn' type='button'
+                  onClick={() => {
+                    if(!item.url) {
+                      alert("상세 보기 기능이 없는 전시입니다.");
+                      return;
+                    }
+                    window.open(item.url, "_blank", "noopener,noreferrer")
+                  }}>
+                    상세 보기
                   </button>
-                ))} */}
 
                 <div className="actions-row">
                   <button className="btn btn-outline" type="button">
@@ -151,7 +149,7 @@ export default function ExhibitionDetail () {
               <div className="section" id="reviews-section">
                 <div className="reviews-head">
                   <h2 className="section-title">관람 후기</h2>
-                  <Link to={`/onStage/reviews`}>
+                  <Link to={`/onStage/reviews/${item.exhibitionId}`}>
                     <button className="btn btn-sm btn-outline" id='more-review-btn' type="button">후기 더보기</button>
                   </Link>
                 </div>
