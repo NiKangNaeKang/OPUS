@@ -11,7 +11,7 @@ const Checkout = () => {
 
   const items = useCartStore((state) => state.items);
   const checkedKeys = useCartStore((state) => state.checkedKeys);
-  const { addresses, selectedAddressId, fetchAddresses, selectAddress } = useAddressStore();
+  const { addresses, selectedAddressId, fetchAddresses } = useAddressStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [onTextarea, setOnTextarea] = useState(false);
   const [form, setForm] = useState({
@@ -22,6 +22,10 @@ const Checkout = () => {
     detailAddress: "",
     deliveryReq: ""
   });
+
+  // 배송 메모 관련 상태
+  const [selectedMemoType, setSelectedMemoType] = useState("");  // select 전용
+  const [customMemo, setCustomMemo] = useState("");  // textarea 전용
 
   // 장바구니에서 체크된 상품들
   const selectedItems = items.filter(item => checkedKeys.includes(item.cartKey));
@@ -37,17 +41,6 @@ const Checkout = () => {
   const onGoCart = () => {
     navigate("/selections/cart");
   }
-
-  const handleMemo = (e) => {
-    const value = e.target.value;
-
-    setOnTextarea(value === "직접 입력");
-
-    setForm(prev => ({
-      ...prev,
-      deliveryReq: value === "직접 입력" ? "" : value
-    }));
-  };
 
   useEffect(() => {
     fetchAddresses(); // 진입 시 배송지 목록 로드 (기본배송지 selectedAddressId 세팅되게)
@@ -65,8 +58,57 @@ const Checkout = () => {
         detailAddress: selectedAddr.detailAddress ?? "",
         deliveryReq: selectedAddr.deliveryReq ?? ""
       });
+
+      // 배송 메모가 미리 정의된 옵션인지 확인
+      const predefinedOptions = [
+        "문 앞에 놓아주세요",
+        "경비실에 맡겨주세요",
+        "배송 전 연락 부탁드려요"
+      ];
+
+      if (selectedAddr.deliveryReq &&
+        !predefinedOptions.includes(selectedAddr.deliveryReq)) {
+        // 미리 정의되지 않은 메모 = 직접 입력
+        setSelectedMemoType("직접 입력");
+        setCustomMemo(selectedAddr.deliveryReq);
+        setOnTextarea(true);
+      } else {
+        setSelectedMemoType(selectedAddr.deliveryReq ?? "");
+        setCustomMemo("");
+        setOnTextarea(false);
+      }
     }
   }, [selectedAddressId, addresses]);
+
+  const handleMemoSelect = (e) => {
+    const value = e.target.value;
+    setSelectedMemoType(value);
+    setOnTextarea(value === "직접 입력");
+
+    // "직접 입력"이 아니면 deliveryReq 즉시 설정
+    if (value !== "직접 입력") {
+      setForm(prev => ({
+        ...prev,
+        deliveryReq: value
+      }));
+      setCustomMemo("");  // 커스텀 메모 초기화
+    } else {
+      setForm(prev => ({
+        ...prev,
+        deliveryReq: ""  // 비우기 (사용자가 입력할 예정)
+      }));
+      setCustomMemo("");
+    }
+  };
+
+  const handleCustomMemoChange = (e) => {
+    const value = e.target.value;
+    setCustomMemo(value);
+    setForm(prev => ({
+      ...prev,
+      deliveryReq: value
+    }));
+  };
 
   const handleApplyAddress = (addressNo) => {
     const addr = addresses.find(
@@ -82,6 +124,24 @@ const Checkout = () => {
       detailAddress: addr.detailAddress ?? "",
       deliveryReq: addr.deliveryReq ?? ""
     });
+
+    const predefinedOptions = [
+      "문 앞에 놓아주세요",
+      "경비실에 맡겨주세요",
+      "배송 전 연락 부탁드려요"
+    ];
+
+    if (addr.deliveryReq && !predefinedOptions.includes(addr.deliveryReq)) {
+      // 직접 입력한 메모
+      setSelectedMemoType("직접 입력");
+      setCustomMemo(addr.deliveryReq);
+      setOnTextarea(true);
+    } else {
+      // 미리 정의된 메모 또는 없음
+      setSelectedMemoType(addr.deliveryReq ?? "");
+      setCustomMemo("");
+      setOnTextarea(false);
+    }
 
     setIsModalOpen(false);
   };
@@ -221,16 +281,22 @@ const Checkout = () => {
 
               <div className="checkout_field">
                 <label className="checkout_label" htmlFor="memo">배송 메모</label>
-                <select className="checkout_select" id="memo" value={form.deliveryReq} onChange={(e) => handleMemo(e)}>
+                <select className="checkout_select" id="memo" value={selectedMemoType} onChange={handleMemoSelect} >
                   <option value="">선택 안 함</option>
-                  <option>문 앞에 놓아주세요</option>
-                  <option>경비실에 맡겨주세요</option>
-                  <option>배송 전 연락 부탁드려요</option>
-                  <option>직접 입력</option>
+                  <option value="문 앞에 놓아주세요">문 앞에 놓아주세요</option>
+                  <option value="경비실에 맡겨주세요">경비실에 맡겨주세요</option>
+                  <option value="배송 전 연락 부탁드려요">배송 전 연락 부탁드려요</option>
+                  <option value="직접 입력">직접 입력</option>
                 </select>
-                {onTextarea &&
-                  <textarea className="checkout_textarea" placeholder="직접 입력(선택)"
-                    rows="3" onChange={(e) => setForm(prev => ({ ...prev, deliveryReq: e.target.value }))}></textarea>}
+                {onTextarea && (
+                  <textarea
+                    className="checkout_textarea"
+                    value={customMemo}
+                    onChange={handleCustomMemoChange}
+                    placeholder="직접 입력(선택)"
+                    rows="3"
+                  />
+                )}
               </div>
             </form>
           </section>

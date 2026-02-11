@@ -9,10 +9,14 @@ export const useCartStore = create(
       checkedKeys: [],
       isLoggedIn: false,
       isSyncing: false,
+      hasMerged: false,
 
       // 로그인 상태 설정
       setLoggedIn: (status) => {
         set({ isLoggedIn: status });
+        if (!status) {
+          set({ hasMerged: false });  // 로그아웃 시 초기화
+        }
       },
 
       // 서버에서 장바구니를 받아 한 번에 주입할 때(로그인/새로고침 후)
@@ -38,16 +42,32 @@ export const useCartStore = create(
 
       // 로컬 장바구니를 서버로 병합 (로그인 직후)
       mergeWithServer: async () => {
-        const { items, isLoggedIn } = get();
-        if (!isLoggedIn || items.length === 0) return;
+        const { items, isLoggedIn, hasMerged } = get();
+
+        if (!isLoggedIn) return;
+
+        // 이미 병합했으면 스킵
+        if (hasMerged) {
+          console.log("이미 병합 완료, 서버 데이터 조회");
+          await get().fetchFromServer();
+          return;
+        }
+
+        // 로컬 장바구니가 비어있으면 서버 데이터만 가져오기
+        if (items.length === 0) {
+          console.log("로컬 장바구니 비어있음, 서버 데이터 조회");
+          await get().fetchFromServer();
+          set({ hasMerged: true });
+          return;
+        }
 
         try {
           set({ isSyncing: true });
-
+          console.log("장바구니 병합 시작:", items.length, "개 항목");
           // 로컬 장바구니를 서버로 전송
           const mergedItems = await cartApi.mergeLocalCart(items);
 
-          set({ items: mergedItems, isSyncing: false });
+          set({ items: mergedItems, isSyncing: false, hasMerged: true });
 
           console.log("장바구니 병합 완료:", mergedItems.length, "개 항목");
         } catch (error) {
@@ -55,7 +75,6 @@ export const useCartStore = create(
           set({ isSyncing: false });
         }
       },
-
 
       // 장바구니 담기(동일 옵션이면 qty 누적)
       addItem: async (item) => {
@@ -208,7 +227,7 @@ export const useCartStore = create(
       name: "opus_cart", // localStorage key
 
       // 로그인 상태는 persist 하지 않음
-      partialize: (state) => ({ items: state.items, checkedKeys: state.checkedKeys }),
+      partialize: (state) => ({ items: state.items, checkedKeys: state.checkedKeys, hasMerged: state.hasMerged }),
     }
   )
 );

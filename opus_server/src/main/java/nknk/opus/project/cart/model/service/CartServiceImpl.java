@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.cart.model.dto.Cart;
 import nknk.opus.project.cart.model.mapper.CartMapper;
 import nknk.opus.project.common.exception.BusinessException;
 import nknk.opus.project.common.exception.ResourceNotFoundException;
 
+@Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class CartServiceImpl implements CartService {
@@ -100,14 +102,21 @@ public class CartServiceImpl implements CartService {
 	@Override
 	public List<Cart> mergeLocalCart(List<Cart> localItems, int memberNo) {
 
+		int successCount = 0;
+		int failCount = 0;
+
 		for (Cart item : localItems) {
 			try {
 				addToCart(item, memberNo);
+				successCount++;
 			} catch (Exception e) {
+				log.warn("장바구니 병합 중 오류 - goodsNo: {}, error: {}", item.getGoodsNo(), e.getMessage());
+				failCount++;
 				// 계속 진행 (일부 실패해도 나머지는 병합)
 			}
 		}
 
+		log.info("장바구니 병합 완료 - 성공: {}개, 실패: {}개", successCount, failCount);
 		return selectCartItems(memberNo);
 	}
 }

@@ -8,6 +8,8 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
   const [mode, setMode] = useState("SELECT"); // SELECT | MANAGE | FORM
   const [editingAddress, setEditingAddress] = useState(null);
   const [onTextarea, setOnTextarea] = useState(false);
+  const [selectedMemoType, setSelectedMemoType] = useState("");  // select 전용
+  const [customMemo, setCustomMemo] = useState("");  // textarea 전용
 
   const [form, setForm] = useState({
     recipient: "",
@@ -128,6 +130,26 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
         deliveryReq: editingAddress.deliveryReq ?? "",
         isDefault: editingAddress.isDefault ?? "N"
       });
+
+      // 배송 메모가 미리 정의된 옵션인지 확인
+      const predefinedOptions = [
+        "문 앞에 놓아주세요",
+        "경비실에 맡겨주세요",
+        "배송 전 연락 부탁드려요"
+      ];
+
+      if (editingAddress.deliveryReq &&
+        !predefinedOptions.includes(editingAddress.deliveryReq)) {
+        // 미리 정의되지 않은 메모 = 직접 입력
+        setSelectedMemoType("직접 입력");
+        setCustomMemo(editingAddress.deliveryReq);  // customMemo에 값 설정
+        setOnTextarea(true);
+      } else {
+        setSelectedMemoType(editingAddress.deliveryReq ?? "");
+        setCustomMemo("");  // customMemo 초기화
+        setOnTextarea(false);
+      }
+
     } else {
       setForm({
         recipient: "",
@@ -138,17 +160,40 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
         deliveryReq: "",
         isDefault: "N"
       });
+      
+      //상태 초기화
+      setSelectedMemoType("");
+      setCustomMemo("");
+      setOnTextarea(false);
     }
   }, [mode, editingAddress]);
 
-  const handleMemo = (e) => {
+  const handleMemoSelect = (e) => {
     const value = e.target.value;
-
+    setSelectedMemoType(value);
     setOnTextarea(value === "직접 입력");
 
+    // "직접 입력"이 아니면 deliveryReq 즉시 설정
+    if (value !== "직접 입력") {
+      setForm(prev => ({
+        ...prev,
+        deliveryReq: value
+      }));
+      setCustomMemo("");  // 커스텀 메모 초기화
+    } else {
+      setForm(prev => ({
+        ...prev,
+        deliveryReq: ""  // 비우기 (사용자가 입력할 예정)
+      }));
+    }
+  };
+
+  const handleCustomMemoChange = (e) => {
+    const value = e.target.value;
+    setCustomMemo(value);
     setForm(prev => ({
       ...prev,
-      deliveryReq: value === "직접 입력" ? "" : value
+      deliveryReq: value
     }));
   };
 
@@ -374,8 +419,8 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
                   <label className="checkout__label">배송 메모</label>
                   <select
                     className="checkout__select"
-                    value={form.deliveryReq}
-                    onChange={handleMemo}
+                    value={selectedMemoType}
+                    onChange={handleMemoSelect}
                   >
                     <option value="">선택 안 함</option>
                     <option value="문 앞에 놓아주세요">문 앞에 놓아주세요</option>
@@ -383,10 +428,15 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
                     <option value="배송 전 연락 부탁드려요">배송 전 연락 부탁드려요</option>
                     <option value="직접 입력">직접 입력</option>
                   </select>
-                  {onTextarea &&
-                    <textarea className="checkout__textarea" placeholder="직접 입력(선택)" rows="3"
-                      value={form.deliveryReq} onChange={(e) => setForm(prev => ({ ...prev, deliveryReq: e.target.value }))}></textarea>
-                  }
+                  {onTextarea && (
+                    <textarea
+                      className="checkout_textarea"
+                      value={customMemo}
+                      onChange={handleCustomMemoChange}
+                      placeholder="직접 입력(선택)"
+                      rows="3"
+                    />
+                  )}
                 </div>
               </form>
             </div>

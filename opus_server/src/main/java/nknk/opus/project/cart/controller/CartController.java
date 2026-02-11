@@ -97,8 +97,8 @@ public class CartController {
 	 * 로컬 장바구니 서버로 병합
 	 */
 	@PostMapping("/merge")
-	public ResponseEntity<List<Cart>> mergeLocalCart(@RequestBody List<Cart> localCartItems,
-			Authentication authentication) {
+	public ResponseEntity<List<Cart>> mergeLocalCart( @RequestBody List<Cart> localCartItems,
+												Authentication authentication) {
 
 		String memberNoStr = (String) authentication.getPrincipal();
 		int memberNo = Integer.parseInt(memberNoStr);

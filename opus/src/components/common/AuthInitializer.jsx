@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuthStore } from "../auth/useAuthStore";
 import { useCartStore } from "../../store/cartStore";
 
@@ -12,6 +12,7 @@ const AuthInitializer = () => {
     if (isLoggedIn) {
       mergeWithServer();
     }
+
   }, [isLoggedIn]);
 
   return null;
