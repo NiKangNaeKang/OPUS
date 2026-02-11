@@ -38,6 +38,9 @@ export default function App() {
         <Route path="/onStage/exhibition/:exhibitionId" element={<ExhibitionDetail />} />
         <Route path="/onStage/musical/:mt20id" element={<MusicalDetail />} />
         <Route path="/onStage/reviews" element={<Reviews />} />
+        <Route path="/onStage/reviews/:targetId" element={<Reviews />} />
+        
+        {/* 2. Proposals 경로 추가 */}
         <Route path="/proposals" element={<Proposals />} />
         <Route path="/unveiling" element={<Unveiling />} />
         <Route path="/unveiling/:id" element={<UnveilingDetail />} />
