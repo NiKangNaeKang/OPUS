@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { axiosApi } from "../../api/axiosAPI";
 import Loading from "../../components/common/Loading"
 import "../../css/Selections.css";
 import { NavLink } from "react-router-dom";
+import { fetchGoodsList } from "../../api/selectionsAPI";
 
 const Selections = () => {
 
@@ -16,7 +16,7 @@ const Selections = () => {
   const selectGoodsList = async () => {
     try {
 
-      const resp = await axiosApi.get("/selections/selectGoodsList");
+      const resp = await fetchGoodsList();
 
       if (resp.status == 200) {
         setGoodsList(resp.data);

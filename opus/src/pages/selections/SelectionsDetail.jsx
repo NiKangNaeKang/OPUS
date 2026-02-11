@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 // URL 경로 얻어오기
 import { useNavigate, useParams } from "react-router-dom";
-import { axiosApi } from "../../api/axiosAPI";
 import Loading from "../../components/common/Loading";
 import "../../css/Selections-detail.css";
 import { useCartStore } from "../../store/cartStore";
 import CartSuccessModal from "./CartSuccessModal";
+import { fetchGoodsDetail, fetchGoodsImgList, fetchGoodsOptions } from "../../api/selectionsAPI";
 
 
 const SelectionsDetail = () => {
@@ -30,7 +30,7 @@ const SelectionsDetail = () => {
 
     try {
 
-      const resp = await axiosApi.get(`/selections/selectGoodsDetail?goodsNo=${goodsId}`);
+      const resp = await fetchGoodsDetail(goodsId);
 
       if (resp.status === 200) {
         setGoodsDetail(resp.data);
@@ -45,7 +45,7 @@ const SelectionsDetail = () => {
   const selectGoodsOptions = async () => {
 
     try {
-      const resp = await axiosApi.get(`/selections/selectGoodsOptions?goodsNo=${goodsId}`);
+      const resp = await fetchGoodsOptions(goodsId);
       if (resp.status === 200) setGoodsOptions(resp.data);
     } catch (error) {
       console.error("상품 옵션 조회 중 예외 발생 : ", error);
@@ -55,7 +55,7 @@ const SelectionsDetail = () => {
 
   const selectGoodsImgList = async () => {
     try {
-      const resp = await axiosApi.get(`/selections/selectGoodsImgList?goodsNo=${goodsId}`);
+      const resp = await fetchGoodsImgList(goodsId);
 
       if (resp.status === 200) {
         setGoodsImgList(resp.data)
