@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getAllExhibitions } from "../../api/kcisaAPI";
 import { Link } from "react-router-dom";
 
@@ -41,10 +41,17 @@ function getStatus(period) {
 }
 
 export default function ExhibitionList({ search, status }) {
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["exhibitions", search],
-    queryFn: () => getAllExhibitions({ serviceKey: SERVICE_KEY, search }),
-  });
+  const { 
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useInfiniteQuery({
+    queryKey: ["exhibitions", status],
+    queryFn : ({ pageParam }) => fetchNextPage(pageParam),
+    initialPageParam : 1,
+    getNextPageParam : (lastPage) => lastPage.hasMore ? lastPage.page + 1 : undefined;
+  })
 
   const allItems = useMemo(() => {
     return Array.isArray(data) ? data : [];
