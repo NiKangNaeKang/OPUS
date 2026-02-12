@@ -49,14 +49,20 @@ public class SecurityConfig {
 				
 				// 2. 경로별 권한 설정
 				.authorizeHttpRequests(auth -> auth
-						// preflight 요청 허용
-		                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						// 로그인, 회원가입, 공통 경로는 토큰 없이 허용(인증 전 수행)
-						.requestMatchers("/auth/**", "/common/**").permitAll()
-						// 비로그인 회원도 조회는 가능하도록
-						.requestMatchers("/selections/**", "/images/**", "/unveiling/**").permitAll()
-						// 그 외 모든 요청은 인증(토큰)이 필요함
-						.anyRequest().authenticated())
+					    // preflight 허용
+					    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+					    // 인증 없이 허용
+					    .requestMatchers("/auth/**", "/common/**").permitAll()
+					    .requestMatchers("/selections/**", "/images/**").permitAll()
+
+					    // ✅ 공개 조회: 비로그인 허용
+					    .requestMatchers(HttpMethod.GET, "/api/unveilings/**").permitAll()
+					    // (선택) 최근 입찰 조회 같은 GET API가 있다면
+					    .requestMatchers(HttpMethod.GET, "/api/bids/**").permitAll()
+
+					    // ✅ 그 외(POST/PUT/DELETE): 입찰, 낙찰확정, 결제 등은 인증 필요
+					    .anyRequest().authenticated())
 
 				// 3. JWT 필터를 시큐리티 필터 체인에 등록
 				// UsernamePasswordAuthenticationFilter 단계 전 jwtAuthenticationFilter를 먼저 거치게 함

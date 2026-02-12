@@ -38,6 +38,11 @@ public class MemberController {
 	public ResponseEntity<?> login(@RequestBody Member inputMember,
 			@RequestParam(value = "saveId", required = false) String saveId, HttpServletResponse resp) {
 		try {
+			log.info("login request email={}, pwPresent={}",
+				    inputMember.getMemberEmail(),
+				    inputMember.getMemberPw() != null);
+
+			
 			Member loginMember = service.login(inputMember); // DB에서 회원 정보 조회 및 비밀번호 검증 (Service에서 처리)
 
 			if (loginMember == null) {
