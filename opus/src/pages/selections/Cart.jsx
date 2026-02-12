@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useCartStore } from "../../store/cartStore";
+import { useCartStore } from "../../store/useCartStore";
 import { useNavigate } from "react-router-dom";
 import "../../css/Cart.css"
 

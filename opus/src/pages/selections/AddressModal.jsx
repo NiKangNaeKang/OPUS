@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "../../css/AddressModal.css";
 import { useAddressStore } from "../../store/useAddressStore";
 import { useDaumPostcodePopup } from "react-daum-postcode";
@@ -10,6 +10,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
   const [onTextarea, setOnTextarea] = useState(false);
   const [selectedMemoType, setSelectedMemoType] = useState("");  // select 전용
   const [customMemo, setCustomMemo] = useState("");  // textarea 전용
+  const [query, setQuery] = useState("");
 
   const [form, setForm] = useState({
     recipient: "",
@@ -115,6 +116,20 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
     open({ onComplete: handleComplete });
   };
 
+  const filteredAddresses = useMemo(() => {
+      if (!addresses) return [];
+
+      const refinedQuery = query.trim().toLowerCase();
+  
+      return addresses.filter((item) => {
+        const matchesQuery = refinedQuery
+          ? item.recipient.toLowerCase().includes(refinedQuery)
+          : true;
+  
+        return  matchesQuery;
+      });
+    }, [addresses, query]);
+
 
   /* FORM 진입 시 값 세팅 */
   useEffect(() => {
@@ -160,7 +175,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
         deliveryReq: "",
         isDefault: "N"
       });
-      
+
       //상태 초기화
       setSelectedMemoType("");
       setCustomMemo("");
@@ -216,8 +231,11 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
           {mode === "SELECT" && (
             <>
               <input
+                type="text"
                 className="checkout_input checkout_modal__search"
                 placeholder="배송지명/주소 검색"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
               />
               <button
                 type="button"
@@ -258,10 +276,10 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
           {/* 주소 리스트 */}
           {(mode === "SELECT" || mode === "MANAGE") && (
             <div className="checkout_addr-list">
-              {addresses.length === 0 ? (
+              {filteredAddresses.length === 0 ? (
                 <p className="addr-msg">저장된 배송지가 없습니다.</p>
               ) : (
-                addresses.map((addr) =>
+                filteredAddresses.map((addr) =>
                   mode === "SELECT" ? (
                     <label
                       key={addr.addressNo}

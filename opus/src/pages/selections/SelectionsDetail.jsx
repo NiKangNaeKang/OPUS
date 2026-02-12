@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../components/common/Loading";
 import "../../css/Selections-detail.css";
-import { useCartStore } from "../../store/cartStore";
+import { useCartStore } from "../../store/useCartStore";
 import CartSuccessModal from "./CartSuccessModal";
 import { fetchGoodsDetail, fetchGoodsImgList, fetchGoodsOptions } from "../../api/selectionsAPI";
 

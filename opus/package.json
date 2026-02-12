@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.20",
+    "@tosspayments/payment-widget-sdk": "^0.12.1",
     "axios": "^1.13.4",
+    "nanoid": "^5.1.6",
     "react": "^19.2.0",
     "react-daum-postcode": "^3.2.0",
     "react-dom": "^19.2.0",

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import "../../css/Checkout.css";
 import AddressModal from "./AddressModal";
-import { useCartStore } from "../../store/cartStore";
+import { useCartStore } from "../../store/useCartStore";
 import { useNavigate } from "react-router-dom";
 import { useDaumPostcodePopup } from 'react-daum-postcode'; // 다음 주소 API
 import { useAddressStore } from "../../store/useAddressStore";
@@ -40,6 +40,10 @@ const Checkout = () => {
 
   const onGoCart = () => {
     navigate("/selections/cart");
+  }
+
+  const onGoCheckout = () => {
+    navigate("/selections/tossCheckout");
   }
 
   useEffect(() => {
@@ -485,7 +489,7 @@ const Checkout = () => {
               <span className="checkout_summary__v checkout_summary__v--big">{Number(grandTotalChecked).toLocaleString()}원</span>
             </div>
 
-            <button className="checkout_btn checkout_btn--solid checkout_btn--block" type="button">
+            <button className="checkout_btn checkout_btn--solid checkout_btn--block" type="button" onClick={onGoCheckout}> 
               {Number(grandTotalChecked).toLocaleString()}원 결제하기
             </button>
 
