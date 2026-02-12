@@ -57,7 +57,9 @@
       queryKey: ["exhibitions", status],
       queryFn : ({ pageParam }) => getAllExhibitions({serviceKey : SERVICE_KEY, pageParam}),
       initialPageParam : 1,
-      getNextPageParam : (lastPage, allPages) => lastPage.length === 20 ? allPages.length + 1 : undefined,
+      getNextPageParam: (lastPage, allPages) => {
+        return lastPage.length === 20 ? allPages.length + 1 : undefined;
+      }
     })
 
     useEffect(() => {
@@ -87,7 +89,22 @@
 
     const allItems = useMemo(() => {
       if (!data) return [];
-      return data.pages.flat();
+
+      const flatItems = data.pages.flat();
+
+      const map = new Map();
+
+      flatItems.forEach(item => {
+        const key = item.exhibitionId;
+
+        if(!key) return;
+
+        if(!map.has(key)) {
+          map.set(key, item);
+        }
+      })
+
+      return Array.from(map.values());
     }, [data])
 
     const filteredItems = useMemo(() => {
@@ -113,8 +130,8 @@
     return(
       <>
         <div className="show-grid">
-          {filteredItems.map((item, idx) => (
-            <article key={`${item.exhibitionId}-${idx}`} className="show-card">
+          {filteredItems.map((item) => (
+            <article key={`${item.exhibitionId}`} className="show-card">
               <Link to={`/onStage/exhibition/${item.exhibitionId}`} state={{item}}>
                 <div className="show-card__thumb">
                   {item.image ? (

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="nknk.opus.project.reviews.model.mapper.ReviewsMapper">
+	<insert id="addReview">
+		INSERT INTO "REVIEWS"
+		VALUES(
+			SEQ_REVIEWS_NO.NEXTVAL,
+			#{memberNo},
+			#{stageNo},
+			#{reviewContent},
+			SYSDATE,
+			NULL,
+			'N'
+		)
+	</insert>
+</mapper>
