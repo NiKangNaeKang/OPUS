@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SecurityConfig {
 
 	@Autowired
-	private JwtAuthenticationFilter jwtAuthenticationFilter; // 검증 필터 주입
+	private JwtAuthenticationFilter jwtAuthenticationFilter;
 
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {

@@ -1,5 +1,7 @@
 package nknk.opus.project.member.model.service;
 
+import java.util.Map;
+
 import nknk.opus.project.member.model.dto.Member;
 
 public interface MemberService {
@@ -13,5 +15,11 @@ public interface MemberService {
 	int signup(Member inputMember);
 
 	boolean checkEmail(String email);
+
+	int updateTel(Member inputMember);
+
+	boolean checkTel(String tel);
+
+	int changePw(Map<String, Object> param);
 
 }
