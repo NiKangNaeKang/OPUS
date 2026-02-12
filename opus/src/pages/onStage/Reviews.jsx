@@ -1,7 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
+import { useParams } from 'react-router-dom';
 import '../../css/pages/onStage/reviews.css'
+import axiosAPI from '../../api/axiosAPI';
+import { useAuthStore } from "../../components/auth/useAuthStore";
 
 export default function Reviews() {
+  const { stageNo } = useParams();
+  const token = useAuthStore(state => state.token);
+
+  if (!stageNo) {
+    return <div style={{ padding: 80 }}>잘못된 접근입니다.</div>;
+  }
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [writeReview, setWriteReview] = useState("");
   
@@ -10,32 +20,54 @@ export default function Reviews() {
 
   const [isMeatOpen, setIsMeatOpen] = useState(false);
   const meatBackground = useRef();
+
   const meatCloseHandler = (e) => {
-    if(isMeatOpen && meatBackground.current && ! meatBackground.current.contains(e.target)) {
+    if (
+      isMeatOpen && meatBackground.current && !meatBackground.current.contains(e.target)
+    ) {
       setIsMeatOpen(false);
     }
   };
 
   useEffect(() => {
-    document.addEventListener('mousedown', meatCloseHandler);
+    document.addEventListener("mousedown", meatCloseHandler);
     return () => {
       document.removeEventListener("mousedown", meatCloseHandler);
-    }
+    };
   }, [isMeatOpen]);
 
   const toggleMeatOpen = () => {
-    setIsMeatOpen(isMeatOpen => !isMeatOpen);
-  }
+    setIsMeatOpen(prev => !prev);
+  };
+
 
   const originReview = "정말 감동적인 무대였습니다. 배우들의 연기력과 무대 연출이 완벽하게 조화를 이루었고 정말 감동적인 무대였습니다. 배우들의 연기력과 무대 연출이 완벽하게 조화를 이루었고 정말 감동적인 무대였습니다. 배우들의 연기력과 무대 연출이 완벽하게 조화를 이루었고 정말 감동적인 무대였습니다. 배우들의 연기력과 무대 연출이 완벽하게 조화를 이루었고 ";
   const [isEditing, setIsEditing] = useState(false);
   const [editReview, setEditReview] = useState(originReview);
 
-  const submitReview = () => {
-    if(!writeReview.trim()) return;
+  const submitReview = async() => {
+    if (!token) {
+      alert("로그인 후 이용해주세요.");
+      return;
+    }
 
-    // 후기 작성 API
-    setWriteReview("");
+    if(writeReview.trim().length === 0) {
+      alert("후기를 입력해주세요.");
+      return;
+    };
+
+    const res = await axiosAPI.post("/reviews/addReview", {
+      stageNo : stageNo,
+      reviewContent : writeReview
+    })
+
+    if (res.status === 200) {
+      alert("후기가 등록되었습니다.");
+      setWriteReview("");
+      setIsFormOpen(false);
+    } else {
+      alert("후기 등록에 실패하였습니다.");
+    }
   }
 
   return (
@@ -63,8 +95,8 @@ export default function Reviews() {
             </div>
 
             <div className="form__actions">
-              <button className="btn btn--outline" type="button" id="cancel-review-btn">취소</button>
-              <button className="btn btn--dark" type="button" id='submit-review-btn'>등록하기</button>
+              <button className="btn btn--outline" type="button" id="cancel-review-btn" onClick={closeForm}>취소</button>
+              <button className="btn btn--dark" type="button" id='submit-review-btn' onClick={submitReview}>등록하기</button>
             </div>
           </div>
         </div>
@@ -99,7 +131,7 @@ export default function Reviews() {
                 <i className="fa-solid fa-ellipsis" aria-hidden="true"></i>
               </button>
               {
-                isMeatOpen &&
+                isMeatOpen && (
                 <div className={`meat-container ${isMeatOpen ? "" : "hidden"}`}
                 onClick={e => {
                   if(e.target === meatBackground.current) {
@@ -115,7 +147,7 @@ export default function Reviews() {
                   </div>
                 <div className='meat-content-delete'>삭제</div>
               </div>
-              }
+              )}
             </div>
           </div>
           
