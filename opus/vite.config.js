@@ -9,6 +9,8 @@ export default defineConfig({
         target : 'https://api.kcisa.kr',
         changeOrigin : true,
         rewrite: (path) => path.replace(/^\/kcisa/, ''),
+        timeout: 30000,      
+        proxyTimeout: 30000, 
       },
 
       '/kopis': {
