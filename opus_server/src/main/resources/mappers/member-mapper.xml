@@ -15,8 +15,7 @@
 		ENROLL_DATE,
 		MEMBER_DEL_FL
 		FROM "MEMBER"
-		WHERE MEMBER_EMAIL =
-		#{memberEmail}
+		WHERE MEMBER_EMAIL = #{memberEmail}
 		AND MEMBER_DEL_FL = 'N'
 	</select>
 
@@ -41,5 +40,35 @@
 		'NORMAL'
 		)
 	</insert>
+
+	<update id="updateTel">
+		UPDATE "MEMBER" SET
+		MEMBER_TEL = #{memberTel}
+		WHERE
+		MEMBER_NO = #{memberNo}
+	</update>
+
+	<select id="checkTel" resultType="_int">
+		SELECT COUNT(*)
+		FROM "MEMBER"
+		WHERE MEMBER_TEL = #{tel}
+		AND MEMBER_DEL_FL = 'N'
+	</select>
+
+	<select id="selectCurrentPw" resultType="string">
+		SELECT MEMBER_PW
+		FROM
+		"MEMBER"
+		WHERE MEMBER_NO = #{memberNo}
+	</select>
+
+	<update id="changePw">
+		UPDATE "MEMBER" SET
+		MEMBER_PW = #{newPw}
+		WHERE
+		MEMBER_NO = #{memberNo}
+	</update>
+
+
 
 </mapper>

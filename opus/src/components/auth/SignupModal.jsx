@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import "../../css/loginModal.css";
 import axiosApi from "../../api/axiosAPI";
+import { useAuthValidation } from "./useAuthValidation"; 
 
 export default function SignupModal({ open, onClose }) {
+
+  const { isTelChecked, setIsTelChecked, handleCheckTel } = useAuthValidation();
+
   // 1. 입력 데이터 상태 관리
   const [formData, setFormData] = useState({
     memberEmail: "",
@@ -22,6 +26,7 @@ export default function SignupModal({ open, onClose }) {
 
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+  // 타이머 로직
   useEffect(() => {
     let timer;
     if (isTimerActive && timeLeft > 0) {
@@ -53,17 +58,17 @@ export default function SignupModal({ open, onClose }) {
       setIsEmailChecked(false);
       setIsEmailSent(false);
       setIsEmailVerified(false);
+      setIsTelChecked(false);
       setIsTimerActive(false);
       setTimeLeft(300);
     }
-  }, [open]);
+  }, [open, setIsTelChecked]);
 
-  // 입력값 실시간 반영
+  // 입력값 실시간 반영 및 포맷팅
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "memberTel") {
-      // 숫자만 남기고 하이픈 삽입
       const cleaned = value.replace(/[^0-9]/g, "");
       let formatted = cleaned;
       if (cleaned.length > 3 && cleaned.length <= 7) {
@@ -72,6 +77,7 @@ export default function SignupModal({ open, onClose }) {
         formatted = `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7, 11)}`;
       }
       setFormData({ ...formData, [name]: formatted });
+      setIsTelChecked(false); 
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -86,16 +92,11 @@ export default function SignupModal({ open, onClose }) {
 
   const handleCheckEmail = async () => {
     if (!formData.memberEmail) return alert("이메일을 입력해주세요.");
-    
-    if (!emailRegex.test(formData.memberEmail)) {
-      return alert("올바른 이메일 형식이 아닙니다. 다시 확인해주세요.");
-    }
+    if (!emailRegex.test(formData.memberEmail)) return alert("올바른 이메일 형식이 아닙니다.");
 
     try {
       setLoading(true);
-      const res = await axiosApi.post("/auth/check-email", {
-        email: formData.memberEmail,
-      });
+      const res = await axiosApi.post("/auth/check-email", { email: formData.memberEmail });
       if (res.data === true) {
         alert("사용 중인 이메일입니다.");
         setIsEmailChecked(false);
@@ -104,20 +105,13 @@ export default function SignupModal({ open, onClose }) {
         setIsEmailChecked(true);
       }
     } catch (err) {
-      alert("이메일 중복 확인에 실패했습니다. " + (err.response?.data || "잠시 후 다시 시도해주세요."));
+      alert("이메일 중복 확인 실패");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSendCode = async () => {
-    if (!isEmailChecked) return alert("먼저 이메일 중복을 확인해주세요.");
-
-    // 이중 체크: 전송 직전 형식 다시 확인
-    if (!emailRegex.test(formData.memberEmail)) {
-      return alert("올바른 이메일 형식이 아닙니다. 다시 확인해주세요.");
-    }
-
     try {
       setLoading(true);
       await axiosApi.post("/auth/email-send", { email: formData.memberEmail });
@@ -126,15 +120,14 @@ export default function SignupModal({ open, onClose }) {
       setTimeLeft(300);
       setIsTimerActive(true);
     } catch (err) {
-      alert("인증번호 발송에 실패했습니다. " + (err.response?.data || "잠시 후 다시 시도해주세요."));
+      alert("인증번호 발송 실패");
     } finally {
       setLoading(false);
     }
   };
 
   const handleVerifyCode = async () => {
-    if (timeLeft === 0) return; 
-
+    if (timeLeft === 0) return alert("시간이 만료되었습니다."); 
     try {
       const res = await axiosApi.post("/auth/email-verify", {
         email: formData.memberEmail,
@@ -148,20 +141,20 @@ export default function SignupModal({ open, onClose }) {
         alert("인증번호가 일치하지 않습니다.");
       }
     } catch (err) {
-      alert("인증 확인 중 오류가 발생했습니다.");
+      alert("인증 확인 오류");
     }
   };
 
+  // 최종 회원가입 제출
   const handleSubmit = async (e) => {
     e.preventDefault();
     const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
-    if (!pwRegex.test(formData.memberPw)) {
-      return alert("비밀번호는 영문, 숫자를 포함하여 8~16자여야 합니다.");
-    }
+    
+    if (!pwRegex.test(formData.memberPw)) return alert("비밀번호는 영문, 숫자를 포함하여 8~16자여야 합니다.");
     if (!isEmailVerified) return alert("이메일 인증을 완료해주세요.");
-    if (formData.memberPw !== formData.memberPwConfirm) {
-      return alert("비밀번호가 일치하지 않습니다.");
-    }
+    if (!isTelChecked) return alert("연락처 중복 확인을 완료해주세요.");
+    if (formData.memberPw !== formData.memberPwConfirm) return alert("비밀번호가 일치하지 않습니다.");
+
     setLoading(true);
     try {
       const cleanPhone = formData.memberTel.replace(/[^0-9]/g, "");
@@ -173,7 +166,7 @@ export default function SignupModal({ open, onClose }) {
       alert("회원가입이 완료되었습니다!");
       onClose();
     } catch (err) {
-      alert("회원가입에 실패했습니다. " + (err.response?.data || "다시 확인해주세요."));
+      alert("회원가입 실패: " + (err.response?.data || "다시 확인해주세요."));
     } finally {
       setLoading(false);
     }
@@ -190,7 +183,6 @@ export default function SignupModal({ open, onClose }) {
         </div>
 
         <form className="lm-body" onSubmit={handleSubmit}>
-
           <label className="lm-label">
             이메일 주소
             <div className="lm-input-group">
@@ -214,58 +206,62 @@ export default function SignupModal({ open, onClose }) {
               >
                 {isEmailChecked ? "확인됨" : "중복확인"}
               </button>
-              <button
-                type="button"
-                onClick={handleSendCode}
-                className="lm-link"
-                disabled={!isEmailChecked || isEmailVerified || loading}
-              >
-                {isEmailSent ? "재발송" : "인증요청"}
-              </button>
             </div>
           </label>
 
-          {isEmailSent && !isEmailVerified ? (
-            <label className="lm-label">
-              인증번호 입력
-              <div className="lm-input-group">
-                <input
-                  className="lm-input"
-                  style={{ flex: 1 }}
-                  type="text"
-                  placeholder="6자리 숫자를 입력해주세요."
-                  value={authCode}
-                  onChange={(e) => setAuthCode(e.target.value)}
-                  disabled={timeLeft === 0}
-                />
-                <button
-                  type="button"
-                  onClick={handleVerifyCode}
-                  className="lm-link"
-                  disabled={timeLeft === 0}
-                >
-                  확인
-                </button>
-              </div>
-              <p style={{ color: "red", fontSize: "12px", marginTop: "5px" }}>
-                {timeLeft > 0 
-                  ? `남은 시간: ${formatTime(timeLeft)}` 
-                  : "시간이 만료되었습니다. 인증번호를 다시 요청해주세요."}
-              </p>
-            </label>
-          ) : null}
+          {isEmailChecked && !isEmailVerified && (
+            <div className="lm-auth-section" style={{ animation: "fadeIn 0.3s" }}>
+              <label className="lm-label">
+                인증번호
+                <div className="lm-input-group">
+                  <input
+                    className="lm-input"
+                    style={{ flex: 1 }}
+                    type="text"
+                    placeholder={isEmailSent ? "6자리 숫자 입력" : "인증요청을 눌러주세요"}
+                    value={authCode}
+                    onChange={(e) => setAuthCode(e.target.value)}
+                    disabled={!isEmailSent || timeLeft === 0}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSendCode}
+                    className="lm-link"
+                    disabled={loading}
+                  >
+                    {isEmailSent ? "재발송" : "인증요청"}
+                  </button>
+                  {isEmailSent && (
+                    <button
+                      type="button"
+                      onClick={handleVerifyCode}
+                      className="lm-link"
+                      style={{ color: "#007bff", fontWeight: "bold" }}
+                    >
+                      확인
+                    </button>
+                  )}
+                </div>
+              </label>
+              {isEmailSent && (
+                <p style={{ color: timeLeft > 0 ? "red" : "gray", fontSize: "12px", marginTop: "5px" }}>
+                  {timeLeft > 0 ? `남은 시간: ${formatTime(timeLeft)}` : "인증 시간이 만료되었습니다."}
+                </p>
+              )}
+            </div>
+          )}
 
-          {isEmailVerified ? (
-            <p style={{ color: "blue", fontSize: "12px" }}>이메일 인증이 완료되었습니다.</p>
-          ) : null}
+          {isEmailVerified && (
+            <p style={{ color: "blue", fontSize: "12px", marginBottom: "10px" }}>✓ 이메일 인증 완료</p>
+          )}
 
           <label className="lm-label">
-            비밀번호 (8~16자 영문/숫자 혼합)
+            비밀번호
             <input
               className="lm-input"
               name="memberPw"
               type="password"
-              placeholder="비밀번호를 입력해주세요."
+              placeholder="영문, 숫자 포함 8~16자"
               value={formData.memberPw}
               onChange={handleChange}
               required
@@ -278,39 +274,48 @@ export default function SignupModal({ open, onClose }) {
               className="lm-input"
               name="memberPwConfirm"
               type="password"
-              placeholder="비밀번호를 다시 입력해주세요."
               value={formData.memberPwConfirm}
               onChange={handleChange}
               required
             />
-
-            {formData.memberPwConfirm.length > 0 ? (
-              formData.memberPw === formData.memberPwConfirm ? (
-                <p style={{ color: "blue", fontSize: "12px", marginTop: "5px" }}>
-                  비밀번호가 일치합니다.
-                </p>
-              ) : (
-                <p style={{ color: "red", fontSize: "12px", marginTop: "5px" }}>
-                  비밀번호가 일치하지 않습니다.
-                </p>
-              )
-            ) : null}
+            {formData.memberPwConfirm && (
+              <p style={{ color: formData.memberPw === formData.memberPwConfirm ? "blue" : "red", fontSize: "12px" }}>
+                {formData.memberPw === formData.memberPwConfirm ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다."}
+              </p>
+            )}
           </label>
 
+          {/* 4. 연락처 입력 및 중복 확인 */}
           <label className="lm-label">
             연락처
-            <input
-              className="lm-input"
-              name="memberTel"
-              type="tel"
-              placeholder="010-0000-0000"
-              value={formData.memberTel}
-              onChange={handleChange}
-              required
-            />
+            <div className="lm-input-group">
+              <input
+                className="lm-input"
+                style={{ flex: 1 }}
+                name="memberTel"
+                type="tel"
+                placeholder="010-0000-0000"
+                value={formData.memberTel}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => handleCheckTel(formData.memberTel)}
+                className="lm-link"
+                disabled={isTelChecked || loading}
+                style={{ color: isTelChecked ? "green" : "" }}
+              >
+                {isTelChecked ? "확인됨" : "중복확인"}
+              </button>
+            </div>
           </label>
 
-          <button className="lm-submit" type="submit" disabled={loading || !isEmailVerified}>
+          <button 
+            className="lm-submit" 
+            type="submit" 
+            disabled={loading || !isEmailVerified || !isTelChecked}
+          >
             {loading ? "처리 중..." : "가입하기"}
           </button>
         </form>

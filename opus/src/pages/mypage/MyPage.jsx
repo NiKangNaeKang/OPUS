@@ -1,16 +1,11 @@
 import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../css/mypage.css";
 import { useAuthStore } from "../../components/auth/useAuthStore";
+import { useAuthValidation } from "../../components/auth/useAuthValidation";
 import { toast } from "react-toastify";
 import axiosApi from "../../api/axiosAPI";
-
-// 데이터 리스트 가져오기
-import {
-  wishlist,
-  reviews,
-  purchases,
-  auctions,
-} from "./myPageData";
+import { wishlist, reviews, purchases, auctions } from "./myPageData";
 
 const SIDEBAR_GROUPS = [
   {
@@ -32,63 +27,84 @@ const SIDEBAR_GROUPS = [
 ];
 
 export default function MyPage() {
-  const member = useAuthStore((state) => state.member);
-  const setMember = useAuthStore((state) => state.login);
-  const token = useAuthStore((state) => state.token);
+  const navigate = useNavigate();
+  const { member, token, login, logout } = useAuthStore();
+  const { isTelChecked, setIsTelChecked, handleCheckTel } = useAuthValidation();
 
   const [activeId, setActiveId] = useState("profile-edit");
-  const [phone, setPhone] = useState("");
+  const [newPhone, setNewPhone] = useState("");
+  const [pwData, setPwData] = useState({
+    currentPw: "",
+    newPw: "",
+    newPwConfirm: "",
+  });
 
-  // 하이픈 자동 포맷팅 함수
   const formatPhoneNumber = (value) => {
     if (!value) return "";
-    const num = value.replace(/[^0-9]/g, ""); // 숫자만 추출
+    const num = value.replace(/[^0-9]/g, "");
     if (num.length <= 3) return num;
     if (num.length <= 7) return `${num.slice(0, 3)}-${num.slice(3)}`;
     return `${num.slice(0, 3)}-${num.slice(3, 7)}-${num.slice(7, 11)}`;
   };
 
-  // 초기 데이터 로드 시 하이픈 적용
   useEffect(() => {
-    if (member?.memberTel) {
-      setPhone(formatPhoneNumber(member.memberTel));
-    }
-  }, [member]);
+    setIsTelChecked(false);
+  }, [setIsTelChecked]);
 
-  // 연락처 입력 시 실시간 하이픈 추가
-  const handlePhoneChange = (e) => {
+  const handleNewPhoneChange = (e) => {
     const formatted = formatPhoneNumber(e.target.value);
-    setPhone(formatted);
+    setNewPhone(formatted);
+    setIsTelChecked(false);
   };
 
-  const handleProfileSave = async (e) => {
-    e.preventDefault();
-
-    // 저장 시에는 하이픈 제거 (DB 포맷: 숫자만)
-    const rawPhone = phone.replace(/[^0-9]/g, "");
-
-    if (rawPhone.length < 10) {
-      toast.error("올바른 연락처 형식이 아닙니다.");
+  const handleUpdatePhone = async (e) => {
+    if (e) e.preventDefault();
+    if (!isTelChecked) {
+      toast.error("새 연락처 중복 확인을 해주세요.");
       return;
     }
-
+    const rawPhone = newPhone.replace(/[^0-9]/g, "");
+    if (rawPhone === member?.memberTel) {
+      toast.error("기존 연락처와 동일한 번호입니다.");
+      return;
+    }
     try {
-      const res = await axiosApi.post("/member/updateTel", {
+      const res = await axiosApi.post("/auth/updateTel", {
         memberNo: member.memberNo,
         memberTel: rawPhone,
       });
-
       if (res.status === 200) {
-        toast.success("연락처가 수정되었습니다.");
-        
-        setMember({ 
-          token, 
-          member: { ...member, memberTel: rawPhone } 
-        });
+        toast.success("연락처가 변경되었습니다.");
+        login({ token, member: { ...member, memberTel: rawPhone } });
+        setNewPhone("");
+        setIsTelChecked(false);
       }
     } catch (err) {
-      console.error("수정 실패:", err);
-      toast.error(err.response?.data || "연락처 수정에 실패했습니다.");
+      toast.error(err?.response?.data || "연락처 수정 실패");
+    }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (!pwData.currentPw) return toast.error("현재 비밀번호를 입력해주세요.");
+    if (pwData.newPw !== pwData.newPwConfirm) return toast.error("새 비밀번호 확인이 일치하지 않습니다.");
+    
+    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
+    if (!pwRegex.test(pwData.newPw)) return toast.error("비밀번호 형식(8~16자 영문/숫자)을 확인하세요.");
+
+    try {
+      const res = await axiosApi.post("/auth/changePw", {
+        memberNo: member.memberNo,
+        currentPw: pwData.currentPw,
+        newPw: pwData.newPw,
+      });
+      if (res.status === 200) {
+        alert("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
+        logout();
+        navigate("/");
+      }
+    } catch (err) {
+      toast.error(err.response?.data || "비밀번호 변경 실패");
     }
   };
 
@@ -111,10 +127,6 @@ export default function MyPage() {
     setWishItems((prev) =>
       prev.map((i) => (i.id === id ? { ...i, liked: !i.liked } : i))
     );
-  };
-
-  const handlePasswordChange = (e) => {
-    e.preventDefault();
   };
 
   return (
@@ -152,31 +164,46 @@ export default function MyPage() {
               <h2 className="card__title">내 정보 수정</h2>
             </header>
             <div className="card__body">
-              <form className="form" onSubmit={handleProfileSave}>
+              <div className="form">
                 <div className="field">
                   <label className="label">이메일</label>
-                  <input
-                    className="input input--disabled"
-                    value={member?.memberEmail || "정보 없음"}
-                    disabled
-                    readOnly
-                  />
+                  <input className="input input--disabled" value={member?.memberEmail || "정보 없음"} disabled readOnly />
                 </div>
+
                 <div className="field">
-                  <label className="label">연락처</label>
-                  <input
-                    className="input"
-                    type="text"
-                    value={phone}
-                    onChange={handlePhoneChange}
-                    placeholder="010-0000-0000"
-                    maxLength={13} // 하이픈 포함 최대 길이
-                  />
+                  <label className="label">기존 연락처</label>
+                  <input className="input input--disabled" value={formatPhoneNumber(member?.memberTel) || "등록된 번호 없음"} disabled readOnly />
                 </div>
-                <div className="form__actions">
-                  <button className="btn btn--primary" type="submit">저장하기</button>
+
+                <div className="field">
+                  <label className="label">새 연락처</label>
+                  <div className="tel-group">
+                    <input
+                      className="input tel-input"
+                      type="text"
+                      value={newPhone}
+                      onChange={handleNewPhoneChange}
+                      maxLength={13}
+                    />
+                    <button
+                      type="button"
+                      className={`btn btn--check ${isTelChecked ? "is-checked" : ""}`}
+                      onClick={() => handleCheckTel(newPhone.replace(/[^0-9]/g, ""))}
+                      disabled={isTelChecked || !newPhone}
+                    >
+                      {isTelChecked ? "확인됨" : "중복 확인"}
+                    </button>
+                    <button 
+                      type="button"
+                      className="btn btn--primary btn--save" 
+                      onClick={handleUpdatePhone}
+                      disabled={!isTelChecked}
+                    >
+                      저장하기
+                    </button>
+                  </div>
                 </div>
-              </form>
+              </div>
             </div>
           </section>
 
@@ -186,23 +213,49 @@ export default function MyPage() {
             </header>
             <div className="card__body">
               <form className="form form--narrow" onSubmit={handlePasswordChange}>
-                <div className="field"><label className="label">현재 비밀번호</label><input className="input" type="password" /></div>
-                <div className="field"><label className="label">새 비밀번호</label><input className="input" type="password" /></div>
-                <div className="field"><label className="label">새 비밀번호 확인</label><input className="input" type="password" /></div>
-                <div className="form__actions"><button className="btn btn--primary">비밀번호 변경</button></div>
+                <div className="field">
+                  <label className="label">현재 비밀번호</label>
+                  <input className="input" type="password" value={pwData.currentPw} onChange={(e) => setPwData({ ...pwData, currentPw: e.target.value })} required />
+                </div>
+                <div className="field">
+                  <label className="label">새 비밀번호</label>
+                  <input className="input" type="password" placeholder="영문, 숫자 포함 8~16자" value={pwData.newPw} onChange={(e) => setPwData({ ...pwData, newPw: e.target.value })} required />
+                </div>
+                <div className="field">
+                  <label className="label">새 비밀번호 확인</label>
+                  <input className="input" type="password" value={pwData.newPwConfirm} onChange={(e) => setPwData({ ...pwData, newPwConfirm: e.target.value })} required />
+                  {pwData.newPwConfirm.length > 0 && (
+                    <p className={`pw-msg ${pwData.newPw === pwData.newPwConfirm ? "is-match" : "is-error"}`}>
+                      {pwData.newPw === pwData.newPwConfirm ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다."}
+                    </p>
+                  )}
+                </div>
+                <div className="form__actions">
+                  <button className="btn btn--primary" type="submit" disabled={!pwData.newPw || pwData.newPw !== pwData.newPwConfirm}>
+                    비밀번호 변경
+                  </button>
+                </div>
               </form>
             </div>
           </section>
 
-              <h2>데이터 적용 중,,</h2>
           <section id="wishlist" className="card">
-            <header className="card__head"><h2 className="card__title">찜한 리스트</h2></header>
+            <header className="card__head">
+              <h2 className="card__title">찜한 리스트</h2>
+            </header>
             <div className="card__body">
               <div className="chips">
-                <button className={`chip ${wishTab === "all" ? "is-active" : ""}`} onClick={() => setWishTab("all")}>전체 <span className="chip__count">{wishCounts.all}</span></button>
-                <button className={`chip ${wishTab === "musical" ? "is-active" : ""}`} onClick={() => setWishTab("musical")}>뮤지컬 <span className="chip__count">{wishCounts.musical}</span></button>
-                <button className={`chip ${wishTab === "exhibit" ? "is-active" : ""}`} onClick={() => setWishTab("exhibit")}>전시 <span className="chip__count">{wishCounts.exhibit}</span></button>
+                <button type="button" className={`chip ${wishTab === "all" ? "is-active" : ""}`} onClick={() => setWishTab("all")}>
+                  전체 <span className="chip__count">{wishCounts.all}</span>
+                </button>
+                <button type="button" className={`chip ${wishTab === "musical" ? "is-active" : ""}`} onClick={() => setWishTab("musical")}>
+                  뮤지컬 <span className="chip__count">{wishCounts.musical}</span>
+                </button>
+                <button type="button" className={`chip ${wishTab === "exhibit" ? "is-active" : ""}`} onClick={() => setWishTab("exhibit")}>
+                  전시 <span className="chip__count">{wishCounts.exhibit}</span>
+                </button>
               </div>
+
               <div className="grid3">
                 {filteredWish.map((w) => (
                   <article className="wish" key={w.id}>
@@ -244,7 +297,10 @@ export default function MyPage() {
               {purchases.map((o) => (
                 <article className="order" key={o.id}>
                   <div className="order__top"><div><p>{o.orderNo}</p></div><span className={`badge ${o.statusClass}`}>{o.statusLabel}</span></div>
-                  <div className="order__body"><div className="order__thumb"><img src={o.img} alt={o.alt} /></div><div className="order__info"><h3>{o.title}</h3><p className="order__price">{o.price}</p></div></div>
+                  <div className="order__body">
+                    <div className="order__thumb"><img src={o.img} alt={o.alt} /></div>
+                    <div className="order__info"><h3>{o.title}</h3><p className="order__price">{o.price}</p></div>
+                  </div>
                 </article>
               ))}
             </div>
@@ -254,7 +310,9 @@ export default function MyPage() {
             <header className="card__head"><h2 className="card__title">경매 내역</h2></header>
             <div className="table-wrap">
               <table className="table">
-                <thead><tr><th>작품명</th><th>입찰가</th><th>상태</th><th>일시</th></tr></thead>
+                <thead>
+                  <tr><th>작품명</th><th>입찰가</th><th>상태</th><th>일시</th></tr>
+                </thead>
                 <tbody>
                   {auctions.map((a) => (
                     <tr key={a.id}>

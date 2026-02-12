@@ -5,47 +5,49 @@ const axiosApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
 });
 
-// 요청인터셉터 : 서버로 요청보내기 전
+/**
+ * 요청 인터셉터: 서버로 요청을 보내기 전 실행
+ */
 axiosApi.interceptors.request.use(
   (config) => {
-    const token = useAuthStore.getState().token; // Zustand 스토어에서 현재 저장된 JWT 토큰 가져오기
+    const token = useAuthStore.getState().token;
 
-      // HTTP 표준 헤더 규격에 맞춰 'Bearer {토큰}' 형태로 Authorization 헤더에 삽입
-      // 백엔드의 JwtAuthenticationFilter에서 이 값을 읽어 인증을 처리함    
     if (token) {
-      config.headers.Authorization =`Bearer ${token}`;
+      config.headers = config.headers ?? {};
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
-    return config; // 설정이 완료된 요청 객체를 반환하여 서버로 전송 진행
+    return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// 응답인터셉터 : 서버에서 응답받고, 컴포넌트에 전달 전
+/**
+ * 응답 인터셉터: 서버 응답을 받은 후 컴포넌트에 전달되기 전 실행
+ */
 axiosApi.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error?.response?.status === 401) {
+      const config = error.config || {};
+      const url = config.url || "";
+      const isLoginRequest = url.includes("/auth/login");
 
-      // 현재 요청한 URL이 로그인 관련(/auth/)인지 확인
-      const isAuthRequest = error.config.url.includes('/auth/');
+      if (!isLoginRequest) {
+        useAuthStore.getState().logout();
 
-      // 로그인/인증 관련 요청에서 발생한 401 에러시, 에러를 그대로 거절(reject) 반환
-      if (isAuthRequest) {
-        return Promise.reject(error);
+        const serverMsg =
+          error.response.data?.message ||
+          "세션이 만료되었습니다. 다시 로그인해주세요.";
+        alert(serverMsg);
+
+        window.location.href = "/";
+
+        // 이동 중이므로 이후 처리 중단(Optional)
+        return new Promise(() => {});
       }
-
-      // 로그인 요청이 아닌데 401인 경우에만 "만료" 알림 표시
-      const serverMsg = error.response.data?.message || "로그인이 만료되었습니다. 다시 로그인해주세요.";
-      alert(serverMsg);
-
-      useAuthStore.getState().logout(); // 토큰 비움
-
     }
+
     return Promise.reject(error);
   }
 );
