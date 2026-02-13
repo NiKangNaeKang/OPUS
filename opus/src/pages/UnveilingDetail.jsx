@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { unveilingData } from "../data/unveilingData";
 import "../css/UnveilingDetail.css";
+import { useAuthStore } from "../components/auth/useAuthStore";
+import axiosApi from "../api/axiosAPI";
 
 // (권장) 실제 경로에 맞게 CSS import 확인
 // import "./UnveilingDetail.css";
@@ -245,16 +247,38 @@ export default function UnveilingDetail() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // ===== Bid (stub -> API로 교체) =====
-  const onBid = useCallback(async () => {
-    if (isEnded || isSoon) return;
+const { token, isLoggedIn } = useAuthStore();
 
-    // TODO: 백엔드 연결 시 아래 형태로 교체
-    // POST /api/unveilings/{unveilingNo}/bids
-    // 응답으로 currentPrice/bidCount 갱신
+const onBid = useCallback(async () => {
+  if (isEnded || isSoon) return;
 
-    alert("응찰 기능은 백엔드 연결 후 활성화됩니다.");
-  }, [isEnded, isSoon]);
+  // axiosApi가 토큰을 자동으로 붙이지만,
+  // 로그인 여부 UX를 위해 프론트에서 한 번 더 막는 건 OK
+  if (!isLoggedIn) {
+    alert("로그인 후 응찰할 수 있습니다.");
+    return;
+  }
+
+  try {
+    const { data } = await axiosApi.post(`/api/bids/${unveilingNo}`, {}); // memberNo 제거
+
+    setCurrentPrice(data.currentPrice);
+    setBidCount(data.biddingCount);
+    setStatus(data.unveilingStatus);
+
+  } catch (err) {
+    const status = err?.response?.status;
+    const serverData = err?.response?.data;
+
+    const msg =
+      typeof serverData === "string"
+        ? serverData
+        : serverData?.message || err?.message || "응찰에 실패했습니다.";
+
+    alert(`응찰 실패(${status ?? "?"}): ${msg}`);
+  }
+}, [isEnded, isSoon, isLoggedIn, unveilingNo]);
+
 
   return (
     <div className="page unveiling-detail">
