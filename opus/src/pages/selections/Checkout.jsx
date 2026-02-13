@@ -1,5 +1,5 @@
 /* Checkout.jsx */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../../css/Checkout.css";
 import AddressModal from "./AddressModal";
 import { useCartStore } from "../../store/useCartStore";
@@ -7,14 +7,31 @@ import { useNavigate } from "react-router-dom";
 import { useDaumPostcodePopup } from 'react-daum-postcode'; // 다음 주소 API
 import { useAddressStore } from "../../store/useAddressStore";
 
+// 토스페이먼츠 연동
+import { loadTossPayments } from '@tosspayments/payment-sdk';
+import { orderApi } from "../../api/orderAPI";
+
 const Checkout = () => {
 
+  // 장바구니 상품 얻어오기
   const items = useCartStore((state) => state.items);
+
+  // 장바구니에서 체크된 키 얻어오기
   const checkedKeys = useCartStore((state) => state.checkedKeys);
+
+  // 배송지 목록, 선택된 배송지 아이디, 서버에 저장된 배송지 목록
   const { addresses, selectedAddressId, fetchAddresses } = useAddressStore();
+
+  // 배송지 모달 열림 상태
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 배송 메모 직접입력 선택 여부
   const [onTextarea, setOnTextarea] = useState(false);
+
+  // 배송메모 폼 상태
   const [form, setForm] = useState({
+    email: "",
+    ordererName: "",
     recipient: "",
     recipientTel: "",
     postcode: "",
@@ -27,6 +44,12 @@ const Checkout = () => {
   const [selectedMemoType, setSelectedMemoType] = useState("");  // select 전용
   const [customMemo, setCustomMemo] = useState("");  // textarea 전용
 
+  // 결제 방법 상태
+  const [paymentMethod, setPaymentMethod] = useState("카드");
+
+  // 결제 진행중 상태
+  const [isProcessing, setIsProcessing] = useState(false);
+
   // 장바구니에서 체크된 상품들
   const selectedItems = items.filter(item => checkedKeys.includes(item.cartKey));
 
@@ -36,18 +59,17 @@ const Checkout = () => {
   if (goodsTotalChecked >= 50000) shippingTotalChecked = 0;
   const grandTotalChecked = goodsTotalChecked + shippingTotalChecked;
 
+  // 페이지 이동 파트
   const navigate = useNavigate();
 
+  // 장바구니 이동
   const onGoCart = () => {
     navigate("/selections/cart");
   }
 
-  const onGoCheckout = () => {
-    navigate("/selections/tossCheckout");
-  }
-
+  // 진입 시 배송지 목록 로드 (기본배송지 selectedAddressId 세팅되게)
   useEffect(() => {
-    fetchAddresses(); // 진입 시 배송지 목록 로드 (기본배송지 selectedAddressId 세팅되게)
+    fetchAddresses();
   }, [fetchAddresses]);
 
   // selectedAddressId가 바뀔 때마다 기본 배송지 정보로 form 초기화
@@ -57,6 +79,8 @@ const Checkout = () => {
       setForm({
         recipient: selectedAddr.recipient,
         recipientTel: selectedAddr.recipientTel,
+        email: form.email,
+        ordererName: form.ordererName,
         postcode: selectedAddr.postcode,
         basicAddress: selectedAddr.basicAddress,
         detailAddress: selectedAddr.detailAddress ?? "",
@@ -70,6 +94,7 @@ const Checkout = () => {
         "배송 전 연락 부탁드려요"
       ];
 
+      // 미리 정의된 옵션에 따른 배송 메모 UI 변경
       if (selectedAddr.deliveryReq &&
         !predefinedOptions.includes(selectedAddr.deliveryReq)) {
         // 미리 정의되지 않은 메모 = 직접 입력
@@ -84,6 +109,7 @@ const Checkout = () => {
     }
   }, [selectedAddressId, addresses]);
 
+  // 배송메모 선택에 따른 UI 변경
   const handleMemoSelect = (e) => {
     const value = e.target.value;
     setSelectedMemoType(value);
@@ -105,6 +131,7 @@ const Checkout = () => {
     }
   };
 
+  // 직접입력 메모 함수
   const handleCustomMemoChange = (e) => {
     const value = e.target.value;
     setCustomMemo(value);
@@ -114,6 +141,7 @@ const Checkout = () => {
     }));
   };
 
+  // 선택한 배송지 적용 함수
   const handleApplyAddress = (addressNo) => {
     const addr = addresses.find(
       a => a.addressNo === addressNo
@@ -151,7 +179,7 @@ const Checkout = () => {
   };
 
 
-  // 다음 주소 API
+  // ====== 다음 주소 API ======
   const open = useDaumPostcodePopup(import.meta.env.VITE_DAUM_API);
 
   const handleComplete = (data) => {
@@ -179,9 +207,173 @@ const Checkout = () => {
 
   };
 
+  // 주소 검색 버튼 클릭 함수
   const handleClick = () => {
     open({ onComplete: handleComplete });
   };
+
+  // ======= 토스 페이먼츠 API 파트 =======
+
+  // 토스페이먼츠 객체
+  const tossPaymentsRef = useRef(null);
+
+  // 토스페이먼츠 초기화
+  useEffect(() => {
+    const initializeTossPayments = async () => {
+      try {
+        const tossPayments = await loadTossPayments(
+          import.meta.env.VITE_TOSS_CLIENT_KEY
+        );
+        tossPaymentsRef.current = tossPayments;
+      } catch (error) {
+        console.error("토스페이먼츠 초기화 실패:", error);
+        alert("결제 시스템 초기화에 실패했습니다.");
+      }
+    }
+
+    initializeTossPayments();
+  }, []);
+
+  // 결제 검증 함수
+  const validatePayment = () => {
+
+    // 필수 정보 확인
+    if (!form.recipient) {
+      alert("수령인을 입력해주세요.");
+      return false;
+    }
+    if (!form.recipientTel) {
+      alert("연락처를 입력해주세요.");
+      return false;
+    }
+    if (!form.postcode || !form.basicAddress) {
+      alert("주소를 입력해주세요.");
+      return false;
+    }
+    if (!form.email) {
+      alert("이메일을 입력해주세요.");
+      return false;
+    }
+    if (!form.ordererName) {
+      alert("주문자명을 입력해주세요.");
+      return false;
+    }
+    if (selectedItems.length === 0) {
+      alert("주문할 상품을 선택해주세요.");
+      return false;
+    }
+    return true;
+  };
+
+  // 결제 요청 함수
+  const handlePayment = async () => {
+
+    // 결제 전 검증
+    // 검증
+    if (!validatePayment()) return;
+    if (isProcessing) return;  // 중복 클릭 방지
+
+    setIsProcessing(true);
+
+    try {
+
+      // 1. 백엔드에 주문 생성
+      const orderData = {
+        items: selectedItems.map(item => ({
+          goodsNo: item.goodsNo,
+          goodsOptionNo: item.goodsOptionNo,
+          qty: item.qty,
+          unitPrice: item.unitPrice
+        })),
+        recipient: form.recipient,
+        recipientTel: form.recipientTel,
+        postcode: form.postcode,
+        basicAddress: form.basicAddress,
+        detailAddress: form.detailAddress,
+        deliveryReq: form.deliveryReq,
+        email: form.email,
+        ordererName: form.ordererName,
+        totalAmount: grandTotalChecked,
+        paymentMethod: paymentMethod
+      }
+
+      const response = await orderApi.createOrder(orderData);
+      const { orderId, orderName, amount } = response.data;
+
+      // 2. 결제 수단별 처리
+      if (paymentMethod === "무통장 입금") {
+        // 가상계좌 결제
+        await handleVirtualAccountPayment(orderId, orderName, amount);
+      } else {
+        // 카드-간편 결제
+        await handleCardOrEasyPayment(orderId, orderName, amount);
+      }
+
+    } catch (error) {
+      console.error("결제 요청 실패:", error);
+      alert(error.response?.data?.message || "결제 요청에 실패했습니다.");
+    } finally {
+      setIsProcessing(false);
+    }
+
+  };
+
+  // 카드-간편 결제 처리
+  const handleCardOrEasyPayment = async (orderId, orderName, amount) => {
+    if (!tossPaymentsRef.current) {
+      alert("결제 시스템이 초기화되지 않았습니다.");
+      return;
+    }
+
+    try {
+      // 결제 method 매핑
+      const methodMap = {
+        "카드": "카드",
+        "간편 결제": "간편결제"
+      };
+
+      await tossPaymentsRef.current.requestPayment(methodMap[tossPaymentsRef], {
+        amount: amount,
+        orderId: orderId,
+        orderName: orderName,
+        customerName: form.ordererName,
+        customerEmail: form.email,
+        successUrl: `${location.origin}/payment/success`,
+        failUrl: `${location.origin}/payment/fail`
+      });
+    } catch (error) {
+      console.error("결제창 호출 실패:", error);
+      alert("결제창 호출에 실패했습니다.");
+    }
+  };
+
+  // 가상 계좌 결제 처리
+  const handleVirtualAccountPayment = async (orderId, orderName, amount) => {
+    if (!tossPaymentsRef.current) {
+      alert("결제 시스템이 초기화되지 않았습니다.");
+      return;
+    }
+
+    try {
+      await tossPaymentsRef.current.requestPayment("가상계좌", {
+        amount: amount,
+        orderId: orderId,
+        orderName: orderName,
+        customerName: form.ordererName,
+        customerEmail: form.email,
+        validHours: 24,  // 입금 유효 시간 (24시간)
+        cashReceipt: {
+          type: "소득공제"  // 현금영수증 타입
+        },
+        successUrl: `${location.origin}/payment/success`,
+        failUrl: `${location.origin}/payment/fail`
+      });
+    } catch (error) {
+      console.error("가상계좌 발급 실패:", error);
+      alert("가상계좌 발급에 실패했습니다.");
+    }
+  };
+
 
   return (
     <main className="main checkout">
@@ -352,15 +544,33 @@ const Checkout = () => {
             <div className="checkout_pay">
               <div className="checkout_pay__methods">
                 <label className="checkout_radio">
-                  <input type="radio" name="payMethod" defaultChecked />
+                  <input
+                    type="radio"
+                    name="payMethod"
+                    value="카드"
+                    checked={paymentMethod === "카드"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
                   <span>카드 결제</span>
                 </label>
                 <label className="checkout_radio">
-                  <input type="radio" name="payMethod" />
+                  <input
+                    type="radio"
+                    name="payMethod"
+                    value="간편 결제"
+                    checked={paymentMethod === "간편 결제"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
                   <span>간편 결제</span>
                 </label>
                 <label className="checkout_radio">
-                  <input type="radio" name="payMethod" />
+                  <input
+                    type="radio"
+                    name="payMethod"
+                    value="무통장 입금"
+                    checked={paymentMethod === "무통장 입금"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
                   <span>무통장 입금</span>
                 </label>
               </div>
@@ -369,14 +579,40 @@ const Checkout = () => {
                 <div className="checkout_grid">
                   <div className="checkout_field">
                     <label className="checkout_label" htmlFor="email">이메일(영수증)</label>
-                    <input className="checkout_input" id="email" type="email" placeholder="example@opus.com" />
+                    <input
+                      className="checkout_input"
+                      id="email"
+                      type="email"
+                      placeholder="example@opus.com"
+                      value={form.email}
+                      onChange={(e) => setForm(prev => ({ ...prev, email: e.target.value }))}
+                      required />
                   </div>
 
                   <div className="checkout_field">
                     <label className="checkout_label" htmlFor="name">주문자</label>
-                    <input className="checkout_input" id="name" type="text" placeholder="이름" />
+                    <input
+                      className="checkout_input"
+                      id="name"
+                      type="text"
+                      placeholder="이름"
+                      value={form.ordererName}
+                      onChange={(e) => setForm(prev => ({ ...prev, ordererName: e.target.value }))}
+                      required
+                    />
                   </div>
                 </div>
+
+                {/* 무통장 입금 안내 */}
+                {paymentMethod === "무통장 입금" && (
+                  <div className="checkout_notice">
+                    <i className="fa-solid fa-circle-info"></i>
+                    <p>
+                      결제 후 발급된 가상계좌로 24시간 이내 입금해주세요.
+                      입금 확인 후 주문이 확정됩니다.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </section>
@@ -489,12 +725,20 @@ const Checkout = () => {
               <span className="checkout_summary__v checkout_summary__v--big">{Number(grandTotalChecked).toLocaleString()}원</span>
             </div>
 
-            <button className="checkout_btn checkout_btn--solid checkout_btn--block" type="button" onClick={onGoCheckout}> 
-              {Number(grandTotalChecked).toLocaleString()}원 결제하기
+            <button
+              className="checkout_btn checkout_btn--solid checkout_btn--block"
+              type="button"
+              onClick={handlePayment}
+              disabled={isProcessing || selectedItems.length === 0}
+            >
+              {isProcessing
+                ? "처리 중..."
+                : `${Number(grandTotalChecked).toLocaleString()}원 결제하기`
+              }
             </button>
 
             <p className="checkout_summary__note">
-              결제하기 버튼을 누르면 주문이 확정되며, 결제 수단 인증 단계로 이동할 수 있습니다.
+              결제하기 버튼을 누르면 {paymentMethod} 결제 화면으로 이동합니다.
             </p>
 
             <div className="checkout_secure">

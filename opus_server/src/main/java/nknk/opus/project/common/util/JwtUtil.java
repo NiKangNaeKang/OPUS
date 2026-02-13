@@ -6,12 +6,14 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
 @Component
+@PropertySource("classpath:/config.properties")
 public class JwtUtil {
 
 	@Value("${jwt.secret}")
@@ -20,7 +22,7 @@ public class JwtUtil {
 	@Value("${jwt.expiration}")
 	private long expirationTime;
 
-	// 1. SecretKey 생성
+	// 1. SecretKey 생성	
 	private SecretKey getSigningKey() {
 		byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
 		return Keys.hmacShaKeyFor(keyBytes);
