@@ -139,7 +139,7 @@ public class OrderServiceImpl implements OrderService{
         	
 			// 4. 토스페이먼츠 승인 요청
             TossPaymentResponse paymentResponse = tossPaymentService.confirmPayment(request);
-            
+             
             // 5. 주문 상태 업데이트
             order.setPaymentKey(paymentResponse.getPaymentKey());
             order.setOrderStatus(paymentResponse.getStatus());  // DONE 또는 WAITING_FOR_DEPOSIT
