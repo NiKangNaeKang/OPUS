@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class OrderItem {
 
 	private int orderItemNo; // 주문 상품 번호 (PK)
-	private String orderId; // 주문 ID (FK)
+	private int orderNo; // 주문 번호 (FK)
 	private int goodsNo; // 상품 번호 (FK)
 	private int goodsOptionNo; // 상품 옵션 번호
 	private int qty; // 수량

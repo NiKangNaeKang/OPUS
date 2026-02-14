@@ -42,33 +42,47 @@ public class OrderServiceImpl implements OrderService{
 		// 1. 주문 번호 생성
 		String orderId = "ORDER_" + System.currentTimeMillis() + "_" + memberNo;
 		
+		log.info("===== 주문 생성 시작 =====");
+	    log.info("orderId: {}", orderId);
+	    log.info("memberNo: {}", memberNo);
+	    log.info("recipient: {}", request.getRecipient());
+	    log.info("totalAmount: {}", request.getTotalAmount());
+		
 		// 2. 주문 정보 DB 저장
 		Order order = Order.builder()
-				.orderId(orderId)
-				.memberNo(memberNo)
-				.recipient(request.getRecipient())
-				.recipientTel(request.getRecipientTel())
-				.postcode(request.getPostcode())
-	            .basicAddress(request.getBasicAddress())
-	            .detailAddress(request.getDetailAddress())
-	            .deliveryReq(request.getDeliveryReq())
-	            .email(request.getEmail())
-	            .ordererName(request.getOrdererName())
-	            .totalAmount(request.getTotalAmount())
-	            .paymentMethod(request.getPaymentMethod())
-	            .orderStatus("READY")  // 결제 대기
-	            .build();
+				.orderId(orderId)   
+                .memberNo(memberNo)
+                .recipient(request.getRecipient())
+                .recipientTel(request.getRecipientTel())
+                .postcode(request.getPostcode())
+                .basicAddress(request.getBasicAddress())
+                .detailAddress(request.getDetailAddress())
+                .deliveryReq(request.getDeliveryReq())
+                .email(request.getEmail())
+                .ordererName(request.getOrdererName())
+                .totalAmount(request.getTotalAmount())
+                .goodsAmount(request.getTotalAmount())  
+                .deliveryAmount(0)    
+                .paymentMethod(request.getPaymentMethod())
+                .orderStatus("READY")
+                .build();
+		
+		log.info("Order 객체 생성 완료: {}", order);
 		
 		int result = mapper.createOrder(order);
+	
 		
 		if(result != 1) {
 			throw new BusinessException("주문 생성에 실패했습니다.");
 		}
+
+		// 생성된 ORDER_NO 가져오기
+		int orderNo = order.getOrderNo();
 		
 		// 3. 주문 상품 저장
 		for (OrderItem item : request.getItems()) {
 			OrderItem orderItem = OrderItem.builder()
-					.orderId(orderId)
+					.orderNo(orderNo)
 					.goodsNo(item.getGoodsNo())
 					.goodsOptionNo(item.getGoodsOptionNo())
 					.qty(item.getQty())
@@ -260,7 +274,7 @@ log.info("가상계좌 입금 완료 처리 시작 - orderId: {}", orderId);
             return "OPUS 상품";
         }
         
-        String firstItemName = getGoodsName(items.get(0).getGoodsNo());
+        String firstItemName = selectGoodsName(items.get(0).getGoodsNo());
         
         if (items.size() == 1) {
             return firstItemName;
@@ -269,8 +283,8 @@ log.info("가상계좌 입금 완료 처리 시작 - orderId: {}", orderId);
         return firstItemName + " 외 " + (items.size() - 1) + "건";
     }
     
-    private String getGoodsName(int goodsNo) {
-        return mapper.getGoodsName(goodsNo);
+    private String selectGoodsName(int goodsNo) {
+        return mapper.selectGoodsName(goodsNo);
     }
 
 }
