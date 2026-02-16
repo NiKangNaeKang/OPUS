@@ -181,6 +181,8 @@ const SelectionsDetail = () => {
 
   // ===== 장바구니 =====
   const addItem = useCartStore((state) => state.addItem);
+  const clearCart = useCartStore((state) => state.clearCart);
+  const navigate = useNavigate();
 
   const handleAddToCart = () => {
     // 옵션 검증
@@ -225,7 +227,68 @@ const SelectionsDetail = () => {
     setIsCartModalOpen(true);
   };
 
-  const navigate = useNavigate();
+  // 바로구매 핸들러
+  const handleBuyNow = async () => {
+    // 옵션 검증
+    if ((hasSize || hasColor) && !selectedOptionRow) {
+      alert("옵션을 먼저 선택해주세요.");
+      return;
+    }
+
+    const row = effectiveOptionRow;
+    if (!row) {
+      alert("상품 정보를 불러오지 못했습니다.");
+      return;
+    }
+
+    // 재고 검증
+    if (row.stock != null && qty > row.stock) {
+      alert("선택 가능한 재고 수량을 초과했습니다.");
+      return;
+    }
+
+    const goodsSize = hasSize ? selectedOptionRow?.goodsSize ?? null : null;
+    const goodsColor = hasColor ? selectedOptionRow?.goodsColor ?? null : null;
+
+    const cartKey = row.goodsOptionNo;
+
+    // 1. 기존 장바구니 비우기
+    await clearCart();
+
+    // 2. 현재 상품만 추가
+    const result = await addItem({
+      cartKey,
+      goodsNo: goodsDetail.goodsNo,
+      goodsOptionNo: row.goodsOptionNo ?? null,
+      goodsName: goodsDetail.goodsName,
+      thumbnail: goodsDetail.goodsThumbnail,
+      unitPrice: Number(goodsDetail.goodsPrice),
+      deliveryCost: Number(goodsDetail.deliveryCost ?? 0),
+      goodsSize,
+      goodsColor,
+      qty,
+      stock: row.stock ?? null,
+    });
+
+    console.log("addItem 결과", result)
+
+    if (!result?.success) {
+      alert("장바구니 추가에 실패했습니다.");
+      return;
+    }
+
+    await useCartStore.getState().fetchFromServer();
+
+    const newItems = useCartStore.getState().items;
+    const latestItem = newItems[0]; // clearCart 했으니 1개뿐
+
+    if (latestItem) {
+      useCartStore.getState().checkItem(latestItem.cartKey);
+    }
+
+    // 4. 결제 페이지로 이동
+    navigate("/selections/checkout");
+  };
 
   return (
     isLoading ? (
@@ -360,7 +423,7 @@ const SelectionsDetail = () => {
 
             <div id="product-actions" className="actions">
               <button className="goods_btn goods_btn--outline" type="button" onClick={handleAddToCart}>장바구니</button>
-              <button className="goods_btn goods_btn--solid" type="button">바로 구매</button>
+              <button className="goods_btn goods_btn--solid" type="button" onClick={handleBuyNow}>바로 구매</button>
             </div>
 
             <div id="product-seller-info" className="seller">

@@ -51,7 +51,7 @@ public class OrderController {
 		int memberNo = Integer.parseInt(memberNoStr);
 
 		Map<String, Object> result = orderService.createOrder(request, memberNo);
-
+		
 		return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
 	}

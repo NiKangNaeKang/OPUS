@@ -45,19 +45,43 @@ const Checkout = () => {
   const [customMemo, setCustomMemo] = useState("");  // textarea 전용
 
   // 결제 방법 상태
-  const [paymentMethod, setPaymentMethod] = useState("카드");
+  const [paymentMethod, setPaymentMethod] = useState("카드/간편");
 
   // 결제 진행중 상태
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // 약관 동의 상태
+  const [agreements, setAgreements] = useState({
+    policy: false,
+    privacy: false
+  });
+
+  // 입력 필드 에러 상태
+  const [fieldErrors, setFieldErrors] = useState({});
 
   // 장바구니에서 체크된 상품들
   const selectedItems = items.filter(item => checkedKeys.includes(item.cartKey));
 
   // 가격 모음
-  const goodsTotalChecked = selectedItems.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
-  let shippingTotalChecked = selectedItems.reduce((sum, i) => sum + (i.deliveryCost ?? 0), 0);
-  if (goodsTotalChecked >= 50000) shippingTotalChecked = 0;
+  const goodsTotalChecked = selectedItems.reduce(
+    (sum, i) => sum + i.unitPrice * i.qty,
+    0
+  );
+
+  // 배송비는 한 번만
+  let shippingTotalChecked = 0;
+
+  if (selectedItems.length > 0) {
+    shippingTotalChecked = selectedItems[0].deliveryCost ?? 0;
+  }
+
+  // 무료배송 조건
+  if (goodsTotalChecked >= 50000) {
+    shippingTotalChecked = 0;
+  }
+
   const grandTotalChecked = goodsTotalChecked + shippingTotalChecked;
+
 
   // 페이지 이동 파트
   const navigate = useNavigate();
@@ -236,32 +260,57 @@ const Checkout = () => {
 
   // 결제 검증 함수
   const validatePayment = () => {
+    const errors = {};
 
     // 필수 정보 확인
     if (!form.recipient) {
-      alert("수령인을 입력해주세요.");
-      return false;
+      errors.recipient = true;
     }
     if (!form.recipientTel) {
-      alert("연락처를 입력해주세요.");
-      return false;
+      errors.recipientTel = true;
     }
     if (!form.postcode || !form.basicAddress) {
-      alert("주소를 입력해주세요.");
-      return false;
+      errors.address = true;
     }
     if (!form.email) {
-      alert("이메일을 입력해주세요.");
-      return false;
+      errors.email = true;
     }
     if (!form.ordererName) {
-      alert("주문자명을 입력해주세요.");
-      return false;
+      errors.ordererName = true;
+    }
+    if (!agreements.policy) {
+      errors.policy = true;
+    }
+    if (!agreements.privacy) {
+      errors.privacy = true;
     }
     if (selectedItems.length === 0) {
       alert("주문할 상품을 선택해주세요.");
       return false;
     }
+
+    // 에러가 있으면 상태 업데이트 및 첫 번째 에러 필드로 포커스
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+
+      // 첫 번째 에러 필드로 스크롤 및 포커스
+      const firstErrorField = Object.keys(errors)[0];
+      const errorElement = document.getElementById(firstErrorField);
+
+      if (errorElement) {
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // input 요소면 포커스
+        if (errorElement.tagName === 'INPUT' || errorElement.tagName === 'TEXTAREA') {
+          setTimeout(() => errorElement.focus(), 300);
+        }
+      }
+
+      alert("필수 입력 정보를 모두 입력해주세요.");
+      return false;
+    }
+
+    // 에러 없으면 초기화
+    setFieldErrors({});
     return true;
   };
 
@@ -298,7 +347,10 @@ const Checkout = () => {
       }
 
       const response = await orderApi.createOrder(orderData);
-      const { orderId, orderName, amount } = response.data;
+
+      console.log("주문 생성 완료 {}", response)
+
+      const { orderId, orderName, amount } = response;
 
       // 2. 결제 수단별 처리
       if (paymentMethod === "무통장 입금") {
@@ -326,20 +378,15 @@ const Checkout = () => {
     }
 
     try {
-      // 결제 method 매핑
-      const methodMap = {
-        "카드": "카드",
-        "간편 결제": "간편결제"
-      };
 
-      await tossPaymentsRef.current.requestPayment(methodMap[tossPaymentsRef], {
+      await tossPaymentsRef.current.requestPayment("카드", {
         amount: amount,
         orderId: orderId,
         orderName: orderName,
         customerName: form.ordererName,
         customerEmail: form.email,
-        successUrl: `${location.origin}/payment/success`,
-        failUrl: `${location.origin}/payment/fail`
+        successUrl: `${window.location.origin}/payment/success`,
+        failUrl: `${window.location.origin}/payment/fail`
       });
     } catch (error) {
       console.error("결제창 호출 실패:", error);
@@ -441,14 +488,32 @@ const Checkout = () => {
               <div className="checkout_grid">
                 <div className="checkout_field">
                   <label className="checkout_label" htmlFor="receiver">수령인</label>
-                  <input className="checkout_input" id="receiver" type="text" placeholder="이름"
-                    value={form.recipient} onChange={(e) => { setForm(prev => ({ ...prev, recipient: e.target.value })) }} />
+                  <input
+                    className={`checkout_input ${fieldErrors.recipient ? 'checkout_input--error' : ''}`}
+                    id="recipient"
+                    type="text"
+                    placeholder="이름"
+                    value={form.recipient}
+                    onChange={(e) => {
+                      setForm(prev => ({ ...prev, recipient: e.target.value }));
+                      setFieldErrors(prev => ({ ...prev, recipient: false }));
+                    }}
+                  />
                 </div>
 
                 <div className="checkout_field">
                   <label className="checkout_label" htmlFor="phone">연락처</label>
-                  <input className="checkout_input" id="phone" type="tel" placeholder="010-0000-0000"
-                    value={form.recipientTel} onChange={(e) => { setForm(prev => ({ ...prev, recipientTel: e.target.value })) }} />
+                  <input
+                    className={`checkout_input ${fieldErrors.recipientTel ? 'checkout_input--error' : ''}`}
+                    id="recipientTel"
+                    type="tel"
+                    placeholder="010-0000-0000"
+                    value={form.recipientTel}
+                    onChange={(e) => {
+                      setForm(prev => ({ ...prev, recipientTel: e.target.value }));
+                      setFieldErrors(prev => ({ ...prev, recipientTel: false }));
+                    }}
+                  />
                 </div>
               </div>
 
@@ -456,17 +521,35 @@ const Checkout = () => {
                 <div className="checkout_field checkout_field--wide">
                   <label className="checkout_label" htmlFor="addr1">주소</label>
                   <div className="checkout_addr-row">
-                    <input className="checkout_input" id="addr1" type="text" placeholder="우편번호"
-                      value={form.postcode} readOnly />
-                    <button className="checkout_btn checkout_btn--outline checkout_btn--sm" type="button" onClick={handleClick}>
+                    <input
+                      className={`checkout_input ${fieldErrors.address ? 'checkout_input--error' : ''}`}
+                      id="address"
+                      type="text"
+                      placeholder="우편번호"
+                      value={form.postcode}
+                      readOnly
+                    />
+                    <button
+                      className="checkout_btn checkout_btn--outline checkout_btn--sm"
+                      type="button"
+                      onClick={() => {
+                        handleClick();
+                        setFieldErrors(prev => ({ ...prev, address: false }));
+                      }}
+                    >
                       주소 검색
                     </button>
                   </div>
                 </div>
 
                 <div className="checkout_field checkout_field--wide">
-                  <input className="checkout_input" type="text" placeholder="기본 주소"
-                    value={form.basicAddress} readOnly />
+                  <input
+                    className={`checkout_input ${fieldErrors.address ? 'checkout_input--error' : ''}`}
+                    type="text"
+                    placeholder="기본 주소"
+                    value={form.basicAddress}
+                    readOnly
+                  />
                 </div>
 
                 <div className="checkout_field checkout_field--wide">
@@ -547,21 +630,11 @@ const Checkout = () => {
                   <input
                     type="radio"
                     name="payMethod"
-                    value="카드"
-                    checked={paymentMethod === "카드"}
+                    value="카드/간편"
+                    checked={paymentMethod === "카드/간편"}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                   />
-                  <span>카드 결제</span>
-                </label>
-                <label className="checkout_radio">
-                  <input
-                    type="radio"
-                    name="payMethod"
-                    value="간편 결제"
-                    checked={paymentMethod === "간편 결제"}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                  />
-                  <span>간편 결제</span>
+                  <span>카드 / 간편 결제</span>
                 </label>
                 <label className="checkout_radio">
                   <input
@@ -580,24 +653,31 @@ const Checkout = () => {
                   <div className="checkout_field">
                     <label className="checkout_label" htmlFor="email">이메일(영수증)</label>
                     <input
-                      className="checkout_input"
+                      className={`checkout_input ${fieldErrors.email ? 'checkout_input--error' : ''}`}
                       id="email"
                       type="email"
                       placeholder="example@opus.com"
                       value={form.email}
-                      onChange={(e) => setForm(prev => ({ ...prev, email: e.target.value }))}
-                      required />
+                      onChange={(e) => {
+                        setForm(prev => ({ ...prev, email: e.target.value }));
+                        setFieldErrors(prev => ({ ...prev, email: false }));
+                      }}
+                      required
+                    />
                   </div>
 
                   <div className="checkout_field">
                     <label className="checkout_label" htmlFor="name">주문자</label>
                     <input
-                      className="checkout_input"
-                      id="name"
+                      className={`checkout_input ${fieldErrors.ordererName ? 'checkout_input--error' : ''}`}
+                      id="ordererName"
                       type="text"
                       placeholder="이름"
                       value={form.ordererName}
-                      onChange={(e) => setForm(prev => ({ ...prev, ordererName: e.target.value }))}
+                      onChange={(e) => {
+                        setForm(prev => ({ ...prev, ordererName: e.target.value }));
+                        setFieldErrors(prev => ({ ...prev, ordererName: false }));
+                      }}
                       required
                     />
                   </div>
@@ -610,6 +690,16 @@ const Checkout = () => {
                     <p>
                       결제 후 발급된 가상계좌로 24시간 이내 입금해주세요.
                       입금 확인 후 주문이 확정됩니다.
+                    </p>
+                  </div>
+                )}
+
+                {/* 카드/간편결제 안내 */}
+                {paymentMethod === "카드/간편" && (
+                  <div className="checkout_notice">
+                    <i className="fa-solid fa-circle-info"></i>
+                    <p>
+                      결제창에서 신용카드, 체크카드, 또는 카카오페이/네이버페이 등 간편결제를 선택하실 수 있습니다.
                     </p>
                   </div>
                 )}
@@ -692,12 +782,26 @@ const Checkout = () => {
             </details>
 
             <div className="checkout_agree">
-              <label className="checkout_check">
-                <input type="checkbox" />
+              <label className={`checkout_check ${fieldErrors.policy ? 'checkout_check--error' : ''}`} id="policy">
+                <input
+                  type="checkbox"
+                  checked={agreements.policy}
+                  onChange={(e) => {
+                    setAgreements(prev => ({ ...prev, policy: e.target.checked }));
+                    setFieldErrors(prev => ({ ...prev, policy: false }));
+                  }}
+                />
                 <span>위 정책 및 결제 진행에 동의합니다.</span>
               </label>
-              <label className="checkout_check">
-                <input type="checkbox" />
+              <label className={`checkout_check ${fieldErrors.privacy ? 'checkout_check--error' : ''}`} id="privacy">
+                <input
+                  type="checkbox"
+                  checked={agreements.privacy}
+                  onChange={(e) => {
+                    setAgreements(prev => ({ ...prev, privacy: e.target.checked }));
+                    setFieldErrors(prev => ({ ...prev, privacy: false }));
+                  }}
+                />
                 <span>개인정보 수집·이용 및 제3자 제공에 동의합니다.</span>
               </label>
             </div>

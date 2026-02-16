@@ -8,7 +8,7 @@ const Cart = () => {
   const items = useCartStore((state) => state.items);
   const setQty = useCartStore((state) => state.setQty);
   const removeItems = useCartStore((state) => state.removeItems);
-  const clear = useCartStore((state) => state.clear);
+  const clearCart = useCartStore((state) => state.clearCart);
   const checkedKeys = useCartStore((state) => state.checkedKeys);
   const setCheckedKeys = useCartStore((state) => state.setCheckedKeys);
 
@@ -45,10 +45,26 @@ const Cart = () => {
 
   const selectedItems = items.filter(item => checkedKeys.includes(item.cartKey));
 
-  const goodsTotalChecked = selectedItems.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
-  let shippingTotalChecked = selectedItems.reduce((sum, i) => sum + (i.deliveryCost ?? 0), 0);
-  if (goodsTotalChecked >= 50000) shippingTotalChecked = 0;
+  // 가격 모음
+  const goodsTotalChecked = selectedItems.reduce(
+    (sum, i) => sum + i.unitPrice * i.qty,
+    0
+  );
+
+  // 배송비는 한 번만
+  let shippingTotalChecked = 0;
+
+  if (selectedItems.length > 0) {
+    shippingTotalChecked = selectedItems[0].deliveryCost ?? 0;
+  }
+
+  // 무료배송 조건
+  if (goodsTotalChecked >= 50000) {
+    shippingTotalChecked = 0;
+  }
+
   const grandTotalChecked = goodsTotalChecked + shippingTotalChecked;
+
 
   // 상품을 하나라도 선택했는지 여부
   const hasSelectedItems = items.length > 0 && checkedKeys.length > 0;
@@ -84,7 +100,7 @@ const Cart = () => {
 
             <div className="cart-toolbar__actions">
               <button className="ghost-btn" type="button" onClick={handleDeleteSelected}>선택 삭제</button>
-              <button className="ghost-btn" type="button" onClick={clear}>전체 삭제</button>
+              <button className="ghost-btn" type="button" onClick={clearCart}>전체 삭제</button>
             </div>
           </div>
 

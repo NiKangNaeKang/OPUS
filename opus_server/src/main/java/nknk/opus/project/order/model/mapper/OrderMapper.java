@@ -3,6 +3,7 @@ package nknk.opus.project.order.model.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import nknk.opus.project.order.model.dto.Order;
 import nknk.opus.project.order.model.dto.OrderItem;
@@ -48,7 +49,7 @@ public interface OrderMapper {
     /**
      * 재고 차감
      */
-    int decreaseStock(int goodsOptionNo, int qty);
+    int decreaseStock(@Param("goodsOptionNo") int goodsOptionNo, @Param("qty") int qty);
     
     /**
      * 상품명 조회
