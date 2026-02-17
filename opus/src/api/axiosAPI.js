@@ -6,9 +6,7 @@ const axiosApi = axios.create({
   withCredentials: true,
 });
 
-/**
- * 요청 인터셉터: 서버로 요청을 보내기 전 실행
- */
+/* 요청 인터셉터: 서버로 요청을 보내기 전 실행 */
 axiosApi.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
@@ -23,9 +21,7 @@ axiosApi.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-/**
- * 응답 인터셉터: 서버 응답을 받은 후 컴포넌트에 전달되기 전 실행
- */
+/* 응답 인터셉터: 서버 응답을 받은 후 컴포넌트에 전달되기 전 실행 */
 axiosApi.interceptors.response.use(
   (response) => response,
   (error) => {
