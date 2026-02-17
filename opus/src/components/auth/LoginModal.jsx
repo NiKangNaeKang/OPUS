@@ -3,30 +3,39 @@ import "../../css/loginModal.css";
 import axiosApi from "../../api/axiosAPI";
 import { useAuthStore } from "./useAuthStore";
 import { toast } from "react-toastify";
+import { getSavedEmail } from "./rememberId";
 
 export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const doLogin = useAuthStore((s) => s.login);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [saveId, setSaveId] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // 제출 가능 여부 체크
   const canSubmit = useMemo(() => {
     return email.trim().length > 0 && password.trim().length > 0 && !loading;
   }, [email, password, loading]);
 
-  // 모달 닫힐 때 상태 초기화
   useEffect(() => {
-    if (!open) return;
-    setEmail("");
-    setPassword("");
-    setErrorMsg("");
-    setLoading(false);
+    if (!open) {
+      setPassword("");
+      setErrorMsg("");
+      setLoading(false);
+      return;
+    }
+
+    const savedEmail = getSavedEmail();
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setSaveId(true);
+    } else {
+      setEmail("");
+      setSaveId(false);
+    }
   }, [open]);
 
-  // 모달 오픈 시 배경 스크롤 방지
   useEffect(() => {
     if (!open) return;
     const prevOverflow = document.body.style.overflow;
@@ -36,7 +45,6 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
     };
   }, [open]);
 
-  // 로그인 제출 함수
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
@@ -45,12 +53,11 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
     setErrorMsg("");
 
     try {
-      const res = await axiosApi.post("/auth/login", {
+      const res = await axiosApi.post(`/auth/login?saveId=${saveId}`, {
         memberEmail: email.trim(),
         memberPw: password.trim(),
       });
 
-      // 백엔드 응답 구조: { token: "...", member: { memberNo: 1, memberEmail: "...", memberTel: "...", ... } }
       const token = res?.data?.token;
       const member = res?.data?.member;
 
@@ -58,23 +65,22 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
         throw new Error("로그인 응답 형식이 올바르지 않습니다.");
       }
 
-      const userName = member.memberEmail.split('@')[0]; 
-      toast.success(`${userName}님, 환영합니다!`, { icon: false });
+      const userName = member.memberEmail.split("@")[0];
+      toast.success(<>{userName}님,<br />환영합니다!</>,{ icon: false });
 
-      // Zustand 스토어에 데이터 저장 (token과 member 전달)
       doLogin({ token, member });
       onClose?.();
-
     } catch (err) {
       const status = err?.response?.status;
       const serverData = err?.response?.data;
 
       if (status === 401) {
-        setErrorMsg(typeof serverData === 'string' ? serverData : "이메일 또는 비밀번호가 일치하지 않습니다.");
+        setErrorMsg(typeof serverData === "string" ? serverData : "이메일 또는 비밀번호가 일치하지 않습니다.");
       } else {
         setErrorMsg(
-          typeof serverData === 'string' ? serverData : 
-          (serverData?.message || err?.message || "로그인에 실패했습니다. 다시 시도해주세요.")
+          typeof serverData === "string"
+            ? serverData
+            : serverData?.message || err?.message || "로그인에 실패했습니다. 다시 시도해주세요."
         );
       }
     } finally {
@@ -89,7 +95,9 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
       <div className="lm-modal">
         <div className="lm-header">
           <h2 className="lm-title">로그인</h2>
-          <button className="lm-close" type="button" onClick={onClose} aria-label="닫기">✕</button>
+          <button className="lm-close" type="button" onClick={onClose} aria-label="닫기">
+            ✕
+          </button>
         </div>
 
         <form className="lm-body" onSubmit={handleSubmit}>
@@ -119,6 +127,17 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
             />
           </label>
 
+          <div className="lm-options" style={{ marginBottom: "15px", display: "flex", alignItems: "center", gap: "5px" }}>
+            <input
+              type="checkbox"
+              id="saveId"
+              checked={saveId}
+              onChange={(e) => setSaveId(e.target.checked)}
+              disabled={loading}
+            />
+            <label htmlFor="saveId" style={{ fontSize: "14px", cursor: "pointer" }}>아이디 저장</label>
+          </div>
+
           {errorMsg ? <p className="lm-error">{errorMsg}</p> : null}
 
           <button className="lm-submit" type="submit" disabled={!canSubmit}>
@@ -126,9 +145,15 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
           </button>
 
           <div className="lm-footer">
-            <button type="button" className="lm-link">아이디 찾기</button>
-            <button type="button" className="lm-link">비밀번호 찾기</button>
-            <button type="button" className="lm-link" onClick={onSwitchSignup}>회원가입</button>
+            <button type="button" className="lm-link">
+              아이디 찾기
+            </button>
+            <button type="button" className="lm-link">
+              비밀번호 찾기
+            </button>
+            <button type="button" className="lm-link" onClick={onSwitchSignup}>
+              회원가입
+            </button>
           </div>
         </form>
       </div>

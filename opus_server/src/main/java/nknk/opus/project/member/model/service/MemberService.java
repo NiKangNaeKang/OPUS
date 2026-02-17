@@ -22,4 +22,8 @@ public interface MemberService {
 
 	int changePw(Map<String, Object> param);
 
+	int getActiveTransactionCount(int memberNo);
+
+	boolean withdrawMember(int memberNo);
+
 }

@@ -33,10 +33,8 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 				// 1. REST API 설정을 위해 기본 기능 비활성화
-				//(데이터(JSON)만 주고받는 REST API 방식으로 세션 기반의 보안이나 기본 로그인 창 끔)
-				.csrf(csrf -> csrf.disable())
-				.formLogin(form -> form.disable())
-				.httpBasic(basic -> basic.disable())
+				// (데이터(JSON)만 주고받는 REST API 방식으로 세션 기반의 보안이나 기본 로그인 창 끔)
+				.csrf(csrf -> csrf.disable()).formLogin(form -> form.disable()).httpBasic(basic -> basic.disable())
 
 				// CORS 활성화
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -46,11 +44,11 @@ public class SecurityConfig {
 							// 인증되지 않은 사용자가 접근 시 401 에러를 명시적으로 전달
 							response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UnAuthorized");
 						}))
-				
+
 				// 2. 경로별 권한 설정
 				.authorizeHttpRequests(auth -> auth
 						// preflight 요청 허용
-		                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						// 로그인, 회원가입, 공통 경로는 토큰 없이 허용(인증 전 수행)
 						.requestMatchers("/auth/**", "/common/**").permitAll()
 						// 비로그인 회원도 조회는 가능하도록
@@ -64,23 +62,22 @@ public class SecurityConfig {
 
 		return http.build();
 	}
-	
-	 // CORS 설정 Bean
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration config = new CorsConfiguration();
-        
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+	// CORS 설정 Bean
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
 
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
-    
+		config.setAllowedOrigins(List.of("http://localhost:5173"));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		config.setAllowedHeaders(List.of("*"));
+		config.setAllowCredentials(true);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+		source.registerCorsConfiguration("/**", config);
+		return source;
+	}
+
 }

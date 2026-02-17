@@ -21,4 +21,8 @@ public interface MemberMapper {
 
 	int changePw(Map<String, Object> param);
 
+	int countActiveTransactions(int memberNo);
+
+	int updateWithdrawStatus(int memberNo);
+
 }

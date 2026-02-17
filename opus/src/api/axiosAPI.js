@@ -3,6 +3,7 @@ import { useAuthStore } from "../components/auth/useAuthStore";
 
 const axiosApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
 });
 
 /**
@@ -34,7 +35,8 @@ axiosApi.interceptors.response.use(
       const isLoginRequest = url.includes("/auth/login");
 
       if (!isLoginRequest) {
-        useAuthStore.getState().logout();
+
+       useAuthStore.getState().logout();
 
         const serverMsg =
           error.response.data?.message ||
@@ -45,6 +47,8 @@ axiosApi.interceptors.response.use(
 
         // 이동 중이므로 이후 처리 중단(Optional)
         return new Promise(() => {});
+
+
       }
     }
 

@@ -17,7 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 @Slf4j
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class MemberController {
 
 	@Autowired
@@ -31,17 +31,15 @@ public class MemberController {
 	public ResponseEntity<?> login(@RequestBody Member inputMember,
 			@RequestParam(value = "saveId", required = false) String saveId, HttpServletResponse resp) {
 		try {
-			Member loginMember = service.login(inputMember); // DB에서 회원 정보 조회 및 비밀번호 검증 (Service에서 처리)
+			Member loginMember = service.login(inputMember);
 
 			if (loginMember == null) {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호 일치하지 않음");
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
 			}
 
-			// JWT 토큰 생성
 			String token = jwtUtil.createToken(loginMember.getMemberNo(), loginMember.getMemberEmail(),
 					loginMember.getAuthorLevel());
 
-			// 프론트엔드 응답용 데이터 구성
 			Map<String, Object> result = new HashMap<>();
 			result.put("token", token);
 
@@ -61,13 +59,15 @@ public class MemberController {
 			memberInfo.put("role", role);
 			result.put("member", memberInfo);
 
-			// 아이디 저장 쿠키 로직
+			/* 이메일 저장 쿠키 */
 			Cookie cookie = new Cookie("saveId", loginMember.getMemberEmail());
 			cookie.setPath("/");
-			if (saveId != null) {
-				cookie.setMaxAge(60 * 60 * 24 * 30); // 30일 유지
+			cookie.setHttpOnly(false);
+
+			if (saveId != null && saveId.equals("true")) {
+				cookie.setMaxAge(60 * 60 * 24 * 30);
 			} else {
-				cookie.setMaxAge(0); // 즉시 삭제
+				cookie.setMaxAge(0);
 			}
 			resp.addCookie(cookie);
 
@@ -76,23 +76,27 @@ public class MemberController {
 
 		} catch (Exception e) {
 			log.error("로그인 중 서버 오류 발생", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
 		}
 	}
 
 	/* 연락처 중복 체크 */
 	@PostMapping("check-tel")
-	public ResponseEntity<Boolean> checkTel(@RequestBody Map<String, String> map) {
+	public ResponseEntity<?> checkTel(@RequestBody Map<String, String> map) {
 		String tel = map.get("memberTel");
 		boolean isDuplicate = service.checkTel(tel);
-		return ResponseEntity.ok(isDuplicate);
+
+		if (isDuplicate) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 등록된 연락처입니다.");
+		}
+
+		return ResponseEntity.ok(false);
 	}
 
 	/* 이메일 중복 체크 */
 	@PostMapping("check-email")
 	public ResponseEntity<Boolean> checkEmail(@RequestBody Map<String, String> map) {
 		String email = map.get("email");
-		// 비밀번호 검사가 없는 checkEmail 메서드 호출로 에러 방지
 		boolean isDuplicate = service.checkEmail(email);
 		return ResponseEntity.ok(isDuplicate);
 	}
@@ -105,7 +109,8 @@ public class MemberController {
 			service.sendEmail(email);
 			return ResponseEntity.ok("인증번호가 발송되었습니다.");
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // 단순 문자열
+			log.error("이메일 발송 중 오류 발생: {}", email, e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
 
@@ -123,50 +128,84 @@ public class MemberController {
 	public ResponseEntity<?> signup(@RequestBody Member inputMember) {
 		try {
 			int result = service.signup(inputMember);
-			if (result > 0)
-				return ResponseEntity.ok("가입 성공");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("가입 실패");
+			if (result > 0) {
+				log.info("회원가입 성공: {}", inputMember.getMemberEmail());
+				return ResponseEntity.ok("회원가입에 성공했습니다.");
+			}
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입에 실패했습니다.");
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // 단순 문자열
+			log.error("회원가입 중 오류 발생", e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
 
 	/* 로그아웃 */
 	@GetMapping("logout")
 	public ResponseEntity<?> logout() {
-		return ResponseEntity.ok("로그아웃됨");
+		log.info("로그아웃 완료");
+		return ResponseEntity.ok("로그아웃 되었습니다.");
 	}
 
 	/* 연락처 수정 */
 	@PostMapping("updateTel")
 	public ResponseEntity<String> updateTel(@RequestBody Member inputMember) {
-	    try {
-	        int result = service.updateTel(inputMember);
-	        if (result > 0) return ResponseEntity.ok("연락처 수정 성공");
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("연락처 수정 실패");
-	    } catch (Exception e) {
-	        // 서비스에서 던진 "이미 사용 중인 연락처입니다" 메시지를 프론트로 전달
-	        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-	    }
+		try {
+			int result = service.updateTel(inputMember);
+			if (result > 0) {
+				log.info("연락처 수정 성공: {}", inputMember.getMemberEmail());
+				return ResponseEntity.ok("연락처가 변경되었습니다.");
+			}
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("연락처 변경에 실패했습니다.");
+		} catch (Exception e) {
+			log.error("연락처 수정 중 오류 발생", e);
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+		}
 	}
 
 	/* 비밀번호 변경 */
 	@PostMapping("changePw")
 	public ResponseEntity<?> changePw(@RequestBody Map<String, Object> param) {
-	    try {
-	        int result = service.changePw(param);
+		try {
+			int result = service.changePw(param);
 
-	        if (result > 0) {
-	            return ResponseEntity.ok("비밀번호 변경 완료");
-	        } else {
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("현재 비밀번호 일치하지 않음");
-	        }
-	    } catch (RuntimeException e) {
-	        // 서비스 단의 정규식 검사 등 예외 메시지 처리
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-	    } catch (Exception e) {
-	        log.error("비밀번호 변경 중 서버 오류", e);
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
-	    }
+			if (result > 0) {
+				log.info("비밀번호 변경 성공: {}", param.get("memberEmail"));
+				return ResponseEntity.ok("비밀번호가 변경되었습니다.");
+			} else {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("현재 비밀번호가 일치하지 않습니다.");
+			}
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		} catch (Exception e) {
+			log.error("비밀번호 변경 중 서버 오류", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다");
+		}
+	}
+
+	/* 회원 탈퇴 (경매/주문 건수 체크) */
+	@GetMapping("/withdraw-check/{memberNo}")
+	public ResponseEntity<?> checkWithdrawStatus(@PathVariable int memberNo) {
+		int activeCount = service.getActiveTransactionCount(memberNo);
+		Map<String, Object> response = new HashMap<>();
+		response.put("activeCount", activeCount);
+		return ResponseEntity.ok(response);
+	}
+
+	// 실제 회원 탈퇴 처리 (논리 삭제)
+	@PostMapping("/withdraw")
+	public ResponseEntity<?> withdrawMember(@RequestBody Map<String, Integer> request) {
+		int memberNo = request.get("memberNo");
+
+		// 다시 한번 서버단에서 검증 (보안상 중요)
+		if (service.getActiveTransactionCount(memberNo) > 0) {
+			return ResponseEntity.badRequest().body("진행 중인 거래가 있어 탈퇴할 수 없습니다. 관리자에게 문의해주세요.");
+		}
+
+		boolean result = service.withdrawMember(memberNo);
+		if (result) {
+			return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+		} else {
+			return ResponseEntity.status(500).body("탈퇴 처리 중 오류가 발생했습니다.");
+		}
 	}
 }

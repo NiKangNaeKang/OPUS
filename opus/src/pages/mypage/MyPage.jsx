@@ -4,6 +4,7 @@ import "../../css/mypage.css";
 import { useAuthStore } from "../../components/auth/useAuthStore";
 import { useAuthValidation } from "../../components/auth/useAuthValidation";
 import { toast } from "react-toastify";
+import { showConfirm } from "../../components/toast/ToastUtils"; 
 import axiosApi from "../../api/axiosAPI";
 import { wishlist, reviews, purchases, auctions } from "./myPageData";
 
@@ -11,8 +12,9 @@ const SIDEBAR_GROUPS = [
   {
     title: "내 정보",
     items: [
-      { id: "profile-edit", icon: "fa-regular fa-user", label: "정보 수정" },
+      { id: "profile-edit", icon: "fa-regular fa-user", label: "연락처 변경" },
       { id: "password-change", icon: "fa-solid fa-lock", label: "비밀번호 변경" },
+      { id: "withdrawal", icon: "fa-solid fa-user-slash", label: "회원 탈퇴" },
     ],
   },
   {
@@ -49,25 +51,25 @@ export default function MyPage() {
 
   useEffect(() => {
     setIsTelChecked(false);
-  }, [setIsTelChecked]);
+  }, []); //이거 수정함
 
+  /* -----------------------------------------------------------
+      [기능] 연락처 변경 로직
+  ----------------------------------------------------------- */
   const handleNewPhoneChange = (e) => {
     const formatted = formatPhoneNumber(e.target.value);
     setNewPhone(formatted);
-    setIsTelChecked(false);
+    setIsTelChecked(false); 
   };
 
   const handleUpdatePhone = async (e) => {
     if (e) e.preventDefault();
-    if (!isTelChecked) {
-      toast.error("새 연락처 중복 확인을 해주세요.");
-      return;
-    }
     const rawPhone = newPhone.replace(/[^0-9]/g, "");
-    if (rawPhone === member?.memberTel) {
-      toast.error("기존 연락처와 동일한 번호입니다.");
-      return;
-    }
+
+    if (!rawPhone) return toast.error("연락처를 입력해주세요.");
+    if (!isTelChecked) return toast.error("연락처 중복 확인을 해주세요.");
+    if (rawPhone === member?.memberTel) return toast.error("기존 연락처와 동일한 번호입니다.");
+
     try {
       const res = await axiosApi.post("/auth/updateTel", {
         memberNo: member.memberNo,
@@ -80,18 +82,20 @@ export default function MyPage() {
         setIsTelChecked(false);
       }
     } catch (err) {
-      toast.error(err?.response?.data || "연락처 수정 실패");
+      toast.error(err?.response?.data || "연락처 변경에 실패했습니다.");
     }
   };
 
+  /* -----------------------------------------------------------
+      [기능] 비밀번호 변경 로직
+  ----------------------------------------------------------- */
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (!pwData.currentPw) return toast.error("현재 비밀번호를 입력해주세요.");
-    if (pwData.newPw !== pwData.newPwConfirm) return toast.error("새 비밀번호 확인이 일치하지 않습니다.");
     
     const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
-    if (!pwRegex.test(pwData.newPw)) return toast.error("비밀번호 형식(8~16자 영문/숫자)을 확인하세요.");
-
+    if (!pwRegex.test(pwData.newPw)) return toast.error(<>비밀번호 형식(8~16자 영문/숫자)을<br />확인해주세요.</>);
+    
     try {
       const res = await axiosApi.post("/auth/changePw", {
         memberNo: member.memberNo,
@@ -99,24 +103,69 @@ export default function MyPage() {
         newPw: pwData.newPw,
       });
       if (res.status === 200) {
-        alert("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
-        logout();
-        navigate("/");
+
+              toast.success(<>비밀번호가 변경되었습니다.<br />다시 로그인 해주세요.</>,{ icon: false });
+        setTimeout(() => {
+          logout();
+          navigate("/");
+        }, 1500);
       }
     } catch (err) {
-      toast.error(err.response?.data || "비밀번호 변경 실패");
+      toast.error(err.response?.data || "비밀번호 변경에 실패했습니다.");
     }
   };
 
+  /* -----------------------------------------------------------
+      [기능] 회원 탈퇴 로직
+  ----------------------------------------------------------- */
+  const processWithdrawal = async () => {
+    try {
+      console.log("서버 탈퇴 API 호출 시뮬레이션");
+      toast.success("탈퇴 처리가 완료되었습니다.");
+      setTimeout(() => {
+        logout();
+        navigate("/");
+      }, 1500);
+    } catch (err) {
+      toast.error(err.response?.data || "탈퇴 처리 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleWithdrawalClick = async () => {
+    const mockActiveCount = 1; //목업, 컬럼생성 후 수정
+    if (mockActiveCount > 0) {
+      toast.error(<>진행 중인 경매나 주문이 있어<br />탈퇴가 불가능합니다.<br />관리자에게 문의해주세요.</>);
+      return;
+    }
+
+showConfirm(
+  "정말 탈퇴하시겠습니까?", // title 인자로 전달됨
+  "탈퇴 시 모든 데이터는 복구가 불가능하며\n즉시 로그아웃됩니다.", // message 인자로 전달됨
+  processWithdrawal,
+  "확인"
+);
+  };
+
+  const handleSideNavClick = (e, id) => {
+    if (id === "withdrawal") {
+      e.preventDefault();
+      handleWithdrawalClick();
+    } else {
+      setActiveId(id);
+    }
+  };
+
+  /* -----------------------------------------------------------
+      [활동 내역] 찜 리스트
+  ----------------------------------------------------------- */
   const [wishItems, setWishItems] = useState(wishlist.items);
   const [wishTab, setWishTab] = useState("all");
 
-  const wishCounts = useMemo(() => {
-    const all = wishItems.length;
-    const musical = wishItems.filter((i) => i.type === "뮤지컬").length;
-    const exhibit = wishItems.filter((i) => i.type === "전시").length;
-    return { all, musical, exhibit };
-  }, [wishItems]);
+  const wishCounts = useMemo(() => ({
+    all: wishItems.length,
+    musical: wishItems.filter((i) => i.type === "뮤지컬").length,
+    exhibit: wishItems.filter((i) => i.type === "전시").length,
+  }), [wishItems]);
 
   const filteredWish = useMemo(() => {
     if (wishTab === "all") return wishItems;
@@ -124,9 +173,7 @@ export default function MyPage() {
   }, [wishTab, wishItems]);
 
   const toggleWish = (id) => {
-    setWishItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, liked: !i.liked } : i))
-    );
+    setWishItems((prev) => prev.map((i) => (i.id === id ? { ...i, liked: !i.liked } : i)));
   };
 
   return (
@@ -143,7 +190,7 @@ export default function MyPage() {
                       <a
                         href={`#${item.id}`}
                         className={`nav-link ${activeId === item.id ? "is-active" : ""}`}
-                        onClick={() => setActiveId(item.id)}
+                        onClick={(e) => handleSideNavClick(e, item.id)}
                       >
                         <i className={item.icon} />
                         <span>{item.label}</span>
@@ -160,47 +207,23 @@ export default function MyPage() {
       <main className="main">
         <div className="main__inner">
           <section id="profile-edit" className="card">
-            <header className="card__head">
-              <h2 className="card__title">내 정보 수정</h2>
-            </header>
+            <header className="card__head"><h2 className="card__title">연락처 변경</h2></header>
             <div className="card__body">
               <div className="form">
                 <div className="field">
                   <label className="label">이메일</label>
                   <input className="input input--disabled" value={member?.memberEmail || "정보 없음"} disabled readOnly />
                 </div>
-
                 <div className="field">
                   <label className="label">기존 연락처</label>
                   <input className="input input--disabled" value={formatPhoneNumber(member?.memberTel) || "등록된 번호 없음"} disabled readOnly />
                 </div>
-
                 <div className="field">
                   <label className="label">새 연락처</label>
                   <div className="tel-group">
-                    <input
-                      className="input tel-input"
-                      type="text"
-                      value={newPhone}
-                      onChange={handleNewPhoneChange}
-                      maxLength={13}
-                    />
-                    <button
-                      type="button"
-                      className={`btn btn--check ${isTelChecked ? "is-checked" : ""}`}
-                      onClick={() => handleCheckTel(newPhone.replace(/[^0-9]/g, ""))}
-                      disabled={isTelChecked || !newPhone}
-                    >
-                      {isTelChecked ? "확인됨" : "중복 확인"}
-                    </button>
-                    <button 
-                      type="button"
-                      className="btn btn--primary btn--save" 
-                      onClick={handleUpdatePhone}
-                      disabled={!isTelChecked}
-                    >
-                      저장하기
-                    </button>
+                    <input className="input tel-input" type="text" inputMode="numeric" value={newPhone} onChange={handleNewPhoneChange} maxLength={13} />
+                    <button type="button" className={`btn btn--check ${isTelChecked ? "is-checked" : ""}`} onClick={() => handleCheckTel(newPhone.replace(/[^0-9]/g, ""))} disabled={isTelChecked}>{isTelChecked ? "확인됨" : "중복 확인"}</button>
+                    <button type="button" className="btn btn--primary btn--save" onClick={handleUpdatePhone}>연락처 변경</button>
                   </div>
                 </div>
               </div>
@@ -208,9 +231,7 @@ export default function MyPage() {
           </section>
 
           <section id="password-change" className="card">
-            <header className="card__head">
-              <h2 className="card__title">비밀번호 변경</h2>
-            </header>
+            <header className="card__head"><h2 className="card__title">비밀번호 변경</h2></header>
             <div className="card__body">
               <form className="form form--narrow" onSubmit={handlePasswordChange}>
                 <div className="field">
@@ -226,36 +247,25 @@ export default function MyPage() {
                   <input className="input" type="password" value={pwData.newPwConfirm} onChange={(e) => setPwData({ ...pwData, newPwConfirm: e.target.value })} required />
                   {pwData.newPwConfirm.length > 0 && (
                     <p className={`pw-msg ${pwData.newPw === pwData.newPwConfirm ? "is-match" : "is-error"}`}>
-                      {pwData.newPw === pwData.newPwConfirm ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다."}
+                      {pwData.newPw === pwData.newPwConfirm ? "새 비밀번호가 일치합니다." : "새 비밀번호가 일치하지 않습니다."}
                     </p>
                   )}
                 </div>
                 <div className="form__actions">
-                  <button className="btn btn--primary" type="submit" disabled={!pwData.newPw || pwData.newPw !== pwData.newPwConfirm}>
-                    비밀번호 변경
-                  </button>
+                  <button className="btn btn--primary" type="submit" disabled={!pwData.newPw || pwData.newPw !== pwData.newPwConfirm}>비밀번호 변경</button>
                 </div>
               </form>
             </div>
           </section>
 
           <section id="wishlist" className="card">
-            <header className="card__head">
-              <h2 className="card__title">찜한 리스트</h2>
-            </header>
+            <header className="card__head"><h2 className="card__title">찜한 리스트</h2></header>
             <div className="card__body">
               <div className="chips">
-                <button type="button" className={`chip ${wishTab === "all" ? "is-active" : ""}`} onClick={() => setWishTab("all")}>
-                  전체 <span className="chip__count">{wishCounts.all}</span>
-                </button>
-                <button type="button" className={`chip ${wishTab === "musical" ? "is-active" : ""}`} onClick={() => setWishTab("musical")}>
-                  뮤지컬 <span className="chip__count">{wishCounts.musical}</span>
-                </button>
-                <button type="button" className={`chip ${wishTab === "exhibit" ? "is-active" : ""}`} onClick={() => setWishTab("exhibit")}>
-                  전시 <span className="chip__count">{wishCounts.exhibit}</span>
-                </button>
+                <button type="button" className={`chip ${wishTab === "all" ? "is-active" : ""}`} onClick={() => setWishTab("all")}>전체 <span className="chip__count">{wishCounts.all}</span></button>
+                <button type="button" className={`chip ${wishTab === "musical" ? "is-active" : ""}`} onClick={() => setWishTab("musical")}>뮤지컬 <span className="chip__count">{wishCounts.musical}</span></button>
+                <button type="button" className={`chip ${wishTab === "exhibit" ? "is-active" : ""}`} onClick={() => setWishTab("exhibit")}>전시 <span className="chip__count">{wishCounts.exhibit}</span></button>
               </div>
-
               <div className="grid3">
                 {filteredWish.map((w) => (
                   <article className="wish" key={w.id}>
@@ -310,9 +320,7 @@ export default function MyPage() {
             <header className="card__head"><h2 className="card__title">경매 내역</h2></header>
             <div className="table-wrap">
               <table className="table">
-                <thead>
-                  <tr><th>작품명</th><th>입찰가</th><th>상태</th><th>일시</th></tr>
-                </thead>
+                <thead><tr><th>작품명</th><th>입찰가</th><th>상태</th><th>일시</th></tr></thead>
                 <tbody>
                   {auctions.map((a) => (
                     <tr key={a.id}>
