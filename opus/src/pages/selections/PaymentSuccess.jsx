@@ -45,7 +45,7 @@ const PaymentSuccess = () => {
         setIsConfirming(false);
 
         // 장바구니 비우기
-        useCartStore.getState().clear();
+        useCartStore.getState().clearCart();
 
       } catch (error) {
         console.error("=== 결제 승인 실패 ===");
