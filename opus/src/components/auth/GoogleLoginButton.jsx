@@ -33,25 +33,12 @@ const GoogleLoginButton = ({ onLoginSuccess }) => {
   });
 
   return (
-    <button
-      type="button"
-      onClick={() => handleGoogleLogin()}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "10px",
-        width: "100%",
-        padding: "12px",
-        backgroundColor: "#ffffff",
-        border: "1px solid #dadce0",
-        borderRadius: "4px",
-        cursor: "pointer",
-        fontSize: "16px",
-        fontWeight: "500",
-        color: "#3c4043",
-      }}
-    >
+  <button
+    type="button"
+    className="lm-submit lm-google"
+    onClick={() => handleGoogleLogin()}
+  >
+    
       <img
         src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg"
         alt=""

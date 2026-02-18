@@ -1,3 +1,4 @@
+// src/components/auth/LoginModal.jsx
 import { useEffect, useMemo, useState } from "react";
 import "../../css/loginModal.css";
 import axiosApi from "../../api/axiosAPI";
@@ -5,24 +6,35 @@ import { useAuthStore } from "./useAuthStore";
 import { toast } from "react-toastify";
 import { getSavedEmail } from "./rememberId";
 import GoogleLoginButton from "./GoogleLoginButton";
+import SocialRegisterForm from "./SocialRegisterForm";
+import { useAuthValidation } from "./useAuthValidation"; // 1. 훅 임포트
 
 export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const doLogin = useAuthStore((s) => s.login);
 
+  // --- 기존 로그인 관련 상태 ---
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [saveId, setSaveId] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // --- 소셜 가입 및 중복 확인 관련 상태 ---
+  // --- 소셜 가입 및 훅 연결 ---
   const [isSocialRegister, setIsSocialRegister] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [isTelChecked, setIsTelChecked] = useState(false); // 중복 확인 통과 여부
-  const [telMsg, setTelMsg] = useState(""); // 중복 확인 결과 메시지
+  
+  // 2. 훅에서 하이픈 로직과 중복확인 상태 가져오기
+  const { 
+    isTelChecked, 
+    setIsTelChecked, 
+    handleCheckTel, 
+    handlePhoneChange 
+  } = useAuthValidation();
+
+  const [telMsg, setTelMsg] = useState("");
 
   const canSubmit = useMemo(() => {
-    if (isSocialRegister) return isTelChecked && phoneNumber.trim().length > 9 && !loading;
+    if (isSocialRegister) return isTelChecked && phoneNumber.length >= 12 && !loading; // 하이픈 포함 12~13자
     return email.trim().length > 0 && password.trim().length > 0 && !loading;
   }, [email, password, loading, isSocialRegister, phoneNumber, isTelChecked]);
 
@@ -37,58 +49,38 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
       setTelMsg("");
       return;
     }
+
     const savedEmail = getSavedEmail();
     if (savedEmail && !isSocialRegister) {
       setEmail(savedEmail);
       setSaveId(true);
     }
-  }, [open, isSocialRegister]);
+  }, [open, isSocialRegister, setIsTelChecked]);
 
-  // 연락처 변경 시 중복 확인 상태 초기화
+  // 연락처 변경 시 메시지 초기화
   useEffect(() => {
-    setIsTelChecked(false);
+    if (!open) return;
     setTelMsg("");
-  }, [phoneNumber]);
+  }, [phoneNumber, open]);
 
-  // 연락처 중복 확인 함수
-  const checkTelDuplicate = async () => {
-    const telRegExp = /^010\d{8}$/;
-    if (!telRegExp.test(phoneNumber)) {
-      setTelMsg("하이픈(-) 제외, 010 포함 11자리 숫자로 입력해주세요.");
-      return;
-    }
-
-    try {
-      const res = await axiosApi.post(`/auth/check-tel`, {
-        memberTel: phoneNumber
-      });
-      
-      if (res.data === false) {
-        setTelMsg("사용 가능한 연락처입니다.");
-        setIsTelChecked(true);
-      }
-    } catch (err) {
-      console.error("중복 확인 API 에러:", err);
-      const status = err.response?.status;
-      
-      if (status === 409) {
-        setTelMsg("이미 가입된 연락처입니다.");
-        setIsTelChecked(false);
-      } else {
-        setTelMsg("중복 확인 중 오류가 발생했습니다.");
-        setIsTelChecked(false);
-      }
+  // 중복 확인 처리
+  const onInternalCheckTel = async () => {
+    const success = await handleCheckTel(phoneNumber);
+    if (success) {
+      setTelMsg("사용 가능한 연락처입니다.");
+    } else {
+      setTelMsg("이미 등록되었거나 올바르지 않은 번호입니다.");
     }
   };
 
   const handleGoogleLoginSuccess = (data) => {
-    if (data.message === "ADDITIONAL_INFO_REQUIRED") {
+    if (data?.message === "ADDITIONAL_INFO_REQUIRED") {
       setEmail(data.email);
       setIsSocialRegister(true);
       toast.info("가입을 위해 연락처 등록이 필요합니다.");
       return;
     }
-    if (data.success && data.token) {
+    if (data?.success && data?.token) {
       handleLoginSuccess(data.token, data.member);
     }
   };
@@ -103,27 +95,26 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
+
     setLoading(true);
     setErrorMsg("");
 
     try {
-if (isSocialRegister) {
-  // ✅ 구글 추가정보 가입은 google/register로
-  const res = await axiosApi.post("/auth/google/register", {
-    memberEmail: email,
-    memberTel: phoneNumber,
-  });
+      if (isSocialRegister) {
+        // 하이픈 제거 후 순수 숫자로만 서버 전송
+        const rawPhone = phoneNumber.replace(/[^0-9]/g, "");
+        const res = await axiosApi.post("/auth/google/register", {
+          memberEmail: email,
+          memberTel: rawPhone,
+        });
 
-  // 서버가 가입 성공 후 토큰 + member까지 줌(너 백엔드가 그렇게 구현됨)
-  if (res.data?.success && res.data?.token) {
-    handleLoginSuccess(res.data.token, res.data.member);
-  } else {
-    toast.success("회원가입이 완료되었습니다.");
-    setIsSocialRegister(false);
-    onClose?.();
+        if (res.data?.success && res.data?.token) {
+          handleLoginSuccess(res.data.token, res.data.member);
+        } else {
+          toast.success("회원가입이 완료되었습니다.");
+          setIsSocialRegister(false);
+          onClose?.();
         }
-
-
       } else {
         const res = await axiosApi.post(`/auth/login?saveId=${saveId}`, {
           memberEmail: email.trim(),
@@ -132,7 +123,6 @@ if (isSocialRegister) {
         handleLoginSuccess(res.data.token, res.data.member);
       }
     } catch (err) {
-      console.error("처리 에러:", err);
       const serverMsg = err.response?.data?.message || err.response?.data;
       setErrorMsg(typeof serverMsg === "string" ? serverMsg : "처리에 실패했습니다.");
     } finally {
@@ -152,42 +142,25 @@ if (isSocialRegister) {
 
         <form className="lm-body" onSubmit={handleSubmit}>
           {isSocialRegister ? (
-            <>
-              <p style={{ fontSize: "14px", marginBottom: "15px", color: "#666" }}>
-                계정: <strong>{email}</strong>
-              </p>
-              <label className="lm-label">연락처</label>
-              <div style={{ display: "flex", gap: "5px", marginBottom: "5px" }}>
-                <input
-                  className="lm-input"
-                  type="tel"
-                  placeholder="01012345678"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  style={{ flex: 1, marginBottom: 0 }}
-                />
-                <button 
-                  type="button" 
-                  onClick={checkTelDuplicate}
-                  style={{ width: "80px", padding: "0 10px", fontSize: "12px", backgroundColor: "#333", color: "#fff", borderRadius: "4px" }}
-                >
-                  중복확인
-                </button>
-              </div>
-              {telMsg && (
-                <p style={{ fontSize: "12px", color: isTelChecked ? "blue" : "red", marginBottom: "15px" }}>
-                  {telMsg}
-                </p>
-              )}
-            </>
+            <SocialRegisterForm
+              email={email}
+              phoneNumber={phoneNumber}
+              setPhoneNumber={setPhoneNumber}
+              isTelChecked={isTelChecked}
+              telMsg={telMsg}
+              onCheckTel={onInternalCheckTel}
+              handlePhoneChange={handlePhoneChange}
+            />
           ) : (
             <>
               <label className="lm-label">이메일
-                <input className="lm-input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <input className="lm-input" type="email" placeholder="example@domain.com" value={email} onChange={(e) => setEmail(e.target.value)} />
               </label>
               <label className="lm-label">비밀번호
                 <input className="lm-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
               </label>
+
+              {/* 아이디 저장 체크박스 복구 */}
               <div className="lm-options" style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "15px" }}>
                 <input type="checkbox" id="saveId" checked={saveId} onChange={(e) => setSaveId(e.target.checked)} />
                 <label htmlFor="saveId" style={{ fontSize: "14px", cursor: "pointer" }}>아이디 저장</label>
@@ -206,6 +179,8 @@ if (isSocialRegister) {
               <div className="lm-social-login" style={{ marginTop: "10px" }}>
                 <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} />
               </div>
+
+              {/* 하단 회원가입 링크 복구 */}
               <div className="lm-footer">
                 <button type="button" className="lm-link" onClick={onSwitchSignup}>회원가입</button>
               </div>

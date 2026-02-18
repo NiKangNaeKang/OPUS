@@ -8,30 +8,13 @@ import { showConfirm } from "../../components/toast/ToastUtils";
 import axiosApi from "../../api/axiosAPI";
 import { wishlist, reviews, purchases, auctions } from "./myPageData";
 
-const SIDEBAR_GROUPS = [
-  {
-    title: "내 정보",
-    items: [
-      { id: "profile-edit", icon: "fa-regular fa-user", label: "연락처 변경" },
-      { id: "password-change", icon: "fa-solid fa-lock", label: "비밀번호 변경" },
-      { id: "withdrawal", icon: "fa-solid fa-user-slash", label: "회원 탈퇴" },
-    ],
-  },
-  {
-    title: "활동 내역",
-    items: [
-      { id: "wishlist", icon: "fa-regular fa-heart", label: "찜한 리스트" },
-      { id: "reviews", icon: "fa-regular fa-comment", label: "작성 후기" },
-      { id: "purchase-history", icon: "fa-solid fa-receipt", label: "구매 내역" },
-      { id: "auction-history", icon: "fa-solid fa-gavel", label: "경매 내역" },
-    ],
-  },
-];
-
 export default function MyPage() {
   const navigate = useNavigate();
   const { member, token, login, logout } = useAuthStore();
   const { isTelChecked, setIsTelChecked, handleCheckTel } = useAuthValidation();
+
+  // 구글 로그인 타입 확인
+  const isSocialUser = member?.loginType?.toLowerCase() === "google";
 
   const [activeId, setActiveId] = useState("profile-edit");
   const [newPhone, setNewPhone] = useState("");
@@ -40,6 +23,27 @@ export default function MyPage() {
     newPw: "",
     newPwConfirm: "",
   });
+
+  // 사이드바 그룹 구성 (isSocialUser일 때 비밀번호 변경 메뉴 제외)
+  const SIDEBAR_GROUPS = [
+    {
+      title: "내 정보",
+      items: [
+        { id: "profile-edit", icon: "fa-regular fa-user", label: "연락처 변경" },
+        ...(!isSocialUser ? [{ id: "password-change", icon: "fa-solid fa-lock", label: "비밀번호 변경" }] : []),
+        { id: "withdrawal", icon: "fa-solid fa-user-slash", label: "회원 탈퇴" },
+      ],
+    },
+    {
+      title: "활동 내역",
+      items: [
+        { id: "wishlist", icon: "fa-regular fa-heart", label: "찜한 리스트" },
+        { id: "reviews", icon: "fa-regular fa-comment", label: "작성 후기" },
+        { id: "purchase-history", icon: "fa-solid fa-receipt", label: "구매 내역" },
+        { id: "auction-history", icon: "fa-solid fa-gavel", label: "경매 내역" },
+      ],
+    },
+  ];
 
   const formatPhoneNumber = (value) => {
     if (!value) return "";
@@ -247,7 +251,7 @@ const handleWithdrawalClick = async () => {
             <div className="card__body">
               <div className="form">
                 <div className="field">
-                  <label className="label">이메일</label>
+                  <label className="label">이메일 {isSocialUser && <span style={{fontSize: '12px', color: '#4285F4', marginLeft: '8px'}}>(Google 계정으로 사용 중 입니다.)</span>}</label>
                   <input className="input input--disabled" value={member?.memberEmail || "정보 없음"} disabled readOnly />
                 </div>
                 <div className="field">
@@ -266,33 +270,35 @@ const handleWithdrawalClick = async () => {
             </div>
           </section>
 
-          <section id="password-change" className="card">
-            <header className="card__head"><h2 className="card__title">비밀번호 변경</h2></header>
-            <div className="card__body">
-              <form className="form form--narrow" onSubmit={handlePasswordChange}>
-                <div className="field">
-                  <label className="label">현재 비밀번호</label>
-                  <input className="input" type="password" value={pwData.currentPw} onChange={(e) => setPwData({ ...pwData, currentPw: e.target.value })} required />
-                </div>
-                <div className="field">
-                  <label className="label">새 비밀번호</label>
-                  <input className="input" type="password" placeholder="영문, 숫자 포함 8~16자" value={pwData.newPw} onChange={(e) => setPwData({ ...pwData, newPw: e.target.value })} required />
-                </div>
-                <div className="field">
-                  <label className="label">새 비밀번호 확인</label>
-                  <input className="input" type="password" value={pwData.newPwConfirm} onChange={(e) => setPwData({ ...pwData, newPwConfirm: e.target.value })} required />
-                  {pwData.newPwConfirm.length > 0 && (
-                    <p className={`pw-msg ${pwData.newPw === pwData.newPwConfirm ? "is-match" : "is-error"}`}>
-                      {pwData.newPw === pwData.newPwConfirm ? "새 비밀번호가 일치합니다." : "새 비밀번호가 일치하지 않습니다."}
-                    </p>
-                  )}
-                </div>
-                <div className="form__actions">
-                  <button className="btn btn--primary" type="submit" disabled={!pwData.newPw || pwData.newPw !== pwData.newPwConfirm}>비밀번호 변경</button>
-                </div>
-              </form>
-            </div>
-          </section>
+          {!isSocialUser && (
+            <section id="password-change" className="card">
+              <header className="card__head"><h2 className="card__title">비밀번호 변경</h2></header>
+              <div className="card__body">
+                <form className="form form--narrow" onSubmit={handlePasswordChange}>
+                  <div className="field">
+                    <label className="label">현재 비밀번호</label>
+                    <input className="input" type="password" value={pwData.currentPw} onChange={(e) => setPwData({ ...pwData, currentPw: e.target.value })} required />
+                  </div>
+                  <div className="field">
+                    <label className="label">새 비밀번호</label>
+                    <input className="input" type="password" placeholder="영문, 숫자 포함 8~16자" value={pwData.newPw} onChange={(e) => setPwData({ ...pwData, newPw: e.target.value })} required />
+                  </div>
+                  <div className="field">
+                    <label className="label">새 비밀번호 확인</label>
+                    <input className="input" type="password" value={pwData.newPwConfirm} onChange={(e) => setPwData({ ...pwData, newPwConfirm: e.target.value })} required />
+                    {pwData.newPwConfirm.length > 0 && (
+                      <p className={`pw-msg ${pwData.newPw === pwData.newPwConfirm ? "is-match" : "is-error"}`}>
+                        {pwData.newPw === pwData.newPwConfirm ? "새 비밀번호가 일치합니다." : "새 비밀번호가 일치하지 않습니다."}
+                      </p>
+                    )}
+                  </div>
+                  <div className="form__actions">
+                    <button className="btn btn--primary" type="submit" disabled={!pwData.newPw || pwData.newPw !== pwData.newPwConfirm}>비밀번호 변경</button>
+                  </div>
+                </form>
+              </div>
+            </section>
+          )}
 
           <section id="wishlist" className="card">
             <header className="card__head"><h2 className="card__title">찜한 리스트</h2></header>
