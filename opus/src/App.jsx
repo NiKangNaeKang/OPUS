@@ -18,6 +18,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyPage from "./pages/mypage/MyPage";
 import ExhibitionList from "./pages/onStage/ExhibitionList";
 import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
+import AuthSuccess from "./components/auth/AuthSuccess";
 
 export default function App() {
   return (
@@ -26,6 +27,8 @@ export default function App() {
       <ToastConfig />
 
       <Routes>
+        <Route path="/auth/success" element={<AuthSuccess />} />
+
         {/* Dark Header 레이아웃 */}
         <Route element={<DarkHeaderLayout />}>
           <Route path="/" element={<Home />} />

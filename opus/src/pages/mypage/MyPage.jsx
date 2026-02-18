@@ -195,9 +195,7 @@ const handleWithdrawalClick = async () => {
     }
   };
 
-  /* -----------------------------------------------------------
-      [활동 내역] 찜 리스트
-  ----------------------------------------------------------- */
+  /* 찜 리스트 */
   const [wishItems, setWishItems] = useState(wishlist.items);
   const [wishTab, setWishTab] = useState("all");
 

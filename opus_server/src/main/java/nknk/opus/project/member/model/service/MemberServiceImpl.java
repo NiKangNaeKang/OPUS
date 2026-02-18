@@ -192,7 +192,6 @@ public class MemberServiceImpl implements MemberService {
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int googleRegister(Member inputMember) {
-		// 기본값
 		inputMember.setMemberPw(encoder.encode("GOOGLE_SOCIAL_USER"));
 		inputMember.setLoginType("GOOGLE");
 		if (inputMember.getMemberRole() == null)

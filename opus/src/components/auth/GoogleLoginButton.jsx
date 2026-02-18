@@ -16,7 +16,6 @@ const GoogleLoginButton = ({ onLoginSuccess }) => {
         console.log("Server Response:", response.data);
         toast.dismiss(toastId);
 
-        // 부모(LoginModal)의 handleGoogleLoginSuccess 실행
         if (onLoginSuccess) {
           onLoginSuccess(response.data);
         }

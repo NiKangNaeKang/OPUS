@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="nknk.opus.project.board.model.mapper.BoardMapper">
+
+	<select id="selectBoardList" resultType="Board">
+		SELECT
+		BOARD_NO,
+		BOARD_TITLE,
+		WRITER_COMPANY,
+		BOARD_WRITE_DATE,
+		BOARD_VIEW_COUNT,
+		BOARD_CATEGORY
+		FROM "BOARD"
+		WHERE BOARD_DEL_FL = 'N'
+		AND BOARD_TYPE_CODE = #{boardTypeCode}
+		<choose>
+			<when test="sort == 'view'">
+				ORDER BY BOARD_VIEW_COUNT DESC, BOARD_NO DESC
+			</when>
+			<otherwise>
+				ORDER BY BOARD_WRITE_DATE DESC, BOARD_NO DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="selectBoardDetail" resultType="Board">
+		SELECT
+		B.BOARD_NO,
+		B.BOARD_TITLE,
+		B.BOARD_CONTENT,
+		B.WRITER_COMPANY,
+		B.BOARD_WRITE_DATE,
+		B.BOARD_VIEW_COUNT,
+		B.BOARD_CATEGORY,
+		B.BOARD_TYPE_CODE,
+		B.MEMBER_NO,
+		(SELECT BOARD_NAME FROM BOARD_TYPE BT WHERE BT.BOARD_TYPE_CODE =
+		B.BOARD_TYPE_CODE) AS BOARD_NAME
+		FROM "BOARD" B
+		WHERE B.BOARD_DEL_FL = 'N'
+		AND B.BOARD_NO = #{boardNo}
+	</select>
+
+	<update id="updateViewCount">
+		UPDATE "BOARD" SET
+		BOARD_VIEW_COUNT = BOARD_VIEW_COUNT + 1
+		WHERE BOARD_NO = #{boardNo}
+	</update>
+
+	<insert id="insertBoard" parameterType="Board">
+		INSERT INTO "BOARD" (
+		BOARD_NO,
+		BOARD_TYPE_CODE,
+		MEMBER_NO,
+		BOARD_TITLE,
+		BOARD_CONTENT,
+		BOARD_CATEGORY,
+		WRITER_COMPANY
+		) VALUES (
+		SEQ_BOARD_NO.NEXTVAL,
+		#{boardTypeCode},
+		#{memberNo},
+		#{boardTitle},
+		#{boardContent},
+		#{boardCategory},
+		#{writerCompany}
+		)
+	</insert>
+
+	<update id="updateBoard" parameterType="Board">
+		UPDATE "BOARD" SET
+		BOARD_TITLE = #{boardTitle},
+		BOARD_CONTENT = #{boardContent},
+		BOARD_CATEGORY = #{boardCategory},
+		WRITER_COMPANY = #{writerCompany},
+		BOARD_UPDATE_DATE = SYSDATE
+		WHERE BOARD_NO = #{boardNo}
+		AND BOARD_DEL_FL = 'N'
+	</update>
+
+	<update id="deleteBoard">
+		UPDATE "BOARD" SET
+		BOARD_DEL_FL = 'Y'
+		WHERE BOARD_NO = #{boardNo}
+	</update>
+
+</mapper>

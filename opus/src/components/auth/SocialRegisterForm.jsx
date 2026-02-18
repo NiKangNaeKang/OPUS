@@ -1,4 +1,3 @@
-// src/components/auth/SocialRegisterForm.jsx
 export default function SocialRegisterForm({
   email,
   phoneNumber,
@@ -6,7 +5,7 @@ export default function SocialRegisterForm({
   isTelChecked,
   telMsg,
   onCheckTel,
-  handlePhoneChange, // useAuthValidation에서 가져온 함수 추가
+  handlePhoneChange,
 }) {
   return (
     <>
@@ -22,8 +21,8 @@ export default function SocialRegisterForm({
         <input
           className="lm-input"
           type="tel"
-          placeholder="010-1234-5678" // 하이픈 포함 형식으로 변경
-          maxLength="13" // 하이픈 포함 최대 13자까지만 입력 가능하도록 제한
+          placeholder="010-1234-5678"
+          maxLength="13"
           value={phoneNumber}
           onChange={(e) => handlePhoneChange(e.target.value, setPhoneNumber)}
           style={{ flex: 1, marginBottom: 0 }}

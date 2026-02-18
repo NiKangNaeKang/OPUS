@@ -4,14 +4,12 @@ import { toast } from "react-toastify";
 
 export const useAuthValidation = () => {
   const [isTelChecked, setIsTelChecked] = useState(false);
-
-  // 1. [신규] 입력 시 하이픈 자동 추가 로직
   const handlePhoneChange = (value, setPhoneNumber) => {
-    // 숫자 이외 제거
+
     const rawValue = value.replace(/[^0-9]/g, "");
     let formattedValue = "";
 
-    // 길이에 따른 하이픈 위치 세팅
+
     if (rawValue.length <= 3) {
       formattedValue = rawValue;
     } else if (rawValue.length <= 7) {
@@ -21,10 +19,10 @@ export const useAuthValidation = () => {
     }
 
     setPhoneNumber(formattedValue);
-    setIsTelChecked(false); // 번호 수정 시 중복확인 다시 하도록 초기화
+    setIsTelChecked(false);
   };
 
-  // 2. 기존 중복 확인 로직 (rawPhone 추출은 그대로 유지)
+
   const handleCheckTel = async (tel) => {
     const rawPhone = tel.replace(/[^0-9]/g, "");
 
@@ -68,7 +66,7 @@ export const useAuthValidation = () => {
     isTelChecked, 
     setIsTelChecked, 
     handleCheckTel, 
-    handlePhoneChange, // 리턴에 추가!
+    handlePhoneChange,
     checkPwMatch 
   };
 };

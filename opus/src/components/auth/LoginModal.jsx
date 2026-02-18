@@ -7,23 +7,21 @@ import { toast } from "react-toastify";
 import { getSavedEmail } from "./rememberId";
 import GoogleLoginButton from "./GoogleLoginButton";
 import SocialRegisterForm from "./SocialRegisterForm";
-import { useAuthValidation } from "./useAuthValidation"; // 1. 훅 임포트
+import { useAuthValidation } from "./useAuthValidation";
 
 export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const doLogin = useAuthStore((s) => s.login);
 
-  // --- 기존 로그인 관련 상태 ---
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [saveId, setSaveId] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // --- 소셜 가입 및 훅 연결 ---
+
   const [isSocialRegister, setIsSocialRegister] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   
-  // 2. 훅에서 하이픈 로직과 중복확인 상태 가져오기
   const { 
     isTelChecked, 
     setIsTelChecked, 
@@ -34,7 +32,7 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const [telMsg, setTelMsg] = useState("");
 
   const canSubmit = useMemo(() => {
-    if (isSocialRegister) return isTelChecked && phoneNumber.length >= 12 && !loading; // 하이픈 포함 12~13자
+    if (isSocialRegister) return isTelChecked && phoneNumber.length >= 12 && !loading;
     return email.trim().length > 0 && password.trim().length > 0 && !loading;
   }, [email, password, loading, isSocialRegister, phoneNumber, isTelChecked]);
 
@@ -57,13 +55,13 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
     }
   }, [open, isSocialRegister, setIsTelChecked]);
 
-  // 연락처 변경 시 메시지 초기화
+
   useEffect(() => {
     if (!open) return;
     setTelMsg("");
   }, [phoneNumber, open]);
 
-  // 중복 확인 처리
+
   const onInternalCheckTel = async () => {
     const success = await handleCheckTel(phoneNumber);
     if (success) {
@@ -101,7 +99,6 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
 
     try {
       if (isSocialRegister) {
-        // 하이픈 제거 후 순수 숫자로만 서버 전송
         const rawPhone = phoneNumber.replace(/[^0-9]/g, "");
         const res = await axiosApi.post("/auth/google/register", {
           memberEmail: email,
@@ -160,7 +157,6 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
                 <input className="lm-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
               </label>
 
-              {/* 아이디 저장 체크박스 복구 */}
               <div className="lm-options" style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "15px" }}>
                 <input type="checkbox" id="saveId" checked={saveId} onChange={(e) => setSaveId(e.target.checked)} />
                 <label htmlFor="saveId" style={{ fontSize: "14px", cursor: "pointer" }}>아이디 저장</label>
@@ -180,7 +176,6 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
                 <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} />
               </div>
 
-              {/* 하단 회원가입 링크 복구 */}
               <div className="lm-footer">
                 <button type="button" className="lm-link" onClick={onSwitchSignup}>회원가입</button>
               </div>
