@@ -163,6 +163,10 @@ input, textarea{ outline:none; }
   margin: 0;
 }
 
+.text {
+  white-space: pre-line;
+}
+
 .textarea{
   width: 100%;
   height: 160px;
@@ -575,4 +579,28 @@ input, textarea{ outline:none; }
   width: 100%;
   height: 100%;
   align-self: flex-start;
+}
+
+.meat-content-report {
+  width: 100%;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.meat-content-report:hover {
+  background-color: #e5e5e5;
+}
+
+.meat-content-report {
+  width: 100%;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.meat-content-report:hover {
+  background-color: #e5e5e5;
 }
