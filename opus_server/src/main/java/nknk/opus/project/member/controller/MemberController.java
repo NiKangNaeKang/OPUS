@@ -3,9 +3,9 @@ package nknk.opus.project.member.controller;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import nknk.opus.project.common.util.JwtUtil;
 import nknk.opus.project.member.model.dto.Member;
 import nknk.opus.project.member.model.service.MemberService;
-import nknk.opus.project.common.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +26,7 @@ public class MemberController {
 	@Autowired
 	private JwtUtil jwtUtil;
 
-	/**
-	 * 일반 로그인
-	 */
+	/** 일반 로그인 */
 	@PostMapping("login")
 	public ResponseEntity<?> login(@RequestBody Member inputMember,
 			@RequestParam(value = "saveId", required = false) String saveId, HttpServletResponse resp) {
@@ -40,7 +38,6 @@ public class MemberController {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
 			}
 
-			// JWT 토큰 생성 및 회원 정보 설정
 			String token = jwtUtil.createToken(loginMember.getMemberNo(), loginMember.getMemberEmail(),
 					loginMember.getMemberRole());
 
@@ -53,17 +50,16 @@ public class MemberController {
 			memberInfo.put("memberEmail", loginMember.getMemberEmail());
 			memberInfo.put("memberTel", loginMember.getMemberTel());
 			memberInfo.put("authorLevel", loginMember.getAuthorLevel());
-			memberInfo.put("role", loginMember.getMemberRole().name());
+			memberInfo.put("role", loginMember.getMemberRole() == null ? null : loginMember.getMemberRole().name());
 			memberInfo.put("loginType", loginMember.getLoginType());
 
 			result.put("member", memberInfo);
 
-			// 아이디 저장용 쿠키 설정
 			Cookie cookie = new Cookie("saveId", loginMember.getMemberEmail());
 			cookie.setPath("/");
 			cookie.setHttpOnly(false);
 
-			if (saveId != null && saveId.equals("true")) {
+			if ("true".equals(saveId)) {
 				cookie.setMaxAge(60 * 60 * 24 * 30);
 			} else {
 				cookie.setMaxAge(0);
@@ -79,15 +75,12 @@ public class MemberController {
 		}
 	}
 
-	/**
-	 * 구글 소셜 로그인
-	 */
+	/** 구글 소셜 로그인 */
 	@PostMapping("google")
 	public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> payload) {
 		try {
 			String googleAccessToken = payload.get("accessToken");
 
-			// 서비스에서 회원 확인 (신규 회원이면 memberTel이 "REQUIRED"로 설정된 임시 객체 반환)
 			Member loginMember = service.loginGoogle(googleAccessToken);
 
 			if (loginMember == null) {
@@ -96,7 +89,7 @@ public class MemberController {
 
 			Map<String, Object> result = new HashMap<>();
 
-			// [핵심] 신규 회원이라 연락처 입력이 필요한 경우
+			// 신규 회원(추가정보 필요)
 			if ("REQUIRED".equals(loginMember.getMemberTel())) {
 				result.put("success", false);
 				result.put("message", "ADDITIONAL_INFO_REQUIRED");
@@ -104,7 +97,7 @@ public class MemberController {
 				return ResponseEntity.ok(result);
 			}
 
-			// --- 기존 회원인 경우 (JWT 발급 및 로그인 처리) ---
+			// 기존 회원
 			String token = jwtUtil.createToken(loginMember.getMemberNo(), loginMember.getMemberEmail(),
 					loginMember.getMemberRole());
 
@@ -115,7 +108,7 @@ public class MemberController {
 			memberInfo.put("memberNo", loginMember.getMemberNo());
 			memberInfo.put("memberEmail", loginMember.getMemberEmail());
 			memberInfo.put("memberTel", loginMember.getMemberTel());
-			memberInfo.put("role", loginMember.getMemberRole().name());
+			memberInfo.put("role", loginMember.getMemberRole() == null ? null : loginMember.getMemberRole().name());
 			memberInfo.put("loginType", loginMember.getLoginType());
 
 			result.put("member", memberInfo);
@@ -139,7 +132,6 @@ public class MemberController {
 			log.info("[연락처 중복] Tel: {}", tel);
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 등록된 연락처입니다.");
 		}
-
 		return ResponseEntity.ok(false);
 	}
 
@@ -176,11 +168,10 @@ public class MemberController {
 		String code = map.get("code");
 		boolean isMatched = service.verifyCode(email, code);
 
-		if (isMatched) {
+		if (isMatched)
 			log.info("[이메일 인증 성공] Email: {}", email);
-		} else {
+		else
 			log.warn("[이메일 인증 실패] 인증번호 불일치 (Email: {})", email);
-		}
 
 		return ResponseEntity.ok(isMatched);
 	}
@@ -189,6 +180,7 @@ public class MemberController {
 	@PostMapping("signup")
 	public ResponseEntity<?> signup(@RequestBody Member inputMember) {
 		try {
+			inputMember.setLoginType("NORMAL");
 			int result = service.signup(inputMember);
 			if (result > 0) {
 				log.info("[회원가입 성공] Email: {}", inputMember.getMemberEmail());
@@ -255,16 +247,14 @@ public class MemberController {
 	}
 
 	/* 회원 탈퇴 */
-	@PostMapping("/withdraw/{memberNo}") // URL 경로에 memberNo를 직접 포함
+	@PostMapping("/withdraw/{memberNo}")
 	public ResponseEntity<?> withdrawMember(@PathVariable("memberNo") int memberNo) {
 
-		// 1. 거래 건수 체크 (서비스 호출)
 		if (service.getActiveTransactionCount(memberNo) > 0) {
 			log.info("[탈퇴 거부] 진행 중인 거래 존재 (MemberNo: {})", memberNo);
 			return ResponseEntity.badRequest().body("진행 중인 거래가 있어 탈퇴할 수 없습니다.");
 		}
 
-		// 2. 탈퇴 처리
 		boolean result = service.withdrawMember(memberNo);
 
 		if (result) {
@@ -272,6 +262,34 @@ public class MemberController {
 			return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
 		} else {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("탈퇴 처리 중 오류가 발생했습니다.");
+		}
+	}
+
+	/** 구글 회원가입 완료 및 자동 로그인 */
+	@PostMapping("google/register")
+	public ResponseEntity<?> googleRegister(@RequestBody Member inputMember) {
+		try {
+			int result = service.googleRegister(inputMember);
+
+			if (result > 0) {
+				log.info("[구글 회원가입 성공] Email: {}", inputMember.getMemberEmail());
+
+				Member loginMember = service.getMemberByEmail(inputMember.getMemberEmail());
+
+				String token = jwtUtil.createToken(loginMember.getMemberNo(), loginMember.getMemberEmail(),
+						loginMember.getMemberRole());
+
+				Map<String, Object> response = new HashMap<>();
+				response.put("success", true);
+				response.put("token", token);
+				response.put("member", loginMember);
+
+				return ResponseEntity.ok(response);
+			}
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("구글 가입 실패");
+		} catch (Exception e) {
+			log.error("[구글 가입 에러] 사유: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 }

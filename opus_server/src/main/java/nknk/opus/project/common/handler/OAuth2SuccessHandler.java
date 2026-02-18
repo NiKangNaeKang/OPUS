@@ -27,17 +27,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 
-// OAuth2 인증 사용자 정보(이메일) 추출
+		// OAuth2 인증 사용자 정보(이메일) 추출
 		OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 		String email = (String) oAuth2User.getAttributes().get("email");
 
-// 이메일 기반 DB 사용자 정보 조회
+		// 이메일 기반 DB 사용자 정보 조회
 		Member member = mapper.findByEmail(email);
 
-// 서비스 전용 JWT 토큰 생성 (회원번호, 이메일, 권한 포함)
+		// 서비스 전용 JWT 토큰 생성 (회원번호, 이메일, 권한 포함)
 		String token = jwtUtil.createToken(member.getMemberNo(), member.getMemberEmail(), member.getMemberRole());
 
-// 프론트엔드(React) 결과 페이지로 토큰 포함하여 리다이렉트
+		// 프론트엔드(React) 결과 페이지로 토큰 포함하여 리다이렉트
 		String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/auth/success")
 				.queryParam("token", token).build().encode(StandardCharsets.UTF_8).toUriString();
 

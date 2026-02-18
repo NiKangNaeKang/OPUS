@@ -11,17 +11,19 @@
 		MEMBER_EMAIL,
 		MEMBER_PW,
 		MEMBER_TEL,
-		MEMBER_ROLE, AUTHOR_LEVEL,
+		MEMBER_ROLE,
+		AUTHOR_LEVEL,
+		LOGIN_TYPE,
 		ENROLL_DATE,
-		MEMBER_DEL_FL
+		MEMBER_DEL_FL,
+		WITHDRAWAL_DATE
 		FROM "MEMBER"
-		WHERE
-		MEMBER_EMAIL
-		= #{memberEmail}
+		WHERE MEMBER_EMAIL = #{memberEmail}
 		AND MEMBER_DEL_FL = 'N'
 	</select>
 
-	<insert id="signup" parameterType="Member">
+	<insert id="signup"
+		parameterType="nknk.opus.project.member.model.dto.Member">
 		INSERT INTO "MEMBER" (
 		MEMBER_NO,
 		MEMBER_EMAIL,
@@ -30,20 +32,25 @@
 		ENROLL_DATE,
 		MEMBER_DEL_FL,
 		AUTHOR_LEVEL,
-		MEMBER_ROLE, LOGIN_TYPE ) VALUES (
+		MEMBER_ROLE,
+		LOGIN_TYPE
+		) VALUES (
 		SEQ_MEMBER_NO.NEXTVAL,
 		#{memberEmail},
 		#{memberPw},
 		#{memberTel},
 		DEFAULT,
 		DEFAULT,
-		1,
-		'MEMBER', 'NORMAL' )
+		NVL(#{authorLevel}, 1),
+		NVL(#{memberRole}, 'MEMBER'),
+		NVL(#{loginType}, 'NORMAL')
+		)
 	</insert>
 
-	<update id="updateTel">
-		UPDATE "MEMBER" SET
-		MEMBER_TEL = #{memberTel}
+	<update id="updateTel"
+		parameterType="nknk.opus.project.member.model.dto.Member">
+		UPDATE "MEMBER"
+		SET MEMBER_TEL = #{memberTel}
 		WHERE
 		MEMBER_NO = #{memberNo}
 	</update>
@@ -63,8 +70,8 @@
 	</select>
 
 	<update id="changePw">
-		UPDATE "MEMBER" SET
-		MEMBER_PW = #{newPw}
+		UPDATE "MEMBER"
+		SET MEMBER_PW = #{newPw}
 		WHERE
 		MEMBER_NO = #{memberNo}
 	</update>
@@ -72,21 +79,16 @@
 	<select id="getActiveTransactionCount" parameterType="int"
 		resultType="int">
 		SELECT
-		-- 1. 경매 체크 (상태가 UPCOMING이거나 진행 중인 건)
 		(SELECT COUNT(*)
 		FROM AUCTION
 		WHERE MEMBER_NO = #{memberNo}
-		AND UNVEILING_STATUS =
-		'UPCOMING')
+		AND UNVEILING_STATUS = 'UPCOMING')
 		+
-		-- 2. 주문 체크 (상태가 READY이거나 배송 중인 건)
 		(SELECT COUNT(*)
-		FROM
-		"ORDER"
+		FROM "ORDER"
 		WHERE MEMBER_NO = #{memberNo}
 		AND ORDER_STATUS = 'READY')
-		AS
-		active_count
+		AS active_count
 		FROM DUAL
 	</select>
 
@@ -95,51 +97,59 @@
 		SET
 		MEMBER_DEL_FL = 'Y',
 		WITHDRAWAL_DATE = SYSDATE
-		WHERE MEMBER_NO =
-		#{memberNo}
+		WHERE MEMBER_NO = #{memberNo}
 	</update>
 
 	<select id="findByEmail" parameterType="string"
-		resultType="Member">
+		resultType="nknk.opus.project.member.model.dto.Member">
 		SELECT
 		MEMBER_NO,
 		MEMBER_EMAIL,
-		MEMBER_ROLE, AUTHOR_LEVEL,
-		LOGIN_TYPE, MEMBER_DEL_FL
-		FROM MEMBER
-		WHERE MEMBER_EMAIL =
-		#{memberEmail}
-		AND
-		MEMBER_DEL_FL = 'N'
+		MEMBER_TEL,
+		MEMBER_ROLE,
+		AUTHOR_LEVEL,
+		LOGIN_TYPE,
+		ENROLL_DATE,
+		MEMBER_DEL_FL,
+		WITHDRAWAL_DATE
+		FROM "MEMBER"
+		WHERE MEMBER_EMAIL = #{memberEmail}
+		AND MEMBER_DEL_FL = 'N'
 	</select>
 
-	<select id="checkEmailExists" resultType="Member">
-		SELECT * FROM "MEMBER"
+	<select id="checkEmailExists"
+		resultType="nknk.opus.project.member.model.dto.Member">
+		SELECT *
+		FROM "MEMBER"
 		WHERE MEMBER_EMAIL = #{email}
 		AND MEMBER_DEL_FL = 'N'
 	</select>
 
-	<insert id="insertMember" parameterType="Member">
+	<insert id="insertMember"
+		parameterType="nknk.opus.project.member.model.dto.Member">
 		<selectKey keyProperty="memberNo" resultType="_int"
 			order="BEFORE">
 			SELECT SEQ_MEMBER_NO.NEXTVAL FROM DUAL
 		</selectKey>
-		INSERT INTO MEMBER (
+
+		INSERT INTO "MEMBER" (
 		MEMBER_NO,
 		MEMBER_EMAIL,
-		MEMBER_PW, MEMBER_TEL,
+		MEMBER_PW,
+		MEMBER_TEL,
 		MEMBER_ROLE,
 		AUTHOR_LEVEL,
-		LOGIN_TYPE, ENROLL_DATE,
+		LOGIN_TYPE,
+		ENROLL_DATE,
 		MEMBER_DEL_FL
-		)
-		VALUES
-		(
+		) VALUES (
 		#{memberNo},
 		#{memberEmail},
-		#{memberPw}, #{memberTel}, #{memberRole},
-		#{authorLevel},
-		#{loginType},
+		#{memberPw},
+		#{memberTel},
+		NVL(#{memberRole}, 'MEMBER'),
+		NVL(#{authorLevel}, 1),
+		NVL(#{loginType}, 'NORMAL'),
 		SYSDATE,
 		'N'
 		)

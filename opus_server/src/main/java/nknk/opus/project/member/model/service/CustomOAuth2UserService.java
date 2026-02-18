@@ -41,7 +41,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 		}
 
-		// 4. 시큐리티 세션 저장
 		return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority(member.getMemberRole().getKey())),
 				oAuth2User.getAttributes(), "email");
 	}
