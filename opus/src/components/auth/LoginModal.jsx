@@ -4,6 +4,7 @@ import axiosApi from "../../api/axiosAPI";
 import { useAuthStore } from "./useAuthStore";
 import { toast } from "react-toastify";
 import { getSavedEmail } from "./rememberId";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const doLogin = useAuthStore((s) => s.login);
@@ -143,6 +144,11 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
           <button className="lm-submit" type="submit" disabled={!canSubmit}>
             {loading ? "로그인 중..." : "로그인"}
           </button>
+
+          {/* 구글 로그인 버튼 영역 추가 */}
+          <div className="lm-social-login" style={{ marginTop: "10px" }}>
+            <GoogleLoginButton />
+          </div>
 
           <div className="lm-footer">
             <button type="button" className="lm-link">

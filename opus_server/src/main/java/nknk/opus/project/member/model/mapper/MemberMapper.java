@@ -21,12 +21,14 @@ public interface MemberMapper {
 
 	int changePw(Map<String, Object> param);
 
-	int countActiveTransactions(int memberNo);
+	int getActiveTransactionCount(int memberNo);
 
-	int updateWithdrawStatus(int memberNo);
+	int withdrawMember(int memberNo);
 
 	Member findByEmail(String email);
 
 	void insertMember(Member member);
+
+	Member checkEmailExists(String email);
 
 }

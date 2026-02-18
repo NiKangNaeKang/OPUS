@@ -51,11 +51,9 @@ export default function MyPage() {
 
   useEffect(() => {
     setIsTelChecked(false);
-  }, []); //이거 수정함
+  }, []); // 마이페이지 진입 시(마운트 시) 단 한 번 초기화, 빈 배열이 의도 명확
 
-  /* -----------------------------------------------------------
-      [기능] 연락처 변경 로직
-  ----------------------------------------------------------- */
+
   const handleNewPhoneChange = (e) => {
     const formatted = formatPhoneNumber(e.target.value);
     setNewPhone(formatted);
@@ -86,9 +84,7 @@ export default function MyPage() {
     }
   };
 
-  /* -----------------------------------------------------------
-      [기능] 비밀번호 변경 로직
-  ----------------------------------------------------------- */
+
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (!pwData.currentPw) return toast.error("현재 비밀번호를 입력해주세요.");
@@ -115,36 +111,76 @@ export default function MyPage() {
     }
   };
 
-  /* -----------------------------------------------------------
-      [기능] 회원 탈퇴 로직
-  ----------------------------------------------------------- */
-  const processWithdrawal = async () => {
-    try {
-      console.log("서버 탈퇴 API 호출 시뮬레이션");
-      toast.success("탈퇴 처리가 완료되었습니다.");
-      setTimeout(() => {
-        logout();
-        navigate("/");
-      }, 1500);
+
+const processWithdrawal = async () => {
+try {
+    /* ********************** [실제 서버 통신용 - 나중에 주석 해제]
+  const res = await axiosApi.post(`/auth/withdraw/${member.memberNo}`);
+      if (res.status === 200) {
+        toast.success("탈퇴 처리가 완료되었습니다.");
+        setTimeout(() => {
+          logout();
+          navigate("/");
+        }, 1500);
+      }
     } catch (err) {
-      toast.error(err.response?.data || "탈퇴 처리 중 오류가 발생했습니다.");
+      toast.error(err.response?.data?.message || "탈퇴 처리 중 오류가 발생했습니다.");
     }
   };
 
   const handleWithdrawalClick = async () => {
-    const mockActiveCount = 1; //목업, 컬럼생성 후 수정
+    try {
+      const checkRes = await axiosApi.get(`/auth/withdraw-check/${member.memberNo}`);
+      const activeCount = checkRes.data.activeCount;
+
+      if (activeCount > 0) {
+        toast.error(<>진행 중인 경매나 주문이 ({activeCount}건) 있어<br />탈퇴가 불가능합니다.<br />관리자에게 문의해주세요.</>);
+        return;
+      }
+
+      await processWithdrawal();
+
+    } catch (err) {
+      toast.error("상태 확인 중 오류가 발생했습니다.");
+    }
+  };
+    **************************** */
+
+    // [임시 목업 테스트용] -------------------------------------
+    console.log("서버 탈퇴 API 호출 시뮬레이션 (회원번호:", member?.memberNo, ")");
+    toast.success("탈퇴 처리가 완료되었습니다. (테스트)");
+    
+    setTimeout(() => {
+      logout();
+      navigate("/");
+    }, 1500);
+
+  } catch (err) {
+    toast.error(err.response?.data || "탈퇴 처리 중 오류가 발생했습니다.");
+  }
+};
+
+const handleWithdrawalClick = async () => {
+  try {
+    const mockActiveCount = 5;  // 테스트용, 0일시 탈퇴, 1 이상 탈퇴불가
     if (mockActiveCount > 0) {
-      toast.error(<>진행 중인 경매나 주문이 있어<br />탈퇴가 불가능합니다.<br />관리자에게 문의해주세요.</>);
+      toast.error(<>진행 중인 경매나 주문이 ({mockActiveCount}건) 있어<br />탈퇴가 불가능합니다.<br />관리자에게 문의해주세요.</>);
       return;
     }
+    // --------------------------------------------- 여기까지 삭제
 
-showConfirm(
-  "정말 탈퇴하시겠습니까?", // title 인자로 전달됨
-  "탈퇴 시 모든 데이터는 복구가 불가능하며\n즉시 로그아웃됩니다.", // message 인자로 전달됨
-  processWithdrawal,
-  "확인"
-);
-  };
+
+    showConfirm(
+      "정말 탈퇴하시겠습니까?",
+      "탈퇴 시 모든 데이터는 복구가 불가능하며\n즉시 로그아웃됩니다.",
+      processWithdrawal,
+      "확인"
+    );
+
+  } catch (err) {
+    toast.error("탈퇴 가능 여부 확인 중 오류가 발생했습니다.");
+  }
+};
 
   const handleSideNavClick = (e, id) => {
     if (id === "withdrawal") {

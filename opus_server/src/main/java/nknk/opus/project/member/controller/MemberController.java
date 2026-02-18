@@ -26,7 +26,9 @@ public class MemberController {
 	@Autowired
 	private JwtUtil jwtUtil;
 
-	/* 로그인 */
+	/**
+	 * 일반 로그인
+	 */
 	@PostMapping("login")
 	public ResponseEntity<?> login(@RequestBody Member inputMember,
 			@RequestParam(value = "saveId", required = false) String saveId, HttpServletResponse resp) {
@@ -43,6 +45,7 @@ public class MemberController {
 					loginMember.getMemberRole());
 
 			Map<String, Object> result = new HashMap<>();
+			result.put("success", true);
 			result.put("token", token);
 
 			Map<String, Object> memberInfo = new HashMap<>();
@@ -51,6 +54,7 @@ public class MemberController {
 			memberInfo.put("memberTel", loginMember.getMemberTel());
 			memberInfo.put("authorLevel", loginMember.getAuthorLevel());
 			memberInfo.put("role", loginMember.getMemberRole().name());
+			memberInfo.put("loginType", loginMember.getLoginType());
 
 			result.put("member", memberInfo);
 
@@ -72,6 +76,56 @@ public class MemberController {
 		} catch (Exception e) {
 			log.error("[로그인 에러] 사유: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
+		}
+	}
+
+	/**
+	 * 구글 소셜 로그인
+	 */
+	@PostMapping("google")
+	public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> payload) {
+		try {
+			String googleAccessToken = payload.get("accessToken");
+
+			// 서비스에서 회원 확인 (신규 회원이면 memberTel이 "REQUIRED"로 설정된 임시 객체 반환)
+			Member loginMember = service.loginGoogle(googleAccessToken);
+
+			if (loginMember == null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("구글 인증에 실패했습니다.");
+			}
+
+			Map<String, Object> result = new HashMap<>();
+
+			// [핵심] 신규 회원이라 연락처 입력이 필요한 경우
+			if ("REQUIRED".equals(loginMember.getMemberTel())) {
+				result.put("success", false);
+				result.put("message", "ADDITIONAL_INFO_REQUIRED");
+				result.put("email", loginMember.getMemberEmail());
+				return ResponseEntity.ok(result);
+			}
+
+			// --- 기존 회원인 경우 (JWT 발급 및 로그인 처리) ---
+			String token = jwtUtil.createToken(loginMember.getMemberNo(), loginMember.getMemberEmail(),
+					loginMember.getMemberRole());
+
+			result.put("success", true);
+			result.put("token", token);
+
+			Map<String, Object> memberInfo = new HashMap<>();
+			memberInfo.put("memberNo", loginMember.getMemberNo());
+			memberInfo.put("memberEmail", loginMember.getMemberEmail());
+			memberInfo.put("memberTel", loginMember.getMemberTel());
+			memberInfo.put("role", loginMember.getMemberRole().name());
+			memberInfo.put("loginType", loginMember.getLoginType());
+
+			result.put("member", memberInfo);
+
+			log.info("[구글 로그인 성공] Email: {}", loginMember.getMemberEmail());
+			return ResponseEntity.ok(result);
+
+		} catch (Exception e) {
+			log.error("[구글 로그인 에러] 사유: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
 		}
 	}
 
@@ -201,23 +255,23 @@ public class MemberController {
 	}
 
 	/* 회원 탈퇴 */
-	@PostMapping("/withdraw")
-	public ResponseEntity<?> withdrawMember(@RequestBody Map<String, Integer> request) {
-		int memberNo = request.get("memberNo");
+	@PostMapping("/withdraw/{memberNo}") // URL 경로에 memberNo를 직접 포함
+	public ResponseEntity<?> withdrawMember(@PathVariable("memberNo") int memberNo) {
 
-		// 활동 중인 거래가 있는지 확인
+		// 1. 거래 건수 체크 (서비스 호출)
 		if (service.getActiveTransactionCount(memberNo) > 0) {
 			log.info("[탈퇴 거부] 진행 중인 거래 존재 (MemberNo: {})", memberNo);
-			return ResponseEntity.badRequest().body("진행 중인 거래가 있어 탈퇴할 수 없습니다. 관리자에게 문의해주세요.");
+			return ResponseEntity.badRequest().body("진행 중인 거래가 있어 탈퇴할 수 없습니다.");
 		}
 
+		// 2. 탈퇴 처리
 		boolean result = service.withdrawMember(memberNo);
+
 		if (result) {
 			log.info("[회원 탈퇴 완료] MemberNo: {}", memberNo);
 			return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
 		} else {
-			log.error("[회원 탈퇴 에러] DB 처리 실패 (MemberNo: {})", memberNo);
-			return ResponseEntity.status(500).body("탈퇴 처리 중 오류가 발생했습니다.");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("탈퇴 처리 중 오류가 발생했습니다.");
 		}
 	}
 }

@@ -26,4 +26,6 @@ public interface MemberService {
 
 	boolean withdrawMember(int memberNo);
 
+	Member loginGoogle(String googleAccessToken);
+
 }

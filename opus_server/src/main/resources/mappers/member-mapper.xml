@@ -113,6 +113,12 @@
 		MEMBER_DEL_FL = 'N'
 	</select>
 
+	<select id="checkEmailExists" resultType="Member">
+		SELECT * FROM "MEMBER"
+		WHERE MEMBER_EMAIL = #{email}
+		AND MEMBER_DEL_FL = 'N'
+	</select>
+
 	<insert id="insertMember" parameterType="Member">
 		<selectKey keyProperty="memberNo" resultType="_int"
 			order="BEFORE">
@@ -121,18 +127,22 @@
 		INSERT INTO MEMBER (
 		MEMBER_NO,
 		MEMBER_EMAIL,
+		MEMBER_PW, MEMBER_TEL,
 		MEMBER_ROLE,
 		AUTHOR_LEVEL,
 		LOGIN_TYPE, ENROLL_DATE,
 		MEMBER_DEL_FL
 		)
-		VALUES (
+		VALUES
+		(
 		#{memberNo},
 		#{memberEmail},
-		#{memberRole},
+		#{memberPw}, #{memberTel}, #{memberRole},
 		#{authorLevel},
-		#{loginType}, SYSDATE,
-		'N')
+		#{loginType},
+		SYSDATE,
+		'N'
+		)
 	</insert>
 
 </mapper>
