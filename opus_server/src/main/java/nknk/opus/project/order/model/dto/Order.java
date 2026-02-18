@@ -1,5 +1,7 @@
 package nknk.opus.project.order.model.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -54,6 +56,8 @@ public class Order {
     private String trackingNumber;    // 송장 번호
     private String deliveryCompany;   // 택배사
     private String deliveredAt;       // 배송 완료 시각
-	
+    
+ // 주문 상품 목록
+    private List<OrderItem> items;
 	
 }
