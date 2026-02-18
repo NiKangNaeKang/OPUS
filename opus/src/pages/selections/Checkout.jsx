@@ -63,6 +63,8 @@ const Checkout = () => {
   const selectedItems = items.filter(item => checkedKeys.includes(item.cartKey));
 
   // 가격 모음
+
+  // 상품 총 가격
   const goodsTotalChecked = selectedItems.reduce(
     (sum, i) => sum + i.unitPrice * i.qty,
     0
@@ -98,7 +100,11 @@ const Checkout = () => {
 
   // selectedAddressId가 바뀔 때마다 기본 배송지 정보로 form 초기화
   useEffect(() => {
+
+    // 선택한 주소의 번호와 주소 목록 중 주소 번호가 같은 주소 반환
     const selectedAddr = addresses.find(a => a.addressNo === selectedAddressId);
+
+    // 선택 주소가 있으면 해당 주소 입력
     if (selectedAddr) {
       setForm({
         recipient: selectedAddr.recipient,
@@ -155,7 +161,7 @@ const Checkout = () => {
     }
   };
 
-  // 직접입력 메모 함수
+  // 직접입력 메모 핸들러
   const handleCustomMemoChange = (e) => {
     const value = e.target.value;
     setCustomMemo(value);
@@ -165,7 +171,7 @@ const Checkout = () => {
     }));
   };
 
-  // 선택한 배송지 적용 함수
+  // 선택한 배송지 적용 핸들러
   const handleApplyAddress = (addressNo) => {
     const addr = addresses.find(
       a => a.addressNo === addressNo
@@ -181,6 +187,7 @@ const Checkout = () => {
       deliveryReq: addr.deliveryReq ?? ""
     });
 
+    // 미리 정의된 배송 메모
     const predefinedOptions = [
       "문 앞에 놓아주세요",
       "경비실에 맡겨주세요",
@@ -245,10 +252,12 @@ const Checkout = () => {
   useEffect(() => {
     const initializeTossPayments = async () => {
       try {
+        console.log("==== 토스페이먼츠 초기화 시작 ====");
         const tossPayments = await loadTossPayments(
           import.meta.env.VITE_TOSS_CLIENT_KEY
         );
         tossPaymentsRef.current = tossPayments;
+        console.log("==== 토스페이먼츠 초기화 완료 ====");
       } catch (error) {
         console.error("토스페이먼츠 초기화 실패:", error);
         alert("결제 시스템 초기화에 실패했습니다.");
@@ -314,7 +323,7 @@ const Checkout = () => {
     return true;
   };
 
-  // 결제 요청 함수
+  // 결제 요청 핸들러
   const handlePayment = async () => {
 
     // 결제 전 검증
@@ -346,9 +355,10 @@ const Checkout = () => {
         paymentMethod: paymentMethod
       }
 
+      console.log("==== 주문 생성 시작 ====");
       const response = await orderApi.createOrder(orderData);
 
-      console.log("주문 생성 완료 {}", response)
+      console.log("주문 생성 완료", response)
 
       const { orderId, orderName, amount } = response;
 
@@ -378,7 +388,7 @@ const Checkout = () => {
     }
 
     try {
-
+      console.log("==== 카드 / 간편 결제창 호출 시작 ====");
       await tossPaymentsRef.current.requestPayment("카드", {
         amount: amount,
         orderId: orderId,
@@ -390,6 +400,12 @@ const Checkout = () => {
       });
     } catch (error) {
       console.error("결제창 호출 실패:", error);
+
+       if (error.code === "USER_CANCEL") {
+        alert("결제가 취소되었습니다.");
+        return;
+      }
+
       alert("결제창 호출에 실패했습니다.");
     }
   };
@@ -402,6 +418,7 @@ const Checkout = () => {
     }
 
     try {
+      console.log("==== 가상계좌 발급 시작 ====");
       await tossPaymentsRef.current.requestPayment("가상계좌", {
         amount: amount,
         orderId: orderId,
@@ -417,6 +434,12 @@ const Checkout = () => {
       });
     } catch (error) {
       console.error("가상계좌 발급 실패:", error);
+
+      if (error.code === "USER_CANCEL") {
+        alert("결제가 취소되었습니다.");
+        return;
+      }
+
       alert("가상계좌 발급에 실패했습니다.");
     }
   };

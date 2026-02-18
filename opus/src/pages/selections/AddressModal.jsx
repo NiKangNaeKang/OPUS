@@ -23,7 +23,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
   // 주소 검색어 상태
   const [query, setQuery] = useState("");
 
-  // 
+  // 배송지 입력 상태
   const [form, setForm] = useState({
     recipient: "",
     recipientTel: "",
@@ -33,7 +33,11 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
     deliveryReq: "",
     isDefault: "N"
   });
+  
+  // 선택 주소 임시 저장 상태
+  const [tempSelectedId, setTempSelectedId] = useState(null);
 
+  // 주소 상태 관리
   const {
     addresses,
     selectedAddressId,
@@ -44,17 +48,18 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
     deleteAddress
   } = useAddressStore();
 
-  const [tempSelectedId, setTempSelectedId] = useState(null);
-
+  // 주소 저장 핸들러
   const handleSave = async () => {
     try {
 
       if (editingAddress) {
         // 수정
+        console.log("==== 주소 수정 시작 ====")
         await updateAddress(editingAddress.addressNo, form);
         alert("배송지가 수정되었습니다!");
       } else {
         // 신규 추가
+        console.log("==== 주소 추가 시작 ====")
         await addAddress(form);
         alert("배송지가 추가되었습니다!");
       }
@@ -70,10 +75,12 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
 
   };
 
+  // 주소 삭제 핸들러
   const handleDelete = async (id) => {
     if (!confirm("배송지를 삭제하시겠습니까?")) return;
 
     try {
+      console.log("==== 주소 삭제 시작 ====")
       await deleteAddress(id);
       alert("배송지가 삭제되었습니다!");
     } catch (error) {
@@ -84,8 +91,10 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
   };
 
   const handleSetDefault = async (id) => {
+    console.log("==== 기본 배송지 설정 시작 ====")
     await setDefaultAddress(id);
     selectAddress(id); // 기본 배송지로 바꾸면서 선택도 같이
+    console.log("기본 배송지 설정 완료")
   };
 
   /* 모달 열릴 때 초기화 */
@@ -98,7 +107,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
     setMode("SELECT");
   }, [isOpen, addresses, selectedAddressId]);
 
-  // 다음 주소 API
+  // ===== 다음 주소 API =====
   const open = useDaumPostcodePopup(import.meta.env.VITE_DAUM_API);
 
   const handleComplete = (data) => {
@@ -127,7 +136,9 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
   const handleClick = () => {
     open({ onComplete: handleComplete });
   };
+// ============================================
 
+// 주소 검색
   const filteredAddresses = useMemo(() => {
       if (!addresses) return [];
 
@@ -143,11 +154,12 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
     }, [addresses, query]);
 
 
-  /* FORM 진입 시 값 세팅 */
+  // FORM 진입 시 값 세팅
   useEffect(() => {
     if (mode !== "FORM") return;
 
     if (editingAddress) {
+      // 작성한 주소가 존재할 때
       setForm({
         recipient: editingAddress.recipient,
         recipientTel: editingAddress.recipientTel,
@@ -165,19 +177,22 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
         "배송 전 연락 부탁드려요"
       ];
 
+      // 배송메모가 존재하면서 미리 정의된 옵션과 같지 않을 때
       if (editingAddress.deliveryReq &&
         !predefinedOptions.includes(editingAddress.deliveryReq)) {
         // 미리 정의되지 않은 메모 = 직접 입력
         setSelectedMemoType("직접 입력");
         setCustomMemo(editingAddress.deliveryReq);  // customMemo에 값 설정
         setOnTextarea(true);
-      } else {
+      } else { 
+        // 배송메모가 존재하면서 미리 정의된 옵션과 같을 때
         setSelectedMemoType(editingAddress.deliveryReq ?? "");
         setCustomMemo("");  // customMemo 초기화
         setOnTextarea(false);
       }
 
     } else {
+      // 작성한 주소가 없을 때
       setForm({
         recipient: "",
         recipientTel: "",
@@ -195,6 +210,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
     }
   }, [mode, editingAddress]);
 
+  // 배송 메모 선택 핸들러
   const handleMemoSelect = (e) => {
     const value = e.target.value;
     setSelectedMemoType(value);
@@ -215,6 +231,7 @@ const AddressModal = ({ isOpen, onClose, onApply }) => {
     }
   };
 
+  // 직접 입력 핸들러
   const handleCustomMemoChange = (e) => {
     const value = e.target.value;
     setCustomMemo(value);

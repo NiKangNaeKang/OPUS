@@ -35,10 +35,11 @@ const PaymentSuccess = () => {
         console.log("amount after parseInt:", requestData.amount);
         console.log("amount type after parseInt:", typeof requestData.amount);
 
+        console.log("==== 전송 시작 ====")
+
         // 백엔드에 최종 승인 요청
         const response = await orderApi.confirmPayment(requestData);
-
-
+        
         console.log("결제 승인 응답:", response);
 
         setOrderInfo(response);

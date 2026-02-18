@@ -98,8 +98,8 @@ public class TossPaymentServiceImpl implements TossPaymentService {
 			log.error("===== 결제 승인 중 예상치 못한 오류 발생 =====");
 			log.error("에러 타입: {}", e.getClass().getName());
 			log.error("에러 메시지: {}", e.getMessage());
-			log.error("스택 트레이스:", e);
 			log.error("결제 승인 중 오류 발생", e);
+			e.printStackTrace();
 			throw new BusinessException("결제 승인 중 오류가 발생했습니다.");
 		}
 
