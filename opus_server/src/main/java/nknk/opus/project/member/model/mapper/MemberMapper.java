@@ -25,4 +25,8 @@ public interface MemberMapper {
 
 	int updateWithdrawStatus(int memberNo);
 
+	Member findByEmail(String email);
+
+	void insertMember(Member member);
+
 }

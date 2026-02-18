@@ -34,11 +34,13 @@ public class MemberController {
 			Member loginMember = service.login(inputMember);
 
 			if (loginMember == null) {
+				log.warn("[로그인 실패] Email: {}", inputMember.getMemberEmail());
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디 또는 비밀번호가 일치하지 않습니다.");
 			}
 
+			// JWT 토큰 생성 및 회원 정보 설정
 			String token = jwtUtil.createToken(loginMember.getMemberNo(), loginMember.getMemberEmail(),
-					loginMember.getAuthorLevel());
+					loginMember.getMemberRole());
 
 			Map<String, Object> result = new HashMap<>();
 			result.put("token", token);
@@ -48,18 +50,11 @@ public class MemberController {
 			memberInfo.put("memberEmail", loginMember.getMemberEmail());
 			memberInfo.put("memberTel", loginMember.getMemberTel());
 			memberInfo.put("authorLevel", loginMember.getAuthorLevel());
+			memberInfo.put("role", loginMember.getMemberRole().name());
 
-			String role = switch (loginMember.getAuthorLevel()) {
-			case 1 -> "MEMBER";
-			case 2 -> "COMPANY";
-			case 3 -> "ADMIN";
-			default -> "USER";
-			};
-
-			memberInfo.put("role", role);
 			result.put("member", memberInfo);
 
-			/* 이메일 저장 쿠키 */
+			// 아이디 저장용 쿠키 설정
 			Cookie cookie = new Cookie("saveId", loginMember.getMemberEmail());
 			cookie.setPath("/");
 			cookie.setHttpOnly(false);
@@ -71,11 +66,11 @@ public class MemberController {
 			}
 			resp.addCookie(cookie);
 
-			log.info("로그인 성공: {}", loginMember.getMemberEmail());
+			log.info("[로그인 성공] Email: {}", loginMember.getMemberEmail());
 			return ResponseEntity.ok(result);
 
 		} catch (Exception e) {
-			log.error("로그인 중 서버 오류 발생", e);
+			log.error("[로그인 에러] 사유: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
 		}
 	}
@@ -87,6 +82,7 @@ public class MemberController {
 		boolean isDuplicate = service.checkTel(tel);
 
 		if (isDuplicate) {
+			log.info("[연락처 중복] Tel: {}", tel);
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 등록된 연락처입니다.");
 		}
 
@@ -98,6 +94,10 @@ public class MemberController {
 	public ResponseEntity<Boolean> checkEmail(@RequestBody Map<String, String> map) {
 		String email = map.get("email");
 		boolean isDuplicate = service.checkEmail(email);
+
+		if (isDuplicate)
+			log.info("[이메일 중복] Email: {}", email);
+
 		return ResponseEntity.ok(isDuplicate);
 	}
 
@@ -107,9 +107,10 @@ public class MemberController {
 		String email = map.get("email");
 		try {
 			service.sendEmail(email);
+			log.info("[인증번호 발송 성공] Email: {}", email);
 			return ResponseEntity.ok("인증번호가 발송되었습니다.");
 		} catch (Exception e) {
-			log.error("이메일 발송 중 오류 발생: {}", email, e);
+			log.error("[인증번호 발송 에러] Email: {}, 사유: {}", email, e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
@@ -120,6 +121,13 @@ public class MemberController {
 		String email = map.get("email");
 		String code = map.get("code");
 		boolean isMatched = service.verifyCode(email, code);
+
+		if (isMatched) {
+			log.info("[이메일 인증 성공] Email: {}", email);
+		} else {
+			log.warn("[이메일 인증 실패] 인증번호 불일치 (Email: {})", email);
+		}
+
 		return ResponseEntity.ok(isMatched);
 	}
 
@@ -129,12 +137,12 @@ public class MemberController {
 		try {
 			int result = service.signup(inputMember);
 			if (result > 0) {
-				log.info("회원가입 성공: {}", inputMember.getMemberEmail());
+				log.info("[회원가입 성공] Email: {}", inputMember.getMemberEmail());
 				return ResponseEntity.ok("회원가입에 성공했습니다.");
 			}
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("회원가입에 실패했습니다.");
 		} catch (Exception e) {
-			log.error("회원가입 중 오류 발생", e);
+			log.error("[회원가입 에러] 사유: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		}
 	}
@@ -142,22 +150,22 @@ public class MemberController {
 	/* 로그아웃 */
 	@GetMapping("logout")
 	public ResponseEntity<?> logout() {
-		log.info("로그아웃 완료");
+		log.info("[로그아웃 완료]");
 		return ResponseEntity.ok("로그아웃 되었습니다.");
 	}
 
-	/* 연락처 수정 */
+	/* 연락처 변경 */
 	@PostMapping("updateTel")
 	public ResponseEntity<String> updateTel(@RequestBody Member inputMember) {
 		try {
 			int result = service.updateTel(inputMember);
 			if (result > 0) {
-				log.info("연락처 수정 성공: {}", inputMember.getMemberEmail());
+				log.info("[연락처 변경 성공] Email: {}", inputMember.getMemberEmail());
 				return ResponseEntity.ok("연락처가 변경되었습니다.");
 			}
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("연락처 변경에 실패했습니다.");
 		} catch (Exception e) {
-			log.error("연락처 수정 중 오류 발생", e);
+			log.error("[연락처 변경 에러] 사유: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		}
 	}
@@ -169,20 +177,21 @@ public class MemberController {
 			int result = service.changePw(param);
 
 			if (result > 0) {
-				log.info("비밀번호 변경 성공: {}", param.get("memberEmail"));
+				log.info("[비밀번호 변경 성공] Email: {}", param.get("memberEmail"));
 				return ResponseEntity.ok("비밀번호가 변경되었습니다.");
 			} else {
+				log.warn("[비밀번호 변경 실패] 현재 비밀번호 불일치 (Email: {})", param.get("memberEmail"));
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("현재 비밀번호가 일치하지 않습니다.");
 			}
 		} catch (RuntimeException e) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		} catch (Exception e) {
-			log.error("비밀번호 변경 중 서버 오류", e);
+			log.error("[비밀번호 변경 에러] 사유: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다");
 		}
 	}
 
-	/* 회원 탈퇴 (경매/주문 건수 체크) */
+	/* 경매/주문 건수 체크 */
 	@GetMapping("/withdraw-check/{memberNo}")
 	public ResponseEntity<?> checkWithdrawStatus(@PathVariable int memberNo) {
 		int activeCount = service.getActiveTransactionCount(memberNo);
@@ -191,20 +200,23 @@ public class MemberController {
 		return ResponseEntity.ok(response);
 	}
 
-	// 실제 회원 탈퇴 처리 (논리 삭제)
+	/* 회원 탈퇴 */
 	@PostMapping("/withdraw")
 	public ResponseEntity<?> withdrawMember(@RequestBody Map<String, Integer> request) {
 		int memberNo = request.get("memberNo");
 
-		// 다시 한번 서버단에서 검증 (보안상 중요)
+		// 활동 중인 거래가 있는지 확인
 		if (service.getActiveTransactionCount(memberNo) > 0) {
+			log.info("[탈퇴 거부] 진행 중인 거래 존재 (MemberNo: {})", memberNo);
 			return ResponseEntity.badRequest().body("진행 중인 거래가 있어 탈퇴할 수 없습니다. 관리자에게 문의해주세요.");
 		}
 
 		boolean result = service.withdrawMember(memberNo);
 		if (result) {
+			log.info("[회원 탈퇴 완료] MemberNo: {}", memberNo);
 			return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
 		} else {
+			log.error("[회원 탈퇴 에러] DB 처리 실패 (MemberNo: {})", memberNo);
 			return ResponseEntity.status(500).body("탈퇴 처리 중 오류가 발생했습니다.");
 		}
 	}

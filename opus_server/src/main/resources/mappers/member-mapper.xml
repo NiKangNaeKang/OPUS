@@ -11,11 +11,12 @@
 		MEMBER_EMAIL,
 		MEMBER_PW,
 		MEMBER_TEL,
-		AUTHOR_LEVEL,
+		MEMBER_ROLE, AUTHOR_LEVEL,
 		ENROLL_DATE,
 		MEMBER_DEL_FL
 		FROM "MEMBER"
-		WHERE MEMBER_EMAIL
+		WHERE
+		MEMBER_EMAIL
 		= #{memberEmail}
 		AND MEMBER_DEL_FL = 'N'
 	</select>
@@ -29,8 +30,7 @@
 		ENROLL_DATE,
 		MEMBER_DEL_FL,
 		AUTHOR_LEVEL,
-		LOGIN_TYPE
-		) VALUES (
+		MEMBER_ROLE, LOGIN_TYPE ) VALUES (
 		SEQ_MEMBER_NO.NEXTVAL,
 		#{memberEmail},
 		#{memberPw},
@@ -38,8 +38,7 @@
 		DEFAULT,
 		DEFAULT,
 		1,
-		'NORMAL'
-		)
+		'MEMBER', 'NORMAL' )
 	</insert>
 
 	<update id="updateTel">
@@ -77,14 +76,17 @@
 		(SELECT COUNT(*)
 		FROM AUCTION
 		WHERE MEMBER_NO = #{memberNo}
-		AND UNVEILING_STATUS = 'UPCOMING')
+		AND UNVEILING_STATUS =
+		'UPCOMING')
 		+
 		-- 2. 주문 체크 (상태가 READY이거나 배송 중인 건)
 		(SELECT COUNT(*)
-		FROM "ORDER"
+		FROM
+		"ORDER"
 		WHERE MEMBER_NO = #{memberNo}
 		AND ORDER_STATUS = 'READY')
-		AS active_count
+		AS
+		active_count
 		FROM DUAL
 	</select>
 
@@ -93,9 +95,44 @@
 		SET
 		MEMBER_DEL_FL = 'Y',
 		WITHDRAWAL_DATE = SYSDATE
-		WHERE MEMBER_NO = #{memberNo}
+		WHERE MEMBER_NO =
+		#{memberNo}
 	</update>
 
+	<select id="findByEmail" parameterType="string"
+		resultType="Member">
+		SELECT
+		MEMBER_NO,
+		MEMBER_EMAIL,
+		MEMBER_ROLE, AUTHOR_LEVEL,
+		LOGIN_TYPE, MEMBER_DEL_FL
+		FROM MEMBER
+		WHERE MEMBER_EMAIL =
+		#{memberEmail}
+		AND
+		MEMBER_DEL_FL = 'N'
+	</select>
 
+	<insert id="insertMember" parameterType="Member">
+		<selectKey keyProperty="memberNo" resultType="_int"
+			order="BEFORE">
+			SELECT SEQ_MEMBER_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO MEMBER (
+		MEMBER_NO,
+		MEMBER_EMAIL,
+		MEMBER_ROLE,
+		AUTHOR_LEVEL,
+		LOGIN_TYPE, ENROLL_DATE,
+		MEMBER_DEL_FL
+		)
+		VALUES (
+		#{memberNo},
+		#{memberEmail},
+		#{memberRole},
+		#{authorLevel},
+		#{loginType}, SYSDATE,
+		'N')
+	</insert>
 
 </mapper>
