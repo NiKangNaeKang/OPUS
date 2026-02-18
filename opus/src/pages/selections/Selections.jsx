@@ -6,19 +6,26 @@ import { fetchGoodsList } from "../../api/selectionsAPI";
 
 const Selections = () => {
 
-  const [goodsList, setGoodsList] = useState(null); // 상품 목록
-  const [isLoading, setIsLoading] = useState(true); // 로딩 상태
+  // 상품 목록 상태
+  const [goodsList, setGoodsList] = useState(null);
+
+  // 로딩 상태
+  const [isLoading, setIsLoading] = useState(true); 
+
+  // 필터 모음
   const [genre, setGenre] = useState("exhibition"); // 장르 상태
   const [category, setCategory] = useState("all"); // 카테고리 상태
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(""); // 검색어 상태
 
   // 상품 목록 얻어오는 함수
   const selectGoodsList = async () => {
     try {
 
+      console.log("==== 상품 목록 조회 시작 ====")
       const resp = await fetchGoodsList();
 
       if (resp.status == 200) {
+        console.log("상품 목록 조회 완료", resp.data)
         setGoodsList(resp.data);
       }
 
@@ -41,20 +48,35 @@ const Selections = () => {
 
   }, [goodsList])
 
+  // 장르 변경 시 장르 상태 변경 함수
   const handleGenre = (genre) => setGenre(genre);
+
+  // 카테고리 변경 시 카테고리 상태 변경 함수
   const handleCategory = (category) => setCategory(category);
+
+  // 검색어 변경 시 정제된 검색어로 상태 변경 함수
   const handleQuery = (query) => {
     const refinedQuery = query.trim().toLowerCase();
     setQuery(refinedQuery);
   };
 
+  // 조건에 따라 필터된 상품 목록
   const filteredList = useMemo(() => {
+
+    // 상품 목록이 비어있으면 빈배열 반환
     if (!goodsList) return [];
 
+    // 필터함수를 통해 조건에 맞는 함수 반환
     return goodsList.filter((item) => {
+
+      // 선택한 장르와 상품의 장르가 같을 때
       const matchesGenre = genre === item.goodsSort;
+
+      // 선택한 카테고리와 상품의 카테고리가 같을 때
       const matchesCategory =
         category === "all" ? true : item.goodsCategory === category;
+
+      // 검색어가 상품의 이름에 포함되어 있을 때
       const matchesQuery = query
         ? item.goodsName.toLowerCase().includes(query)
         : true;

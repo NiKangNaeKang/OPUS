@@ -5,13 +5,25 @@ import { useDaumPostcodePopup } from "react-daum-postcode";
 
 const AddressModal = ({ isOpen, onClose, onApply }) => {
 
+  // 저장 배송지 모드 상태
   const [mode, setMode] = useState("SELECT"); // SELECT | MANAGE | FORM
+
+  // 새로 작성한 배송지 상태
   const [editingAddress, setEditingAddress] = useState(null);
+
+  // 직접입력 선택 시 텍스트 상자 열림 여부 상태
   const [onTextarea, setOnTextarea] = useState(false);
+
+  // 배송 메모 타입 상태
   const [selectedMemoType, setSelectedMemoType] = useState("");  // select 전용
+
+  // 직접 입력 내용 상태
   const [customMemo, setCustomMemo] = useState("");  // textarea 전용
+
+  // 주소 검색어 상태
   const [query, setQuery] = useState("");
 
+  // 
   const [form, setForm] = useState({
     recipient: "",
     recipientTel: "",

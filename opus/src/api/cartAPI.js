@@ -16,28 +16,28 @@ export const cartApi = {
 
   // 수량 변경
   updateCartQty: async (cartNo, qty) => {
-    const response = await axiosApi.put(`/cart/${cartNo}`, null, {
+    const resp = await axiosApi.put(`/cart/${cartNo}`, null, {
       params: { qty },
     });
-    return response.data;
+    return resp.data;
   },
 
   // 장바구니 항목 삭제
   removeFromCart: async (cartNo) => {
-    const response = await axiosApi.delete(`/cart/${cartNo}`);
-    return response.data;
+    const resp = await axiosApi.delete(`/cart/${cartNo}`);
+    return resp.data;
   },
 
   // 장바구니 비우기
   clearCart: async () => {
-    const response = await axiosApi.delete("/cart");
-    return response.data;
+    const resp = await axiosApi.delete("/cart");
+    return resp.data;
   },
 
   // 로컬 장바구니 병합
   mergeLocalCart: async (localItems) => {
-    const response = await axiosApi.post("/cart/merge", localItems);
-    return response.data;
+    const resp = await axiosApi.post("/cart/merge", localItems);
+    return resp.data;
   },
 }
 
