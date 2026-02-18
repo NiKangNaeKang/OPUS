@@ -9,13 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class Reviews {
-	private int reviewNo;
+public class ReviewLike {
+	private int reviewsNo;
 	private int memberNo;
-	private String memberEmail;
-	private String stageNo;
-	private String reviewContent;
-	private String reviewWriteDate;
-	private String reviewUpdateDate;
-	private char reviewDelFl;
 }

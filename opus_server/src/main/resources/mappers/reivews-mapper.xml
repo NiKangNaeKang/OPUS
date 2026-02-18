@@ -14,4 +14,40 @@
 			'N'
 		)
 	</insert>
+	
+	<select id="getReviews">
+		SELECT REVIEW_NO, MEMBER_NO, REVIEW_CONTENT, REVIEW_WRITE_DATE, MEMBER_EMAIL
+		FROM REVIEWS
+		JOIN MEMBER USING (MEMBER_NO)
+		WHERE STAGE_NO = #{stageNo}
+		AND REVIEW_DEL_FL = 'N'
+		ORDER BY REVIEW_WRITE_DATE DESC
+	</select>
+	
+	<select id="getReviewsCount">
+		SELECT COUNT(*)
+		FROM REVIEWS
+		WHERE STAGE_NO = #{stageNo}
+		AND REVIEW_DEL_FL = 'N'
+	</select>
+	
+	<select id="getWriterNo">
+		SELECT MEMBER_NO
+		FROM REVIEWS
+		WHERE REVIEW_NO = #{reviewNo}
+	</select>
+	
+	<update id="updateReview">
+		UPDATE REVIEWS SET
+		REVIEW_CONTENT = #{reviewContent},
+      	REVIEW_UPDATE_DATE = SYSDATE
+      	WHERE REVIEW_NO = #{reviewNo}
+	</update>
+	
+	<update id="deleteReview">
+		UPDATE REVIEWS SET
+		REVIEW_DEL_FL = 'Y',
+      	REVIEW_UPDATE_DATE = SYSDATE
+		WHERE REVIEW_NO = #{reviewNo}
+	</update>
 </mapper>
