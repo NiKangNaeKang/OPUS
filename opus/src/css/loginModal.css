@@ -197,3 +197,18 @@
 .Toastify__toast-container--top-right {
   top: 80px !important; /* 현재 사이트 헤더 높이에 맞춰 조정하세요 */
 }
+
+.lm-google{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  background:#fff;
+  color:#3c4043;
+  border:1px solid #dadce0;
+  width:100%;    
+}
+
+.lm-google:hover{
+  background:#e6e8e9;
+}
