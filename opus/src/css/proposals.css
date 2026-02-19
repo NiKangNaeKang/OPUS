@@ -1,3 +1,4 @@
+/* [공통 설정 및 변수] */
 .proposals-page {
   --black: #111;
   --text: #111827;
@@ -16,20 +17,23 @@
   line-height: 1.5;
 }
 
-.proposals-page * {
+.proposals-page *,
+.proposals-page *::before,
+.proposals-page *::after {
   box-sizing: border-box;
 }
 
+/* [레이아웃] */
 .proposals-page .board-container {
   max-width: var(--wrap);
   margin: 0 auto;
   padding: 80px var(--pad) 100px;
 }
 
+/* [탭 메뉴] */
 .proposals-page .tabs {
   display: flex;
   gap: 24px;
-  border-bottom: 1px solid var(--line);
   margin-bottom: 24px;
 }
 
@@ -57,92 +61,81 @@
   background: var(--primary);
 }
 
-/* 필터 컨테이너: 왼쪽과 오른쪽 영역을 양 끝으로 배치 */
-.proposals-page .filters {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  width: 100% !important;
-  gap: 16px !important;
-  flex-wrap: nowrap !important; /* 줄바꿈 절대 방지 */
+/* [필터 및 검색 영역] */
+.proposals-page .pp-filters {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  margin-bottom: 24px;
 }
 
-/* 1. 왼쪽 영역: 셀렉트 박스 2개를 좌우 병렬로 나열 */
-.proposals-page .filters__left {
-  display: flex !important;
-  flex-direction: row !important; /* 가로 정렬 강제 */
-  align-items: center !important;
-  gap: 12px !important; /* 셀렉트 박스 사이 간격 */
-  flex-shrink: 0 !important; /* 검색창에 밀려서 줄어들지 않게 고정 */
+/* 왼쪽: 셀렉트 박스 그룹 */
+.proposals-page .pp-filters__left {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-/* 2. 오른쪽 영역: 검색창이 오른쪽 끝에 붙도록 설정 */
-.proposals-page .filters__right {
-  display: flex !important;
-  justify-content: flex-end !important;
-  flex-grow: 1 !important;
+/* 오른쪽: 검색 박스 그룹 */
+.proposals-page .pp-filters__right {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
 }
 
-/* 1. 셀렉트 박스 스타일 (배경 흰색 + 커스텀 화살표 강제 삽입) */
-.proposals-page .select {
-  display: inline-block !important; /* 가로 배치 보조 */
-  height: 42px;
-  min-width: 130px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 0 35px 0 16px;
-  background-color: #ffffff !important;
-  
-  /* 화살표 아이콘 */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E") !important;
-  background-repeat: no-repeat !important;
-  background-position: calc(100% - 12px) center !important;
-  background-size: 16px !important;
-  
-  appearance: none !important;
-  -webkit-appearance: none !important;
+/* [입력 요소 공통 스타일] */
+.proposals-page .pp-select,
+.proposals-page .pp-search__input {
+  height: 38px;
   font-size: 16px;
   color: var(--text);
+  background-color: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  outline: none;
+}
+
+.proposals-page .pp-select:focus,
+.proposals-page .pp-search__input:focus {
+  outline: 2px solid rgba(0, 0, 0, .1);
+}
+
+/* 셀렉트 전용 (커스텀 화살표) */
+.proposals-page .pp-select {
+  min-width: 130px;
+  padding: 0 35px 0 16px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 12px) center;
+  background-size: 14px;
   cursor: pointer;
 }
 
-.proposals-page .select:focus { outline: 2px solid rgba(0,0,0,.1); }
-
-/* 검색창 박스 내부 병렬 */
-.proposals-page .search {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 8px !important;
-  width: auto !important; /* 100%일 경우 밀어내기 때문에 auto 설정 */
+/* 검색창 전용 (돋보기 아이콘) */
+.proposals-page .pp-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
 }
 
-/* 검색어 인풋창 */
-.proposals-page .search__input {
-  width: 450px !important; /* 크기 고정 */
-  height: 42px !important;
-  border: 1px solid var(--line) !important;
-  border-radius: var(--radius) !important;
-  padding: 0 40px 0 16px !important;
-  font-size: 16px !important;
-  background-color: #ffffff !important;
-
-  /* 돋보기 아이콘 SVG 삽입 */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z' /%3E%3C/svg%3E") !important;
-  background-repeat: no-repeat !important;
-  background-position: right 12px center !important; /* 우측 끝에서 12px 띄움 */
-  background-size: 20px !important; /* 아이콘 크기 */
+.proposals-page .pp-search__input {
+  width: 450px;
+  padding: 0 40px 0 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z' /%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 12px) center;
+  background-size: 20px;
+  flex-shrink: 1;
 }
 
-.proposals-page .search__input:focus {
-  outline: 2px solid rgba(0,0,0,.1);
-  border-color: var(--muted);
-}
-
-/* 3. 검색 버튼 (글씨 가로 정렬 보장) */
-.proposals-page .search__btn {
-  height: 42px;
+/* [버튼] */
+.proposals-page .pp-search__btn {
+  height: 38px;
   min-width: 90px;
   padding: 0 24px;
   background: var(--primary);
@@ -150,78 +143,161 @@
   border: none;
   border-radius: var(--radius);
   font-weight: 700;
-  white-space: nowrap; /* 글자 가로 유지 */
+  white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
 }
 
-.proposals-page .board-list { border-top: 2px solid var(--black); }
+/* [게시물 목록] */
+.proposals-page .board-list {
+  border-top: 2px solid var(--black); /* 게시판 상단 강조선 */
+}
 
+/* [게시물 아이템 - 한 줄 전체 차지] */
 .proposals-page .board-item {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 20px 12px;
-  border-bottom: 1px solid var(--line);
-  transition: background 0.2s;
+  align-items: center;
+  padding: 20px 10px;
+  border-bottom: 1px solid var(--line); /* 목록 구분선 */
+  transition: background-color 0.2s;
 }
 
-.proposals-page .board-item:hover { background: #f9fafb; }
+.proposals-page .board-item:hover {
+  background-color: #f9fafb;
+}
 
+/* 왼쪽 영역: 배지 + (제목/내용) 2줄 배치 */
 .proposals-page .item__left {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 20px;
   flex: 1;
-  min-width: 0;
 }
 
-.proposals-page .badge {
-  flex-shrink: 0;
-  width: 60px;
-  text-align: center;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 0;
-  border-radius: 6px;
+.proposals-page .item__content {
+  display: flex;
+  flex-direction: column; /* 제목과 내용을 위아래로 */
+  gap: 4px;
 }
-
-.proposals-page .badge--notice { background: #f3f4f6; color: #374151; }
-.proposals-page .badge--promotion { background: #fff1f2; color: #e11d48; }
 
 .proposals-page .item__title {
-  margin: 0 0 4px;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
 }
 
 .proposals-page .item__excerpt {
-  margin: 0;
   font-size: 14px;
   color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 0;
+}
+/* [게시물 목록] */
+.proposals-page .board-list {
+  border-top: none; /* 2px solid var(--black); 필더 하단 검은 가로선 */
 }
 
+/* [게시물 아이템] */
+.proposals-page .board-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* 세로 중앙 정렬 */
+  padding: 18px 10px;
+  border-bottom: 1px solid var(--line); /* 게시글 사이 회색 가로선*/
+}
+
+/* 왼쪽 영역: 배지 + (제목/내용) 2줄 */
+.proposals-page .item__left {
+  display: flex;
+  align-items: center; /* 배지와 텍스트 세로 중앙 */
+  gap: 20px;
+  flex: 1;
+}
+
+.proposals-page .item__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 오른쪽 영역: 회사명, 날짜, 조회수를 모두 가로 한 줄로 */
 .proposals-page .item__right {
   display: flex;
+  flex-direction: row; /* 가로 방향 배치 */
   align-items: center;
-  gap: 24px;
-  font-size: 14px;
+  gap: 24px; /* 각 항목 사이 간격 */
+  margin-left: 30px;
   color: var(--muted);
-  margin-left: 20px;
+  font-size: 14px;
+  white-space: nowrap; /* 줄바꿈 방지 */
 }
 
-.proposals-page .empty-state {
-  padding: 80px 0;
-  text-align: center;
+/* 개별 항목 스타일 */
+.proposals-page .item__right span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 회사명만 조금 더 진하게 (선택 사항) */
+.proposals-page .item__right span:first-child {
+  color: var(--black);
+  font-weight: 500;
+}
+
+
+
+
+
+
+/* [페이지네이션 컴포넌트 스타일] */
+.proposals-page .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 50px; /* 리스트와 간격 확보 */
+  padding-bottom: 20px;
+}
+
+/* 페이지네이션 내의 버튼 공통 */
+.proposals-page .pagination button {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  background-color: #fff;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--muted);
-  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* 마우스 오버 시 */
+.proposals-page .pagination button:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: #f9fafb;
+}
+
+/* 활성화된 페이지 번호 */
+.proposals-page .pagination button.active {
+  background-color: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  font-weight: 700;
+}
+
+/* 이전/다음 버튼 비활성화 (첫/마지막 페이지일 때) */
+.proposals-page .pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background-color: #f5f5f5;
 }

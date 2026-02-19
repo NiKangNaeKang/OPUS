@@ -267,8 +267,12 @@ export default function MyPage() {
                   <label className="label">새 연락처</label>
                   <div className="tel-group">
                     <input className="input tel-input" type="text" inputMode="numeric" value={newPhone} onChange={handleNewPhoneChange} maxLength={13} />
+
+                    <div className="tel-buttons">
                     <button type="button" className={`btn btn--check ${isTelChecked ? "is-checked" : ""}`} onClick={() => handleCheckTel(newPhone.replace(/[^0-9]/g, ""))} disabled={isTelChecked}>{isTelChecked ? "확인됨" : "중복 확인"}</button>
                     <button type="button" className="btn btn--primary btn--save" onClick={handleUpdatePhone}>연락처 변경</button>
+                    </div>
+
                   </div>
                 </div>
               </div>
