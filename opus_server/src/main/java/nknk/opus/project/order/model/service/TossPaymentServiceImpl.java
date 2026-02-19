@@ -110,4 +110,57 @@ public class TossPaymentServiceImpl implements TossPaymentService {
 		return this.secretKey;
 	}
 
+	/**
+	 * 결제 취소
+	 */
+	@Override
+	public TossPaymentResponse cancelPayment(String paymentKey, String cancelReason) {
+		log.info("===== 토스페이먼츠 결제 취소 요청 =====");
+		log.info("paymentKey: {}", paymentKey);
+		log.info("cancelReason: {}", cancelReason);
+
+		try {
+			// 1. HTTP 헤더 설정
+			HttpHeaders headers = createHeaders();
+
+			// 2. 요청 바디 설정
+			Map<String, Object> requestBody = new HashMap<>();
+			requestBody.put("cancelReason", cancelReason);
+
+			HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+			// 3. 토스페이먼츠 API 호출 (POST /v1/payments/{paymentKey}/cancel)
+			String url = apiUrl + "/" + paymentKey + "/cancel";
+
+			ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(url, HttpMethod.POST, entity,
+					TossPaymentResponse.class);
+
+			log.info("===== 토스페이먼츠 결제 취소 성공 =====");
+			log.info("응답 상태 코드: {}", response.getStatusCode());
+			log.info("응답 Body: {}", response.getBody());
+
+			return response.getBody();
+
+		} catch (Exception e) {
+			log.error("===== 토스페이먼츠 결제 취소 실패 =====", e);
+			throw new BusinessException("결제 취소 중 오류가 발생했습니다: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * HTTP 헤더 생성 (인증 정보 포함)
+	 */
+	private HttpHeaders createHeaders() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		// Base64 인코딩: secretKey:
+		String auth = secretKey + ":";
+		String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+
+		headers.set("Authorization", "Basic " + encodedAuth);
+
+		return headers;
+	}
+
 }

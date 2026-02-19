@@ -20,6 +20,8 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyPage from "./pages/mypage/MyPage";
 import ExhibitionList from "./pages/onStage/ExhibitionList";
 import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
+import Orders from "./pages/selections/Orders";
+import OrderDetail from "./pages/selections/OrderDetail";
 
 
 export default function App() {
@@ -34,27 +36,29 @@ export default function App() {
           <Route path="/" element={<Home />} />
         </Route>
 
-      {/* Light Header (게시판, 상세페이지 등) */}
-      <Route element={<LightHeaderLayout />}>
-        <Route path="/onStage" element={<OnStage />} /> 
-        <Route path="/onStage/exhibition/:exhibitionId" element={<ExhibitionDetail />} />
-        <Route path="/onStage/musical/:mt20id" element={<MusicalDetail />} />
-        <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
-        
-        {/* 2. Proposals 경로 추가 */}
-        <Route path="/proposals" element={<Proposals />} />
-        <Route path="/unveiling" element={<Unveiling />} />
-        <Route path="/unveiling/:id" element={<UnveilingDetail />} />
-        <Route path='/selections' element={<Selections />} />
-        <Route path='/selections/:goodsNo' element={<SelectionsDetail />} />
-        <Route path='/selections/cart' element={<Cart />} />
-        <Route path='/selections/checkout' element={<Checkout />} />
-        <Route path='/payment/success' element={<PaymentSuccess />} />
-        <Route path='/payment/fail' element={<PaymentFail />} />
-        <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
-      </Route>
-    </Routes>
-    
-  </>
+        {/* Light Header (게시판, 상세페이지 등) */}
+        <Route element={<LightHeaderLayout />}>
+          <Route path="/onStage" element={<OnStage />} />
+          <Route path="/onStage/exhibition/:exhibitionId" element={<ExhibitionDetail />} />
+          <Route path="/onStage/musical/:mt20id" element={<MusicalDetail />} />
+          <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
+
+          {/* 2. Proposals 경로 추가 */}
+          <Route path="/proposals" element={<Proposals />} />
+          <Route path="/unveiling" element={<Unveiling />} />
+          <Route path="/unveiling/:id" element={<UnveilingDetail />} />
+          <Route path='/selections' element={<Selections />} />
+          <Route path='/selections/:goodsNo' element={<SelectionsDetail />} />
+          <Route path='/selections/cart' element={<Cart />} />
+          <Route path='/selections/checkout' element={<Checkout />} />
+          <Route path='/payment/success' element={<PaymentSuccess />} />
+          <Route path='/payment/fail' element={<PaymentFail />} />
+          <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
+          <Route path="/mypage/orders" element={<Orders />} />
+          <Route path="/mypage/orders/:orderNo" element={<OrderDetail />} />
+        </Route>
+      </Routes>
+
+    </>
   );
 }

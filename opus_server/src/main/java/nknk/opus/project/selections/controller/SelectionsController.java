@@ -35,7 +35,7 @@ public class SelectionsController {
 			return ResponseEntity.status(HttpStatus.OK).body(goodsList);
 			
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 			
 		}
@@ -51,6 +51,7 @@ public class SelectionsController {
 			return ResponseEntity.status(HttpStatus.OK).body(goodsDetail);
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 		
@@ -66,6 +67,7 @@ public class SelectionsController {
 			return ResponseEntity.status(HttpStatus.OK).body(goodsOptions);
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 		
@@ -81,6 +83,7 @@ public class SelectionsController {
 			return ResponseEntity.status(HttpStatus.OK).body(goodsImgList);
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 		

@@ -24,4 +24,41 @@ export const orderApi = {
       throw error;
     }
   },
+
+  // 내 주문 목록 조회
+  getMyOrders: async () => {
+    const response = await axiosApi.get(`/orders/my`, {
+      withCredentials: true
+    });
+    return response.data;
+  },
+
+  // 주문 상태별 목록 조회
+  getMyOrdersByStatus: async (status) => {
+    const response = await axiosApi.get(`/orders/my`, {
+      params: { status },
+      withCredentials: true
+    });
+    return response.data;
+  },
+
+  // 주문 상세 조회
+  getOrderDetail: async (orderNo) => {
+    const response = await axiosApi.get(`/orders/my/${orderNo}`, {
+      withCredentials: true
+    });
+    return response.data;
+  },
+
+  // 주문 취소
+  cancelOrder: async (orderId, cancelReason) => {
+    const response = await axiosApi.post(`/orders/cancel`, {
+      orderId,
+      cancelReason
+    }, {
+      withCredentials: true
+    });
+    return response.data;
+  },
+
 }

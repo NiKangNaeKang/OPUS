@@ -12,8 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.common.exception.BusinessException;
 import nknk.opus.project.common.exception.ResourceNotFoundException;
+import nknk.opus.project.order.model.dto.CancelRequest;
 import nknk.opus.project.order.model.dto.Order;
 import nknk.opus.project.order.model.dto.OrderItem;
+import nknk.opus.project.order.model.dto.OrderListResponse;
 import nknk.opus.project.order.model.dto.OrderRequest;
 import nknk.opus.project.order.model.dto.PaymentConfirmRequest;
 import nknk.opus.project.order.model.dto.TossPaymentResponse;
@@ -228,7 +230,7 @@ public class OrderServiceImpl implements OrderService {
 			}
 		}
 
-		// 6. 입금 완료 이메일 발송 (선택 사항)
+		// 6. 입금 완료 이메일 발송
 		try {
 			sendDepositConfirmEmail(order);
 		} catch (Exception e) {
@@ -238,6 +240,108 @@ public class OrderServiceImpl implements OrderService {
 
 		log.info("가상계좌 입금 완료 처리 완료 - orderId: {}, status: DONE", orderId);
 
+	}
+	
+	@Override
+	public List<OrderListResponse> getOrderList(int memberNo) {
+		log.info("회원별 주문 목록 조회 - memberNo: {}", memberNo);
+		
+		List<OrderListResponse> orderList = mapper.selectOrderListByMember(memberNo);
+		
+		log.info("조회된 주문 개수: {}", orderList.size());
+		
+		return orderList;
+	}
+	
+	@Override
+	public List<OrderListResponse> getOrderListByStatus(int memberNo, String orderStatus) {
+		log.info("주문 상태별 목록 조회 - memberNo: {}, status: {}", memberNo, orderStatus);
+		
+		List<OrderListResponse> orderList = mapper.selectOrderListByStatus(memberNo, orderStatus);
+		
+		return orderList;
+	}
+	
+	@Override
+	public Order getOrderDetail(int orderNo, int memberNo) {
+		log.info("주문 상세 조회 - orderNo: {}, memberNo: {}", orderNo, memberNo);
+		
+		Order orderDetail = mapper.selectOrderDetail(orderNo, memberNo);
+		
+		if (orderDetail == null) {
+			throw new BusinessException("주문을 찾을 수 없습니다.");
+		}
+		
+		return orderDetail;
+	}
+	
+	@Override
+	public void cancelOrder(CancelRequest request, int memberNo) {
+		log.info("주문 취소 요청 - orderId: {}, memberNo: {}", request.getOrderId(), memberNo);
+		
+		// 1. 주문 조회
+		Order order = mapper.selectOrderByOrderId(request.getOrderId());
+		
+		if (order == null) {
+			throw new BusinessException("주문을 찾을 수 없습니다.");
+		}
+		
+		// 2. 권한 확인
+		if (order.getMemberNo() != memberNo) {
+			throw new BusinessException("주문 취소 권한이 없습니다.");
+		}
+		
+		// 3. 취소 가능 상태 확인
+		String status = order.getOrderStatus();
+		if (!status.equals("READY") && 
+		    !status.equals("WAITING_FOR_DEPOSIT") && 
+		    !status.equals("PAID")) {
+			throw new BusinessException("취소 가능한 주문 상태가 아닙니다.");
+		}
+		
+		// 4. 결제 취소 (토스페이먼츠 API 호출)
+		if (status.equals("PAID") || status.equals("DONE")) {
+			try {
+				tossPaymentService.cancelPayment(
+					order.getPaymentKey(), 
+					request.getCancelReason()
+				);
+			} catch (Exception e) {
+				log.error("토스페이먼츠 취소 실패", e);
+				throw new BusinessException("결제 취소에 실패했습니다.");
+			}
+		}
+		
+		// 5. DB 업데이트
+		int result = mapper.cancelOrder(request.getOrderId(), request.getCancelReason());
+		
+		if (result == 0) {
+			throw new BusinessException("주문 취소에 실패했습니다.");
+		}
+		
+		log.info("주문 취소 완료 - orderId: {}", request.getOrderId());
+	}
+	
+	@Override
+	public void updateTrackingInfo(int orderNo, String trackingNumber, String deliveryCompany) {
+		log.info("송장번호 등록 - orderNo: {}, tracking: {}", orderNo, trackingNumber);
+		
+		int result = mapper.updateTrackingInfo(orderNo, trackingNumber, deliveryCompany);
+		
+		if (result == 0) {
+			throw new BusinessException("송장번호 등록에 실패했습니다.");
+		}
+	}
+	
+	@Override
+	public void completeDelivery(int orderNo) {
+		log.info("배송 완료 처리 - orderNo: {}", orderNo);
+		
+		int result = mapper.completeDelivery(orderNo);
+		
+		if (result == 0) {
+			throw new BusinessException("배송 완료 처리에 실패했습니다.");
+		}
 	}
 
 	/**

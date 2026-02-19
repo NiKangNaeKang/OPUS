@@ -32,6 +32,11 @@
         <result property="trackingNumber" column="TRACKING_NUMBER"/>
         <result property="deliveryCompany" column="DELIVERY_COMPANY"/>
         <result property="deliveredAt" column="DELIVERED_AT"/>
+        
+        <!-- 주문 상품 목록 -->
+	    <collection property="items" ofType="OrderItem" 
+	                column="ORDER_ID" 
+	                select="selectOrderItems"/>
     </resultMap>
 
     <!-- ResultMap: OrderItem -->
@@ -47,6 +52,21 @@
         <result property="goodsColor" column="GOODS_COLOR"/>
         <result property="thumbnail" column="THUMBNAIL"/>
     </resultMap>
+    
+    <!-- ResultMap: 주문 목록 -->
+	<resultMap id="orderListResultMap" type="OrderListResponse">
+	    <id property="orderNo" column="ORDER_NO"/>
+	    <result property="orderId" column="ORDER_ID"/>
+	    <result property="orderDate" column="ORDER_DATE"/>
+	    <result property="orderStatus" column="ORDER_STATUS"/>
+	    <result property="totalAmount" column="TOTAL_AMOUNT"/>
+	    <result property="paymentMethod" column="PAYMENT_METHOD"/>
+	    <result property="firstGoodsName" column="FIRST_GOODS_NAME"/>
+	    <result property="firstThumbnail" column="FIRST_THUMBNAIL"/>
+	    <result property="totalItemCount" column="TOTAL_ITEM_COUNT"/>
+	    <result property="trackingNumber" column="TRACKING_NUMBER"/>
+	    <result property="deliveryCompany" column="DELIVERY_COMPANY"/>
+	</resultMap>
 
     <!-- 주문 생성 - ORDER_NO는 시퀀스로 자동 생성 -->
     <insert id="createOrder">
@@ -185,5 +205,139 @@
         FROM GOODS
         WHERE GOODS_NO = #{goodsNo}
     </select>
+    
+    <!-- 회원별 주문 목록 조회 (최신순) -->
+	<select id="selectOrderListByMember" resultMap="orderListResultMap">
+	    SELECT 
+	        O.ORDER_NO,
+	        O.ORDER_ID,
+	        TO_CHAR(O.ORDER_DATE, 'YYYY-MM-DD HH24:MI') AS ORDER_DATE,
+	        O.ORDER_STATUS,
+	        O.TOTAL_AMOUNT,
+	        O.PAYMENT_METHOD,
+	        O.TRACKING_NUMBER,
+	        O.DELIVERY_COMPANY,
+	        
+	        -- 첫 번째 상품 정보 (서브쿼리)
+	        (SELECT G.GOODS_NAME 
+	         FROM ORDER_ITEM OI 
+	         JOIN GOODS G ON OI.GOODS_NO = G.GOODS_NO
+	         WHERE OI.ORDER_NO = O.ORDER_NO 
+	         AND ROWNUM = 1) AS FIRST_GOODS_NAME,
+	        
+	        (SELECT (GI.GOODS_IMG_PATH || GI.GOODS_IMG_RE)
+	         FROM ORDER_ITEM OI
+	         JOIN GOODS_IMG GI ON OI.GOODS_NO = GI.GOODS_NO
+	         WHERE OI.ORDER_NO = O.ORDER_NO
+	         AND GI.GOODS_IMG_ORDER = 0
+	         AND ROWNUM = 1) AS FIRST_THUMBNAIL,
+	        
+	        -- 총 상품 개수
+	        (SELECT COUNT(*) 
+	         FROM ORDER_ITEM 
+	         WHERE ORDER_NO = O.ORDER_NO) AS TOTAL_ITEM_COUNT
+	         
+	    FROM TOTAL_ORDER O
+	    WHERE O.MEMBER_NO = #{memberNo}
+	    ORDER BY O.ORDER_DATE DESC
+	</select>
+	
+	<!-- 주문 상태별 필터링 목록 조회 -->
+	<select id="selectOrderListByStatus" resultMap="orderListResultMap">
+	    SELECT 
+	        O.ORDER_NO,
+	        O.ORDER_ID,
+	        TO_CHAR(O.ORDER_DATE, 'YYYY-MM-DD HH24:MI') AS ORDER_DATE,
+	        O.ORDER_STATUS,
+	        O.TOTAL_AMOUNT,
+	        O.PAYMENT_METHOD,
+	        O.TRACKING_NUMBER,
+	        O.DELIVERY_COMPANY,
+	        
+	        (SELECT G.GOODS_NAME 
+	         FROM ORDER_ITEM OI 
+	         JOIN GOODS G ON OI.GOODS_NO = G.GOODS_NO
+	         WHERE OI.ORDER_NO = O.ORDER_NO 
+	         AND ROWNUM = 1) AS FIRST_GOODS_NAME,
+	        
+	        (SELECT (GI.GOODS_IMG_PATH || GI.GOODS_IMG_RE)
+	         FROM ORDER_ITEM OI
+	         JOIN GOODS_IMG GI ON OI.GOODS_NO = GI.GOODS_NO
+	         WHERE OI.ORDER_NO = O.ORDER_NO
+	         AND GI.GOODS_IMG_ORDER = 0
+	         AND ROWNUM = 1) AS FIRST_THUMBNAIL,
+	        
+	        (SELECT COUNT(*) 
+	         FROM ORDER_ITEM 
+	         WHERE ORDER_NO = O.ORDER_NO) AS TOTAL_ITEM_COUNT
+	         
+	    FROM TOTAL_ORDER O
+	    WHERE O.MEMBER_NO = #{memberNo}
+	    AND O.ORDER_STATUS = #{orderStatus}
+	    ORDER BY O.ORDER_DATE DESC
+	</select>
+	
+	<!-- 주문 상세 조회 (주문번호로) -->
+	<select id="selectOrderDetail" resultMap="orderResultMap">
+	    SELECT 
+	        ORDER_NO,
+	        ORDER_ID,
+	        TO_CHAR(ORDER_DATE, 'YYYY-MM-DD HH24:MI') AS ORDER_DATE,
+	        ORDER_STATUS,
+	        TO_CHAR(APPROVED_AT, 'YYYY-MM-DD HH24:MI') AS APPROVED_AT,
+	        ORDERER_NAME,
+	        EMAIL,
+	        RECIPIENT,
+	        RECIPIENT_TEL,
+	        POSTCODE,
+	        BASIC_ADDRESS,
+	        DETAIL_ADDRESS,
+	        DELIVERY_REQ,
+	        PAYMENT_KEY,
+	        PAYMENT_METHOD,
+	        TOTAL_AMOUNT,
+	        GOODS_AMOUNT,
+	        DELIVERY_AMOUNT,
+	        TRACKING_NUMBER,
+	        DELIVERY_COMPANY,
+	        TO_CHAR(DELIVERED_AT, 'YYYY-MM-DD HH24:MI') AS DELIVERED_AT,
+	        CANCEL_REASON,
+	        TO_CHAR(CANCELED_AT, 'YYYY-MM-DD HH24:MI') AS CANCELED_AT,
+	        REFUND_STATUS,
+	        VIRTUAL_ACCOUNT_BANK,
+	        VIRTUAL_ACCOUNT_NUMBER,
+	        VIRTUAL_ACCOUNT_DUE_DATE
+	    FROM TOTAL_ORDER
+	    WHERE ORDER_NO = #{orderNo}
+	    AND MEMBER_NO = #{memberNo}
+	</select>
+	
+	<!-- 주문 취소 처리 -->
+	<update id="cancelOrder">
+	    UPDATE TOTAL_ORDER
+	    SET ORDER_STATUS = 'CANCELED',
+	        CANCEL_REASON = #{cancelReason},
+	        CANCELED_AT = SYSDATE,
+	        REFUND_STATUS = 'REQUESTED'
+	    WHERE ORDER_ID = #{orderId}
+	    AND ORDER_STATUS IN ('READY', 'WAITING_FOR_DEPOSIT', 'PAID')
+	</update>
+	
+	<!-- 송장번호 등록 (관리자용) -->
+	<update id="updateTrackingInfo">
+	    UPDATE TOTAL_ORDER
+	    SET TRACKING_NUMBER = #{trackingNumber},
+	        DELIVERY_COMPANY = #{deliveryCompany},
+	        ORDER_STATUS = 'SHIPPING'
+	    WHERE ORDER_NO = #{orderNo}
+	</update>
+	
+	<!-- 배송 완료 처리 -->
+	<update id="completeDelivery">
+	    UPDATE TOTAL_ORDER
+	    SET ORDER_STATUS = 'DELIVERED',
+	        DELIVERED_AT = SYSDATE
+	    WHERE ORDER_NO = #{orderNo}
+	</update>
 
 </mapper>

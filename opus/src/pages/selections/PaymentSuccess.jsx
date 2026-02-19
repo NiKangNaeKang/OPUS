@@ -68,7 +68,7 @@ const PaymentSuccess = () => {
     confirmPayment();
   }, [searchParams, navigate]);
 
-  // 은행 코드 → 은행명 매핑
+  // 은행 코드 -> 은행명 매핑
   const getBankName = (bankCode) => {
     const bankMap = {
       "06": "국민은행",

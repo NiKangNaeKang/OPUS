@@ -2,6 +2,7 @@ package nknk.opus.project.order.controller;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 import javax.crypto.Mac;
@@ -12,16 +13,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
+import nknk.opus.project.order.model.dto.CancelRequest;
+import nknk.opus.project.order.model.dto.Order;
+import nknk.opus.project.order.model.dto.OrderListResponse;
 import nknk.opus.project.order.model.dto.OrderRequest;
 import nknk.opus.project.order.model.dto.PaymentConfirmRequest;
 import nknk.opus.project.order.model.dto.TossPaymentResponse;
@@ -36,7 +44,7 @@ public class OrderController {
 
 	@Autowired
 	private OrderService orderService;
-	
+
 	@Autowired
 	private TossPaymentService tossPaymentService;
 
@@ -51,7 +59,7 @@ public class OrderController {
 		int memberNo = Integer.parseInt(memberNoStr);
 
 		Map<String, Object> result = orderService.createOrder(request, memberNo);
-		
+
 		return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
 	}
@@ -119,6 +127,84 @@ public class OrderController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body(Map.of("status", "FAIL", "message", e.getMessage()));
 		}
+	}
+
+	/**
+	 * 주문 상태별 목록 조회
+	 */
+	@GetMapping("my")
+	public ResponseEntity<List<OrderListResponse>> getMyOrders(
+			@RequestParam(value = "status", required = false) String status,
+			Authentication authentication) {
+		
+		String memberNoStr = (String) authentication.getPrincipal();
+		int memberNo = Integer.parseInt(memberNoStr);
+		
+		List<OrderListResponse> orderList;
+		
+		if (status != null && !status.isEmpty()) {
+			// 상태별 필터링
+			orderList = orderService.getOrderListByStatus(memberNo, status);
+		} else {
+			// 전체 조회
+			orderList = orderService.getOrderList(memberNo);
+		}
+		
+		return ResponseEntity.ok(orderList);
+	}
+
+	/**
+	 * 주문 상세 조회
+	 */
+	@GetMapping("my/{orderNo}")
+	public ResponseEntity<Order> getOrderDetail(@PathVariable("orderNo") int orderNo, Authentication authentication) {
+
+		String memberNoStr = (String) authentication.getPrincipal();
+		int memberNo = Integer.parseInt(memberNoStr);
+
+		Order orderDetail = orderService.getOrderDetail(orderNo, memberNo);
+
+		return ResponseEntity.ok(orderDetail);
+	}
+
+	/**
+	 * 주문 취소
+	 */
+	@PostMapping("cancel")
+	public ResponseEntity<Void> cancelOrder(@RequestBody CancelRequest request, Authentication authentication) {
+
+		String memberNoStr = (String) authentication.getPrincipal();
+		int memberNo = Integer.parseInt(memberNoStr);
+		
+		orderService.cancelOrder(request, memberNo);
+
+		return ResponseEntity.ok().build();
+	}
+
+	/**
+	 * 송장번호 등록 (관리자)
+	 */
+	@PutMapping("{orderNo}/tracking")
+	public ResponseEntity<Void> updateTrackingInfo(@PathVariable("orderNo") int orderNo,
+			@RequestParam("trackingNumber") String trackingNumber,
+			@RequestParam("deliveryCompany") String deliveryCompany) {
+
+		orderService.updateTrackingInfo(orderNo, trackingNumber, deliveryCompany);
+
+		return ResponseEntity.ok().build();
+	}
+
+	/**
+	 * 배송 완료 처리 (관리자)
+	 */
+	@PutMapping("{orderNo}/complete")
+	public ResponseEntity<Void> completeDelivery(@PathVariable("orderNo") int orderNo) {
+
+		// TODO: 관리자 권한 확인
+
+		orderService.completeDelivery(orderNo);
+
+		return ResponseEntity.ok().build();
 	}
 
 	/**
