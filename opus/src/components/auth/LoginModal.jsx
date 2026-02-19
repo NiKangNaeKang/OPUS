@@ -1,42 +1,95 @@
+// src/components/auth/LoginModal.jsx
 import { useEffect, useMemo, useState } from "react";
 import "../../css/loginModal.css";
 import axiosApi from "../../api/axiosAPI";
 import { useAuthStore } from "./useAuthStore";
 import { toast } from "react-toastify";
+import { getSavedEmail } from "./rememberId";
+import GoogleLoginButton from "./GoogleLoginButton";
+import SocialRegisterForm from "./SocialRegisterForm";
+import { useAuthValidation } from "./useAuthValidation";
 
 export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const doLogin = useAuthStore((s) => s.login);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [saveId, setSaveId] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // 제출 가능 여부 체크
+
+  const [isSocialRegister, setIsSocialRegister] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  
+  const { 
+    isTelChecked, 
+    setIsTelChecked, 
+    handleCheckTel, 
+    handlePhoneChange 
+  } = useAuthValidation();
+
+  const [telMsg, setTelMsg] = useState("");
+
   const canSubmit = useMemo(() => {
+    if (isSocialRegister) return isTelChecked && phoneNumber.length >= 12 && !loading;
     return email.trim().length > 0 && password.trim().length > 0 && !loading;
-  }, [email, password, loading]);
+  }, [email, password, loading, isSocialRegister, phoneNumber, isTelChecked]);
 
-  // 모달 닫힐 때 상태 초기화
+  useEffect(() => {
+    if (!open) {
+      setPassword("");
+      setErrorMsg("");
+      setLoading(false);
+      setIsSocialRegister(false);
+      setPhoneNumber("");
+      setIsTelChecked(false);
+      setTelMsg("");
+      return;
+    }
+
+    const savedEmail = getSavedEmail();
+    if (savedEmail && !isSocialRegister) {
+      setEmail(savedEmail);
+      setSaveId(true);
+    }
+  }, [open, isSocialRegister, setIsTelChecked]);
+
+
   useEffect(() => {
     if (!open) return;
-    setEmail("");
-    setPassword("");
-    setErrorMsg("");
-    setLoading(false);
-  }, [open]);
+    setTelMsg("");
+  }, [phoneNumber, open]);
 
-  // 모달 오픈 시 배경 스크롤 방지
-  useEffect(() => {
-    if (!open) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [open]);
 
-  // 로그인 제출 함수
+  const onInternalCheckTel = async () => {
+    const success = await handleCheckTel(phoneNumber);
+    if (success) {
+      setTelMsg("사용 가능한 연락처입니다.");
+    } else {
+      setTelMsg("이미 등록되었거나 올바르지 않은 번호입니다.");
+    }
+  };
+
+  const handleGoogleLoginSuccess = (data) => {
+    if (data?.message === "ADDITIONAL_INFO_REQUIRED") {
+      setEmail(data.email);
+      setIsSocialRegister(true);
+      toast.info("가입을 위해 연락처 등록이 필요합니다.");
+      return;
+    }
+    if (data?.success && data?.token) {
+      handleLoginSuccess(data.token, data.member);
+    }
+  };
+
+  const handleLoginSuccess = (token, member) => {
+    const userName = member?.memberEmail?.split("@")[0] || "사용자";
+    toast.success(<>{userName}님,<br />환영합니다!</>, { icon: false });
+    doLogin({ token, member });
+    onClose?.();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
@@ -45,38 +98,30 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
     setErrorMsg("");
 
     try {
-      const res = await axiosApi.post("/auth/login", {
-        memberEmail: email.trim(),
-        memberPw: password.trim(),
-      });
+      if (isSocialRegister) {
+        const rawPhone = phoneNumber.replace(/[^0-9]/g, "");
+        const res = await axiosApi.post("/auth/google/register", {
+          memberEmail: email,
+          memberTel: rawPhone,
+        });
 
-      // 백엔드 응답 구조: { token: "...", member: { memberNo: 1, memberEmail: "...", memberTel: "...", ... } }
-      const token = res?.data?.token;
-      const member = res?.data?.member;
-
-      if (!token || !member?.memberNo) {
-        throw new Error("로그인 응답 형식이 올바르지 않습니다.");
-      }
-
-      const userName = member.memberEmail.split('@')[0]; 
-      toast.success(`${userName}님, 환영합니다!`, { icon: false });
-
-      // Zustand 스토어에 데이터 저장 (token과 member 전달)
-      doLogin({ token, member });
-      onClose?.();
-
-    } catch (err) {
-      const status = err?.response?.status;
-      const serverData = err?.response?.data;
-
-      if (status === 401) {
-        setErrorMsg(typeof serverData === 'string' ? serverData : "이메일 또는 비밀번호가 일치하지 않습니다.");
+        if (res.data?.success && res.data?.token) {
+          handleLoginSuccess(res.data.token, res.data.member);
+        } else {
+          toast.success("회원가입이 완료되었습니다.");
+          setIsSocialRegister(false);
+          onClose?.();
+        }
       } else {
-        setErrorMsg(
-          typeof serverData === 'string' ? serverData : 
-          (serverData?.message || err?.message || "로그인에 실패했습니다. 다시 시도해주세요.")
-        );
+        const res = await axiosApi.post(`/auth/login?saveId=${saveId}`, {
+          memberEmail: email.trim(),
+          memberPw: password.trim(),
+        });
+        handleLoginSuccess(res.data.token, res.data.member);
       }
+    } catch (err) {
+      const serverMsg = err.response?.data?.message || err.response?.data;
+      setErrorMsg(typeof serverMsg === "string" ? serverMsg : "처리에 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -88,48 +133,54 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
     <div className="lm-overlay" role="dialog" aria-modal="true">
       <div className="lm-modal">
         <div className="lm-header">
-          <h2 className="lm-title">로그인</h2>
-          <button className="lm-close" type="button" onClick={onClose} aria-label="닫기">✕</button>
+          <h2 className="lm-title">{isSocialRegister ? "추가 정보 입력" : "로그인"}</h2>
+          <button className="lm-close" type="button" onClick={onClose}>✕</button>
         </div>
 
         <form className="lm-body" onSubmit={handleSubmit}>
-          <label className="lm-label">
-            이메일
-            <input
-              className="lm-input"
-              type="email"
-              autoComplete="email"
-              placeholder="example@domain.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
+          {isSocialRegister ? (
+            <SocialRegisterForm
+              email={email}
+              phoneNumber={phoneNumber}
+              setPhoneNumber={setPhoneNumber}
+              isTelChecked={isTelChecked}
+              telMsg={telMsg}
+              onCheckTel={onInternalCheckTel}
+              handlePhoneChange={handlePhoneChange}
             />
-          </label>
+          ) : (
+            <>
+              <label className="lm-label">이메일
+                <input className="lm-input" type="email" placeholder="example@domain.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+              </label>
+              <label className="lm-label">비밀번호
+                <input className="lm-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              </label>
 
-          <label className="lm-label">
-            비밀번호
-            <input
-              className="lm-input"
-              type="password"
-              autoComplete="current-password"
-              placeholder="비밀번호"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-            />
-          </label>
+              <div className="lm-options" style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "15px" }}>
+                <input type="checkbox" id="saveId" checked={saveId} onChange={(e) => setSaveId(e.target.checked)} />
+                <label htmlFor="saveId" style={{ fontSize: "14px", cursor: "pointer" }}>아이디 저장</label>
+              </div>
+            </>
+          )}
 
-          {errorMsg ? <p className="lm-error">{errorMsg}</p> : null}
+          {errorMsg && <p className="lm-error">{errorMsg}</p>}
 
           <button className="lm-submit" type="submit" disabled={!canSubmit}>
-            {loading ? "로그인 중..." : "로그인"}
+            {loading ? "처리 중..." : isSocialRegister ? "가입 완료" : "로그인"}
           </button>
 
-          <div className="lm-footer">
-            <button type="button" className="lm-link">아이디 찾기</button>
-            <button type="button" className="lm-link">비밀번호 찾기</button>
-            <button type="button" className="lm-link" onClick={onSwitchSignup}>회원가입</button>
-          </div>
+          {!isSocialRegister && (
+            <>
+              <div className="lm-social-login" style={{ marginTop: "10px" }}>
+                <GoogleLoginButton onLoginSuccess={handleGoogleLoginSuccess} />
+              </div>
+
+              <div className="lm-footer">
+                <button type="button" className="lm-link" onClick={onSwitchSignup}>회원가입</button>
+              </div>
+            </>
+          )}
         </form>
       </div>
     </div>

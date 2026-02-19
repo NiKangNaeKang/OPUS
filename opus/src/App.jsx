@@ -14,7 +14,7 @@ import UnveilingDetail from "./pages/UnveilingDetail";
 import MusicalDetail from './pages/onStage/MusicalDetail';
 import Reviews from "./pages/onStage/Reviews";
 import Proposals from "./pages/proposals/Proposals";
-import ToastConfig from "./components/common/ToastConfig";
+import ToastConfig from "./components/toast/ToastConfig";
 import AuthInitializer from "./components/common/AuthInitializer";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyPage from "./pages/mypage/MyPage";
@@ -23,6 +23,7 @@ import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
 import Orders from "./pages/selections/Orders";
 import OrderDetail from "./pages/selections/OrderDetail";
 
+import AuthSuccess from "./components/auth/AuthSuccess";
 
 export default function App() {
   return (
@@ -31,12 +32,14 @@ export default function App() {
       <ToastConfig />
 
       <Routes>
-        {/* Dark Header (Home 등) */}
+        <Route path="/auth/success" element={<AuthSuccess />} />
+
+        {/* Dark Header 레이아웃 */}
         <Route element={<DarkHeaderLayout />}>
           <Route path="/" element={<Home />} />
         </Route>
 
-        {/* Light Header (게시판, 상세페이지 등) */}
+        {/* Light Header 레이아웃 */}
         <Route element={<LightHeaderLayout />}>
           <Route path="/onStage" element={<OnStage />} />
           <Route path="/onStage/exhibition/:exhibitionId" element={<ExhibitionDetail />} />

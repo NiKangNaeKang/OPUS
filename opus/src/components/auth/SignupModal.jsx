@@ -285,7 +285,6 @@ export default function SignupModal({ open, onClose }) {
             )}
           </label>
 
-          {/* 4. 연락처 입력 및 중복 확인 */}
           <label className="lm-label">
             연락처
             <div className="lm-input-group">
