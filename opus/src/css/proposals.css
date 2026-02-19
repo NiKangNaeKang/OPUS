@@ -57,43 +57,82 @@
   background: var(--primary);
 }
 
+/* 필터 컨테이너: 왼쪽과 오른쪽 영역을 양 끝으로 배치 */
 .proposals-page .filters {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 16px !important;
+  flex-wrap: nowrap !important; /* 줄바꿈 절대 방지 */
 }
 
-.proposals-page .filters__left { display: flex; gap: 10px; }
+/* 1. 왼쪽 영역: 셀렉트 박스 2개를 좌우 병렬로 나열 */
+.proposals-page .filters__left {
+  display: flex !important;
+  flex-direction: row !important; /* 가로 정렬 강제 */
+  align-items: center !important;
+  gap: 12px !important; /* 셀렉트 박스 사이 간격 */
+  flex-shrink: 0 !important; /* 검색창에 밀려서 줄어들지 않게 고정 */
+}
 
+/* 2. 오른쪽 영역: 검색창이 오른쪽 끝에 붙도록 설정 */
+.proposals-page .filters__right {
+  display: flex !important;
+  justify-content: flex-end !important;
+  flex-grow: 1 !important;
+}
+
+/* 1. 셀렉트 박스 스타일 (배경 흰색 + 커스텀 화살표 강제 삽입) */
 .proposals-page .select {
+  display: inline-block !important; /* 가로 배치 보조 */
   height: 42px;
+  min-width: 130px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 0 12px;
-  background: #fff;
+  padding: 0 35px 0 16px;
+  background-color: #ffffff !important;
+  
+  /* 화살표 아이콘 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 12px) center !important;
+  background-size: 16px !important;
+  
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  font-size: 16px;
   color: var(--text);
   cursor: pointer;
-  font-weight: 500;
 }
 
 .proposals-page .select:focus { outline: 2px solid rgba(0,0,0,.1); }
 
+/* 검색창 박스 내부 병렬 */
 .proposals-page .search {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important; /* 100%일 경우 밀어내기 때문에 auto 설정 */
 }
 
+/* 검색어 인풋창 */
 .proposals-page .search__input {
-  width: 260px;
-  height: 42px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 0 16px;
-  font-size: 14px;
+  width: 450px !important; /* 크기 고정 */
+  height: 42px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  padding: 0 40px 0 16px !important;
+  font-size: 16px !important;
+  background-color: #ffffff !important;
+
+  /* 돋보기 아이콘 SVG 삽입 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z' /%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important; /* 우측 끝에서 12px 띄움 */
+  background-size: 20px !important; /* 아이콘 크기 */
 }
 
 .proposals-page .search__input:focus {
@@ -101,19 +140,21 @@
   border-color: var(--muted);
 }
 
+/* 3. 검색 버튼 (글씨 가로 정렬 보장) */
 .proposals-page .search__btn {
   height: 42px;
-  padding: 0 20px;
+  min-width: 90px;
+  padding: 0 24px;
   background: var(--primary);
   color: #fff;
   border: none;
   border-radius: var(--radius);
   font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.2s;
+  white-space: nowrap; /* 글자 가로 유지 */
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .proposals-page .board-list { border-top: 2px solid var(--black); }

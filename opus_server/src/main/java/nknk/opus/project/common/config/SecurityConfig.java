@@ -46,7 +46,7 @@ public class SecurityConfig {
 
 				// URL 권한 관리
 				.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.requestMatchers("/auth/**", "/common/**", "/selections/**", "/images/**", "/unveiling/**")
+						.requestMatchers("/auth/**", "/common/**", "/selections/**", "/images/**", "/unveiling/**", "/api/board/**")
 						.permitAll().requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll().anyRequest()
 						.authenticated())
 
