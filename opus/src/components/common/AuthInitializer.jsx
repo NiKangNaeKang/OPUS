@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useAuthStore } from "../auth/useAuthStore";
-import { useCartStore } from "../../store/cartStore";
+import { useCartStore } from "../../store/useCartStore";
 
 const AuthInitializer = () => {
   const { isLoggedIn } = useAuthStore();

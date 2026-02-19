@@ -82,7 +82,7 @@ function Header({ onClickUser, onLogout, isLoggedIn, variant }) {
             aria-label={isLoggedIn ? "마이페이지" : "로그인"}
             onClick={onClickUser}
           >
-            <i className={`fa-regular ${isLoggedIn ? "fa-circle-user" : "fa-user"}`} aria-hidden="true"></i>
+            <i className={`${isLoggedIn ? "fa-regular fa-user" : "fa-solid fa-arrow-right-to-bracket"}`} aria-hidden="true"></i>
           </button>
 
 
@@ -101,7 +101,7 @@ function Header({ onClickUser, onLogout, isLoggedIn, variant }) {
                 aria-label="로그아웃"
                 onClick={onLogout}
               >
-                <i className="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                <i className="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
               </button>
             )}
         </div>

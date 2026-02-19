@@ -3,7 +3,10 @@ import { useAuthStore } from "../components/auth/useAuthStore";
 
 const axiosApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true
 });
 
 /* 요청 인터셉터: 서버로 요청을 보내기 전 실행 */

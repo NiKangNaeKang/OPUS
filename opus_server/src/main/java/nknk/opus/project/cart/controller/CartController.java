@@ -21,7 +21,7 @@ import nknk.opus.project.cart.model.service.CartService;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
-@RequestMapping("/cart")
+@RequestMapping("cart")
 public class CartController {
 
 	@Autowired
@@ -56,7 +56,7 @@ public class CartController {
 	/**
 	 * 장바구니 수량 변경
 	 */
-	@PutMapping("/{cartNo}")
+	@PutMapping("{cartNo}")
 	public ResponseEntity<Cart> updateCartQty(@PathVariable("cartNo") int cartNo, @RequestParam("qty") int qty,
 			Authentication authentication) {
 
@@ -70,7 +70,7 @@ public class CartController {
 	/**
 	 * 장바구니 항목 삭제
 	 */
-	@DeleteMapping("/{cartNo}")
+	@DeleteMapping("{cartNo}")
 	public ResponseEntity<Void> removeFromCart(@PathVariable("cartNo") int cartNo, Authentication authentication) {
 
 		String memberNoStr = (String) authentication.getPrincipal();
@@ -96,7 +96,7 @@ public class CartController {
 	/**
 	 * 로컬 장바구니 서버로 병합
 	 */
-	@PostMapping("/merge")
+	@PostMapping("merge")
 	public ResponseEntity<List<Cart>> mergeLocalCart( @RequestBody List<Cart> localCartItems,
 												Authentication authentication) {
 

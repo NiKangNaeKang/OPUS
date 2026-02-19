@@ -4,12 +4,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import nknk.opus.project.member.model.dto.Role;
 
 @Component
+@PropertySource("classpath:/config.properties")
 public class JwtUtil {
 
 	@Value("${jwt.secret}")

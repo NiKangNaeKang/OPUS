@@ -196,7 +196,7 @@ export const useCartStore = create(
 
 
       // 전체 비우기
-      clear: async () => {
+      clearCart: async () => {
         const { isLoggedIn } = get();
 
         if (isLoggedIn) {
@@ -211,6 +211,32 @@ export const useCartStore = create(
           // 로컬에서만 비우기
           set({ items: [], checkedKeys: [] });
         }
+      },
+
+      // 체크 항목 추가
+      checkItem: (cartKey) => {
+        set((state) => {
+          if (state.checkedKeys.includes(cartKey)) return state;
+          return { checkedKeys: [...state.checkedKeys, cartKey] };
+        });
+      },
+
+      // 체크 항목 제거
+      uncheckItem: (cartKey) => {
+        set((state) => ({
+          checkedKeys: state.checkedKeys.filter((key) => key !== cartKey),
+        }));
+      },
+
+      // 전체 체크
+      checkAll: () => {
+        const { items } = get();
+        set({ checkedKeys: items.map((item) => item.cartKey) });
+      },
+      
+      // 전체 체크 해제
+      uncheckAll: () => {
+        set({ checkedKeys: [] });
       },
 
       // 합계 계산(필요할 때 호출)

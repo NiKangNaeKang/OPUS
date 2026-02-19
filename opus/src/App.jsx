@@ -4,6 +4,8 @@ import Selections from "./pages/selections/Selections";
 import SelectionsDetail from "./pages/selections/SelectionsDetail";
 import Cart from "./pages/selections/Cart";
 import Checkout from "./pages/selections/Checkout";
+import PaymentSuccess from "./pages/selections/PaymentSuccess";
+import PaymentFail from "./pages/selections/PaymentFail";
 import DarkHeaderLayout from "./layouts/DarkHeaderLayout";
 import LightHeaderLayout from "./layouts/LightHeaderLayout";
 import Unveiling from "./pages/Unveiling";
@@ -18,6 +20,9 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyPage from "./pages/mypage/MyPage";
 import ExhibitionList from "./pages/onStage/ExhibitionList";
 import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
+import Orders from "./pages/selections/Orders";
+import OrderDetail from "./pages/selections/OrderDetail";
+
 import AuthSuccess from "./components/auth/AuthSuccess";
 
 export default function App() {
@@ -40,16 +45,23 @@ export default function App() {
           <Route path="/onStage/exhibition/:exhibitionId" element={<ExhibitionDetail />} />
           <Route path="/onStage/musical/:mt20id" element={<MusicalDetail />} />
           <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
+
+          {/* 2. Proposals 경로 추가 */}
           <Route path="/proposals" element={<Proposals />} />
           <Route path="/unveiling" element={<Unveiling />} />
           <Route path="/unveiling/:id" element={<UnveilingDetail />} />
-          <Route path="/selections" element={<Selections />} />
-          <Route path="/selections/:goodsNo" element={<SelectionsDetail />} />
-          <Route path="/selections/cart" element={<Cart />} />
-          <Route path="/selections/checkout" element={<Checkout />} />
+          <Route path='/selections' element={<Selections />} />
+          <Route path='/selections/:goodsNo' element={<SelectionsDetail />} />
+          <Route path='/selections/cart' element={<Cart />} />
+          <Route path='/selections/checkout' element={<Checkout />} />
+          <Route path='/payment/success' element={<PaymentSuccess />} />
+          <Route path='/payment/fail' element={<PaymentFail />} />
           <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
+          <Route path="/mypage/orders" element={<Orders />} />
+          <Route path="/mypage/orders/:orderNo" element={<OrderDetail />} />
         </Route>
       </Routes>
+
     </>
   );
 }

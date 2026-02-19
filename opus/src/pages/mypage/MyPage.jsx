@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "../../css/mypage.css";
 import { useAuthStore } from "../../components/auth/useAuthStore";
 import { useAuthValidation } from "../../components/auth/useAuthValidation";
@@ -39,7 +39,7 @@ export default function MyPage() {
       items: [
         { id: "wishlist", icon: "fa-regular fa-heart", label: "찜한 리스트" },
         { id: "reviews", icon: "fa-regular fa-comment", label: "작성 후기" },
-        { id: "purchase-history", icon: "fa-solid fa-receipt", label: "구매 내역" },
+        { id: "orders", icon: "fa-solid fa-receipt", label: "주문 내역" },
         { id: "auction-history", icon: "fa-solid fa-gavel", label: "경매 내역" },
       ],
     },
@@ -225,14 +225,14 @@ const handleWithdrawalClick = async () => {
                 <ul className="nav-list">
                   {group.items.map((item) => (
                     <li key={item.id}>
-                      <a
-                        href={`#${item.id}`}
+                      <NavLink
+                        to={`/myPage/${item.id}`}
                         className={`nav-link ${activeId === item.id ? "is-active" : ""}`}
                         onClick={(e) => handleSideNavClick(e, item.id)}
                       >
                         <i className={item.icon} />
                         <span>{item.label}</span>
-                      </a>
+                      </NavLink>
                     </li>
                   ))}
                 </ul>
