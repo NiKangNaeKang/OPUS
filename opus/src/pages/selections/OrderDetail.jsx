@@ -3,12 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { orderApi } from "../../api/orderAPI";
 import Loading from "../../components/common/Loading";
 import "../../css/OrderDetail.css";
+import CancelOrderModal from "./CancelOrderModal";
 
 const OrderDetail = () => {
   const { orderNo } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   // 주문 상세 조회
   useEffect(() => {
@@ -28,18 +30,18 @@ const OrderDetail = () => {
     fetchOrderDetail();
   }, [orderNo, navigate]);
 
+  // 주문 취소 모달 열기
+  const handleOpenCancelModal = () => {
+    setIsCancelModalOpen(true);
+  };
+
   // 주문 취소
-  const handleCancelOrder = async () => {
-    const cancelReason = prompt("취소 사유를 입력해주세요:");
-    
-    if (!cancelReason) return;
-
-    if (!confirm("정말 주문을 취소하시겠습니까?")) return;
-
+  const handleConfirmCancel = async (cancelReason) => {
     try {
+      console.log("주문 취소 시작", order.orderId, cancelReason);
       await orderApi.cancelOrder(order.orderId, cancelReason);
       alert("주문이 취소되었습니다.");
-      
+
       // 새로고침
       const data = await orderApi.getOrderDetail(orderNo);
       setOrder(data);
@@ -122,7 +124,7 @@ const OrderDetail = () => {
           {order.items.map((item) => (
             <div key={item.orderItemNo} className="item-card">
               <div className="item-image">
-                <img 
+                <img
                   src={`${import.meta.env.VITE_API_URL}${item.thumbnail}`}
                   alt={item.goodsName}
                 />
@@ -209,7 +211,7 @@ const OrderDetail = () => {
               <span className="info-value">{order.deliveryReq}</span>
             </div>
           )}
-          
+
           {/* 송장 정보 */}
           {order.trackingNumber && (
             <>
@@ -229,24 +231,34 @@ const OrderDetail = () => {
 
       {/* 액션 버튼 */}
       <section className="order-actions">
-        {(order.orderStatus === "READY" || 
-          order.orderStatus === "WAITING_FOR_DEPOSIT" || 
+        {(order.orderStatus === "READY" ||
+          order.orderStatus === "WAITING_FOR_DEPOSIT" ||
           order.orderStatus === "PAID") && (
-          <button 
-            className="cancel-btn"
-            onClick={handleCancelOrder}
-          >
-            주문 취소
-          </button>
-        )}
-        
-        <button 
+            <button
+              className="cancel-btn"
+              onClick={handleOpenCancelModal}
+            >
+              주문 취소
+            </button>
+          )}
+
+        <button
           className="back-btn"
           onClick={() => navigate("/mypage/orders")}
         >
           목록으로
         </button>
       </section>
+
+      {/* 주문 취소 모달 */}
+      <CancelOrderModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleConfirmCancel}
+        orderInfo={{
+          orderId: order?.orderId,
+        }}
+      />
     </main>
   );
 };

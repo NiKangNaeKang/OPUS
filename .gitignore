@@ -14,15 +14,6 @@ Servers
 .classpath
 .project
 
-# Node.js / React / Vite
-node_modules/
-dist/
-build/
-.vite/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 .env
 .env.*
 

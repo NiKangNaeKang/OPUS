@@ -39,7 +39,7 @@ export default function MyPage() {
       items: [
         { id: "wishlist", icon: "fa-regular fa-heart", label: "찜한 리스트" },
         { id: "reviews", icon: "fa-regular fa-comment", label: "작성 후기" },
-        { id: "orders", icon: "fa-solid fa-receipt", label: "구매 내역" },
+        { id: "orders", icon: "fa-solid fa-receipt", label: "주문 내역" },
         { id: "auction-history", icon: "fa-solid fa-gavel", label: "경매 내역" },
       ],
     },
