@@ -71,13 +71,16 @@ function Header({ onClickUser, onLogout, isLoggedIn, variant }) {
           </nav>
         </div>
 
+
         <div className="header__right">
-          <button className="icon-btn" type="button" aria-label="알림">
-            <i className="fa-regular fa-bell" aria-hidden="true"></i>
-          </button>
+          {isLoggedIn && (
+            <button className="icon-btn" type="button" aria-label="알림">
+              <i className="fa-regular fa-bell" aria-hidden="true"></i>
+            </button>
+          )}
 
           <button
-            className="icon-btn" 
+            className="icon-btn"
             type="button"
             aria-label={isLoggedIn ? "마이페이지" : "로그인"}
             onClick={onClickUser}
@@ -94,16 +97,16 @@ function Header({ onClickUser, onLogout, isLoggedIn, variant }) {
             </NavLink>
             : null}
 
-            {isLoggedIn && (
-              <button
-                className="icon-btn"
-                type="button"
-                aria-label="로그아웃"
-                onClick={onLogout}
-              >
-                <i className="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
-              </button>
-            )}
+          {isLoggedIn && (
+            <button
+              className="icon-btn"
+              type="button"
+              aria-label="로그아웃"
+              onClick={onLogout}
+            >
+              <i className="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+            </button>
+          )}
         </div>
       </div>
     </header>
