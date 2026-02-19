@@ -2,8 +2,14 @@ import { useState } from "react";
 import "../../css/CancelOrderModal.css";
 
 const CancelOrderModal = ({ isOpen, onClose, onConfirm, orderInfo }) => {
+
+  // 취소 사유 상태
   const [cancelReason, setCancelReason] = useState("");
+
+  // 미리 정의된 취소 사유 중 선택된 사유
   const [selectedReason, setSelectedReason] = useState("");
+
+  // 취소 사유 직접 입력 여부
   const [isCustomReason, setIsCustomReason] = useState(false);
 
   // 미리 정의된 취소 사유
@@ -21,9 +27,11 @@ const CancelOrderModal = ({ isOpen, onClose, onConfirm, orderInfo }) => {
     setSelectedReason(reason);
     
     if (reason === "직접 입력") {
+      // 직접 입력 선택 시 입력창 열고 취소 사유 비우기
       setIsCustomReason(true);
       setCancelReason("");
     } else {
+      // 나머지는 취소 사유에 미리 선택된 취소 사유 채우기
       setIsCustomReason(false);
       setCancelReason(reason);
     }
@@ -36,9 +44,12 @@ const CancelOrderModal = ({ isOpen, onClose, onConfirm, orderInfo }) => {
       return;
     }
     
-    if(!confirm(" 취소 후에는 되돌릴 수 없습니다. 현재 주문을 취소하시겠습니까?")) return;
+    // 확인 선택 시 주문 취소
+    if(!confirm("취소 후에는 되돌릴 수 없습니다. 현재 주문을 취소하시겠습니까?")) return;
 
+    // 주문 취소 함수에 취소 사유 전달
     onConfirm(cancelReason);
+    // 모달 닫기 핸들러
     handleClose();
   };
 

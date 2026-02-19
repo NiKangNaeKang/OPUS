@@ -6,8 +6,14 @@ import "../../css/Orders.css";
 
 const Orders = () => {
   const navigate = useNavigate();
+
+  // 주문 목록 상태
   const [orders, setOrders] = useState([]);
+
+  // 로딩 상태
   const [isLoading, setIsLoading] = useState(true);
+
+  // 주문 현황 상태
   const [selectedStatus, setSelectedStatus] = useState("ALL");
 
   // 주문 상태 필터 옵션
@@ -20,16 +26,20 @@ const Orders = () => {
     { value: "CANCELED", label: "취소" },
   ];
 
-  // 주문 목록 조회
+  // 주문 목록 조회 함수
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         setIsLoading(true);
-        
-        const data = selectedStatus === "ALL" 
+
+        console.log("==== 주문 목록 조회 시작 ====")
+
+        const data = selectedStatus === "ALL"
           ? await orderApi.getMyOrders()
           : await orderApi.getMyOrdersByStatus(selectedStatus);
-        
+
+        console.log("주문 목록 조회 완료", data)
+
         setOrders(data);
       } catch (error) {
         console.error("주문 목록 조회 실패:", error);
@@ -91,7 +101,7 @@ const Orders = () => {
           <div className="orders-empty">
             <i className="fa-solid fa-box-open"></i>
             <p>주문 내역이 없습니다.</p>
-            <button 
+            <button
               className="shop-btn"
               onClick={() => navigate("/selections")}
             >
@@ -100,8 +110,8 @@ const Orders = () => {
           </div>
         ) : (
           orders.map((order) => (
-            <div 
-              key={order.orderNo} 
+            <div
+              key={order.orderNo}
               className="order-card"
               onClick={() => goToDetail(order.orderNo)}
             >
@@ -120,8 +130,8 @@ const Orders = () => {
               <div className="order-card__body">
                 <div className="order-product">
                   <div className="product-image">
-                    <img 
-                      src={`${import.meta.env.VITE_API_URL}${order.firstThumbnail}`} 
+                    <img
+                      src={`${import.meta.env.VITE_API_URL}${order.firstThumbnail}`}
                       alt={order.firstGoodsName}
                     />
                   </div>
@@ -151,7 +161,7 @@ const Orders = () => {
                     </>
                   )}
                 </div>
-                <button 
+                <button
                   className="detail-btn"
                   onClick={(e) => {
                     e.stopPropagation();
