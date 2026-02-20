@@ -13,7 +13,7 @@ import OnStage from "./pages/onStage/OnStage";
 import UnveilingDetail from "./pages/UnveilingDetail";
 import MusicalDetail from './pages/onStage/MusicalDetail';
 import Reviews from "./pages/onStage/Reviews";
-import Proposals from "./pages/Proposals/Proposals";
+import Proposals from "./pages/proposals/Proposals";
 import ToastConfig from "./components/toast/ToastConfig";
 import AuthInitializer from "./components/common/AuthInitializer";
 import ProtectedRoute from "./components/auth/ProtectedRoute";

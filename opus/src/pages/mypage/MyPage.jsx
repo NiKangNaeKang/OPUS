@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import "../../css/mypage.css";
+import "../../css/myPage.css";
 import { useAuthStore } from "../../components/auth/useAuthStore";
 import { useAuthValidation } from "../../components/auth/useAuthValidation";
 import { toast } from "react-toastify";
