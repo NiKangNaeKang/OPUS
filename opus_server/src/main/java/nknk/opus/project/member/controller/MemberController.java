@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -90,6 +91,37 @@ public class MemberController {
 			log.error("로그인 중 서버 오류 발생", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
 		}
+	}
+	
+	/** 비밀번호 확인 (응찰 전 본인 확인용)
+	 * @param inputMember
+	 * @param authentication
+	 * @return
+	 * By Sanghoo
+	 */
+	@PostMapping("/verify-password")
+	public ResponseEntity<?> verifyPassword(@RequestBody Member inputMember,
+	                                         Authentication authentication) {
+		
+	    if (authentication == null) return ResponseEntity.status(401).build();
+
+	    try {
+	        String email = authentication.getPrincipal().toString();
+	        inputMember.setMemberEmail(email);
+
+	        Member result = service.login(inputMember);
+
+	        if (result == null) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                                 .body("비밀번호가 일치하지 않습니다.");
+	        }
+
+	        return ResponseEntity.ok(Map.of("verified", true));
+
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                             .body("서버 오류가 발생했습니다.");
+	    }
 	}
 
 	/* 연락처 중복 체크 */

@@ -25,6 +25,12 @@ public class UnveilingServiceImpl implements UnveilingService{
 	private BiddingMapper biddingMapper;
 	
 	@Override
+	public List<Unveiling> getList() {
+		
+		return unveilingMapper.selectUnveilingList();
+	}
+	
+	@Override
 	public Unveiling getDetail(int unveilingNo) {
 
 		Unveiling u = unveilingMapper.selectUnveilingDetail(unveilingNo);

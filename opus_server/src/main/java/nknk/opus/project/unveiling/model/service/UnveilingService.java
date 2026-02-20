@@ -19,4 +19,6 @@ public interface UnveilingService {
 	
 	Map<String, Object> mockPay(int unveilingNo, int memberNo);
 
+	List<Unveiling> getList();
+
 }

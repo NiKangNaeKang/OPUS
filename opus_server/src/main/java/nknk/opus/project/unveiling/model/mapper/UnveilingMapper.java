@@ -1,5 +1,7 @@
 package nknk.opus.project.unveiling.model.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import nknk.opus.project.unveiling.model.dto.Unveiling;
@@ -25,4 +27,6 @@ public interface UnveilingMapper {
 	int selectIsPaymentExpired(int unveilingNo);
 	
 	int markPaymentExpired(int unveilingNo);
+
+	List<Unveiling> selectUnveilingList();
 }

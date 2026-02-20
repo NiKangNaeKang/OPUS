@@ -45,4 +45,6 @@ public class Unveiling {
 	
 	private String paymentStatus;
 	
+	private String thumbUrl;
+	
 }

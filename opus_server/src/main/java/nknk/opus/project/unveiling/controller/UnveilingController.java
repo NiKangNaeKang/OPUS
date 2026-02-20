@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +25,12 @@ public class UnveilingController {
 	
 	@Autowired
 	private UnveilingService unveilingService;
+	
+	@GetMapping
+	public ResponseEntity<List<Unveiling>> list() {
+	    return ResponseEntity.ok(unveilingService.getList());
+	}
+
 	
 	@GetMapping("/{unveilingNo}")
 	public ResponseEntity<Unveiling> detail(@PathVariable("unveilingNo") int unveilingNo) {
@@ -52,9 +58,10 @@ public class UnveilingController {
 
     @PostMapping("/{unveilingNo}/pay")
     public ResponseEntity<Map<String, Object>> pay(@PathVariable("unveilingNo") int unveilingNo,
-            									   @RequestBody Map<String, Integer> body) {
+    												Authentication authentication) {
         
-    	int memberNo = (body == null || body.get("memberNo") == null) ? 0 : body.get("memberNo");
+        if (authentication == null) return ResponseEntity.status(401).build();
+        int memberNo = Integer.parseInt(authentication.getName());
 
         Map<String, Object> res = unveilingService.mockPay(unveilingNo, memberNo);
 
