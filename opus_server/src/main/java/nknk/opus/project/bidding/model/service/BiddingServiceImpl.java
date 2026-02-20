@@ -56,6 +56,12 @@ public class BiddingServiceImpl implements BiddingService{
             
         	throw new IllegalStateException("진행중인 경매만 응찰할 수 있습니다.");
         }
+        
+        Bidding topBid = biddingMapper.selectTopBid(unveilingNo);
+        
+        if (topBid != null && topBid.getMemberNo() == memberNo) {
+            throw new IllegalStateException("본인이 최고가 입찰자입니다. 다른 입찰자가 응찰한 후 재응찰할 수 있습니다.");
+        }
 
         // 3) 현재가 결정(없으면 시작가)
         int baseCurrent = (u.getCurrentPrice() > 0) ? u.getCurrentPrice() : u.getStartPrice();

@@ -26,6 +26,7 @@ public class BidStateResponse {
     private int tick;           // 호가 단위
     private int nextBidPrice;   // 다음 자동 입찰가
     
+    private int topBidderMemberNo; // 종료 전, 현재 상태에서 최고가 입찰자    
     private int finalizedFl;
     private int winnerMemberNo;
     private String paymentStatus;

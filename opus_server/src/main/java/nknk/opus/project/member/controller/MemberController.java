@@ -139,14 +139,17 @@ public class MemberController {
 	 */
 	@PostMapping("/verify-password")
 	public ResponseEntity<?> verifyPassword(@RequestBody Member inputMember,
-	                                         Authentication authentication) {
-		
+	                                         Authentication authentication,
+	                                         jakarta.servlet.http.HttpServletRequest request) {
 	    if (authentication == null) return ResponseEntity.status(401).build();
 
 	    try {
-	        String email = authentication.getPrincipal().toString();
-	        inputMember.setMemberEmail(email);
+	        // ✅ JWT 토큰에서 이메일 직접 추출
+	        String authHeader = request.getHeader("Authorization");
+	        String token = authHeader.substring(7); // "Bearer " 제거
+	        String email = jwtUtil.getMemberEmail(token);
 
+	        inputMember.setMemberEmail(email);
 	        Member result = service.login(inputMember);
 
 	        if (result == null) {
@@ -157,11 +160,11 @@ public class MemberController {
 	        return ResponseEntity.ok(Map.of("verified", true));
 
 	    } catch (Exception e) {
+	        log.error("[비밀번호 확인 오류] {}", e.getMessage());
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 	                             .body("서버 오류가 발생했습니다.");
 	    }
 	}
-
 	/* 연락처 중복 체크 */
 	@PostMapping("check-tel")
 	public ResponseEntity<?> checkTel(@RequestBody Map<String, String> map) {

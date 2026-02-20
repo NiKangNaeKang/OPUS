@@ -19,11 +19,11 @@ export default defineConfig({
         rewrite: path => path.replace(/^\/kopis/, ''),
       },
       "/api": {
-        target: "http://localhost:8080",
+        target: "http://localhost:80",
         changeOrigin: true,
       },
       "/auth": {
-        target: "http://localhost:8080",
+        target: "http://localhost:80",
         changeOrigin: true,
       },
     }

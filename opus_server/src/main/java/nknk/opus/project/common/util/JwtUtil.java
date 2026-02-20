@@ -56,4 +56,15 @@ public class JwtUtil {
 		return Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload().get("role",
 				String.class);
 	}
+	
+	/** 이메일 추출
+	 * @param token
+	 * @return
+	 * by Sanghoo
+	 */
+	public String getMemberEmail(String token) {
+	    return Jwts.parser().verifyWith(getSigningKey()).build()
+	               .parseSignedClaims(token).getPayload()
+	               .get("memberEmail", String.class);
+	}
 }

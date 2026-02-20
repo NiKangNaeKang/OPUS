@@ -4,6 +4,7 @@ import { unveilingData } from "../data/unveilingData";
 import "../css/UnveilingDetail.css";
 import { useAuthStore } from "../components/auth/useAuthStore";
 import axiosApi from "../api/axiosAPI";
+import axios from "axios";
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
@@ -238,16 +239,24 @@ export default function UnveilingDetail() {
   // ===== 상태 판단(서버 우선) =====
   const serverStatus = bidState?.unveilingStatus || detail.status;
   const status = STATUS[serverStatus] ?? STATUS.LIVE;
+  const { isLoggedIn, member } = useAuthStore();
+  const isTopBidder = bidState?.topBidderMemberNo > 0
+                    && member?.memberNo === bidState?.topBidderMemberNo;
+
+console.log("member:", member);
+console.log("topBidderMemberNo:", bidState?.topBidderMemberNo);
+console.log("isTopBidder:", isTopBidder);                  
 
   const bidAllowed = bidState ? !!bidState.bidAllowedFl : true;
-  const bidDisabled = bidState ? !bidAllowed : false;
-  const bidDisabledReason = bidState?.reason || (remain.done ? "마감됨" : "응찰 불가");
+  const bidDisabled = bidState ? (!bidAllowed || isTopBidder) : false;
+  const bidDisabledReason = isTopBidder
+    ? "본인이 최고가 입찰자입니다."
+    : (bidState?.reason || (remain.done ? "마감됨" : "응찰 불가"));
 
   const statusClass = `status status--${status.key}`;
   const timerClass = `timer timer--${status.key}${!bidAllowed ? " is-ended" : ""}`;
   const bidBtnClass = `bid-btn${bidDisabled ? " is-ended" : ""}`;
 
-  const { isLoggedIn } = useAuthStore();
 
   // ✅ 응찰 버튼 클릭 → 모달 오픈
   const onBid = useCallback(() => {
@@ -277,7 +286,16 @@ export default function UnveilingDetail() {
 
     try {
       // 1. 비밀번호 검증
-      await axiosApi.post("/api/members/verify-password", { memberPw: modalPw });
+      await axios.post("/auth/verify-password",
+        { memberPw: modalPw },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${useAuthStore.getState().token}`,
+          },
+          withCredentials: true,
+        }
+      )
 
       // 2. 검증 성공 → 입찰 요청
       const { data } = await axiosApi.post(`/api/bids/${unveilingNo}`, {});
