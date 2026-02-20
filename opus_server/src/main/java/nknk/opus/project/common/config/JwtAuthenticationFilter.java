@@ -26,27 +26,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		// 헤더에서 토큰 꺼내기 (Authorization: Bearer <token>)
+		// 1. Authorization 헤더 확인
 		String authHeader = request.getHeader("Authorization");
+		String token = null;
 
-		// Bearer 토큰형식인지 확인
+		// 2. Bearer 토큰 추출
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
-			String token = authHeader.substring(7);
+			token = authHeader.substring(7);
 
-			// 토큰(validateToken) 유효검사
+			// 3. 토큰 검증
 			if (jwtUtil.validateToken(token)) {
+				// 4. 정보 추출 및 권한 설정
 				String memberNo = jwtUtil.getMemberNo(token);
 				String role = jwtUtil.getMemberRole(token);
 
-				// 시큐리티 인증 객체 생성 및 등록(비밀번호는 null로 처리)
+				// 5. 시큐리티 인증 객체 생성 및 컨텍스트 저장
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(memberNo,
 						null, Collections.singletonList(new SimpleGrantedAuthority(role)));
-				// 서버 내부 메모리에 인증 정보 저장
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 
 			} else {
-				// 토큰이 존재하지만 유효하지 않은 경우 (만료, 변조 등)
-				// 프론트엔드에서 401 에러를 감지하여 자동 로그아웃 처리를 할 수 있게 함
+				// 6. 유효하지 않은 토큰 처리 (401 에러)
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				response.setContentType("application/json;charset=UTF-8");
 				response.getWriter().write("{\"message\":\"로그인이 만료되었습니다. 다시 로그인해주세요.\"}");
@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 		}
 
-		// 5. 토큰이 없거나 유효한 경우 다음 필터 진행
+		// 7. 다음 필터로 진행
 		filterChain.doFilter(request, response);
 	}
 }

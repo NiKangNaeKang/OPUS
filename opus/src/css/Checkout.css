@@ -268,7 +268,7 @@
   color: #374151;
   background: #fff;
   text-align: center;
-  width: 120px;
+  width: 140px;
 }
 
 .checkout_radio input {
@@ -713,6 +713,32 @@ details[open] .checkout_policy__summary::after {
   color: #374151;
   font-weight: 700;
   line-height: 1.6;
+}
+
+/* 에러 상태 스타일 */
+.checkout_input--error,
+.checkout_select--error,
+.checkout_textarea--error {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2;
+}
+
+.checkout_input--error:focus,
+.checkout_select--error:focus,
+.checkout_textarea--error:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.checkout_check--error {
+  color: #dc2626;
+}
+
+.checkout_check--error input {
+  accent-color: #dc2626;
+  outline: 2px solid #fecaca;
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .checkout_modal__footer {

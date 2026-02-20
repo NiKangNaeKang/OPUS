@@ -1,19 +1,31 @@
 import { useEffect } from "react";
-import { useCartStore } from "../../store/cartStore";
+import { useCartStore } from "../../store/useCartStore";
 import { useNavigate } from "react-router-dom";
 import "../../css/Cart.css"
 
 const Cart = () => {
 
+  // 상품 목록 상태
   const items = useCartStore((state) => state.items);
+
+  // 수량 변경 함수
   const setQty = useCartStore((state) => state.setQty);
+
+  // 선택 아이템 삭제 함수
   const removeItems = useCartStore((state) => state.removeItems);
-  const clear = useCartStore((state) => state.clear);
+
+  // 장바구니 비우기 함수
+  const clearCart = useCartStore((state) => state.clearCart);
+
+  // 선택된 상품 키 목록
   const checkedKeys = useCartStore((state) => state.checkedKeys);
+
+  // 선택된 상품 키 변경 함수
   const setCheckedKeys = useCartStore((state) => state.setCheckedKeys);
 
   // 기본값으로 전체 체크
   useEffect(() => {
+    // 상품 목록이 있으면 전체 체크
     if (items.length > 0) {
       setCheckedKeys(items.map(item => item.cartKey));
     } else {
@@ -38,24 +50,45 @@ const Cart = () => {
     setCheckedKeys(e.target.checked ? items.map(item => item.cartKey) : []);
   };
 
+  // 선택 상품 지우기 핸들러
   const handleDeleteSelected = () => {
     removeItems(checkedKeys);
     setCheckedKeys([]);
   };
 
+  // 선택 상품 목록
   const selectedItems = items.filter(item => checkedKeys.includes(item.cartKey));
 
-  const goodsTotalChecked = selectedItems.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
-  let shippingTotalChecked = selectedItems.reduce((sum, i) => sum + (i.deliveryCost ?? 0), 0);
-  if (goodsTotalChecked >= 50000) shippingTotalChecked = 0;
+  // 가격 모음
+
+  // 상품 총 가격
+  const goodsTotalChecked = selectedItems.reduce(
+    (sum, i) => sum + i.unitPrice * i.qty,
+    0
+  );
+
+  // 배송비는 한 번만
+  let shippingTotalChecked = 0;
+
+  if (selectedItems.length > 0) {
+    shippingTotalChecked = selectedItems[0].deliveryCost ?? 0;
+  }
+
+  // 무료배송 조건
+  if (goodsTotalChecked >= 50000) {
+    shippingTotalChecked = 0;
+  }
+
   const grandTotalChecked = goodsTotalChecked + shippingTotalChecked;
+
 
   // 상품을 하나라도 선택했는지 여부
   const hasSelectedItems = items.length > 0 && checkedKeys.length > 0;
 
-  // 결제 페이지 이동 함수
+  // 페이지 이동 훅
   const navigate = useNavigate();
 
+  // 결제 페이지 이동 함수
   const onGoCheckout = () => {
     if (checkedKeys.length === 0) return; // 선택 없으면 무시
     navigate("/selections/checkout");
@@ -84,7 +117,7 @@ const Cart = () => {
 
             <div className="cart-toolbar__actions">
               <button className="ghost-btn" type="button" onClick={handleDeleteSelected}>선택 삭제</button>
-              <button className="ghost-btn" type="button" onClick={clear}>전체 삭제</button>
+              <button className="ghost-btn" type="button" onClick={clearCart}>전체 삭제</button>
             </div>
           </div>
 

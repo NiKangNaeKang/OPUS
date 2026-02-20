@@ -1,5 +1,7 @@
 package nknk.opus.project.member.model.dto;
 
+// import nknk.opus.project.member.model.dto.Role;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,5 +18,10 @@ public class Member {
 	private String memberTel;
 	private String enrollDate;
 	private String memberDelFl;
-	private int authorLevel;
+	private int authorLevel; // 기존 권한 레벨 (숫자)
+	private String withdrawalDate;
+
+	private Role memberRole; // 스프링 시큐리티시 필수
+	private String loginType;
+
 }

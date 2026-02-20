@@ -22,7 +22,7 @@ export const useAuthStore = create(
           token: null,
           member: null,
         });
-        localStorage.removeItem("auth-storage"); // persist 이름과 동일하게
+
       },
     }),
     {

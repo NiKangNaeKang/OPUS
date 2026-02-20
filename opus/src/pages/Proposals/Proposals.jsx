@@ -1,16 +1,20 @@
-import React, { useState, useMemo } from "react";
-import { proposalsData } from "../../data/proposalsData.js";
+import React, { useState, useMemo, useEffect } from "react";
+import axios from "axios";
 import "../../css/proposals.css";
+import Pagination from "./Pagination"; 
 
 const Proposals = () => {
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("notice");
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("latest");
   const [keyword, setKeyword] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const formatDate = (iso) => (iso ? iso.replaceAll("-", ".") : "");
-  const formatNumber = (n) => Number(n ?? 0).toLocaleString("ko-KR");
+  // [추가] 페이지네이션 관련 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8; 
 
   const categoryLabel = {
     musical: "뮤지컬",
@@ -19,83 +23,96 @@ const Proposals = () => {
     goods: "굿즈",
   };
 
-  const handleSearch = () => setSearchQuery(keyword);
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") handleSearch();
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const typeCode = activeTab === "notice" ? 1 : 2;
+        const apiSort = sort === "views" ? "view" : "latest";
 
-  const changeTab = (tab) => {
-    setActiveTab(tab);
-    setCategory("all");
-    setSort("latest");
-    setSearchQuery("");
-    setKeyword("");
-  };
+        const response = await axios.get(`http://localhost/api/board/list/${typeCode}`, {
+          params: { sort: apiSort },
+          withCredentials: true,
+        });
 
-  const filteredItems = useMemo(() => {
-    if (!proposalsData?.[activeTab]) return [];
+        setItems(Array.isArray(response.data) ? response.data : []);
+        setCurrentPage(1); // 탭이나 정렬 변경 시 1페이지로 리셋
+      } catch (error) {
+        console.error("데이터 로드 실패:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [activeTab, sort]);
 
-    let items = [...proposalsData[activeTab]];
-    const q = searchQuery.toLowerCase().trim();
-
+  // [수정] 필터링 후 현재 페이지에 해당하는 8개 데이터만 추출
+  const { paginatedItems, totalPages } = useMemo(() => {
+    let result = [...items];
+    
+    // 필터링 로직
     if (category !== "all") {
-      items = items.filter((it) => it.category === category);
+      result = result.filter((it) => it.boardCategory === category);
     }
-
+    const q = searchQuery.toLowerCase().trim();
     if (q) {
-      items = items.filter((it) => {
-        return (
-          it.title?.toLowerCase().includes(q) ||
-          it.excerpt?.toLowerCase().includes(q)
-        );
-      });
+      result = result.filter(
+        (it) =>
+          it.boardTitle?.toLowerCase().includes(q) ||
+          it.boardContent?.toLowerCase().includes(q)
+      );
     }
 
-    if (sort === "views") {
-      items.sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
-    } else {
-      items.sort((a, b) => new Date(b.date) - new Date(a.date));
-    }
+    // 페이지네이션 계산
+    const total = Math.ceil(result.length / itemsPerPage);
+    const start = (currentPage - 1) * itemsPerPage;
+    const sliced = result.slice(start, start + itemsPerPage);
 
-    return items;
-  }, [activeTab, category, sort, searchQuery]);
+    return { paginatedItems: sliced, totalPages: total };
+  }, [items, category, searchQuery, currentPage]); // currentPage 의존성 추가 필수
+
+  const handleSearch = () => {
+    setSearchQuery(keyword);
+    setCurrentPage(1); // 검색 시 1페이지로 리셋
+  };
+
+  const formatDate = (iso) => (iso ? iso.split(" ")[0].replaceAll("-", ".") : "");
+  const formatNumber = (n) => Number(n ?? 0).toLocaleString("ko-KR");
 
   return (
-    /* 최상위에 proposals-page 클래스를 추가하여 스타일 범위를 격리합니다 */
     <main className="proposals-page">
       <div className="container board-container">
         <div className="tabs">
           <button
             className={`tab-btn ${activeTab === "notice" ? "is-active" : ""}`}
-            onClick={() => changeTab("notice")}
+            onClick={() => setActiveTab("notice")}
           >
             공지사항
           </button>
-
           <button
             className={`tab-btn ${activeTab === "promotion" ? "is-active" : ""}`}
-            onClick={() => changeTab("promotion")}
+            onClick={() => setActiveTab("promotion")}
           >
             이벤트/홍보
           </button>
         </div>
 
-        <section className="filters">
-          <div className="filters__left">
+        <section className="pp-filters">
+          <div className="pp-filters__left">
             <select
-              className="select"
+              className="pp-select"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
               <option value="all">전체</option>
-              <option value="musical">뮤지컬</option>
-              <option value="exhibition">전시</option>
-              <option value="auction">경매</option>
-              <option value="goods">굿즈</option>
+              {Object.entries(categoryLabel).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
             </select>
-
             <select
-              className="select"
+              className="pp-select"
               value={sort}
               onChange={(e) => setSort(e.target.value)}
             >
@@ -103,18 +120,17 @@ const Proposals = () => {
               <option value="views">조회수순</option>
             </select>
           </div>
-
-          <div className="filters__right">
-            <div className="search">
+          <div className="pp-filters__right">
+            <div className="pp-search-wrap">
               <input
-                className="search__input"
+                className="pp-search__input"
                 type="text"
-                placeholder="검색어 입력..."
+                placeholder="제목/내용/작성자 검색"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                onKeyDown={handleKeyDown}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
-              <button className="search__btn" onClick={handleSearch}>
+              <button className="pp-search__btn" onClick={handleSearch}>
                 검색
               </button>
             </div>
@@ -122,50 +138,50 @@ const Proposals = () => {
         </section>
 
         <div className="board-list">
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item) => {
-              const prefix =
-                item.category !== "all"
-                  ? `[${categoryLabel[item.category] ?? item.category}] `
-                  : "";
-
-              return (
-                <div key={item.id} className="board-item">
-                  <div className="item__left">
-                    <span
-                      className={`badge ${
-                        item.type === "홍보"
-                          ? "badge--promotion"
-                          : "badge--notice"
-                      }`}
-                    >
-                      {item.type}
-                    </span>
-
-                    <div className="item__content">
-                      <h3 className="item__title">
-                        {prefix}
-                        {item.title}
-                      </h3>
-                      <p className="item__excerpt">{item.excerpt}</p>
-                    </div>
-                  </div>
-
-                  <div className="item__right">
-                    <span>{item.author}</span>
-                    <span>{formatDate(item.date)}</span>
-                    <span>
-                      <i className="fa-regular fa-eye"></i>{" "}
-                      {formatNumber(item.views)}
-                    </span>
+          {isLoading ? (
+            <div className="loading">로딩 중...</div>
+          ) : paginatedItems.length > 0 ? (
+            paginatedItems.map((item) => (
+              <div key={item.boardNo} className="board-item">
+                <div className="item__left">
+                  <span
+                    className={`badge ${
+                      activeTab === "promotion" ? "badge--promotion" : "badge--notice"
+                    }`}
+                  >
+                    {activeTab === "notice" ? "공지" : "홍보"}
+                  </span>
+                  <div className="item__content">
+                    <h3 className="item__title">
+                      {item.boardCategory && categoryLabel[item.boardCategory]
+                        ? `[${categoryLabel[item.boardCategory]}] `
+                        : ""}
+                      {item.boardTitle}
+                    </h3>
+                    <p className="item__excerpt">{item.boardContent}</p>
                   </div>
                 </div>
-              );
-            })
+                <div className="item__right">
+                  <span>{item.writerCompany}</span>
+                  <span>{formatDate(item.boardWriteDate)}</span>
+                  <span>
+                    <i className="fa-regular fa-eye"></i>{" "}
+                    {formatNumber(item.boardViewCount)}
+                  </span>
+                </div>
+              </div>
+            ))
           ) : (
             <div className="empty-state">내용이 없습니다.</div>
           )}
         </div>
+
+        {/* [추가] 페이지네이션 컴포넌트 */}
+        <Pagination 
+          currentPage={currentPage} 
+          totalPages={totalPages} 
+          onPageChange={setCurrentPage} 
+        />
       </div>
     </main>
   );

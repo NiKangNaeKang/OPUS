@@ -1,38 +1,61 @@
 import { useEffect, useMemo, useState } from "react";
 // URL 경로 얻어오기
 import { useNavigate, useParams } from "react-router-dom";
-import { axiosApi } from "../../api/axiosAPI";
 import Loading from "../../components/common/Loading";
 import "../../css/Selections-detail.css";
-import { useCartStore } from "../../store/cartStore";
+import { useCartStore } from "../../store/useCartStore";
 import CartSuccessModal from "./CartSuccessModal";
+import { fetchGoodsDetail, fetchGoodsImgList, fetchGoodsOptions } from "../../api/selectionsAPI";
 
 
 const SelectionsDetail = () => {
 
-  const { goodsNo } = useParams(); // url에 적혀있는 상품 번호 얻어옴
-  const goodsId = Number(goodsNo); // 문자열 형태로 넘어오기 때문에 숫자로 형변환
+  // url에 적혀있는 상품 번호 얻어옴
+  const { goodsNo } = useParams();
 
-  const [goodsDetail, setGoodsDetail] = useState(null); // 상품 상세
-  const [goodsOptions, setGoodsOptions] = useState([]); // 상품 옵션 배열
-  const [isLoading, setIsLoading] = useState(true); // 로딩 상태
-  const [goodsImgList, setGoodsImgList] = useState(null); // 상품 이미지 배열
+  // 문자열 형태로 넘어오기 때문에 숫자로 형변환
+  const goodsId = Number(goodsNo);
 
-  const [selectedColor, setSelectedColor] = useState(""); // 사용자가 선택한 색상
-  const [selectedSize, setSelectedSize] = useState(""); // 사용자가 선택한 사이즈
+  // 상품 상세 상태
+  const [goodsDetail, setGoodsDetail] = useState(null);
+
+  // 상품 옵션 배열 상태
+  const [goodsOptions, setGoodsOptions] = useState([]);
+
+  // 로딩 상태
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 상품 이미지 배열
+  const [goodsImgList, setGoodsImgList] = useState(null);
+
+  // 사용자가 선택한 색상 상태
+  const [selectedColor, setSelectedColor] = useState("");
+
+  // 사용자가 선택한 사이즈 상태
+  const [selectedSize, setSelectedSize] = useState("");
+
+  // 사용자가 선택한 수량 상태
   const [qty, setQty] = useState(1);
 
-  const [tab, setTab] = useState("info"); // 상세 정보 or 정책 탭
+  // 상세 정보 or 정책 탭
+  const [tab, setTab] = useState("info");
 
+  // 장바구니 모달 열림 여부
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
 
+  // 페이지 이동 훅
+  const navigate = useNavigate();
+
+  // 상품 상세 조회 함수
   const selectGoodsDetail = async () => {
 
     try {
 
-      const resp = await axiosApi.get(`/selections/selectGoodsDetail?goodsNo=${goodsId}`);
+      console.log("==== 상품 상세 조회 시작 ====");
+      const resp = await fetchGoodsDetail(goodsId);
 
       if (resp.status === 200) {
+        console.log("상품 상세 조회 완료", resp.data);
         setGoodsDetail(resp.data);
       }
 
@@ -42,22 +65,36 @@ const SelectionsDetail = () => {
 
   }
 
+  // 상품 옵션 조회 함수
   const selectGoodsOptions = async () => {
 
     try {
-      const resp = await axiosApi.get(`/selections/selectGoodsOptions?goodsNo=${goodsId}`);
-      if (resp.status === 200) setGoodsOptions(resp.data);
+
+      console.log("==== 상품 옵션 조회 시작 ====");
+      const resp = await fetchGoodsOptions(goodsId);
+
+      if (resp.status === 200) {
+
+        console.log("상품 옵션 조회 완료", resp.data);
+        setGoodsOptions(resp.data);
+
+      }
     } catch (error) {
       console.error("상품 옵션 조회 중 예외 발생 : ", error);
     }
 
   };
 
+  // 상품 사진 조회 함수
   const selectGoodsImgList = async () => {
+
     try {
-      const resp = await axiosApi.get(`/selections/selectGoodsImgList?goodsNo=${goodsId}`);
+
+      console.log("==== 상품 사진 조회 시작 ====");
+      const resp = await fetchGoodsImgList(goodsId);
 
       if (resp.status === 200) {
+        console.log("상품 사진 조회 완료", resp.data);
         setGoodsImgList(resp.data)
       }
     } catch (error) {
@@ -65,20 +102,24 @@ const SelectionsDetail = () => {
     }
   }
 
+  // 상품 번호가 바뀔 때 마다 상세, 옵션, 사진 재조회
   useEffect(() => {
     selectGoodsDetail();
     selectGoodsOptions();
     selectGoodsImgList();
   }, [goodsId]);
 
+  // 상세, 옵션, 사진 전부 조회 됐을 때 로딩 완료
   useEffect(() => {
 
     if (goodsDetail != null && goodsImgList != null && goodsOptions != null) setIsLoading(false);
 
   }, [goodsDetail, goodsImgList, goodsOptions])
 
+  // 상품 상세 정보, 정책 탭 상태 변경 함수
   const handleTab = (tab) => setTab(tab);
 
+  // 수량 상태 변경 함수
   const handleQty = (nextQty) => {
 
     if ((hasSize || hasColor) && !selectedOptionRow) {
@@ -102,22 +143,43 @@ const SelectionsDetail = () => {
 
   }
 
-  // 옵션 존재 여부
+  // 옵션 존재 여부 (의존성 배열을 통해 상품 옵션이 존재할 때만 계산)
+  // 사이즈가 존재하면 true
   const hasSize = useMemo(() => goodsOptions.some((opt) => opt.goodsSize), [goodsOptions]);
+  // 색상이 존재하면 true
   const hasColor = useMemo(() => goodsOptions.some((opt) => opt.goodsColor), [goodsOptions]);
 
   // 사이즈 목록(중복 제거)
   const sizeList = useMemo(() => {
+
+    // 사이즈가 없으면 반환
     if (!hasSize) return [];
-    return [...new Set(goodsOptions.map((o) => o.goodsSize).filter(Boolean))];
+
+    // 옵션 중 사이즈만 뽑아서 저장
+    const sizes = goodsOptions.map(option => option.goodsSize);
+
+    // 실제 값이 있는 사이즈만 뽑아서 저장
+    const validSizes = sizes.filter(Boolean);
+
+    // 중복 제거
+    const uniqueSizes = [...new Set(validSizes)];
+
+    return uniqueSizes;
   }, [goodsOptions, hasSize]);
 
   // 선택된 사이즈에 해당하는 색상 목록(중복 제거)
   const colorList = useMemo(() => {
+
+    // 색상이 없으면 빈 배열 반환
     if (!hasColor) return [];
-    // 사이즈가 있는 구조면 사이즈 기준으로 필터링
+
+    // 사이즈가 존재하는 경우
     if (hasSize) {
+
+      // 사이즈가 존재하는데 선택 하지 않았다면 색상을 보여주지 않음
       if (!selectedSize) return [];
+
+      // 선택된 사이즈에 해당하는 색상만 중복 제거해서 반환
       return [
         ...new Set(
           goodsOptions
@@ -127,12 +189,14 @@ const SelectionsDetail = () => {
         ),
       ];
     }
+
     // 사이즈가 없고 색상만 있으면 전체 색상 중복 제거
     return [...new Set(goodsOptions.map((o) => o.goodsColor).filter(Boolean))];
   }, [goodsOptions, hasColor, hasSize, selectedSize]);
 
-  // 최종 선택된 옵션 row 찾기
+  // 최종 선택된 옵션 행
   const selectedOptionRow = useMemo(() => {
+
     // 사이즈/색상 둘 다 있는 경우
     if (hasSize && hasColor) {
       if (!selectedSize || !selectedColor) return null;
@@ -156,12 +220,12 @@ const SelectionsDetail = () => {
     return null;
   }, [goodsOptions, hasSize, hasColor, selectedSize, selectedColor]);
 
-  // 옵션이 없는 상품일 때(사이즈/색상 모두 없음) 재고 기준이 될 row
+  // 옵션이 없는 상품일 때(사이즈/색상 모두 없음) 재고 기준이 될 행
   const baseOptionRow = useMemo(() => {
-    return goodsOptions?.[0] ?? null; // 보통 1행 있음(둘 다 NULL + stock)
+    return goodsOptions?.[0] ?? null; // 1행 있음(둘 다 NULL + stock)
   }, [goodsOptions]);
 
-  // 실제 수량 제한에 사용할 row (옵션 있으면 선택된 row, 없으면 base row)
+  // 실제 수량 제한에 사용할 행 (옵션 있으면 selected row, 없으면 base row)
   const effectiveOptionRow = useMemo(() => {
     if (hasSize || hasColor) return selectedOptionRow; // 옵션 상품
     return baseOptionRow; // 옵션 없는 상품
@@ -175,13 +239,20 @@ const SelectionsDetail = () => {
     }
   }, [effectiveOptionRow, qty]);
 
+  // 옵션이 변경 시 수량 1로 변경
   useEffect(() => {
     setQty(1);
   }, [selectedOptionRow]);
 
   // ===== 장바구니 =====
+
+  // 장바구니 상품 추가 함수
   const addItem = useCartStore((state) => state.addItem);
 
+  // 장바구니 비우기 함수
+  const clearCart = useCartStore((state) => state.clearCart);
+
+  // 장바구니 추가 핸들러
   const handleAddToCart = () => {
     // 옵션 검증
     if ((hasSize || hasColor) && !selectedOptionRow) {
@@ -225,7 +296,69 @@ const SelectionsDetail = () => {
     setIsCartModalOpen(true);
   };
 
-  const navigate = useNavigate();
+  // 바로구매 핸들러
+  const handleBuyNow = async () => {
+    // 옵션 검증
+    if ((hasSize || hasColor) && !selectedOptionRow) {
+      alert("옵션을 먼저 선택해주세요.");
+      return;
+    }
+
+    const row = effectiveOptionRow;
+    if (!row) {
+      alert("상품 정보를 불러오지 못했습니다.");
+      return;
+    }
+
+    // 재고 검증
+    if (row.stock != null && qty > row.stock) {
+      alert("선택 가능한 재고 수량을 초과했습니다.");
+      return;
+    }
+
+    const goodsSize = hasSize ? selectedOptionRow?.goodsSize ?? null : null;
+    const goodsColor = hasColor ? selectedOptionRow?.goodsColor ?? null : null;
+
+    const cartKey = row.goodsOptionNo;
+
+    // 1. 기존 장바구니 비우기
+    await clearCart();
+    console.log("==== 바로 구매 중 장바구니 비우기 완료 ====");
+
+    // 2. 현재 상품만 추가
+    const result = await addItem({
+      cartKey,
+      goodsNo: goodsDetail.goodsNo,
+      goodsOptionNo: row.goodsOptionNo ?? null,
+      goodsName: goodsDetail.goodsName,
+      thumbnail: goodsDetail.goodsThumbnail,
+      unitPrice: Number(goodsDetail.goodsPrice),
+      deliveryCost: Number(goodsDetail.deliveryCost ?? 0),
+      goodsSize,
+      goodsColor,
+      qty,
+      stock: row.stock ?? null,
+    });
+
+    console.log("addItem 결과", result)
+
+    if (!result?.success) {
+      alert("장바구니 추가에 실패했습니다.");
+      return;
+    }
+
+    await useCartStore.getState().fetchFromServer();
+
+    const newItems = useCartStore.getState().items;
+    const latestItem = newItems[0]; // clearCart 했으니 1개뿐
+
+    if (latestItem) {
+      useCartStore.getState().checkItem(latestItem.cartKey);
+    }
+
+    // 4. 결제 페이지로 이동
+    navigate("/selections/checkout");
+  };
 
   return (
     isLoading ? (
@@ -360,7 +493,7 @@ const SelectionsDetail = () => {
 
             <div id="product-actions" className="actions">
               <button className="goods_btn goods_btn--outline" type="button" onClick={handleAddToCart}>장바구니</button>
-              <button className="goods_btn goods_btn--solid" type="button">바로 구매</button>
+              <button className="goods_btn goods_btn--solid" type="button" onClick={handleBuyNow}>바로 구매</button>
             </div>
 
             <div id="product-seller-info" className="seller">

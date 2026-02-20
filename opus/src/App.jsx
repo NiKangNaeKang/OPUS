@@ -4,6 +4,8 @@ import Selections from "./pages/selections/Selections";
 import SelectionsDetail from "./pages/selections/SelectionsDetail";
 import Cart from "./pages/selections/Cart";
 import Checkout from "./pages/selections/Checkout";
+import PaymentSuccess from "./pages/selections/PaymentSuccess";
+import PaymentFail from "./pages/selections/PaymentFail";
 import DarkHeaderLayout from "./layouts/DarkHeaderLayout";
 import LightHeaderLayout from "./layouts/LightHeaderLayout";
 import Unveiling from "./pages/Unveiling";
@@ -12,13 +14,16 @@ import UnveilingDetail from "./pages/UnveilingDetail";
 import MusicalDetail from './pages/onStage/MusicalDetail';
 import Reviews from "./pages/onStage/Reviews";
 import Proposals from "./pages/proposals/Proposals";
-import ToastConfig from "./components/common/ToastConfig";
+import ToastConfig from "./components/toast/ToastConfig";
 import AuthInitializer from "./components/common/AuthInitializer";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyPage from "./pages/mypage/MyPage";
 import ExhibitionList from "./pages/onStage/ExhibitionList";
 import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
+import Orders from "./pages/selections/Orders";
+import OrderDetail from "./pages/selections/OrderDetail";
 
+import AuthSuccess from "./components/auth/AuthSuccess";
 
 export default function App() {
   return (
@@ -27,30 +32,36 @@ export default function App() {
       <ToastConfig />
 
       <Routes>
-        {/* Dark Header (Home 등) */}
+        <Route path="/auth/success" element={<AuthSuccess />} />
+
+        {/* Dark Header 레이아웃 */}
         <Route element={<DarkHeaderLayout />}>
           <Route path="/" element={<Home />} />
         </Route>
 
-      {/* Light Header (게시판, 상세페이지 등) */}
-      <Route element={<LightHeaderLayout />}>
-        <Route path="/onStage" element={<OnStage />} /> 
-        <Route path="/onStage/exhibition/:exhibitionId" element={<ExhibitionDetail />} />
-        <Route path="/onStage/musical/:mt20id" element={<MusicalDetail />} />
-        <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
-        
-        {/* 2. Proposals 경로 추가 */}
-        <Route path="/proposals" element={<Proposals />} />
-        <Route path="/unveiling" element={<Unveiling />} />
-        <Route path="/unveiling/:id" element={<UnveilingDetail />} />
-        <Route path='/selections' element={<Selections />} />
-        <Route path='/selections/:goodsNo' element={<SelectionsDetail />} />
-        <Route path='/selections/cart' element={<Cart />} />
-        <Route path='/selections/checkout' element={<Checkout />} />
-        <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
-      </Route>
-    </Routes>
-    
-  </>
+        {/* Light Header 레이아웃 */}
+        <Route element={<LightHeaderLayout />}>
+          <Route path="/onStage" element={<OnStage />} />
+          <Route path="/onStage/exhibition/:exhibitionId" element={<ExhibitionDetail />} />
+          <Route path="/onStage/musical/:mt20id" element={<MusicalDetail />} />
+          <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
+
+          {/* 2. Proposals 경로 추가 */}
+          <Route path="/proposals" element={<Proposals />} />
+          <Route path="/unveiling" element={<Unveiling />} />
+          <Route path="/unveiling/:id" element={<UnveilingDetail />} />
+          <Route path='/selections' element={<Selections />} />
+          <Route path='/selections/:goodsNo' element={<SelectionsDetail />} />
+          <Route path='/selections/cart' element={<Cart />} />
+          <Route path='/selections/checkout' element={<Checkout />} />
+          <Route path='/payment/success' element={<PaymentSuccess />} />
+          <Route path='/payment/fail' element={<PaymentFail />} />
+          <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
+          <Route path="/mypage/orders" element={<Orders />} />
+          <Route path="/mypage/orders/:orderNo" element={<OrderDetail />} />
+        </Route>
+      </Routes>
+
+    </>
   );
 }
