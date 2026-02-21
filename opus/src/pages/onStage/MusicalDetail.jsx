@@ -34,6 +34,11 @@ export default function MusicalDetail () {
     }
   };
 
+  // Like, Dislike, Save
+  const [like, setLike]
+
+  // 관람 후기
+
   return (
     <main className="detail-page">
       <div className="container" id="main-content">
