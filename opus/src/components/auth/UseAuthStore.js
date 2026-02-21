@@ -6,27 +6,35 @@ export const useAuthStore = create(
     (set, get) => ({
       token: null,
       member: null,
-      isLoggedIn: false,
+      isLoggedIn: null,
 
       login: (data) => {
-        set({
+        set((state) => ({
+          ...state, // 기존 카트 데이터 유지
           isLoggedIn: true,
           token: data.token,
           member: data.member,
-        });
+        }));
       },
 
       logout: () => {
-        set({
+        set((state) => ({
+          ...state, 
           isLoggedIn: false,
           token: null,
           member: null,
-        });
-
+          items: [],         // 로그아웃 시 장바구니 초기화
+          checkedKeys: [],    // 체크 항목 초기화
+          hasMerged: false,   // 병합 플래그 초기화
+        }));
       },
     }),
     {
-      name: "auth-storage", // 로컬스토리지 저장 키
+      name: "auth-storage",
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...(persistedState),
+      }),
     }
   )
 );
