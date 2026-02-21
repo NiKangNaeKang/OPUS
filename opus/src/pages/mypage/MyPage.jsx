@@ -1,12 +1,11 @@
 import { useMemo, useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import "../../css/mypage.css";
+import "../../css/myPage.css";
 import { useAuthStore } from "../../components/auth/useAuthStore";
 import { useAuthValidation } from "../../components/auth/useAuthValidation";
 import { toast } from "react-toastify";
 import { showConfirm } from "../../components/toast/ToastUtils";
 import axiosApi from "../../api/axiosAPI";
-import { wishlist, reviews, purchases, auctions } from "./myPageData";
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -166,7 +165,7 @@ export default function MyPage() {
 
   const handleWithdrawalClick = async () => {
     try {
-      const mockActiveCount = 5;  // 테스트용, 0일시 탈퇴, 1 이상 탈퇴불가
+      const mockActiveCount = 3;  // 테스트용, 0일시 탈퇴, 1 이상 탈퇴불가
       if (mockActiveCount > 0) {
         toast.error(<>진행 중인 경매나 주문이 ({mockActiveCount}건) 있어<br />탈퇴가 불가능합니다.<br />관리자에게 문의해주세요.</>);
         return;
@@ -175,8 +174,9 @@ export default function MyPage() {
 
 
       showConfirm(
+
         "정말 탈퇴하시겠습니까?",
-        "탈퇴 시 모든 데이터는 복구가 불가능하며\n즉시 로그아웃됩니다.",
+        "탈퇴 시 모든 데이터는 복구가 불가능하며\n즉시 로그아웃됩니다.\n구글 로그인은 추가로 연동해제해주세요.",
         processWithdrawal,
         "확인"
       );
@@ -203,23 +203,18 @@ export default function MyPage() {
   };
 
   /* 찜 리스트 */
-  const [wishItems, setWishItems] = useState(wishlist.items);
+  const [wishItems, setWishItems] = useState([]);
   const [wishTab, setWishTab] = useState("all");
 
   const wishCounts = useMemo(() => ({
-    all: wishItems.length,
-    musical: wishItems.filter((i) => i.type === "뮤지컬").length,
-    exhibit: wishItems.filter((i) => i.type === "전시").length,
-  }), [wishItems]);
+    all: 0,
+    musical: 0,
+    exhibit: 0,
+  }), []);
 
-  const filteredWish = useMemo(() => {
-    if (wishTab === "all") return wishItems;
-    return wishItems.filter((i) => i.type === (wishTab === "musical" ? "뮤지컬" : "전시"));
-  }, [wishTab, wishItems]);
+  const filteredWish = useMemo(() => [], []);
 
-  const toggleWish = (id) => {
-    setWishItems((prev) => prev.map((i) => (i.id === id ? { ...i, liked: !i.liked } : i)));
-  };
+  const toggleWish = (id) => {};
 
   return (
     <div className="mypage">

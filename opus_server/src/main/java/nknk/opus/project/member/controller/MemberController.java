@@ -49,7 +49,6 @@ public class MemberController {
 			memberInfo.put("memberNo", loginMember.getMemberNo());
 			memberInfo.put("memberEmail", loginMember.getMemberEmail());
 			memberInfo.put("memberTel", loginMember.getMemberTel());
-			memberInfo.put("authorLevel", loginMember.getAuthorLevel());
 			memberInfo.put("role", loginMember.getMemberRole() == null ? null : loginMember.getMemberRole().name());
 			memberInfo.put("loginType", loginMember.getLoginType());
 
