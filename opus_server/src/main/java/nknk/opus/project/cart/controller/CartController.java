@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.cart.model.dto.Cart;
 import nknk.opus.project.cart.model.service.CartService;
 
+@Slf4j
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("cart")
@@ -103,8 +105,9 @@ public class CartController {
 
 		String memberNoStr = (String) authentication.getPrincipal();
 		int memberNo = Integer.parseInt(memberNoStr);
-
+		
 		List<Cart> mergedCart = service.mergeLocalCart(localCartItems, memberNo);
+		
 		return ResponseEntity.ok(mergedCart);
 	}
 }

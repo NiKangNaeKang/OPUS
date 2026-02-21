@@ -210,8 +210,8 @@ export default function UnveilingDetail() {
           bidCount: typeof data?.biddingCount === "number" ? data.biddingCount : prev.bidCount,
         }));
       }
-    } catch {
-      // noop
+    } catch(e) {
+      console.error("fetchBidState 에러:", e);
     }
   }, [unveilingNo]);
 
@@ -241,17 +241,18 @@ export default function UnveilingDetail() {
   const status = STATUS[serverStatus] ?? STATUS.LIVE;
   const { isLoggedIn, member } = useAuthStore();
   const isTopBidder = bidState?.topBidderMemberNo > 0
-                    && member?.memberNo === bidState?.topBidderMemberNo;
-
-console.log("member:", member);
-console.log("topBidderMemberNo:", bidState?.topBidderMemberNo);
-console.log("isTopBidder:", isTopBidder);                  
+    && member?.memberNo === bidState?.topBidderMemberNo;
 
   const bidAllowed = bidState ? !!bidState.bidAllowedFl : true;
   const bidDisabled = bidState ? (!bidAllowed || isTopBidder) : false;
   const bidDisabledReason = isTopBidder
     ? "본인이 최고가 입찰자입니다."
     : (bidState?.reason || (remain.done ? "마감됨" : "응찰 불가"));
+
+  console.log("bidState:", bidState);
+  console.log("bidAllowed:", bidAllowed);
+  console.log("bidDisabled:", bidDisabled);
+  console.log("serverStatus:", serverStatus);
 
   const statusClass = `status status--${status.key}`;
   const timerClass = `timer timer--${status.key}${!bidAllowed ? " is-ended" : ""}`;
@@ -448,7 +449,9 @@ console.log("isTopBidder:", isTopBidder);
               onClick={onBid}
               title={bidDisabled ? bidDisabledReason : undefined}
             >
-              {bidDisabled ? (bidState?.reason || "마감됨") : "응찰하기"}
+              {bidDisabled
+                ? (isTopBidder ? "본인 최고가" : (bidState?.reason || "마감됨"))
+                : "응찰하기"}
             </button>
 
             <div className="notice">
