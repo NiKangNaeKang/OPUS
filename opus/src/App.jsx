@@ -22,8 +22,9 @@ import ExhibitionList from "./pages/onStage/ExhibitionList";
 import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
 import Orders from "./pages/selections/Orders";
 import OrderDetail from "./pages/selections/OrderDetail";
-
 import AuthSuccess from "./components/auth/AuthSuccess";
+import ProposalDetail from "./pages/Proposals/ProposalDetail";
+
 
 export default function App() {
   return (
@@ -46,8 +47,8 @@ export default function App() {
           <Route path="/onStage/musical/:mt20id" element={<MusicalDetail />} />
           <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
 
-          {/* 2. Proposals 경로 추가 */}
           <Route path="/proposals" element={<Proposals />} />
+          <Route path="/proposals/detail/:boardNo" element={<ProposalDetail />} />
           <Route path="/unveiling" element={<Unveiling />} />
           <Route path="/unveiling/:id" element={<UnveilingDetail />} />
           <Route path='/selections' element={<Selections />} />
