@@ -11,7 +11,7 @@
 		MEMBER_EMAIL,
 		MEMBER_PW,
 		MEMBER_TEL,
-		AUTHOR_LEVEL,
+		MEMBER_ROLE,
 		LOGIN_TYPE,
 		ENROLL_DATE,
 		MEMBER_DEL_FL,
@@ -30,7 +30,6 @@
 		MEMBER_TEL,
 		ENROLL_DATE,
 		MEMBER_DEL_FL,
-		AUTHOR_LEVEL,
 		MEMBER_ROLE,
 		LOGIN_TYPE
 		) VALUES (
@@ -40,7 +39,6 @@
 		#{memberTel},
 		DEFAULT,
 		DEFAULT,
-		NVL(#{authorLevel}, 1),
 		NVL(#{memberRole}, 'MEMBER'),
 		NVL(#{loginType}, 'NORMAL')
 		)
@@ -106,7 +104,6 @@
 		MEMBER_EMAIL,
 		MEMBER_TEL,
 		MEMBER_ROLE,
-		AUTHOR_LEVEL,
 		LOGIN_TYPE,
 		ENROLL_DATE,
 		MEMBER_DEL_FL,
@@ -137,7 +134,6 @@
 		MEMBER_PW,
 		MEMBER_TEL,
 		MEMBER_ROLE,
-		AUTHOR_LEVEL,
 		LOGIN_TYPE,
 		ENROLL_DATE,
 		MEMBER_DEL_FL
@@ -147,7 +143,6 @@
 		#{memberPw},
 		#{memberTel},
 		NVL(#{memberRole}, 'MEMBER'),
-		NVL(#{authorLevel}, 1),
 		NVL(#{loginType}, 'NORMAL'),
 		SYSDATE,
 		'N'

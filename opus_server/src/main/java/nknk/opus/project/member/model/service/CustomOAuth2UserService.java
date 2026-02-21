@@ -32,7 +32,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		Member member = mapper.findByEmail(email);
 
 		if (member == null) {
-			member = Member.builder().memberEmail(email).memberRole(Role.MEMBER).authorLevel(1).loginType("GOOGLE")
+			member = Member.builder().memberEmail(email).memberRole(Role.MEMBER).loginType("GOOGLE")
 					.memberDelFl("N").build();
 
 			mapper.insertMember(member);
