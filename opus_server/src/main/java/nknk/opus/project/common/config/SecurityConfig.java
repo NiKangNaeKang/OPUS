@@ -1,6 +1,9 @@
 package nknk.opus.project.common.config;
 
+import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,9 +17,11 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.common.handler.OAuth2SuccessHandler;
 import nknk.opus.project.member.model.service.CustomOAuth2UserService;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -26,10 +31,14 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oauth2SuccessHandler;
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	// 환경변수에서 CORS Origins 읽기
+	@Value("${cors.allowed.origins}")
+	private String allowedOrigins;
+
+	@Bean
+	public BCryptPasswordEncoder bCryptPasswordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -71,16 +80,37 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+		List<String> origins = parseOrigins(allowedOrigins);
+
+		// 로그 출력 (배포 시 확인용)
+		log.info("=== CORS 설정 ===");
+		log.info("Allowed Origins: {}", origins);
+
+		config.setAllowedOrigins(origins);
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		config.setAllowedHeaders(List.of("*"));
+		config.setAllowCredentials(true);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
+	}
+
+	/**
+	 * 쉼표로 구분된 문자열을 List로 변환 
+	 * 예: "http://localhost:5173,https://domain.com" → [http://localhost:5173, https://domain.com]
+	 */
+	private List<String> parseOrigins(String originsStr) {
+		if (originsStr == null || originsStr.trim().isEmpty()) {
+			log.warn("CORS origins가 설정되지 않았습니다. 기본값 사용: http://localhost:5173");
+			return List.of("http://localhost:5173");
+		}
+
+		return Arrays.stream(originsStr.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();
+	}
+
 }

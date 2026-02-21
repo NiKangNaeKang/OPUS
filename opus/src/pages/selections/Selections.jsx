@@ -3,6 +3,7 @@ import Loading from "../../components/common/Loading"
 import "../../css/Selections.css";
 import { NavLink } from "react-router-dom";
 import { fetchGoodsList } from "../../api/selectionsAPI";
+import ScrollToTop from "../../components/common/ScrollToTop";
 
 const Selections = () => {
 
@@ -10,7 +11,7 @@ const Selections = () => {
   const [goodsList, setGoodsList] = useState(null);
 
   // 로딩 상태
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
 
   // 필터 모음
   const [genre, setGenre] = useState("exhibition"); // 장르 상태
@@ -101,12 +102,12 @@ const Selections = () => {
           <div className="goods_chips">
             <button className={`goods_chip ${category === "all" ? "is-active" : ""}`}
               onClick={() => handleCategory("all")}>전체</button>
-            { genre === "musical" && 
-            <button className={`goods_chip ${category === "archive" ? "is-active" : ""}`}
-            onClick={() => handleCategory("archive")}>아카이브</button>}
-            { genre === "musical" && 
-            <button className={`goods_chip ${category === "record" ? "is-active" : ""}`}
-            onClick={() => handleCategory("record")}>음반/DVD</button>}
+            {genre === "musical" &&
+              <button className={`goods_chip ${category === "archive" ? "is-active" : ""}`}
+                onClick={() => handleCategory("archive")}>아카이브</button>}
+            {genre === "musical" &&
+              <button className={`goods_chip ${category === "record" ? "is-active" : ""}`}
+                onClick={() => handleCategory("record")}>음반/DVD</button>}
             <button className={`goods_chip ${category === "poster" ? "is-active" : ""}`}
               onClick={() => handleCategory("poster")}>포스터/엽서</button>
             <button className={`goods_chip ${category === "accessories" ? "is-active" : ""}`}
@@ -163,6 +164,8 @@ const Selections = () => {
           </div>
         </section>
       )}
+
+      <ScrollToTop />
 
     </main>
   )

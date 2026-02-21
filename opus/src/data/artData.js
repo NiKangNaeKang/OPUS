@@ -10,16 +10,6 @@ export const artData = [
     isLike: true,
   },
   {
-    id: 1,
-    title: "모네: 빛의 순간",
-    period: "2024.01.10 - 2024.04.20",
-    location: "국립현대미술관",
-    image:
-      "https://storage.googleapis.com/uxpilot-auth.appspot.com/58a2095d97-9bd16223f914cf35d1fa.png",
-    alt: "contemporary art exhibition poster with abstract colorful painting",
-    isLike: true,
-  },
-  {
     id: 2,
     title: "백남준의 세계",
     period: "2024.02.05 - 2024.05.15",

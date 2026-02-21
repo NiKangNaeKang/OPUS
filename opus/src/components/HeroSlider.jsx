@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import exam1 from "../assets/heroExam.png";
+import exam1 from "../assets/HeroExam.png";
 import exam2 from "../assets/OnStageExam.jpg";
 import exam3 from "../assets/artExam.jpg";
 import exam4 from "../assets/stageExam.png";

@@ -4,19 +4,28 @@ import { orderApi } from "../../api/orderAPI";
 import Loading from "../../components/common/Loading";
 import "../../css/OrderDetail.css";
 import CancelOrderModal from "./CancelOrderModal";
+import ScrollToTop from "../../components/common/ScrollToTop";
 
 const OrderDetail = () => {
   const { orderNo } = useParams();
   const navigate = useNavigate();
+
+  // 주문 상세 상태
   const [order, setOrder] = useState(null);
+
+  // 로딩 상태
   const [isLoading, setIsLoading] = useState(true);
+
+  // 취소 모달 열림 여부
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  // 주문 상세 조회
+  // 주문 상세 조회 함수
   useEffect(() => {
     const fetchOrderDetail = async () => {
       try {
+        console.log("==== 주문 상세 조회 시작 ====")
         const data = await orderApi.getOrderDetail(orderNo);
+        console.log("주문 상세 조회 완료", data)
         setOrder(data);
       } catch (error) {
         console.error("주문 상세 조회 실패:", error);
@@ -259,6 +268,8 @@ const OrderDetail = () => {
           orderId: order?.orderId,
         }}
       />
+
+      <ScrollToTop />
     </main>
   );
 };

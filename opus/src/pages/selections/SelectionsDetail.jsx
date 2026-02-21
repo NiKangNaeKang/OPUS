@@ -6,6 +6,8 @@ import "../../css/Selections-detail.css";
 import { useCartStore } from "../../store/useCartStore";
 import CartSuccessModal from "./CartSuccessModal";
 import { fetchGoodsDetail, fetchGoodsImgList, fetchGoodsOptions } from "../../api/selectionsAPI";
+import { useAuthStore } from "../../components/auth/useAuthStore";
+import ScrollToTop from "../../components/common/ScrollToTop";
 
 
 const SelectionsDetail = () => {
@@ -45,6 +47,9 @@ const SelectionsDetail = () => {
 
   // 페이지 이동 훅
   const navigate = useNavigate();
+
+  // 로그인 여부
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   // 상품 상세 조회 함수
   const selectGoodsDetail = async () => {
@@ -313,6 +318,11 @@ const SelectionsDetail = () => {
     // 재고 검증
     if (row.stock != null && qty > row.stock) {
       alert("선택 가능한 재고 수량을 초과했습니다.");
+      return;
+    }
+
+    if (!isLoggedIn) {
+      alert("회원 전용 서비스입니다. 로그인 후 이용해주세요.");
       return;
     }
 
@@ -661,6 +671,9 @@ const SelectionsDetail = () => {
             </div>
           </div>
         </section>
+
+        <ScrollToTop />
+
         <CartSuccessModal
           isOpen={isCartModalOpen}
           goods={goodsDetail}

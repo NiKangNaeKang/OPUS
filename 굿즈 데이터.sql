@@ -1262,4 +1262,535 @@ INSERT INTO GOODS_IMG VALUES (
   1
 );
 
-COMMIT;
+/* 27번 상품 : 에어로센 포스터 Aerocene Poster */
+
+INSERT INTO GOODS VALUES (
+  SEQ_GOODS.NEXTVAL,
+  '에어로센 포스터 Aerocene Poster',
+  'exhibition',
+  'poster',
+  '포스터와 린넨 가방의 판매 수익금 전액은 이번 전시 종료 후
+에어로센이 지속적으로 협업 중인 아르헨티나 북부 후후이에 위치한
+살리나스 그란데스와 과야타욕 염호의 원주민 커뮤니티에 전달될 예정입니다.
+
+이 수익금은 리튬 채굴이 이 지역의 인간과 인간 이상의 생태계에
+미치는 파괴적인 영향에 맞서 싸우는 이들의 투쟁을 지원하며,
+지구와 주민들에 대한 환경적·윤리적 약속을 강화하는 데 사용됩니다.',
+  'LEEUM PRODUCT',
+  134000,
+  0,
+  SYSDATE,
+  'N'
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  NULL,
+  50
+);
+
+-- 썸네일
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '에어로센 포스터 썸네일.jpg',
+  'e_poster_27_0.jpg',
+  0
+);
+
+-- 상세
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '에어로센 포스터 상세.jpg',
+  'e_poster_27_1.jpg',
+  1
+);
+
+/* 28번 상품 : 이불 크로스백 Lee Bul Cross Bag */
+
+INSERT INTO GOODS VALUES (
+  SEQ_GOODS.NEXTVAL,
+  '이불 크로스백 Lee Bul Cross Bag',
+  'exhibition',
+  'clothes',
+  '이불 작가가 제안한 초록, 파랑, 회색의 감각적인 색상이 조화를 이루는 대형 토트백입니다.
+
+넉넉한 수납 공간으로 노트북, 책, 개인 소지품까지 여유롭게 담을 수 있어
+일상은 물론 전시 관람, 여행, 업무에도 모두 잘 어울립니다.
+
+실용성과 예술성을 동시에 담은 이 토트백은,
+일상 속에서도 작가의 세계관을 가까이에서 느낄 수 있는 특별한 아이템입니다.',
+  'LEEUM PRODUCT',
+  42000,
+  3000,
+  SYSDATE,
+  'N'
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  '블루',
+  50
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  '그린',
+  50
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  '그레이',
+  50
+);
+
+-- 썸네일
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '이불 크로스백 썸네일.jpg',
+  'e_clothes_28_0.jpg',
+  0
+);
+
+-- 상세1
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '이불 크로스백 상세1.jpg',
+  'e_clothes_28_1.jpg',
+  1
+);
+
+-- 상세2
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '이불 크로스백 상세2.jpg',
+  'e_clothes_28_2.jpg',
+  2
+);
+
+-- 상세3
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '이불 크로스백 상세3.jpg',
+  'e_clothes_28_3.jpg',
+  3
+);
+
+/* 29번 상품 : 피에르 위그 '리미널' 마스킹 테이프 */
+
+INSERT INTO GOODS VALUES (
+  SEQ_GOODS.NEXTVAL,
+  '피에르 위그 ''리미널'' 마스킹 테이프',
+  'exhibition',
+  'etc',
+  '리움미술관은 현대미술의 고정된 형식을 깨고 끊임없이 새로운 세계를 탐구해 온 세계적 작가
+피에르 위그의 아시아 최초 개인전 《리미널》의 굿즈를 소개합니다.
+
+피에르 위그의 전시 그래픽이 포인트로 프린팅 된 마스킹 테이프입니다.',
+  'LEEUM PRODUCT',
+  4000,
+  3000,
+  SYSDATE,
+  'N'
+);
+
+-- 옵션 없음
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  NULL,
+  50
+);
+
+-- 이미지
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '피에르 위그 ''리미널'' 마스킹 테이프 썸네일.jpg',
+  'e_etc_29_0.jpg',
+  0
+);
+
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '피에르 위그 ''리미널'' 마스킹 테이프 상세.jpg',
+  'e_etc_29_1.jpg',
+  1
+);
+
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '피에르 위그 ''리미널'' 마스킹 테이프 상세2.jpg',
+  'e_etc_29_2.jpg',
+  2
+);
+
+/* 30번 상품 : KIYA KIM 실크 스카프 KIYA KIM's Silk Scarf */
+
+INSERT INTO GOODS VALUES (
+  SEQ_GOODS.NEXTVAL,
+  'KIYA KIM 실크 스카프 KIYA KIM''s Silk Scarf',
+  'exhibition',
+  'clothes',
+  'KIYA KIM (키야킴)은 사유하는 감각으로 언어의 은유적 스펙트럼을 탐구하는 다매체 작가이다.
+
+2008년 뉴욕으로 이주. SVA에서 아트 프랙티스 석사, FIT에서 패션 스타일링을 수료하였다.
+
+2018년 퓰리처상 미술평론 부문 수상자인 제리 살츠(Jerry Saltz)는
+“당신은 재료에 대한 이해나 인식이 탁월한 작가이며,
+당신 자신이 하나의 작품이자 콘텐츠이며,
+즉 문화 전반적인 영역에 파장을 미칠 수 있는 거대한 회사이자 훌륭한 예술가이다”라고 호평하였다.',
+  'Leeum',
+  58000,
+  0,
+  SYSDATE,
+  'N'
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  NULL,
+  50
+);
+
+-- 썸네일
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  'KIYA KIM 실크 스카프 썸네일.jpg',
+  'e_clothes_30_0.jpg',
+  0
+);
+
+-- 상세
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  'KIYA KIM 실크 스카프 상세 1.jpg',
+  'e_clothes_30_1.jpg',
+  1
+);
+
+/* 31번 상품 : 루이즈 부르주아 손수건 Louise Bourgeois Handkerchief */
+
+INSERT INTO GOODS VALUES (
+  SEQ_GOODS.NEXTVAL,
+  '루이즈 부르주아 손수건 Louise Bourgeois Handkerchief',
+  'exhibition',
+  'clothes',
+  '루이즈 부르주아의 대표작 <엄마>는 대리석 알을 품은 거대한 거미로
+어머니에 대한 기억과 모성의 복합성을 나타냅니다.
+
+내면의 상실과 불안을 예술로 직조하며 삶을 치유하고자 했던 작가의 모습은
+거미가 자신의 몸에서 실을 뽑아내는 모습과 닮아 있습니다.
+
+<엄마>의 실루엣이 프린트된 손수건은 흡수성이 우수한 면 소재에 재현되어
+실용적으로 사용하실 수 있습니다.',
+  'HOAM PRODUCT',
+  21000,
+  3000,
+  SYSDATE,
+  'N'
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  'A',
+  50
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  'B',
+  50
+);
+
+-- 썸네일
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '루이즈 부르주아 손수건 썸네일.jpg',
+  'e_clothes_31_0.jpg',
+  0
+);
+
+-- 상세1
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '루이즈 부르주아 손수건 상세 1.jpg',
+  'e_clothes_31_1.jpg',
+  1
+);
+
+-- 상세2
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '루이즈 부르주아 손수건 상세 2.jpg',
+  'e_clothes_31_2.jpg',
+  2
+);
+
+-- 상세3
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '루이즈 부르주아 손수건 상세 3.jpg',
+  'e_clothes_31_3.jpg',
+  3
+);
+
+/* 32번 상품 : 박수근 도자컵 */
+
+INSERT INTO GOODS VALUES (
+  SEQ_GOODS.NEXTVAL,
+  '박수근 도자컵',
+  'exhibition',
+  'etc',
+  '박수근 컵은 물레성형하여 그림을 양각으로 넣은 후
+1,250도 환원번조 하였으며, 최대규 작가와 함께 제작하였습니다.
+
+도자 컵은 양각 모양에 따라
+청자(귀로) / 연청자(아기업은 소녀) 2가지 종류로 제작되었습니다.',
+  '국립현대미술관문화재단',
+  38000,
+  3000,
+  SYSDATE,
+  'N'
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  '아기업은 소녀',
+  50
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  '귀로',
+  50
+);
+
+-- 썸네일
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '박수근 도자컵 썸네일.jpg',
+  'e_etc_32_0.jpg',
+  0
+);
+
+-- 상세1
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '박수근 도자컵 상세.jpg',
+  'e_etc_32_1.jpg',
+  1
+);
+
+-- 상세2
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '박수근 도자컵 상세2.jpg',
+  'e_etc_32_2.jpg',
+  2
+);
+
+-- 상세3
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '박수근 도자컵 상세3.jpg',
+  'e_etc_32_3.jpg',
+  3
+);
+
+-- 상세4
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '박수근 도자컵 상세4.jpg',
+  'e_etc_32_4.jpg',
+  4
+);
+
+/* 33번 상품 : 리움 가방 키링 Leeum Museum of Art Bag Keyring */
+
+INSERT INTO GOODS VALUES (
+  SEQ_GOODS.NEXTVAL,
+  '리움 가방 키링 Leeum Museum of Art Bag Keyring',
+  'exhibition',
+  'accessories',
+  '리움미술관 MI 로고와 심볼이 포인트로 디자인된 가방 키링입니다.
+
+키링으로 사용하실 수 있으며,
+가방에 걸어 액세서리로도 활용하실 수 있습니다.
+
+블랙, 실버, 로즈골드 3가지 컬러로 제작되었습니다.',
+  'LEEUM PRODUCT',
+  21000,
+  3000,
+  SYSDATE,
+  'N'
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  '로즈골드',
+  50
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  '실버',
+  50
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  '블랙',
+  50
+);
+
+-- 썸네일
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '리움 가방 키링 Leeum Museum of Art Bag Keyring 썸네일.jpg',
+  'e_accessories_33_0.jpg',
+  0
+);
+
+-- 상세1
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '리움 가방 키링 Leeum Museum of Art Bag Keyring 상세1.jpg',
+  'e_accessories_33_1.jpg',
+  1
+);
+
+-- 상세2
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '리움 가방 키링 Leeum Museum of Art Bag Keyring 상세2.jpg',
+  'e_accessories_33_2.jpg',
+  2
+);
+
+-- 상세3
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '리움 가방 키링 Leeum Museum of Art Bag Keyring 상세3.jpg',
+  'e_accessories_33_3.jpg',
+  3
+);
+
+/* 34번 상품 : 김환기, Universe 5 IV-71 #200 아트프린트 */
+
+INSERT INTO GOODS VALUES (
+  SEQ_GOODS.NEXTVAL,
+  '김환기, Universe 5 IV-71 #200 아트프린트',
+  'exhibition',
+  'poster',
+  'KIM Whanki, Universe 5 IV-71 #200, 1971,
+Oil on Cotton, 254x254cm
+
+ⓒWhanki Foundation · Whanki Museum',
+  'MMCA',
+  12000,
+  3000,
+  SYSDATE,
+  'N'
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  NULL,
+  50
+);
+
+-- 썸네일
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '김환기, Universe 5 IV-71 #200 아트프린트 썸네일.jpg',
+  'e_poster_34_0.jpg',
+  0
+);
+
+-- 상세
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '김환기, Universe 5 IV-71 #200 아트프린트 상세.jpg',
+  'e_poster_34_1.jpg',
+  1
+);
+
