@@ -1,5 +1,7 @@
 package nknk.opus.project.unveiling.model.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import nknk.opus.project.unveiling.model.dto.Unveiling;
@@ -11,4 +13,20 @@ public interface UnveilingMapper {
 																							// 동시 입찰 방지
 	
 	int updateAfterBid(Unveiling unveiling); // 입찰 직후 현재가, 횟수, 상태 최신화
+	
+	Unveiling selectUnveilingDetail(int unveilingNo); // 화면 조회 용도
+	
+	int selectIsFinished(int unveilingNo); // 경매 마감 여부 조회 용도
+	
+	int updateStatusEnded(int unveilingNo); // 경매 상태 변경(종료) 용도
+	
+	int finalizeAuctionUsingMemberNo(Unveiling u);
+	
+	int markPaid(int unveilingNo);
+	
+	int selectIsPaymentExpired(int unveilingNo);
+	
+	int markPaymentExpired(int unveilingNo);
+
+	List<Unveiling> selectUnveilingList();
 }

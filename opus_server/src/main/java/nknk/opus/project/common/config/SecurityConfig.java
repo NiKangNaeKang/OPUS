@@ -22,54 +22,65 @@ import nknk.opus.project.member.model.service.CustomOAuth2UserService;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
-	private final CustomOAuth2UserService customOAuth2UserService;
-	private final OAuth2SuccessHandler oauth2SuccessHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oauth2SuccessHandler;
 
-	@Bean
-	public BCryptPasswordEncoder bCryptPasswordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http
-				// REST API 설정: CSRF, FormLogin, HttpBasic 비활성화
-				.csrf(csrf -> csrf.disable()).formLogin(form -> form.disable()).httpBasic(basic -> basic.disable())
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable())
 
-				// CORS 설정 적용
-				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-				// 인증 예외 처리 (401 에러 반환)
-				.exceptionHandling(exception -> exception.authenticationEntryPoint(
-						(request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)))
+            // 인증 실패 시 401 반환
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                })
+            )
 
-				// URL 권한 관리
-				.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.requestMatchers("/auth/**", "/common/**", "/selections/**", "/images/**", "/unveiling/**", "/api/board/**")
-						.permitAll().requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll().anyRequest()
-						.authenticated())
+            // 경로별 권한 설정
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/auth/**", "/common/**").permitAll()
+                .requestMatchers("/selections/**", "/images/**").permitAll()
+                .requestMatchers("/unveiling/**", "/api/board/**").permitAll()
+                .requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/unveilings/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/bids/**").permitAll()
+                .anyRequest().authenticated()
+            )
 
-				// OAuth2 로그인 설정
-				.oauth2Login(oauth -> oauth.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-						.successHandler(oauth2SuccessHandler))
+            // OAuth2 로그인 설정
+            .oauth2Login(oauth -> oauth
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                .successHandler(oauth2SuccessHandler)
+            )
 
-				// JWT 필터 추가
-				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            // JWT 필터 추가
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-		return http.build();
-	}
+        return http.build();
+    }
 
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of("http://localhost:5173"));
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		config.setAllowedHeaders(List.of("*"));
-		config.setAllowCredentials(true);
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
 
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", config);
-		return source;
-	}
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 }

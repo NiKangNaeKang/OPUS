@@ -1,18 +1,27 @@
 package nknk.opus.project.member.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.common.util.JwtUtil;
 import nknk.opus.project.member.model.dto.Member;
 import nknk.opus.project.member.model.service.MemberService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -120,7 +129,41 @@ public class MemberController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류 발생");
 		}
 	}
+	
+	/** 비밀번호 확인 (응찰 전 본인 확인용)
+	 * @param inputMember
+	 * @param authentication
+	 * @return
+	 * By Sanghoo
+	 */
+	@PostMapping("/verify-password")
+	public ResponseEntity<?> verifyPassword(@RequestBody Member inputMember,
+	                                         Authentication authentication,
+	                                         jakarta.servlet.http.HttpServletRequest request) {
+	    if (authentication == null) return ResponseEntity.status(401).build();
 
+	    try {
+	        // ✅ JWT 토큰에서 이메일 직접 추출
+	        String authHeader = request.getHeader("Authorization");
+	        String token = authHeader.substring(7); // "Bearer " 제거
+	        String email = jwtUtil.getMemberEmail(token);
+
+	        inputMember.setMemberEmail(email);
+	        Member result = service.login(inputMember);
+
+	        if (result == null) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+	                                 .body("비밀번호가 일치하지 않습니다.");
+	        }
+
+	        return ResponseEntity.ok(Map.of("verified", true));
+
+	    } catch (Exception e) {
+	        log.error("[비밀번호 확인 오류] {}", e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                             .body("서버 오류가 발생했습니다.");
+	    }
+	}
 	/* 연락처 중복 체크 */
 	@PostMapping("check-tel")
 	public ResponseEntity<?> checkTel(@RequestBody Map<String, String> map) {
