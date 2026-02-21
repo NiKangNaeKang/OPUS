@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { orderApi } from "../../api/orderAPI";
 import Loading from "../../components/common/Loading";
 import "../../css/Orders.css";
+import ScrollToTop from "../../components/common/ScrollToTop";
 
 const Orders = () => {
   const navigate = useNavigate();
@@ -175,6 +176,8 @@ const Orders = () => {
           ))
         )}
       </section>
+
+      <ScrollToTop />
     </main>
   );
 };

@@ -1663,3 +1663,134 @@ INSERT INTO GOODS_IMG VALUES (
   'e_etc_32_4.jpg',
   4
 );
+
+/* 33번 상품 : 리움 가방 키링 Leeum Museum of Art Bag Keyring */
+
+INSERT INTO GOODS VALUES (
+  SEQ_GOODS.NEXTVAL,
+  '리움 가방 키링 Leeum Museum of Art Bag Keyring',
+  'exhibition',
+  'accessories',
+  '리움미술관 MI 로고와 심볼이 포인트로 디자인된 가방 키링입니다.
+
+키링으로 사용하실 수 있으며,
+가방에 걸어 액세서리로도 활용하실 수 있습니다.
+
+블랙, 실버, 로즈골드 3가지 컬러로 제작되었습니다.',
+  'LEEUM PRODUCT',
+  21000,
+  3000,
+  SYSDATE,
+  'N'
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  '로즈골드',
+  50
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  '실버',
+  50
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  '블랙',
+  50
+);
+
+-- 썸네일
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '리움 가방 키링 Leeum Museum of Art Bag Keyring 썸네일.jpg',
+  'e_accessories_33_0.jpg',
+  0
+);
+
+-- 상세1
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '리움 가방 키링 Leeum Museum of Art Bag Keyring 상세1.jpg',
+  'e_accessories_33_1.jpg',
+  1
+);
+
+-- 상세2
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '리움 가방 키링 Leeum Museum of Art Bag Keyring 상세2.jpg',
+  'e_accessories_33_2.jpg',
+  2
+);
+
+-- 상세3
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '리움 가방 키링 Leeum Museum of Art Bag Keyring 상세3.jpg',
+  'e_accessories_33_3.jpg',
+  3
+);
+
+/* 34번 상품 : 김환기, Universe 5 IV-71 #200 아트프린트 */
+
+INSERT INTO GOODS VALUES (
+  SEQ_GOODS.NEXTVAL,
+  '김환기, Universe 5 IV-71 #200 아트프린트',
+  'exhibition',
+  'poster',
+  'KIM Whanki, Universe 5 IV-71 #200, 1971,
+Oil on Cotton, 254x254cm
+
+ⓒWhanki Foundation · Whanki Museum',
+  'MMCA',
+  12000,
+  3000,
+  SYSDATE,
+  'N'
+);
+
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  NULL,
+  NULL,
+  50
+);
+
+-- 썸네일
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '김환기, Universe 5 IV-71 #200 아트프린트 썸네일.jpg',
+  'e_poster_34_0.jpg',
+  0
+);
+
+-- 상세
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '김환기, Universe 5 IV-71 #200 아트프린트 상세.jpg',
+  'e_poster_34_1.jpg',
+  1
+);
+

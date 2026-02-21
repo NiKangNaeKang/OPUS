@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 // URL 경로 얻어오기
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../components/common/Loading";
@@ -7,6 +7,7 @@ import { useCartStore } from "../../store/useCartStore";
 import CartSuccessModal from "./CartSuccessModal";
 import { fetchGoodsDetail, fetchGoodsImgList, fetchGoodsOptions } from "../../api/selectionsAPI";
 import { useAuthStore } from "../../components/auth/useAuthStore";
+import ScrollToTop from "../../components/common/ScrollToTop";
 
 
 const SelectionsDetail = () => {
@@ -369,19 +370,6 @@ const SelectionsDetail = () => {
     navigate("/selections/checkout");
   };
 
-  // ===== Top button =====
-    const [showTop, setShowTop] = useState(false);
-    useEffect(() => {
-      const onScroll = () => setShowTop(window.scrollY > 500);
-      onScroll();
-      window.addEventListener("scroll", onScroll, { passive: true });
-      return () => window.removeEventListener("scroll", onScroll);
-    }, []);
-  
-    const onTop = useCallback(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, []);
-
   return (
     isLoading ? (
       <div className="loading-box">
@@ -684,15 +672,7 @@ const SelectionsDetail = () => {
           </div>
         </section>
 
-        {/* TO TOP */}
-        <button
-          type="button"
-          className={`to-top ${showTop ? "is-show" : ""}`}
-          onClick={onTop}
-          aria-label="페이지 최상단으로 이동"
-        >
-          <i className="fa-solid fa-arrow-up" />
-        </button>
+        <ScrollToTop />
 
         <CartSuccessModal
           isOpen={isCartModalOpen}

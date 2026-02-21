@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Loading from "../../components/common/Loading"
 import "../../css/Selections.css";
 import { NavLink } from "react-router-dom";
 import { fetchGoodsList } from "../../api/selectionsAPI";
+import ScrollToTop from "../../components/common/ScrollToTop";
 
 const Selections = () => {
 
@@ -85,19 +86,6 @@ const Selections = () => {
     });
   }, [goodsList, genre, category, query]);
 
-  // ===== Top button =====
-  const [showTop, setShowTop] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setShowTop(window.scrollY > 500);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const onTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
   return (
     <main className="main">
       <section id="goods-filter" className="filter">
@@ -177,15 +165,7 @@ const Selections = () => {
         </section>
       )}
 
-      {/* TO TOP */}
-      <button
-        type="button"
-        className={`to-top ${showTop ? "is-show" : ""}`}
-        onClick={onTop}
-        aria-label="페이지 최상단으로 이동"
-      >
-        <i className="fa-solid fa-arrow-up" />
-      </button>
+      <ScrollToTop />
 
     </main>
   )
