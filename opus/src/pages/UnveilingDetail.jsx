@@ -2,30 +2,31 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { unveilingData } from "../data/unveilingData";
 import "../css/UnveilingDetail.css";
-
-// (권장) 실제 경로에 맞게 CSS import 확인
-// import "./UnveilingDetail.css";
+import { useAuthStore } from "../components/auth/useAuthStore";
+import axiosApi from "../api/axiosAPI";
+import axios from "axios";
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
 function getRemaining(endAt) {
   const end = endAt ? new Date(endAt) : null;
   if (!end || Number.isNaN(end.getTime())) {
-    return { done: false, days: "00", hours: "00", minutes: "00" };
+    return { done: false, days: "00", hours: "00", minutes: "00", seconds: "00" };
   }
 
   const now = new Date();
   const diff = end - now;
 
   if (diff <= 0) {
-    return { done: true, days: "00", hours: "00", minutes: "00" };
+    return { done: true, days: "00", hours: "00", minutes: "00", seconds: "00" };
   }
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  return { done: false, days: pad2(days), hours: pad2(hours), minutes: pad2(minutes) };
+  return { done: false, days: pad2(days), hours: pad2(hours), minutes: pad2(minutes), seconds: pad2(seconds) };
 }
 
 const STATUS = {
@@ -43,120 +44,80 @@ function normalizeFromDummy(item) {
 
     status: item.status ?? "LIVE",
     title: item.detailTitle ?? item.title ?? "무제 (Untitled)",
-    artist: item.artist ? `${item.artist} 작가` : "김현수 작가",
+    artist: item.artist ? `${item.artist} 작가` : "작가 정보",
 
-    year: item.year ?? "2023",
-    material: item.material ?? "캔버스에 아크릴",
-    size: item.size ?? "100 × 80 cm",
+    year: item.year ?? "",
+    material: item.material ?? "",
+    size: item.size ?? "",
 
-    estimate: item.estimate ?? "₩8,000,000 - ₩12,000,000",
-    startPrice: item.startPrice ?? "₩6,000,000",
-    currentPrice: item.currentPrice ?? item.pricing?.display ?? "₩9,500,000",
-    bidCount: item.bidCount ?? item.stats?.count ?? 15,
+    estimate: item.estimate ?? "",
+    startPrice: item.startPrice ?? "",
+    currentPrice: item.currentPrice ?? item.pricing?.display ?? "",
+    bidCount: item.bidCount ?? item.stats?.count ?? 0,
 
-    endAt: item.endAt ?? "2026-02-28T15:00:00",
-    endAtLabel: item.endAtLabel ?? "2026년 2월 28일 오후 3시 마감",
+    endAt: item.endAt ?? null,
+    endAtLabel: item.endAtLabel ?? "",
 
-    description: item.description ?? [
-      "김현수 작가의 '무제'는 추상표현주의의 영향을 받은 작품으로, 대담한 붓터치와 강렬한 색채의 대비를 통해 내면의 감정을 표현합니다.",
-      "이 작품은 2023년 개인전 '침묵의 소리'에서 처음 공개되었으며, 현대미술계에서 주목받는 신진 작가의 대표작 중 하나입니다.",
-      "캔버스에 아크릴로 제작된 이 작품은 빛의 각도에 따라 다양한 질감과 색감을 드러내며, 공간에 역동적인 에너지를 부여합니다.",
-    ],
-
-    artistName: item.artistName ?? (item.artist ?? "김현수"),
-    artistBio:
-      item.artistBio ??
-      "홍익대학교 미술대학 회화과를 졸업하고, 파리 에콜 데 보자르에서 현대미술을 전공했습니다. 귀국 후 다수의 개인전과 단체전에 참여하며 한국 현대미술계의 주목받는 작가로 자리매김했습니다.",
-    exhibitions:
-      item.exhibitions ??
-      "2023 개인전 '침묵의 소리', 2022 국립현대미술관 단체전",
-    awards: item.awards ?? "2021 올해의 젊은 작가상",
+    description: item.description ?? [],
+    artistName: item.artistName ?? (item.artist ?? ""),
+    artistBio: item.artistBio ?? "",
+    exhibitions: item.exhibitions ?? "",
+    awards: item.awards ?? "",
   };
 }
 
-/**
- * API 스펙 확정 전: 유연 파서
- * - 확정되면 이 함수만 단일 DTO 스펙으로 정리하면 됨
- */
 function normalizeFromApi(data, fallbackUnveilingNo, fallbackDetail) {
-  const pricing = data?.pricing ?? {};
-  const production = data?.production ?? {};
-  const artistObj = data?.artist ?? {};
-
-  const firstImgUrl =
-    Array.isArray(data?.images) && data.images.length > 0 ? data.images[0]?.url : null;
-
   const formatKRW = (n) => `₩${Number(n).toLocaleString("ko-KR")}`;
 
-  const startPriceDisplay =
-    pricing.startPriceDisplay ??
-    data.startPriceDisplay ??
-    (typeof pricing.startPrice === "number" ? formatKRW(pricing.startPrice) : null) ??
-    (typeof data.startPrice === "number" ? formatKRW(data.startPrice) : null) ??
-    data.startPrice ??
-    fallbackDetail?.startPrice ??
-    "";
+  const toISODateTime = (v) => {
+    if (!v) return null;
+    if (typeof v === "string") {
+      const s = v.trim();
+      if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s)) return s.replace(" ", "T");
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return `${s}T00:00:00`;
+      return s;
+    }
+    return String(v);
+  };
 
-  const currentPriceDisplay =
-    pricing.currentPriceDisplay ??
-    data.currentPriceDisplay ??
-    (typeof pricing.currentPrice === "number" ? formatKRW(pricing.currentPrice) : null) ??
-    (typeof data.currentPrice === "number" ? formatKRW(data.currentPrice) : null) ??
-    data.currentPrice ??
-    fallbackDetail?.currentPrice ??
-    "";
-
-  const estimateText =
-    pricing.estimateText ??
-    data.estimateDisplay ??
-    data.estimate ??
-    fallbackDetail?.estimate ??
-    "";
+  const serverImg =
+    data?.thumbUrl ??
+    data?.imageUrl ??
+    data?.image ??
+    null;
 
   return {
-    unveilingNo: data.unveilingNo ?? data.id ?? fallbackUnveilingNo,
-
-    image: firstImgUrl ?? data.imageUrl ?? data.image ?? fallbackDetail?.image ?? "",
-    alt: data.alt ?? fallbackDetail?.alt ?? "auction item image",
-
-    status: data.status ?? fallbackDetail?.status ?? "LIVE",
-    title: data.title ?? data.detailTitle ?? fallbackDetail?.title ?? "무제 (Untitled)",
-    artist: data.artistName
-      ? `${data.artistName} 작가`
-      : data.artist
-        ? `${data.artist} 작가`
-        : fallbackDetail?.artist ?? "김현수 작가",
-
-    year: production.year ?? data.productionYear ?? data.year ?? fallbackDetail?.year ?? "",
-    material:
-      production.material ?? data.productionMaterial ?? data.material ?? fallbackDetail?.material ?? "",
-    size:
-      production.sizeText ?? data.productionSize ?? data.sizeText ?? data.size ?? fallbackDetail?.size ?? "",
-
-    estimate: estimateText,
-    startPrice: startPriceDisplay,
-    currentPrice: currentPriceDisplay,
-    bidCount: pricing.bidCount ?? data.biddingCount ?? data.bidCount ?? fallbackDetail?.bidCount ?? 0,
-
-    endAt: data.finishAt ?? data.finishDate ?? data.endAt ?? fallbackDetail?.endAt ?? null,
-    endAtLabel:
-      data.finishAtLabel ??
-      data.finishDateLabel ??
-      data.endAtLabel ??
-      fallbackDetail?.endAtLabel ??
-      "",
-
-    description:
-      production.description ??
-      data.productionDetail ??
-      data.description ??
-      fallbackDetail?.description ??
-      [],
-
-    artistName: data.artistName ?? data.artist ?? fallbackDetail?.artistName ?? "",
-    artistBio: artistObj.bio ?? data.artistBio ?? data.artistDetail ?? fallbackDetail?.artistBio ?? "",
-    exhibitions: artistObj.exhibitions ?? data.exhibitions ?? fallbackDetail?.exhibitions ?? "",
-    awards: artistObj.awards ?? data.awards ?? fallbackDetail?.awards ?? "",
+    unveilingNo: data?.unveilingNo ?? fallbackUnveilingNo,
+    image: serverImg ?? fallbackDetail?.image ?? "",
+    alt: fallbackDetail?.alt ?? "auction item image",
+    status: data?.unveilingStatus ?? fallbackDetail?.status ?? "LIVE",
+    title: data?.unveilingTitle ?? fallbackDetail?.title ?? "무제 (Untitled)",
+    artist: data?.productionArtist
+      ? `${data.productionArtist} 작가`
+      : (fallbackDetail?.artist ?? "작가 정보"),
+    year: data?.productionYear ?? fallbackDetail?.year ?? "",
+    material: data?.productionMaterial ?? fallbackDetail?.material ?? "",
+    size: data?.productionSize ?? fallbackDetail?.size ?? "",
+    estimate: fallbackDetail?.estimate ?? "",
+    startPrice:
+      typeof data?.startPrice === "number"
+        ? formatKRW(data.startPrice)
+        : (fallbackDetail?.startPrice ?? ""),
+    currentPrice:
+      typeof data?.currentPrice === "number"
+        ? formatKRW(data.currentPrice)
+        : (fallbackDetail?.currentPrice ?? ""),
+    bidCount:
+      typeof data?.biddingCount === "number"
+        ? data.biddingCount
+        : (fallbackDetail?.bidCount ?? 0),
+    endAt: toISODateTime(data?.finishDate ?? fallbackDetail?.endAt ?? null),
+    endAtLabel: fallbackDetail?.endAtLabel ?? "",
+    description: data?.productionDetail ?? fallbackDetail?.description ?? [],
+    artistName: data?.productionArtist ?? fallbackDetail?.artistName ?? "",
+    artistBio: data?.artistDetail ?? fallbackDetail?.artistBio ?? "",
+    exhibitions: fallbackDetail?.exhibitions ?? "",
+    awards: fallbackDetail?.awards ?? "",
   };
 }
 
@@ -164,76 +125,55 @@ export default function UnveilingDetail() {
   const { id } = useParams();
   const unveilingNo = useMemo(() => Number(id), [id]);
 
-  // ===== 더미 아이템 찾기 =====
   const dummyItem = useMemo(() => {
     if (!Number.isFinite(unveilingNo)) return null;
     return unveilingData.find((v) => v.id === unveilingNo) ?? null;
   }, [unveilingNo]);
 
-  // 없는 id 접근
-  if (!dummyItem) {
-    return (
-      <div className="page unveiling-detail">
-        <main className="container">
-          <div className="back-row">
-            <Link to="/unveiling" className="back-link">
-              <i className="fa-solid fa-chevron-left" />
-              <span>경매 목록으로 돌아가기</span>
-            </Link>
-          </div>
-          <p>존재하지 않는 경매입니다.</p>
-        </main>
-      </div>
-    );
-  }
+  const dummyDetail = useMemo(() => {
+    if (dummyItem) return normalizeFromDummy(dummyItem);
+    return {
+      unveilingNo,
+      image: "",
+      alt: "auction item image",
+      status: "LIVE",
+      title: "경매 상세",
+      artist: "",
+      year: "",
+      material: "",
+      size: "",
+      estimate: "",
+      startPrice: "",
+      currentPrice: "",
+      bidCount: 0,
+      endAt: null,
+      endAtLabel: "",
+      description: [],
+      artistName: "",
+      artistBio: "",
+      exhibitions: "",
+      awards: "",
+    };
+  }, [dummyItem, unveilingNo]);
 
-  // ===== detail state =====
-  const dummyDetail = useMemo(() => normalizeFromDummy(dummyItem), [dummyItem]);
   const [detail, setDetail] = useState(dummyDetail);
+  const [bidState, setBidState] = useState(null);
+  const [showTop, setShowTop] = useState(false);
 
-  // 라우트 이동 시 detail 리셋(더미 기준)
+  // ✅ 모달 관련 state
+  const [modal, setModal] = useState(false);
+  const [modalPw, setModalPw] = useState("");
+  const [modalError, setModalError] = useState("");
+  const [modalLoading, setModalLoading] = useState(false);
+
+  // 라우트 이동 시 리셋
   useEffect(() => {
     setDetail(dummyDetail);
+    setBidState(null);
+    setShowTop(false);
   }, [dummyDetail]);
 
-  // ===== API 상세(있으면 덮어쓰기) =====
-  const fetchDetail = useCallback(async () => {
-    // 백엔드 전이면 조용히 더미 유지
-    try {
-      const res = await fetch(`/api/unveilings/${unveilingNo}`);
-      if (!res.ok) return;
-      const data = await res.json();
-      setDetail((prev) => normalizeFromApi(data, unveilingNo, prev));
-    } catch {
-      // noop
-    }
-  }, [unveilingNo]);
-
-  useEffect(() => {
-    fetchDetail();
-  }, [fetchDetail]);
-
-  // ===== Countdown =====
-  const [remain, setRemain] = useState(() => getRemaining(detail.endAt));
-  useEffect(() => {
-    const tick = () => setRemain(getRemaining(detail.endAt));
-    tick();
-
-    const t = setInterval(tick, 60000);
-    return () => clearInterval(t);
-  }, [detail.endAt]);
-
-  // ===== 상태 파생 =====
-  const status = STATUS[detail.status] ?? STATUS.LIVE;
-  const isSoon = detail.status === "UPCOMING";
-  const isEnded = detail.status === "ENDED" || remain.done;
-
-  const statusClass = `status status--${status.key}`;
-  const timerClass = `timer timer--${status.key}${isEnded ? " is-ended" : ""}`;
-  const bidBtnClass = `bid-btn${isSoon ? " is-soon" : ""}${isEnded ? " is-ended" : ""}`;
-
-  // ===== Top button =====
-  const [showTop, setShowTop] = useState(false);
+  // Top 버튼 스크롤 감지
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 500);
     onScroll();
@@ -245,21 +185,167 @@ export default function UnveilingDetail() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // ===== Bid (stub -> API로 교체) =====
-  const onBid = useCallback(async () => {
-    if (isEnded || isSoon) return;
+  const fetchDetail = useCallback(async () => {
+    try {
+      const { data } = await axiosApi.get(`/api/unveilings/${unveilingNo}`);
+      setDetail((prev) => normalizeFromApi(data, unveilingNo, prev));
+    } catch {
+      // noop
+    }
+  }, [unveilingNo]);
 
-    // TODO: 백엔드 연결 시 아래 형태로 교체
-    // POST /api/unveilings/{unveilingNo}/bids
-    // 응답으로 currentPrice/bidCount 갱신
+  const fetchBidState = useCallback(async () => {
+    try {
+      const { data } = await axiosApi.get(`/api/unveilings/${unveilingNo}/bid-state`);
+      setBidState(data);
 
-    alert("응찰 기능은 백엔드 연결 후 활성화됩니다.");
-  }, [isEnded, isSoon]);
+      if (data?.unveilingStatus) {
+        setDetail((prev) => ({ ...prev, status: data.unveilingStatus }));
+      }
+
+      if (typeof data?.currentPrice === "number") {
+        setDetail((prev) => ({
+          ...prev,
+          currentPrice: `₩${Number(data.currentPrice).toLocaleString("ko-KR")}`,
+          bidCount: typeof data?.biddingCount === "number" ? data.biddingCount : prev.bidCount,
+        }));
+      }
+    } catch(e) {
+      console.error("fetchBidState 에러:", e);
+    }
+  }, [unveilingNo]);
+
+  useEffect(() => {
+    if (!Number.isFinite(unveilingNo) || unveilingNo <= 0) return;
+    fetchDetail();
+    fetchBidState();
+
+    const isLive = bidState?.unveilingStatus === "LIVE" || bidState === null;
+    if (isLive) {
+      const interval = setInterval(fetchBidState, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [fetchDetail, fetchBidState, unveilingNo, bidState?.unveilingStatus]);
+
+  // 카운트다운 (1초 간격)
+  const [remain, setRemain] = useState(() => getRemaining(detail.endAt));
+  useEffect(() => {
+    const tick = () => setRemain(getRemaining(detail.endAt));
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => clearInterval(t);
+  }, [detail.endAt]);
+
+  // ===== 상태 판단(서버 우선) =====
+  const serverStatus = bidState?.unveilingStatus || detail.status;
+  const status = STATUS[serverStatus] ?? STATUS.LIVE;
+  const { isLoggedIn, member } = useAuthStore();
+  const isTopBidder = bidState?.topBidderMemberNo > 0
+    && member?.memberNo === bidState?.topBidderMemberNo;
+
+  const bidAllowed = bidState ? !!bidState.bidAllowedFl : true;
+  const bidDisabled = bidState ? (!bidAllowed || isTopBidder) : false;
+  const bidDisabledReason = isTopBidder
+    ? "본인이 최고가 입찰자입니다."
+    : (bidState?.reason || (remain.done ? "마감됨" : "응찰 불가"));
+
+  console.log("bidState:", bidState);
+  console.log("bidAllowed:", bidAllowed);
+  console.log("bidDisabled:", bidDisabled);
+  console.log("serverStatus:", serverStatus);
+
+  const statusClass = `status status--${status.key}`;
+  const timerClass = `timer timer--${status.key}${!bidAllowed ? " is-ended" : ""}`;
+  const bidBtnClass = `bid-btn${bidDisabled ? " is-ended" : ""}`;
+
+
+  // ✅ 응찰 버튼 클릭 → 모달 오픈
+  const onBid = useCallback(() => {
+    if (!isLoggedIn) {
+      alert("로그인 후 응찰할 수 있습니다.");
+      return;
+    }
+    if (bidState && !bidState.bidAllowedFl) {
+      alert(bidState.reason || "현재 응찰할 수 없습니다.");
+      return;
+    }
+    // 모달 초기화 후 오픈
+    setModalPw("");
+    setModalError("");
+    setModal(true);
+  }, [isLoggedIn, bidState]);
+
+  // ✅ 모달에서 확인 클릭 → 비밀번호 검증 후 입찰
+  const onBidConfirm = useCallback(async () => {
+    if (!modalPw) {
+      setModalError("비밀번호를 입력해주세요.");
+      return;
+    }
+
+    setModalLoading(true);
+    setModalError("");
+
+    try {
+      // 1. 비밀번호 검증
+      await axios.post("/auth/verify-password",
+        { memberPw: modalPw },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${useAuthStore.getState().token}`,
+          },
+          withCredentials: true,
+        }
+      )
+
+      // 2. 검증 성공 → 입찰 요청
+      const { data } = await axiosApi.post(`/api/bids/${unveilingNo}`, {});
+
+      setDetail((prev) => ({
+        ...prev,
+        currentPrice: `₩${Number(data.currentPrice).toLocaleString("ko-KR")}`,
+        bidCount: data.biddingCount,
+        status: data.unveilingStatus,
+      }));
+
+      await fetchBidState();
+      setModal(false);
+      alert("응찰이 완료되었습니다.");
+
+    } catch (err) {
+      const status = err?.response?.status;
+      const msg = err?.response?.data?.message || err?.response?.data || "오류가 발생했습니다.";
+
+      if (status === 401) {
+        setModalError("비밀번호가 일치하지 않습니다.");
+      } else {
+        setModalError(`응찰 실패: ${msg}`);
+      }
+    } finally {
+      setModalLoading(false);
+    }
+  }, [modalPw, unveilingNo, fetchBidState]);
+
+  // 잘못된 id
+  if (!Number.isFinite(unveilingNo) || unveilingNo <= 0) {
+    return (
+      <div className="page unveiling-detail">
+        <main className="container">
+          <div className="back-row">
+            <Link to="/unveiling" className="back-link">
+              <i className="fa-solid fa-chevron-left" />
+              <span>경매 목록으로 돌아가기</span>
+            </Link>
+          </div>
+          <p>올바르지 않은 경매 번호입니다.</p>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="page unveiling-detail">
       <main className="container">
-        {/* back-row는 header와 분리된 영역(현재 CSS에서 해결된 상태 유지) */}
         <div className="back-row">
           <Link to="/unveiling" className="back-link">
             <i className="fa-solid fa-chevron-left" />
@@ -267,16 +353,17 @@ export default function UnveilingDetail() {
           </Link>
         </div>
 
-        {/* DETAIL */}
         <section id="auction-detail-section" className="detail">
-          {/* IMAGE */}
           <div id="image-section" className="image">
             <div className="image__main">
-              <img id="mainImage" src={detail.image} alt={detail.alt} />
+              {detail.image ? (
+                <img id="mainImage" src={detail.image} alt={detail.alt} />
+              ) : (
+                <div style={{ width: "100%", aspectRatio: "4/3" }} />
+              )}
             </div>
           </div>
 
-          {/* INFO */}
           <div id="info-section" className="info">
             <div className="info__top">
               <span className={statusClass}>{status.text}</span>
@@ -315,12 +402,19 @@ export default function UnveilingDetail() {
                 <p className="pricebox__label">현재가</p>
                 <p className="pricebox__value pricebox__value--xl">{detail.currentPrice}</p>
                 <p className="pricebox__hint">응찰 {detail.bidCount}회</p>
+
+                {bidState && bidState.bidAllowedFl && typeof bidState.nextBidPrice === "number" && (
+                  <p className="pricebox__hint">
+                    다음 자동 입찰가: ₩{Number(bidState.nextBidPrice).toLocaleString("ko-KR")}
+                    {" "} (호가: ₩{Number(bidState.tick).toLocaleString("ko-KR")})
+                  </p>
+                )}
               </div>
             </div>
 
             <div className={timerClass}>
               <div className="timer__row">
-                <span className="timer__label">{isSoon ? "시작까지" : "마감까지"}</span>
+                <span className="timer__label">마감까지</span>
 
                 <div className="countdown" aria-label="countdown">
                   <div className="countdown__unit">
@@ -337,14 +431,27 @@ export default function UnveilingDetail() {
                     <span>{remain.minutes}</span>
                     <span className="countdown__txt">분</span>
                   </div>
+                  <span className="countdown__sep">:</span>
+                  <div className="countdown__unit">
+                    <span>{remain.seconds}</span>
+                    <span className="countdown__txt">초</span>
+                  </div>
                 </div>
               </div>
 
               <p className="timer__hint">{detail.endAtLabel}</p>
             </div>
 
-            <button className={bidBtnClass} type="button" disabled={isEnded || isSoon} onClick={onBid}>
-              {isEnded ? "마감됨" : isSoon ? "예정" : "응찰하기"}
+            <button
+              className={bidBtnClass}
+              type="button"
+              disabled={bidDisabled}
+              onClick={onBid}
+              title={bidDisabled ? bidDisabledReason : undefined}
+            >
+              {bidDisabled
+                ? (isTopBidder ? "본인 최고가" : (bidState?.reason || "마감됨"))
+                : "응찰하기"}
             </button>
 
             <div className="notice">
@@ -360,17 +467,15 @@ export default function UnveilingDetail() {
           </div>
         </section>
 
-        {/* DESCRIPTION */}
         <section id="description-section" className="section">
           <h2 className="section__title">작품 설명</h2>
           <div className="prose">
-            {(Array.isArray(detail.description) ? detail.description : [detail.description]).map(
-              (p, idx) => <p key={idx}>{p}</p>
-            )}
+            {(Array.isArray(detail.description) ? detail.description : [detail.description]).map((p, idx) => (
+              <p key={idx}>{p}</p>
+            ))}
           </div>
         </section>
 
-        {/* ARTIST */}
         <section id="artist-section" className="section">
           <h2 className="section__title">작가 소개</h2>
 
@@ -387,7 +492,6 @@ export default function UnveilingDetail() {
           </div>
         </section>
 
-        {/* GUIDE */}
         <section id="bidding-guide-section" className="section">
           <h2 className="section__title">응찰 안내</h2>
 
@@ -400,7 +504,6 @@ export default function UnveilingDetail() {
                   <div>현재가</div>
                   <div>응찰 단위</div>
                 </div>
-
                 <div className="tick-table__row">
                   <div>500만원 미만</div>
                   <div>10만원</div>
@@ -450,7 +553,6 @@ export default function UnveilingDetail() {
           </div>
         </section>
 
-        {/* SERVICE INFO */}
         <section id="service-info-section" className="section">
           <h2 className="section__title">경매 이용 안내</h2>
 
@@ -496,7 +598,73 @@ export default function UnveilingDetail() {
           </div>
         </section>
 
-        {/* TO TOP */}
+        {/* ✅ 응찰 확인 모달 */}
+        {modal && (
+          <div style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000
+          }}>
+            <div style={{
+              background: "#fff", borderRadius: "12px",
+              padding: "36px 32px", width: "100%", maxWidth: "400px",
+              display: "flex", flexDirection: "column", gap: "16px"
+            }}>
+              <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 900 }}>응찰 확인</h2>
+
+              <p style={{ margin: 0, color: "#374151", fontSize: "14px", lineHeight: 1.7 }}>
+                응찰 금액:{" "}
+                <strong>₩{Number(bidState?.nextBidPrice).toLocaleString("ko-KR")}</strong>
+                <br />
+                응찰 후에는 취소가 불가능하며, 낙찰 시 구매 의무가 발생합니다.
+              </p>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{ fontSize: "13px", fontWeight: 700 }}>비밀번호 확인</label>
+                <input
+                  type="password"
+                  value={modalPw}
+                  onChange={(e) => setModalPw(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && onBidConfirm()}
+                  placeholder="비밀번호를 입력해주세요"
+                  style={{
+                    padding: "10px 14px", border: "1px solid #d1d5db",
+                    borderRadius: "8px", fontSize: "14px", outline: "none"
+                  }}
+                />
+                {modalError && (
+                  <p style={{ margin: 0, color: "#dc2626", fontSize: "13px" }}>{modalError}</p>
+                )}
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+                <button
+                  onClick={() => setModal(false)}
+                  style={{
+                    flex: 1, height: "44px", border: "1px solid #d1d5db",
+                    borderRadius: "8px", background: "#fff",
+                    fontWeight: 700, cursor: "pointer"
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  onClick={onBidConfirm}
+                  disabled={modalLoading}
+                  style={{
+                    flex: 1, height: "44px", border: 0,
+                    borderRadius: "8px", background: "#111827",
+                    color: "#fff", fontWeight: 800,
+                    cursor: modalLoading ? "not-allowed" : "pointer",
+                    opacity: modalLoading ? 0.7 : 1
+                  }}
+                >
+                  {modalLoading ? "처리 중..." : "응찰하기"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <button
           type="button"
           className={`to-top ${showTop ? "is-show" : ""}`}
