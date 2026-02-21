@@ -644,6 +644,46 @@ button {
   border-top: 1px solid #ececec;
 }
 
+/* scroll-to-top button */
+.to-top{
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(17,24,39,0.10);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(8px);
+  color: #111827;
+  cursor: pointer;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity .15s ease, transform .15s ease;
+  z-index: 1200; /* header(1000) 위 */
+}
+
+.to-top.is-show{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.to-top i{
+  font-size: 14px;
+}
+
+.to-top:hover{
+  background: rgba(255,255,255,0.98);
+}
+
+
 /* Responsive */
 @media (max-width: 1024px) {
   .top-grid {

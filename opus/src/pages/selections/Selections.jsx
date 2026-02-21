@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Loading from "../../components/common/Loading"
 import "../../css/Selections.css";
 import { NavLink } from "react-router-dom";
@@ -10,7 +10,7 @@ const Selections = () => {
   const [goodsList, setGoodsList] = useState(null);
 
   // 로딩 상태
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
 
   // 필터 모음
   const [genre, setGenre] = useState("exhibition"); // 장르 상태
@@ -85,6 +85,19 @@ const Selections = () => {
     });
   }, [goodsList, genre, category, query]);
 
+  // ===== Top button =====
+  const [showTop, setShowTop] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 500);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const onTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   return (
     <main className="main">
       <section id="goods-filter" className="filter">
@@ -101,12 +114,12 @@ const Selections = () => {
           <div className="goods_chips">
             <button className={`goods_chip ${category === "all" ? "is-active" : ""}`}
               onClick={() => handleCategory("all")}>전체</button>
-            { genre === "musical" && 
-            <button className={`goods_chip ${category === "archive" ? "is-active" : ""}`}
-            onClick={() => handleCategory("archive")}>아카이브</button>}
-            { genre === "musical" && 
-            <button className={`goods_chip ${category === "record" ? "is-active" : ""}`}
-            onClick={() => handleCategory("record")}>음반/DVD</button>}
+            {genre === "musical" &&
+              <button className={`goods_chip ${category === "archive" ? "is-active" : ""}`}
+                onClick={() => handleCategory("archive")}>아카이브</button>}
+            {genre === "musical" &&
+              <button className={`goods_chip ${category === "record" ? "is-active" : ""}`}
+                onClick={() => handleCategory("record")}>음반/DVD</button>}
             <button className={`goods_chip ${category === "poster" ? "is-active" : ""}`}
               onClick={() => handleCategory("poster")}>포스터/엽서</button>
             <button className={`goods_chip ${category === "accessories" ? "is-active" : ""}`}
@@ -163,6 +176,16 @@ const Selections = () => {
           </div>
         </section>
       )}
+
+      {/* TO TOP */}
+      <button
+        type="button"
+        className={`to-top ${showTop ? "is-show" : ""}`}
+        onClick={onTop}
+        aria-label="페이지 최상단으로 이동"
+      >
+        <i className="fa-solid fa-arrow-up" />
+      </button>
 
     </main>
   )

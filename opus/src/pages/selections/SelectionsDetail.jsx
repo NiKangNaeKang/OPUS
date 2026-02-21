@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 // URL 경로 얻어오기
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../components/common/Loading";
@@ -320,7 +320,7 @@ const SelectionsDetail = () => {
       return;
     }
 
-    if(!isLoggedIn) {
+    if (!isLoggedIn) {
       alert("회원 전용 서비스입니다. 로그인 후 이용해주세요.");
       return;
     }
@@ -368,6 +368,19 @@ const SelectionsDetail = () => {
     // 4. 결제 페이지로 이동
     navigate("/selections/checkout");
   };
+
+  // ===== Top button =====
+    const [showTop, setShowTop] = useState(false);
+    useEffect(() => {
+      const onScroll = () => setShowTop(window.scrollY > 500);
+      onScroll();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      return () => window.removeEventListener("scroll", onScroll);
+    }, []);
+  
+    const onTop = useCallback(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, []);
 
   return (
     isLoading ? (
@@ -670,6 +683,17 @@ const SelectionsDetail = () => {
             </div>
           </div>
         </section>
+
+        {/* TO TOP */}
+        <button
+          type="button"
+          className={`to-top ${showTop ? "is-show" : ""}`}
+          onClick={onTop}
+          aria-label="페이지 최상단으로 이동"
+        >
+          <i className="fa-solid fa-arrow-up" />
+        </button>
+
         <CartSuccessModal
           isOpen={isCartModalOpen}
           goods={goodsDetail}
