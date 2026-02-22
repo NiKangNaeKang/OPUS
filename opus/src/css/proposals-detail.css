@@ -6,7 +6,7 @@
   --line: #e5e7eb;
   --bg: #ffffff;
   --primary: #000000;
-  --wrap: 1000px; /* 상세 페이지는 가독성을 위해 목록보다 폭을 좁게 설정 */
+  --wrap: 1250px; /* 상세 페이지는 가독성을 위해 목록보다 폭을 좁게 설정 */
   --radius: 12px;
   --pad: 48px;
 
@@ -18,20 +18,12 @@
 .proposal-detail-page .detail-container {
   max-width: var(--wrap);
   margin: 0 auto;
-  padding: 80px var(--pad) 100px;
+  padding: 120px var(--pad) 100px;
 }
 
 /* [상단 헤더 영역] */
 .proposal-detail-page .detail-header {
   margin-bottom: 40px;
-}
-
-.proposal-detail-page .detail-category {
-  display: inline-block;
-  font-size: 14px;
-  color: var(--muted);
-  font-weight: 500;
-  margin-bottom: 12px;
 }
 
 .proposal-detail-page .detail-title {
@@ -117,13 +109,12 @@
 
 .proposal-detail-page .btn-delete {
   background: #fff;
-  color: #ef4444; /* 삭제 버튼은 붉은색 강조 */
-  border-color: #fecaca;
+  color: var(--text);
 }
 
 .proposal-detail-page .btn-delete:hover {
-  background: #fef2f2;
-  border-color: #ef4444;
+  border-color: var(--black);
+  background: #f9fafb;
 }
 
 .proposal-detail-page .btn-edit:hover {

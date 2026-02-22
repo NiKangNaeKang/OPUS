@@ -1,0 +1,100 @@
+.proposals-write-page {
+    padding: 80px 0;
+    background-color: #fff;
+}
+
+.proposals-write-page .write-container {
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 0 48px;
+}
+
+.proposals-write-page .write-header {
+    border-bottom: 2px solid #111;
+    padding-bottom: 20px;
+    margin-bottom: 40px;
+}
+
+.proposals-write-page .write-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.proposals-write-page .form-section {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+.proposals-write-page .form-group {
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.proposals-write-page .form-group label {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.proposals-write-page .radio-group {
+    display: flex;
+    gap: 20px;
+    height: 38px;
+    align-items: center;
+}
+
+.proposals-write-page .pp-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    outline: none;
+}
+
+.proposals-write-page .pp-textarea {
+    width: 100%;
+    height: 400px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    resize: none;
+    outline: none;
+    line-height: 1.6;
+}
+
+.proposals-write-page .write-footer {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 40px;
+}
+
+.proposals-write-page .btn-cancel,
+.proposals-write-page .btn-submit {
+    padding: 12px 40px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.proposals-write-page .btn-cancel {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #666;
+}
+
+.proposals-write-page .btn-submit {
+    background: #111;
+    color: #fff;
+    border: none;
+}
+
+.detail-content div {
+    /* 띄어쓰기와 줄바꿈(Enter)을 모두 보존합니다. */
+    white-space: pre-wrap; 
+    word-break: break-all;
+}

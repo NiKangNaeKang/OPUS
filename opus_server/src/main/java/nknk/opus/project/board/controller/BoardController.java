@@ -10,7 +10,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/board")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class BoardController {
 
 	private final BoardService service;
@@ -36,7 +35,7 @@ public class BoardController {
 	}
 
 	/* 게시글 수정 */
-	@PutMapping("/update")
+	@PutMapping("/update/{boardNo}")
 	public int updateBoard(@RequestBody Board board) {
 		return service.updateBoard(board);
 	}

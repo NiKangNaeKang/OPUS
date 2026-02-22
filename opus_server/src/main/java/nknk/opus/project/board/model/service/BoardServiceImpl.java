@@ -19,7 +19,8 @@ public class BoardServiceImpl implements BoardService {
 		return mapper.selectBoardList(boardTypeCode, sort);
 	}
 
-	@Transactional
+	// 조회수 증가와 상세 조회를 하나의 트랜잭션으로 처리 (예외 발생 시 롤백)
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public Board selectBoardDetail(int boardNo) {
 		// 1. 조회수 증가
@@ -32,16 +33,19 @@ public class BoardServiceImpl implements BoardService {
 		return null;
 	}
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int insertBoard(Board board) {
 		return mapper.insertBoard(board);
 	}
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int updateBoard(Board board) {
 		return mapper.updateBoard(board);
 	}
 
+	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int deleteBoard(int boardNo) {
 		return mapper.deleteBoard(boardNo);

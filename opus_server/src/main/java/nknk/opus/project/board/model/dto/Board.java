@@ -20,5 +20,5 @@ public class Board {
 	private String boardUpdateDate;
 	private int boardViewCount;
 	private String writerCompany;
-	private String boardTypeName;
+	private String boardName;
 }
