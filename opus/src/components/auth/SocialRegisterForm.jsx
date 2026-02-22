@@ -12,7 +12,7 @@ export default function SocialRegisterForm({
       <p style={{ fontSize: "15px", marginBottom: "15px", color: "#666", lineHeight: "1.5" }}>
         <strong>{email}</strong>
         <br />
-        해당 사이트 이용을 위해 연락처 추가가 필요합니다.
+        해당 사이트 이용을 위해 연락처가 추가해주세요.
       </p>
 
       <label className="lm-label">연락처</label>

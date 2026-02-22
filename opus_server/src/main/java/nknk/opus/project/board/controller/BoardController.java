@@ -36,8 +36,9 @@ public class BoardController {
 
 	/* 게시글 수정 */
 	@PutMapping("/update/{boardNo}")
-	public int updateBoard(@RequestBody Board board) {
-		return service.updateBoard(board);
+	public int updateBoard(@PathVariable int boardNo, @RequestBody Board board) {
+	    board.setBoardNo(boardNo);
+	    return service.updateBoard(board);
 	}
 
 	/* 게시글 삭제 */

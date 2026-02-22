@@ -42,7 +42,18 @@ public class FileConfig implements WebMvcConfigurer {
 	// 실제 파일
 	@Value("${opus.goods.resource-location}")
 	private String goodsResourceLocation;
+	
+	
+	// 게시판 이미지 관련 경로
+	// 요청
+	@Value("${opus.board.resource-handler}")
+	private String boardResourceHandler;
 
+	// 실제 파일
+	@Value("${opus.board.resource-location}")
+	private String boardResourceLocation;
+	
+	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler(goodsResourceHandler).addResourceLocations(goodsResourceLocation);
