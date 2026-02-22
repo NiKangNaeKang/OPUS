@@ -57,6 +57,7 @@ public class FileConfig implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler(goodsResourceHandler).addResourceLocations(goodsResourceLocation);
+	    registry.addResourceHandler(boardResourceHandler).addResourceLocations(boardResourceLocation);
 	}
 
 	// MultipartResolver 설정

@@ -1,11 +1,22 @@
 package nknk.opus.project.board.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.RequiredArgsConstructor;
 import nknk.opus.project.board.model.dto.Board;
 import nknk.opus.project.board.model.service.BoardService;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/board")
@@ -28,17 +39,18 @@ public class BoardController {
 		return service.selectBoardDetail(boardNo);
 	}
 
-	/* 게시글 등록 */
-	@PostMapping("/insert")
-	public int insertBoard(@RequestBody Board board) {
-		return service.insertBoard(board);
+	/* 게시글 등록 (이미지 최대 5개 업로드 포함) */
+	@PostMapping(value = "/insert", consumes = "multipart/form-data")
+	public int insertBoard(@RequestPart("board") Board board,
+			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+		return service.insertBoard(board, images);
 	}
 
 	/* 게시글 수정 */
 	@PutMapping("/update/{boardNo}")
 	public int updateBoard(@PathVariable int boardNo, @RequestBody Board board) {
-	    board.setBoardNo(boardNo);
-	    return service.updateBoard(board);
+		board.setBoardNo(boardNo);
+		return service.updateBoard(board);
 	}
 
 	/* 게시글 삭제 */

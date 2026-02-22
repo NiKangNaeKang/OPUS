@@ -21,4 +21,10 @@ public class Board {
 	private int boardViewCount;
 	private String writerCompany;
 	private String boardName;
+	
+	private String boardImgPath; // (조인으로 가져올 수도 있음)
+	private String boardImgRe;   // (order=1 조인)
+	private String boardThumbnail; // boardImgPath + boardImgRe
+	
+	
 }
