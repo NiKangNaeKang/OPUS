@@ -24,6 +24,8 @@ import Orders from "./pages/selections/Orders";
 import OrderDetail from "./pages/selections/OrderDetail";
 import AuthSuccess from "./components/auth/AuthSuccess";
 import ProposalDetail from "./pages/Proposals/ProposalDetail";
+import SavedList from "./pages/mypage/SavedList";
+import ReviewList from "./pages/mypage/ReviewList";
 
 
 export default function App() {
@@ -49,17 +51,23 @@ export default function App() {
 
           <Route path="/proposals" element={<Proposals />} />
           <Route path="/proposals/detail/:boardNo" element={<ProposalDetail />} />
+
           <Route path="/unveiling" element={<Unveiling />} />
           <Route path="/unveiling/:id" element={<UnveilingDetail />} />
+          
           <Route path='/selections' element={<Selections />} />
           <Route path='/selections/:goodsNo' element={<SelectionsDetail />} />
           <Route path='/selections/cart' element={<Cart />} />
           <Route path='/selections/checkout' element={<Checkout />} />
+          
           <Route path='/payment/success' element={<PaymentSuccess />} />
           <Route path='/payment/fail' element={<PaymentFail />} />
+          
           <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
-          <Route path="/mypage/orders" element={<Orders />} />
+          <Route path="/mypage/orders" element={< Orders />} />
           <Route path="/mypage/orders/:orderNo" element={<OrderDetail />} />
+          <Route path="/mypage/wishlist" element={<SavedList />} />
+          <Route path="/mypage/reviews" element={<ReviewList />} />
         </Route>
       </Routes>
 

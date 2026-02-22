@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="nknk.opus.project.myPage.model.mapper.MyPageMapper">
+	<select id="getSavedList">
+		SELECT STAGE_NO
+		FROM STAGE_SAVE
+		WHERE MEMBER_NO = #{memberNo}
+	</select>
+	
+	<select id="getReviewList">
+		SELECT REVIEW_NO, MEMBER_NO, STAGE_NO, REVIEW_CONTENT, REVIEW_WRITE_DATE
+		FROM REVIEWS
+		WHERE MEMBER_NO = #{memberNo}
+		AND REVIEW_DEL_FL = 'N'
+	</select>
+</mapper>
