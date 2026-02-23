@@ -11,13 +11,14 @@ const Proposals = () => {
   const { isLoggedIn, member } = useAuthStore();
   const role = member?.role;
 
-  /* ✅ detail -> list로 돌아올 때 탭/페이지 복원 */
+  const API_BASE = import.meta.env.VITE_API_URL; // http://localhost
+  const FALLBACK_THUMB = "/proposals-default.png"; // public에 있는 기본 이미지
+
+  /* detail -> list로 돌아올 때 탭/페이지 복원 */
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || "notice");
   const [currentPage, setCurrentPage] = useState(location.state?.currentPage || 1);
 
-  /* ✅ 글쓰기 버튼 노출 조건
-     - ADMIN: 공지/홍보 둘다 글쓰기 가능
-     - COMPANY: 홍보 탭에서만 글쓰기 가능 */
+  /* 글쓰기 버튼 노출 조건 */
   const canWrite =
     isLoggedIn &&
     (role === "ADMIN" || (role === "COMPANY" && activeTab === "promotion"));
@@ -25,17 +26,16 @@ const Proposals = () => {
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  /* ✅ location.state가 바뀌면(Detail에서 state 들고 돌아오면) 다시 세팅 */
   useEffect(() => {
     if (location.state?.currentPage) setCurrentPage(location.state.currentPage);
     if (location.state?.activeTab) setActiveTab(location.state.activeTab);
   }, [location.state]);
 
-  /* ✅ 필터/검색 상태 */
+  /* 필터/검색 상태 */
   const [category, setCategory] = useState("all");
-  const [sort, setSort] = useState("latest"); // latest | views
-  const [keyword, setKeyword] = useState(""); // input 값
-  const [searchQuery, setSearchQuery] = useState(""); // 실제 검색에 반영되는 값
+  const [sort, setSort] = useState("latest");
+  const [keyword, setKeyword] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const itemsPerPage = 8;
 
@@ -46,16 +46,32 @@ const Proposals = () => {
     goods: "굿즈",
   };
 
-  /* ✅ 탭/정렬 변경 시 백엔드에서 목록 다시 불러오기 */
+  /* 상대경로(/images/board/...) -> API 서버 절대경로로 변환 */
+  const toAbsUrl = (path) => {
+    if (!path) return "";
+    if (/^https?:\/\//i.test(path)) return path; // 이미 절대URL이면 그대로
+    return `${API_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+  };
+
+  /* 홍보 탭 썸네일 후보를 최대한 잡고, 최종 URL로 변환 */
+  const getThumbSrc = (item) => {
+    // 우선순위: boardThumbnail(가공) -> boardImgFullpath -> path+re -> re(단독은 의미 없음)
+    const path =
+      item.boardThumbnail ||
+      item.boardImgFullpath ||
+      (item.boardImgPath && item.boardImgRe ? item.boardImgPath + item.boardImgRe : "") ||
+      "";
+
+    return path ? toAbsUrl(path) : FALLBACK_THUMB;
+  };
+
+  /* 탭/정렬 변경 시 백엔드에서 목록 다시 불러오기 */
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
 
-        // 공지(1), 홍보(2)
         const typeCode = activeTab === "notice" ? 1 : 2;
-
-        // 프론트 sort 값 -> 백엔드 sort 파라미터 변환
         const apiSort = sort === "views" ? "view" : "latest";
 
         const response = await axiosApi.get(`/api/board/list/${typeCode}`, {
@@ -74,30 +90,25 @@ const Proposals = () => {
     fetchData();
   }, [activeTab, sort]);
 
-  /* ✅ 탭 변경: 페이지 1로 + url state 초기화(뒤로가기 꼬임 방지) */
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setCurrentPage(1);
     navigate(location.pathname, { replace: true, state: {} });
   };
 
-  /* ✅ 필터 변경 시 페이지 1로 */
   const handleFilterChange = (type, value) => {
     if (type === "category") setCategory(value);
     if (type === "sort") setSort(value);
     setCurrentPage(1);
   };
 
-  /* ✅ 목록 필터링 + 페이징 자르기(프론트 처리) */
   const { paginatedItems, totalPages } = useMemo(() => {
     let result = [...items];
 
-    // 카테고리 필터
     if (category !== "all") {
       result = result.filter((it) => it.boardCategory === category);
     }
 
-    // 검색(제목/내용)
     const q = searchQuery.toLowerCase().trim();
     if (q) {
       result = result.filter(
@@ -114,19 +125,16 @@ const Proposals = () => {
     return { paginatedItems: sliced, totalPages: total };
   }, [items, category, searchQuery, currentPage]);
 
-  /* ✅ 검색 실행: input(keyword)을 searchQuery로 반영 */
   const handleSearch = () => {
     setSearchQuery(keyword);
     setCurrentPage(1);
   };
 
-  /* ✅ 날짜/숫자 포맷 */
   const formatDate = (iso) => (iso ? iso.split(" ")[0].replaceAll("-", ".") : "");
   const formatNumber = (n) => Number(n ?? 0).toLocaleString("ko-KR");
 
   const isPromotion = activeTab === "promotion";
 
-  /* ✅ 상세 이동: 돌아올 때 탭/페이지 유지하기 위해 state 넘김 */
   const goDetail = (boardNo) => {
     navigate(`/proposals/detail/${boardNo}`, {
       state: { activeTab, currentPage },
@@ -136,7 +144,7 @@ const Proposals = () => {
   return (
     <main className="proposals-page">
       <div className="container board-container">
-        {/* ✅ 탭 */}
+        {/* 탭 */}
         <div className="tabs">
           <button
             className={`tab-btn ${activeTab === "notice" ? "is-active" : ""}`}
@@ -152,7 +160,7 @@ const Proposals = () => {
           </button>
         </div>
 
-        {/* ✅ 필터 + 검색 */}
+        {/* 필터 + 검색 */}
         <section className="pp-filters">
           <div className="pp-filters__left">
             <select
@@ -195,21 +203,16 @@ const Proposals = () => {
           </div>
         </section>
 
-        {/* ✅ 목록 렌더링 */}
+        {/* 목록 렌더링 */}
         {isLoading ? (
           <div className="loading">로딩 중...</div>
         ) : paginatedItems.length === 0 ? (
           <div className="empty-state">게시글이 없습니다.</div>
         ) : isPromotion ? (
-          /* ✅ 홍보 탭: 카드 그리드 + 썸네일 */
+          /* 홍보 탭: 카드 그리드 + 썸네일 */
           <div className="event-grid">
             {paginatedItems.map((item) => {
-              // 백엔드에서 썸네일을 어떤 이름으로 내려줘도 최대한 잡기
-              const thumb =
-                item.boardThumbnail ||
-                item.boardImgFullpath ||
-                item.boardImgRe ||
-                "";
+              const thumbSrc = getThumbSrc(item);
 
               return (
                 <article
@@ -222,12 +225,12 @@ const Proposals = () => {
                 >
                   <div className="event-card__thumb">
                     <img
-                        src={thumb || "/proposals-default.png"}
-                        alt={item.boardTitle}
-                        loading="lazy"
-                        onError={(e) => {
-                        e.currentTarget.src = "/proposals-default.png";
-                        }}
+                      src={thumbSrc}
+                      alt={item.boardTitle}
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src = FALLBACK_THUMB;
+                      }}
                     />
                   </div>
 
@@ -252,7 +255,7 @@ const Proposals = () => {
             })}
           </div>
         ) : (
-          /* ✅ 공지 탭: 리스트 */
+          /* 공지 탭: 리스트 */
           <div className="board-list">
             {paginatedItems.map((item) => (
               <div
@@ -261,7 +264,6 @@ const Proposals = () => {
                 onClick={() => goDetail(item.boardNo)}
               >
                 <div className="item__left">
-                  <span className="badge badge--notice">공지</span>
                   <div className="item__content">
                     <h3 className="item__title">
                       {item.boardCategory && categoryLabel[item.boardCategory]
@@ -285,7 +287,7 @@ const Proposals = () => {
           </div>
         )}
 
-        {/* ✅ 글쓰기 버튼 */}
+        {/* 글쓰기 버튼 */}
         {canWrite && (
           <div className="pp-actions">
             <button
@@ -301,7 +303,6 @@ const Proposals = () => {
           </div>
         )}
 
-        {/* ✅ 페이지네이션 */}
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

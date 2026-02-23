@@ -8,6 +8,10 @@ import "../../css/proposalsWrite.css";
 const MAX_IMAGES = 5;
 
 const ProposalWrite = () => {
+
+console.log("USING axiosUpload", axiosUpload.defaults.baseURL);
+
+
   const { boardNo } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -76,7 +80,7 @@ const ProposalWrite = () => {
 
         if (role === "COMPANY") {
           if (Number(data.boardTypeCode) !== 2) {
-            alert("기업회원은 홍보글만 수정할 수 있습니다.");
+            alert("기업회원은 이벤트/홍보글만 수정할 수 있습니다.");
             navigate("/proposals", { state: location.state });
             return;
           }
@@ -146,20 +150,32 @@ const ProposalWrite = () => {
     setImages((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  // ✅ 저장(등록/수정)
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("SUBMIT HIT", { role, formData, imagesLen: images.length });
 
     // COMPANY는 홍보(2)만 작성/수정 가능
     if (role === "COMPANY" && formData.boardTypeCode !== 2) {
-      return alert("기업회원은 홍보글만 작성/수정 가능합니다.");
+      console.log("BLOCK: boardTypeCode", formData.boardTypeCode);
+      return alert("기업회원은 이벤트/홍보글만 작성/수정 가능합니다.");
     }
 
     if (role === "COMPANY" && !formData.writerCompany.trim()) {
+      console.log("BLOCK: writerCompany empty", formData.writerCompany);
       return alert("작성자(회사명)를 입력해주세요.");
     }
-    if (!formData.boardTitle.trim()) return alert("제목을 입력해주세요.");
-    if (!formData.boardContent.trim()) return alert("내용을 입력해주세요.");
+
+    if (!formData.boardTitle.trim()) {
+      console.log("BLOCK: title empty");
+      return alert("제목을 입력해주세요.");
+    }
+
+    if (!formData.boardContent.trim()) {
+      console.log("BLOCK: content empty");
+      return alert("내용을 입력해주세요.");
+    }
 
     const boardPayload = {
       ...formData,
@@ -184,6 +200,10 @@ const ProposalWrite = () => {
 
         // Spring @RequestPart("images")
         images.forEach((file) => fd.append("images", file));
+
+        console.log("is FormData?", fd instanceof FormData);
+        for (const [k, v] of fd.entries()) console.log("FD", k, v);
+
 
         await axiosUpload.post("/api/board/insert", fd);
         alert("등록되었습니다.");

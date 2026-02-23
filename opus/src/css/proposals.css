@@ -281,28 +281,6 @@
 }
 
 /* =========================================================
-   Badge (optional: 공지 배지 쓴다면)
-========================================================= */
-
-.proposals-page .badge{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--black);
-}
-
-.proposals-page .badge--notice{
-  border-color: rgba(0,0,0,.12);
-}
-
-/* =========================================================
    Promotion Tab - Event Grid Cards
 ========================================================= */
 
