@@ -1,4 +1,3 @@
-// src/components/auth/LoginModal.jsx
 import { useEffect, useMemo, useState } from "react";
 import "../../css/loginModal.css";
 import axiosApi from "../../api/axiosAPI";

@@ -1,40 +1,46 @@
+/* =========================================================
+   Proposal Detail Page (proposal-detail.css) - 정리본
+========================================================= */
+
 /* [공통 변수 계승] */
-.proposal-detail-page {
+.proposal-detail-page{
   --black: #111;
   --text: #111827;
   --muted: #6b7280;
   --line: #e5e7eb;
   --bg: #ffffff;
   --primary: #000000;
-  --wrap: 1000px; /* 상세 페이지는 가독성을 위해 목록보다 폭을 좁게 설정 */
+  --wrap: 1250px; /* 상세 페이지: 목록보다 좁게 */
   --radius: 12px;
   --pad: 48px;
 
   font-family: "Noto Sans KR", system-ui, sans-serif;
   color: var(--text);
   line-height: 1.6;
+  background: var(--bg);
 }
 
-.proposal-detail-page .detail-container {
+.proposal-detail-page *,
+.proposal-detail-page *::before,
+.proposal-detail-page *::after{
+  box-sizing: border-box;
+}
+
+.proposal-detail-page .detail-container{
   max-width: var(--wrap);
   margin: 0 auto;
-  padding: 80px var(--pad) 100px;
+  padding: 120px var(--pad) 100px;
 }
 
-/* [상단 헤더 영역] */
-.proposal-detail-page .detail-header {
+/* =========================================================
+   Header
+========================================================= */
+
+.proposal-detail-page .detail-header{
   margin-bottom: 40px;
 }
 
-.proposal-detail-page .detail-category {
-  display: inline-block;
-  font-size: 14px;
-  color: var(--muted);
-  font-weight: 500;
-  margin-bottom: 12px;
-}
-
-.proposal-detail-page .detail-title {
+.proposal-detail-page .detail-title{
   font-size: 32px;
   font-weight: 800;
   color: var(--black);
@@ -42,37 +48,82 @@
   line-height: 1.3;
 }
 
-.proposal-detail-page .detail-info {
+.proposal-detail-page .detail-info{
   display: flex;
   gap: 24px;
   color: var(--muted);
   font-size: 15px;
 }
 
-.proposal-detail-page .detail-info span {
-  display: flex;
+.proposal-detail-page .detail-info span{
+  display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-/* [구분선] */
-.proposal-detail-page hr {
+/* Divider */
+.proposal-detail-page hr{
   border: none;
   border-top: 1px solid var(--line);
   margin: 40px 0;
 }
 
-/* [본문 컨텐츠 영역] */
-.proposal-detail-page .detail-content {
+/* =========================================================
+   Content
+========================================================= */
+
+.proposal-detail-page .detail-content{
   min-height: 400px;
   font-size: 17px;
   color: #374151;
-  word-break: break-all;
   line-height: 1.8;
+
+  /* ✅ break-all보다 자연스럽게 */
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
-/* [하단 버튼 영역] */
-.proposal-detail-page .detail-footer {
+/* =========================================================
+   Gallery
+========================================================= */
+
+.proposal-detail-page .detail-gallery{
+  margin-top: 18px;
+}
+
+.proposal-detail-page .gallery-grid{
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 860px){
+  .proposal-detail-page .gallery-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px){
+  .proposal-detail-page .gallery-grid{ grid-template-columns: 1fr; }
+}
+
+.proposal-detail-page .gallery-item{
+  border-radius: 14px;
+  overflow: hidden;
+  background: #f3f4f6;
+  border: 1px solid var(--line);
+}
+
+.proposal-detail-page .gallery-item img{
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  aspect-ratio: 3 / 4;
+}
+
+/* =========================================================
+   Footer + Buttons
+========================================================= */
+
+.proposal-detail-page .detail-footer{
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -81,8 +132,8 @@
   border-top: 1px solid var(--line);
 }
 
-/* 버튼 공통 스타일 */
-.proposal-detail-page button {
+/* ✅ button 전체가 아니라 footer 버튼으로 범위 축소 */
+.proposal-detail-page .detail-footer button{
   height: 44px;
   padding: 0 24px;
   border-radius: var(--radius);
@@ -91,49 +142,26 @@
   cursor: pointer;
   transition: all 0.2s;
   border: 1px solid var(--line);
-}
-
-/* 목록 버튼 */
-.proposal-detail-page .btn-list {
   background: #fff;
   color: var(--text);
 }
 
-.proposal-detail-page .btn-list:hover {
+.proposal-detail-page .detail-footer button:hover{
   background: #f9fafb;
   border-color: var(--black);
 }
 
-/* 수정/삭제 버튼 그룹 */
-.proposal-detail-page .btn-group {
+.proposal-detail-page .btn-group{
   display: flex;
   gap: 10px;
 }
 
-.proposal-detail-page .btn-edit {
-  background: #fff;
-  color: var(--text);
-}
+/* =========================================================
+   Loading / Empty
+========================================================= */
 
-.proposal-detail-page .btn-delete {
-  background: #fff;
-  color: #ef4444; /* 삭제 버튼은 붉은색 강조 */
-  border-color: #fecaca;
-}
-
-.proposal-detail-page .btn-delete:hover {
-  background: #fef2f2;
-  border-color: #ef4444;
-}
-
-.proposal-detail-page .btn-edit:hover {
-  border-color: var(--black);
-  background: #f9fafb;
-}
-
-/* [로딩 및 에러 상태] */
 .proposal-detail-page .loading,
-.proposal-detail-page .empty-state {
+.proposal-detail-page .empty-state{
   text-align: center;
   padding: 100px 0;
   color: var(--muted);
