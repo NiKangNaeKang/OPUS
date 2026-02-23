@@ -402,6 +402,7 @@ export default function Reviews() {
 
   // 후기 신고
   const [reportOpenId, setReportOpenId] = useState(null);
+  const [reportReasonType, setReportReasonType] = useState({});
   const [reportReason, setReportReason] = useState({});
 
   const toggleReport = (reviewNo) => {
@@ -414,25 +415,37 @@ export default function Reviews() {
       return;
     }
 
-    try {
-      const reasonDetail = reportReason[review.reviewNo] || "";
+    const selectedReason = reportReasonType[review.reviewNo];
+    const reasonDetail = reportReason[review.reviewNo] || "";
 
+    if (!selectedReason) {
+      alert("신고 사유를 선택해주세요.");
+      return;
+    }
+
+    if (selectedReason === "기타" && reasonDetail.trim().length === 0) {
+      alert("기타 사유를 선택한 경우 상세 내용을 입력해주세요.");
+      return;
+    }
+
+    try {
       const resp = await axiosApi.post("/reviews/addReport", {
         reviewNo: review.reviewNo,
         reporterNo: loginMemberNo,
         reportedNo: review.memberNo,
-        reportReason: "REVIEW",
+        reportReason: selectedReason,
         reportDetail: reasonDetail
       });
 
       if (resp.status === 200) {
         alert("신고가 접수되었습니다.");
         setReportOpenId(null);
+
         setReportReason(prev => ({ ...prev, [review.reviewNo]: "" }));
+        setReportReasonType(prev => ({ ...prev, [review.reviewNo]: "" }));
       }
     } catch (error) {
       console.error(error);
-      alert("신고 처리 중 오류가 발생했습니다.");
     }
   };
 
@@ -546,9 +559,29 @@ export default function Reviews() {
                 {/* ===== 신고 입력 ===== */}
                 {reportOpenId === review.reviewNo && (
                   <div className="report-box">
+                    <div className="report-reason-group">
+                      {["영리목적/홍보성", "개인정보노출", "불법정보", "음란성/선정성", "욕설/인신공격", "같은 내용 반복(도배)", "운영규칙 위반", "기타"].map(reason => (
+                        <label key={reason} className="report-radio">
+                          <input
+                            type="radio"
+                            name={`report-${review.reviewNo}`}
+                            value={reason}
+                            checked={reportReasonType[review.reviewNo] === reason}
+                            onChange={(e) =>
+                              setReportReasonType(prev => ({
+                                ...prev,
+                                [review.reviewNo]: e.target.value
+                              }))
+                            }
+                          />
+                          {reason}
+                        </label>
+                      ))}
+                    </div>
+                    
                     <textarea
                       className="report-textarea"
-                      placeholder="신고 사유를 입력해주세요 (선택)"
+                      placeholder="상세 내용을 입력해주세요 (선택)"
                       value={reportReason[review.reviewNo] || ""}
                       onChange={(e) =>
                         setReportReason(prev => ({

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="nknk.opus.project.admin.model.mapper.AdminMapper">
+	<select id="getReport">
+		SELECT REPORT_NO, REPORT_REASON, REPORT_DETAIL, REPORT_DATE, REPORT_STATUS, REPORTER_NO, REPORTED_NO, REVIEW_NO
+		FROM REPORT
+	</select>
+</mapper>
