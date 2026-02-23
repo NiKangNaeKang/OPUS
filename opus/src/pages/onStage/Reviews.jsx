@@ -400,7 +400,41 @@ export default function Reviews() {
     }
   };
 
+  // 후기 신고
+  const [reportOpenId, setReportOpenId] = useState(null);
+  const [reportReason, setReportReason] = useState({});
 
+  const toggleReport = (reviewNo) => {
+    setReportOpenId(prev => (prev === reviewNo ? null : reviewNo));
+  }
+
+  const submitReport = async (review) => {
+    if (!token) {
+      alert("로그인 후 이용해주세요.");
+      return;
+    }
+
+    try {
+      const reasonDetail = reportReason[review.reviewNo] || "";
+
+      const resp = await axiosApi.post("/reviews/addReport", {
+        reviewNo: review.reviewNo,
+        reporterNo: loginMemberNo,
+        reportedNo: review.memberNo,
+        reportReason: "REVIEW",
+        reportDetail: reasonDetail
+      });
+
+      if (resp.status === 200) {
+        alert("신고가 접수되었습니다.");
+        setReportOpenId(null);
+        setReportReason(prev => ({ ...prev, [review.reviewNo]: "" }));
+      }
+    } catch (error) {
+      console.error(error);
+      alert("신고 처리 중 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <main className="reviews-page">
@@ -494,7 +528,13 @@ export default function Reviews() {
                             </div>
                           </>
                         ) : (
-                          <div className='meat-content-report'>
+                          <div
+                            className='meat-content-report'
+                            onClick={() => {
+                              toggleReport(review.reviewNo);
+                              setOpenMenuId(null);
+                            }}
+                          >
                             신고
                           </div>
                         )}
@@ -502,6 +542,38 @@ export default function Reviews() {
                     )}
                   </div>
                 </div>
+
+                {/* ===== 신고 입력 ===== */}
+                {reportOpenId === review.reviewNo && (
+                  <div className="report-box">
+                    <textarea
+                      className="report-textarea"
+                      placeholder="신고 사유를 입력해주세요 (선택)"
+                      value={reportReason[review.reviewNo] || ""}
+                      onChange={(e) =>
+                        setReportReason(prev => ({
+                          ...prev,
+                          [review.reviewNo]: e.target.value
+                        }))
+                      }
+                    />
+
+                    <div className="report-actions">
+                      <button
+                        className="btn btn--outline btn--sm"
+                        onClick={() => setReportOpenId(null)}
+                      >
+                        취소
+                      </button>
+                      <button
+                        className="btn btn--danger btn--sm"
+                        onClick={() => submitReport(review)}
+                      >
+                        신고
+                      </button>
+                    </div>
+                  </div>
+                )}
                 
                 <div className="review__body">
                   {editId !== review.reviewNo ? (

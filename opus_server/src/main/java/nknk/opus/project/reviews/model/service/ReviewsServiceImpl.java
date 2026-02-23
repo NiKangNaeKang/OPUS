@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import nknk.opus.project.reviews.model.dto.Report;
 import nknk.opus.project.reviews.model.dto.Reviews;
 import nknk.opus.project.reviews.model.mapper.ReviewsMapper;
 
@@ -44,6 +45,11 @@ public class ReviewsServiceImpl implements ReviewsService {
 	@Override
 	public int deleteReview(int reviewNo) {
 		return mapper.deleteReview(reviewNo);
+	}
+
+	@Override
+	public int addReport(Report report) {
+		return mapper.addReport(report);
 	}
 
 
