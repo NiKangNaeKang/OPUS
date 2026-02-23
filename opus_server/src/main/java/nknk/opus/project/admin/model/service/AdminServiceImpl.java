@@ -20,4 +20,17 @@ public class AdminServiceImpl implements AdminService {
 	public List<Report> getReport() {
 		return mapper.getReport();
 	}
+
+	@Override
+	public int confirmReview(int reportNo) {
+		return mapper.confirmReview(reportNo);
+	}
+
+	@Override
+	public int cancleReview(int reportNo) {
+		int updateReviewDelFl = mapper.updateReviewDelFl(reportNo);
+		int cancleReview = mapper.cancleReview(reportNo);
+		
+		return updateReviewDelFl * cancleReview;
+	}
 }
