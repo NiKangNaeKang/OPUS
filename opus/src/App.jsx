@@ -18,7 +18,6 @@ import ToastConfig from "./components/toast/ToastConfig";
 import AuthInitializer from "./components/common/AuthInitializer";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyPage from "./pages/mypage/MyPage";
-import ExhibitionList from "./pages/onStage/ExhibitionList";
 import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
 import Orders from "./pages/selections/Orders";
 import OrderDetail from "./pages/selections/OrderDetail";
@@ -34,6 +33,7 @@ import Terms from "./pages/footer/Terms";
 import About from "./pages/footer/About";
 import Privacy from "./pages/footer/Privacy";
 
+import Admin from "./pages/admin/Admin";
 
 
 export default function App() {
@@ -83,6 +83,7 @@ export default function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/about" element={<About />} />
+          <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>
 
