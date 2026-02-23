@@ -1,10 +1,6 @@
-import axios from "axios";
+import axios, { AxiosHeaders } from "axios";
 import { useAuthStore } from "../components/auth/useAuthStore";
 
-/**
- * 업로드 전용 axios 인스턴스 (multipart/form-data)
- * - axiosApi는 application/json 헤더 고정이라 업로드에 부적합
- */
 const axiosUpload = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
@@ -13,10 +9,25 @@ const axiosUpload = axios.create({
 axiosUpload.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+
+    // 1) 헤더를 AxiosHeaders로 정규화 (delete/set이 확실히 먹게)
+    config.headers = AxiosHeaders.from(config.headers);
+
+    // 2) 토큰
+    if (token) config.headers.set("Authorization", `Bearer ${token}`);
+
+    // 3) FormData면 Content-Type 완전 제거 (json으로 박히는 거 차단)
+    const isFormData =
+      typeof FormData !== "undefined" && config.data instanceof FormData;
+
+    if (isFormData) {
+      config.headers.delete("Content-Type");
+      config.headers.delete("content-type");
+      // 일부 환경/머지에서 남는 값까지 한번 더
+      config.headers.set("Content-Type", undefined);
+      config.headers.set("content-type", undefined);
     }
-    // Content-Type은 FormData일 때 axios가 boundary 포함해 자동 설정함
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -25,7 +36,6 @@ axiosUpload.interceptors.request.use(
 axiosUpload.interceptors.response.use(
   (response) => response,
   (error) => {
-    // axiosApi와 동일한 401 처리
     if (error?.response?.status === 401) {
       const url = error.config?.url || "";
 
@@ -43,7 +53,6 @@ axiosUpload.interceptors.response.use(
         return new Promise(() => {});
       }
     }
-
     return Promise.reject(error);
   }
 );
