@@ -57,15 +57,20 @@ export default function App() {
 
           <Route path="/unveiling" element={<Unveiling />} />
           <Route path="/unveiling/:id" element={<UnveilingDetail />} />
+          
           <Route path='/selections' element={<Selections />} />
           <Route path='/selections/:goodsNo' element={<SelectionsDetail />} />
           <Route path='/selections/cart' element={<Cart />} />
           <Route path='/selections/checkout' element={<Checkout />} />
+          
           <Route path='/payment/success' element={<PaymentSuccess />} />
           <Route path='/payment/fail' element={<PaymentFail />} />
+          
           <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
-          <Route path="/mypage/orders" element={<Orders />} />
+          <Route path="/mypage/orders" element={< Orders />} />
           <Route path="/mypage/orders/:orderNo" element={<OrderDetail />} />
+          <Route path="/mypage/wishlist" element={<SavedList />} />
+          <Route path="/mypage/reviews" element={<ReviewList />} />
         </Route>
       </Routes>
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import nknk.opus.project.reviews.model.dto.Report;
 import nknk.opus.project.reviews.model.dto.Reviews;
 
 @Mapper
@@ -19,4 +20,6 @@ public interface ReviewsMapper {
 	int updateReview(Reviews inputReview);
 
 	int deleteReview(int reviewNo);
+
+	int addReport(Report report);
 }
