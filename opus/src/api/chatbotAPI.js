@@ -1,13 +1,15 @@
 import axios from "axios";
+import axiosApi from "./axiosAPI";
 
 export const chatbotApi = {
   /**
    * AI 챗봇 대화
    */
-  chat: async (message, conversationId = null) => {
-    const response = await axios.post(`/chatbot/chat`, {
+  chat: async (message, conversationId = null, contextData = null) => {
+    const response = await axiosApi.post(`/chatbot/chat`, {
       message,
-      conversationId
+      conversationId,
+      contextData
     });
     return response.data;
   },
@@ -16,7 +18,7 @@ export const chatbotApi = {
    * 대화 히스토리 조회
    */
   getHistory: async (conversationId) => {
-    const response = await axios.get(
+    const response = await axiosApi.get(
       `/chatbot/history/${conversationId}`
     );
     return response.data;

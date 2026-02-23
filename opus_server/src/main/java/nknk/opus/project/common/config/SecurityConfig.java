@@ -65,6 +65,7 @@ public class SecurityConfig {
                 .requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/unveilings/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/bids/**").permitAll()
+                .requestMatchers("/chatbot/**").permitAll()
                 .anyRequest().authenticated()
             )
 

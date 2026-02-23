@@ -43,7 +43,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	
 	// OpenAI 공식 Java SDK
-	implementation 'com.openai:openai-java:latest.release'
+	implementation "com.openai:openai-java:4.22.0"
 	
 	// JSON 처리
     implementation 'com.google.code.gson:gson:2.10.1'

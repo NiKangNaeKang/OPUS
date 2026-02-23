@@ -27,7 +27,6 @@ public class ChatbotController {
 
     /**
      * AI 챗봇 대화
-     * POST /api/chatbot/chat
      */
     @PostMapping("chat")
     public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest request) {
@@ -43,7 +42,6 @@ public class ChatbotController {
 
     /**
      * 대화 히스토리 조회
-     * GET /api/chatbot/history/{conversationId}
      */
     @GetMapping("history/{conversationId}")
     public ResponseEntity<List<ChatHistory>> getHistory(

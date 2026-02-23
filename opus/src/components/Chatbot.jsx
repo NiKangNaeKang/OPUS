@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { chatbotApi } from "../api/chatbotAPI";
 import "../css/Chatbot.css";
+import { useContentStore } from "../store/useContentStore";
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,6 +10,47 @@ const Chatbot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState(null);
   const messagesEndRef = useRef(null);
+
+  // 전달 데이터
+  const exhibitions = useContentStore((s) => s.exhibitions);
+  const musicals = useContentStore((s) => s.musicals);
+  const goods = useContentStore((s) => s.goods);
+
+  // 정보성 키워드
+    const DETAIL_KEYWORDS = [
+        "전시", "뮤지컬", "공연", "언제", "어디서", "어디",
+        "얼마", "가격", "기간", "장소", "상품", "굿즈", "몇 시"
+    ];
+
+    const needsDetail = (message) =>
+        DETAIL_KEYWORDS.some(k => message.includes(k));
+
+    const buildContextData = () => {
+        let context = "";
+
+        if (exhibitions.length > 0) {
+            context += "### 전시 목록\n";
+            exhibitions.forEach(e => {
+                context += `- [${e.status}] ${e.title} | ${e.period} | ${e.place}\n`;
+            });
+        }
+
+        if (musicals.length > 0) {
+            context += "\n### 뮤지컬 목록\n";
+            musicals.forEach(m => {
+                context += `- [${m.status}] ${m.title} | ${m.period} | ${m.place}\n`;
+            });
+        }
+
+        if (goods.length > 0) {
+            context += "\n### 굿즈 상품 목록\n";
+            goods.forEach(g => {
+                context += `- ${g.name} | ${Number(g.price).toLocaleString()}원 | ${g.sort} / ${g.category}\n`;
+            });
+        }
+
+        return context || null;
+    };
 
   // 자동 스크롤
   const scrollToBottom = () => {
@@ -22,7 +64,7 @@ const Chatbot = () => {
   // 챗봇 열기
   const handleOpen = () => {
     setIsOpen(true);
-    
+
     // 환영 메시지
     if (messages.length === 0) {
       setMessages([{
@@ -46,13 +88,20 @@ const Chatbot = () => {
       content: userMessage,
       timestamp: new Date()
     };
+
     setMessages(prev => [...prev, newUserMessage]);
 
     // API 호출
     setIsLoading(true);
     try {
-      const response = await chatbotApi.chat(userMessage, conversationId);
-      
+
+      // 정보성 키워드 있을 때만 contextData 포함
+            const contextData = needsDetail(userMessage)
+                ? buildContextData()
+                : null;
+
+      const response = await chatbotApi.chat(userMessage, conversationId, contextData);
+
       // conversationId 저장
       if (!conversationId) {
         setConversationId(response.conversationId);
@@ -72,7 +121,7 @@ const Chatbot = () => {
 
     } catch (error) {
       console.error("챗봇 오류:", error);
-      
+
       // 에러 메시지
       const errorMessage = {
         role: "assistant",
@@ -103,11 +152,13 @@ const Chatbot = () => {
     setConversationId(null);
   };
 
+
+
   return (
     <>
       {/* 챗봇 버튼 */}
       {!isOpen && (
-        <button 
+        <button
           className="chatbot-button"
           onClick={handleOpen}
           aria-label="챗봇 열기"
@@ -129,14 +180,14 @@ const Chatbot = () => {
               </div>
             </div>
             <div className="chatbot-header__actions">
-              <button 
+              <button
                 className="chatbot-header__new"
                 onClick={handleNewConversation}
                 title="새 대화"
               >
                 <i className="fa-solid fa-plus"></i>
               </button>
-              <button 
+              <button
                 className="chatbot-header__close"
                 onClick={() => setIsOpen(false)}
                 aria-label="챗봇 닫기"
@@ -149,8 +200,8 @@ const Chatbot = () => {
           {/* 메시지 영역 */}
           <div className="chatbot-messages">
             {messages.map((msg, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`message message--${msg.role}`}
               >
                 <div className="message__avatar">
@@ -198,7 +249,7 @@ const Chatbot = () => {
               disabled={isLoading}
               rows={1}
             />
-            <button 
+            <button
               onClick={handleSend}
               disabled={!inputMessage.trim() || isLoading}
               aria-label="메시지 전송"

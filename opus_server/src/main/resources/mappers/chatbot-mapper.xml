@@ -44,7 +44,7 @@
             ORDER BY CREATED_AT DESC
         )
         WHERE ROWNUM &lt;= #{limit}
-        ORDER BY CREATED_AT ASC
+        ORDER BY CHAT_NO ASC
     </select>
 
 </mapper>

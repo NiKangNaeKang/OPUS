@@ -4,13 +4,14 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAllMusicals, dateRange } from "../../api/kopisAPI";
 import '../../css/pages/onStage/OnStage.css'
 import Loading from "../../components/common/Loading.jsx"
+import { useContentStore } from "../../store/useContentStore.js";
 
 const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
 
 export default function MusicalList({ status, search }) {
   const bottomRef = useRef(null);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
-  
+
   const {
     data,
     fetchNextPage,
@@ -28,22 +29,23 @@ export default function MusicalList({ status, search }) {
         return { items: [], hasNext: false };
       }
 
-      return getAllMusicals({ serviceKey : SERVICE_KEY, startDate: range.start, endDate: range.end, pageParam: 1, search })
+      return getAllMusicals({ serviceKey: SERVICE_KEY, startDate: range.start, endDate: range.end, pageParam: 1, search })
     },
-    initialPageParam : 1,
-    getNextPageParam : (lastPage, allPages) => lastPage.hasNext ? allPages.length + 1 : undefined,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => lastPage.hasNext ? allPages.length + 1 : undefined,
   });
 
   useEffect(() => {
-    if(!bottomRef.current) return;
+    if (!bottomRef.current) return;
 
     const observer = new IntersectionObserver(([entry]) => {
-      if(entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
         fetchNextPage();
-      }}, {threshold : 0})
-      observer.observe(bottomRef.current);
+      }
+    }, { threshold: 0 })
+    observer.observe(bottomRef.current);
 
-      return () => observer.disconnect();
+    return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   useEffect(() => {
@@ -54,42 +56,58 @@ export default function MusicalList({ status, search }) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
-  
+
   const handleScrollToTop = () => {
-    window.scrollTo({ top : 0, behavior : "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   const allItems = useMemo(() => {
     if (!data) return [];
     return data.pages.flatMap(page => page.items);
   }, [data]);
-  
-    const filteredItems = useMemo(() => {
-      return allItems.filter(item => {
-        const matchStatus =
-          status === "all" ||
-          (status === "02" && item.prfstate === "공연중") ||
-          (status === "01" && item.prfstate === "공연예정") ||
-          (status === "03" && item.prfstate === "공연완료");
-      
-        const matchSearch =
-          !search.trim() || item.prfnm?.includes(search.trim());
-      
-        return matchStatus && matchSearch;
-      });
-    }, [allItems, status, search]);
 
-    if (isLoading) {
-      return <div style={{ padding: 80 }}>뮤지컬 불러오는 중...</div>;
-    }
+  // 챗봇에게 데이터 전달용 (박유진 추가)
+  const setMusicals = useContentStore((s) => s.setMusicals);
 
-    if (isError) {
-      return <div style={{ padding: 80 }}>오류: {String(error)}</div>;
+  useEffect(() => {
+    if (allItems.length > 0) {
+      setMusicals(allItems.slice(0, 20).map(m => ({
+        title: m.prfnm,
+        period: `${m.prfpdfrom} ~ ${m.prfpdto}`,
+        place: m.fcltynm,
+        status: m.prfstate
+      })));
     }
+  }, [allItems]);
 
-    if (!allItems.length) {
-      return <div style={{ padding: 80 }}>표시할 뮤지컬 정보가 없습니다.</div>;
-    }
+  // -------------------------------------------
+
+  const filteredItems = useMemo(() => {
+    return allItems.filter(item => {
+      const matchStatus =
+        status === "all" ||
+        (status === "02" && item.prfstate === "공연중") ||
+        (status === "01" && item.prfstate === "공연예정") ||
+        (status === "03" && item.prfstate === "공연완료");
+
+      const matchSearch =
+        !search.trim() || item.prfnm?.includes(search.trim());
+
+      return matchStatus && matchSearch;
+    });
+  }, [allItems, status, search]);
+
+  if (isLoading) {
+    return <div style={{ padding: 80 }}>뮤지컬 불러오는 중...</div>;
+  }
+
+  if (isError) {
+    return <div style={{ padding: 80 }}>오류: {String(error)}</div>;
+  }
+
+  if (!allItems.length) {
+    return <div style={{ padding: 80 }}>표시할 뮤지컬 정보가 없습니다.</div>;
+  }
 
   return (
     <>
@@ -117,7 +135,7 @@ export default function MusicalList({ status, search }) {
         ))}
       </div>
 
-      <div ref={bottomRef} style={{height : 1}}></div>
+      <div ref={bottomRef} style={{ height: 1 }}></div>
 
       {isFetchingNextPage && (
         <div

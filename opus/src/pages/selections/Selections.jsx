@@ -4,6 +4,7 @@ import "../../css/Selections.css";
 import { NavLink } from "react-router-dom";
 import { fetchGoodsList } from "../../api/selectionsAPI";
 import ScrollToTop from "../../components/common/ScrollToTop";
+import { useContentStore } from "../../store/useContentStore";
 
 const Selections = () => {
 
@@ -85,6 +86,19 @@ const Selections = () => {
       return matchesGenre && matchesCategory && matchesQuery;
     });
   }, [goodsList, genre, category, query]);
+
+  const setGoods = useContentStore((s) => s.setGoods);
+
+  useEffect(() => {
+    if (goodsList) {
+      setGoods(goodsList.map(g => ({
+        name: g.goodsName,
+        price: g.goodsPrice,
+        category: g.goodsCategory,
+        sort: g.goodsSort
+      })));
+    }
+  }, [goodsList]);
 
   return (
     <main className="main">

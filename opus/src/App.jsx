@@ -25,6 +25,7 @@ import OrderDetail from "./pages/selections/OrderDetail";
 import AuthSuccess from "./components/auth/AuthSuccess";
 import ProposalDetail from "./pages/Proposals/ProposalDetail";
 import Chatbot from "./components/Chatbot";
+import ScrollToTop from "./components/common/ScrollToTop";
 
 
 export default function App() {
@@ -65,6 +66,7 @@ export default function App() {
       </Routes>
 
       <Chatbot />
+      <ScrollToTop />
     </>
   );
 }
