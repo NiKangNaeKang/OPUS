@@ -29,4 +29,8 @@ public interface UnveilingMapper {
 	int markPaymentExpired(int unveilingNo);
 
 	List<Unveiling> selectUnveilingList();
+	
+	List<Unveiling> selectUnveilingsToFinalize(); // 낙찰 확정 대상 경매 목록
+
+	void markNoWinner(int unveilingNo);
 }

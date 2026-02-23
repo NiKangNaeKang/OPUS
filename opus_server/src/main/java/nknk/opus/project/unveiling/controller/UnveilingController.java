@@ -51,9 +51,17 @@ public class UnveilingController {
 	}
 	
 	@PostMapping("/{unveilingNo}/finalize")
-	public ResponseEntity<Map<String, Object>> finalize(@PathVariable("unveilingNo") int unveilingNo) {
-		
-	    return ResponseEntity.ok(unveilingService.finalizeAuction(unveilingNo));
+	public ResponseEntity<Void> finalize(@PathVariable("unveilingNo") int unveilingNo,
+	                                     Authentication authentication) {
+	    if (authentication == null) return ResponseEntity.status(401).build();
+
+	    boolean isAdmin = authentication.getAuthorities().stream()
+	            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+	    if (!isAdmin) return ResponseEntity.status(403).build();
+
+	    unveilingService.finalizeAuction(unveilingNo);
+	    return ResponseEntity.ok().build();
 	}
 
     @PostMapping("/{unveilingNo}/pay")

@@ -16,7 +16,8 @@
 		ENROLL_DATE,
 		MEMBER_DEL_FL,
 		MEMBER_ROLE
-		FROM "MEMBER"
+		FROM
+		"MEMBER"
 		WHERE MEMBER_EMAIL = #{memberEmail}
 		AND MEMBER_DEL_FL = 'N'
 	</select>
@@ -40,7 +41,8 @@
 		DEFAULT,
 		DEFAULT,
 		NVL(#{memberRole}, 'MEMBER'),
-		NVL(#{loginType}, 'NORMAL')
+		NVL(#{loginType},
+		'NORMAL')
 		)
 	</insert>
 
@@ -78,14 +80,17 @@
 		SELECT
 		(SELECT COUNT(*)
 		FROM AUCTION
-		WHERE MEMBER_NO = #{memberNo}
+		WHERE MEMBER_NO =
+		#{memberNo}
 		AND UNVEILING_STATUS = 'UPCOMING')
 		+
 		(SELECT COUNT(*)
-		FROM "ORDER"
+		FROM
+		"ORDER"
 		WHERE MEMBER_NO = #{memberNo}
 		AND ORDER_STATUS = 'READY')
-		AS active_count
+		AS
+		active_count
 		FROM DUAL
 	</select>
 
@@ -94,7 +99,8 @@
 		SET
 		MEMBER_DEL_FL = 'Y',
 		WITHDRAWAL_DATE = SYSDATE
-		WHERE MEMBER_NO = #{memberNo}
+		WHERE MEMBER_NO =
+		#{memberNo}
 	</update>
 
 	<select id="findByEmail" parameterType="string"
@@ -118,7 +124,8 @@
 		SELECT *
 		FROM "MEMBER"
 		WHERE MEMBER_EMAIL = #{email}
-		AND MEMBER_DEL_FL = 'N'
+		AND
+		MEMBER_DEL_FL = 'N'
 	</select>
 
 	<insert id="insertMember"
@@ -148,5 +155,14 @@
 		'N'
 		)
 	</insert>
+
+	<!-- memberNo로 이메일 조회 -->
+	<select id="findEmailByMemberNo" parameterType="int"
+		resultType="string">
+		SELECT MEMBER_EMAIL
+		FROM "MEMBER"
+		WHERE MEMBER_NO = #{memberNo}
+		AND MEMBER_DEL_FL = 'N'
+	</select>
 
 </mapper>

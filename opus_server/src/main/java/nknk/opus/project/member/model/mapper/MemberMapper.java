@@ -31,4 +31,11 @@ public interface MemberMapper {
 	void insertMember(Member member);
 
 	Member checkEmailExists(@Param("email") String email);
+	
+	/** 회원번호로 이메일 조회 for 낙찰 이후 설명 메일 전송
+	 * @param memberNo
+	 * @return
+	 * by Sanghoo
+	 */
+	String findEmailByMemberNo(int memberNo);
 }
