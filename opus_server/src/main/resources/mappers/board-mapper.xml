@@ -4,7 +4,6 @@
 <mapper
 	namespace="nknk.opus.project.board.model.mapper.BoardMapper">
 
-	<!-- ================= 상세 resultMap (이미지 포함) ================= -->
 	<resultMap id="boardDetailMap" type="Board">
 		<id property="boardNo" column="BOARD_NO" />
 
@@ -18,7 +17,6 @@
 		<result property="memberNo" column="MEMBER_NO" />
 		<result property="boardName" column="BOARD_NAME" />
 
-		<!-- BOARD_NO 값을 boardNo로 넘겨서 아래 selectBoardImageList를 호출 -->
 		<collection property="imageList" ofType="BoardImg"
 			column="BOARD_NO" select="selectBoardImageList" />
 	</resultMap>
@@ -34,11 +32,11 @@
 		I.BOARD_IMG_PATH,
 		I.BOARD_IMG_RE
 		FROM "BOARD" B
-		LEFT JOIN "BOARD_IMG" I
-		ON I.BOARD_NO = B.BOARD_NO
-		AND I.BOARD_IMG_ORDER = 0
+		LEFT JOIN "BOARD_IMAGE" I ON (I.BOARD_NO = B.BOARD_NO AND
+		I.BOARD_IMG_ORDER = 0)
 		WHERE B.BOARD_DEL_FL = 'N'
-		AND B.BOARD_TYPE_CODE = #{boardTypeCode}
+		AND B.BOARD_TYPE_CODE
+		= #{boardTypeCode}
 		<choose>
 			<when test="sort == 'view'">
 				ORDER BY B.BOARD_VIEW_COUNT DESC, B.BOARD_NO DESC
@@ -60,9 +58,7 @@
 		B.BOARD_CATEGORY,
 		B.BOARD_TYPE_CODE,
 		B.MEMBER_NO,
-		(SELECT BOARD_NAME
-		FROM BOARD_TYPE BT
-		WHERE BT.BOARD_TYPE_CODE =
+		(SELECT BOARD_NAME FROM BOARD_TYPE BT WHERE BT.BOARD_TYPE_CODE =
 		B.BOARD_TYPE_CODE) AS BOARD_NAME
 		FROM "BOARD" B
 		WHERE B.BOARD_DEL_FL =
@@ -70,7 +66,6 @@
 		AND B.BOARD_NO = #{boardNo}
 	</select>
 
-	<!-- ================= 상세 이미지 목록 ================= -->
 	<select id="selectBoardImageList" resultType="BoardImg">
 		SELECT
 		BOARD_IMG_NO,
@@ -79,10 +74,9 @@
 		BOARD_IMG_OG,
 		BOARD_IMG_RE,
 		BOARD_IMG_ORDER
-		FROM "BOARD_IMG"
+		FROM "BOARD_IMAGE"
 		WHERE BOARD_NO = #{value}
-		ORDER BY
-		BOARD_IMG_ORDER ASC
+		ORDER BY BOARD_IMG_ORDER ASC
 	</select>
 
 	<update id="updateViewCount">
@@ -93,7 +87,6 @@
 	</update>
 
 	<insert id="insertBoard" parameterType="Board">
-		<!-- 게시글 번호 먼저 생성 -->
 		<selectKey keyProperty="boardNo" resultType="int"
 			order="BEFORE">
 			SELECT SEQ_BOARD_NO.NEXTVAL FROM DUAL
@@ -106,8 +99,7 @@
 		BOARD_CONTENT,
 		BOARD_CATEGORY,
 		WRITER_COMPANY
-		)
-		VALUES (
+		) VALUES (
 		#{boardNo},
 		#{boardTypeCode},
 		#{memberNo},
@@ -118,19 +110,17 @@
 		)
 	</insert>
 
-	<!-- ================= 이미지 여러개 등록 ================= -->
 	<insert id="insertImageLines">
 		INSERT ALL
 		<foreach collection="list" item="img">
-			INTO "BOARD_IMG" (
+			INTO "BOARD_IMAGE" (
 			BOARD_IMG_NO,
 			BOARD_NO,
 			BOARD_IMG_PATH,
 			BOARD_IMG_OG,
 			BOARD_IMG_RE,
 			BOARD_IMG_ORDER
-			)
-			VALUES (
+			) VALUES (
 			SEQ_BOARD_IMG_NO.NEXTVAL,
 			#{img.boardNo},
 			#{img.boardImgPath},
@@ -150,8 +140,7 @@
 		BOARD_CATEGORY = #{boardCategory},
 		WRITER_COMPANY = #{writerCompany},
 		BOARD_UPDATE_DATE = SYSDATE
-		WHERE
-		BOARD_NO = #{boardNo}
+		WHERE BOARD_NO = #{boardNo}
 		AND BOARD_DEL_FL = 'N'
 	</update>
 
