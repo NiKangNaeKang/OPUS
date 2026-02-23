@@ -2,11 +2,16 @@ import '../../css/pages/onStage/detail.css'
 import { EmailShareButton, FacebookShareButton, LineShareButton, ThreadsShareButton, TwitterShareButton } from "react-share";
 import { EmailIcon, FacebookIcon, LineIcon, ThreadsIcon, XIcon } from "react-share";
 import { useRef, useState } from 'react';
+import axiosApi from '../../api/axiosAPI';
+import { useQuery } from '@tanstack/react-query';
+import { useAuthStore } from '../../components/auth/useAuthStore';
 import { Link, useLocation } from 'react-router-dom';
 
 export default function ExhibitionDetail () {
   const { state } = useLocation();
   const item = state?.item;
+  const loginMemberNo = useAuthStore(state => state.member?.memberNo);
+  console.log("loginMemberNo:", loginMemberNo);
 
   if(!item) {
     return <div>잘못된 접근입니다.</div>
@@ -25,6 +30,81 @@ export default function ExhibitionDetail () {
       alert('복사에 실패했습니다');
     }
   };
+
+  const [like, setLike] = useState(false);
+  const [dislike, setDislike] = useState(false);
+  const [save, setSave] = useState(false);
+
+  const toggleLike = async () => {
+    console.log("보내는 memberNo:", loginMemberNo);
+    try {
+      const res = await axiosApi.post("/stage/like", {
+        memberNo: loginMemberNo,
+        stageNo: item.exhibitionId,
+        preferType: "LIKE"
+      });
+
+      if (res.data === 1) {
+        setLike(true);
+        setDislike(false);
+        alert("좋아요에 추가되었습니다.");
+      } else if (res.data === -1) {
+        setLike(false);
+        alert("좋아요가 취소되었습니다.");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const toggleDislike = async () => {
+    try {
+      const res = await axiosApi.post("/stage/dislike", {
+        memberNo: loginMemberNo,
+        stageNo: item.exhibitionId,
+        preferType: "DISLIKE"
+      });
+
+      if (res.data === 1) {
+        setDislike(true);
+        setLike(false);
+        alert("싫어요에 추가되었습니다.");
+      } else if (res.data === -1) {
+        setDislike(false);
+        alert("싫어요가 취소되었습니다.");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const savePerform = async () => {
+    try {
+      const res = await axiosApi.post("/stage/save", {
+        memberNo: loginMemberNo,
+        stageNo: item.exhibitionId
+      });
+
+      if (res.data === 1) {
+        setSave(true);
+        alert("찜에 추가되었습니다.");
+      } else if (res.data === -1) {
+        setSave(false);
+        alert("찜이 취소되었습니다.");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const { data: bestReview } = useQuery({
+    queryKey: ["bestReview", item.exhibitionId],
+    queryFn: async () => {
+      const res = await axiosApi.get(`/stage/bestReview?stageNo=${item.exhibitionId}`);
+      return res.data;
+    },
+    enabled: !!item.exhibitionId
+  });
 
   return (
     <main className="detail-page">
@@ -51,16 +131,16 @@ export default function ExhibitionDetail () {
                   </button>
 
                 <div className="actions-row">
-                  <button className="btn btn-outline" type="button">
-                    <i className="fa-solid fa-heart" aria-hidden="true"></i>
+                  <button className="btn btn-outline" type="button" onClick={toggleLike}>
+                    <i className={`fa-solid fa-heart ${like ? "active" : ""}`}></i>
                     <span>Like</span>
                   </button>
-                  <button className="btn btn-outline" type="button">
-                    <i className="fa-solid fa-heart-crack"></i>
+                  <button className="btn btn-outline" type="button" onClick={toggleDislike}>
+                    <i className={`fa-solid fa-heart-crack ${dislike ? "active" : ""}`}></i>
                     <span>Dislike</span>
                   </button>
-                  <button className="btn btn-outline" type="button">
-                    <i className="fa-solid fa-list"></i>
+                  <button className="btn btn-outline" type="button" onClick={savePerform}>
+                    <i className={`fa-solid fa-list ${save ? "active" : ""}`}></i>
                     <span>Save</span>
                   </button>
                 </div>
@@ -155,28 +235,29 @@ export default function ExhibitionDetail () {
                 </div>
 
                 <div className="reviews">
-                  <article className="review">
-                    <div className="review__top">
-                      <div className="review__user">
-                        <div className="avatar">
-                          <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg" alt="user" />
+                  {bestReview ? (
+                    <article className="review">
+                      <div className="review__top">
+                        <div className="review__user">
+                          <div>
+                            <div className="review__name">{bestReview.memberEmail?.replace(/(.{3}).+(@.+)/, "$1***$2")}</div>
+                            <div className="review__date">{bestReview.reviewWriteDate?.substring(0,10)}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="review__name">김**</div>
-                          <div className="review__date">2024.01.15</div>
+
+                        <div className="review__like">
+                          <i className="fa-solid fa-thumbs-up" id='review-like-btn'></i>
+                          <span className="like-count">{bestReview.likeCount}</span>
                         </div>
                       </div>
 
-                      <div className="review__like">
-                        <i className="fa-solid fa-thumbs-up" id='review-like-btn'></i>
-                        <span className="like-count">24</span>
-                      </div>
+                      <p className="review__text">{bestReview.reviewContent}</p>
+                    </article>
+                  ) : (
+                    <div className="review__text">
+                      등록된 후기가 없습니다.
                     </div>
-
-                    <p className="review__text">
-                      아이비 배우님의 록시 연기가 정말 인상 깊었어요. All That Jazz 넘버에서 소름 돋았습니다. 무대 연출도 심플하면서 세련되고, 음악도 귀에 쏙쏙 들어와서 170분이 전혀 지루하지 않았어요. 강력 추천합니다!
-                    </p>
-                  </article>
+                  )}
                 </div>
               </div>
             </div>

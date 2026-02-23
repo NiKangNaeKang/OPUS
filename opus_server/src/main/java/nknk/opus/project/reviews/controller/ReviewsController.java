@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import nknk.opus.project.reviews.model.dto.Report;
 import nknk.opus.project.reviews.model.dto.Reviews;
 import nknk.opus.project.reviews.model.service.ReviewsService;
 
@@ -113,4 +113,23 @@ public class ReviewsController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
+	
+    @PostMapping("/addReport")
+    public ResponseEntity<String> addReport(Authentication authentication, @RequestBody Report report) {
+        try {
+            int reporterNo = Integer.parseInt(authentication.getName());
+            report.setReporterNo(reporterNo);
+
+            int result = service.addReport(report);
+
+            if (result == 0) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("신고 등록에 실패하였습니다.");
+            }
+
+			return ResponseEntity.status(HttpStatus.OK).body("신고가 등록되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }
