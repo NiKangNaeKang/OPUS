@@ -55,18 +55,21 @@ const ConfirmContent = ({ closeToast, title, message, onConfirm, confirmText }) 
 // 2. 외부에서 불러다 쓸 함수 (showConfirm)
 export const showConfirm = (title, message, onConfirm, confirmText = "확인") => {
   toast(
-    <ConfirmContent 
-      title={title} 
-      message={message} 
-      onConfirm={onConfirm} 
-      confirmText={confirmText} 
-    />, 
+    ({ closeToast }) => (
+      <ConfirmContent 
+        title={title} 
+        message={message} 
+        onConfirm={onConfirm} 
+        confirmText={confirmText} 
+        closeToast={closeToast}
+      />
+    ), 
     {
       autoClose: false,
       closeOnClick: false,
       draggable: false,
       closeButton: false,
-      style: { width: "400px" },
+      style: { width: "400px", pointerEvents: "auto" }, // 개별 토스트는 클릭 허용
       toastId: "confirm-toast" 
     }
   );

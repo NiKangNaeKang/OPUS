@@ -26,6 +26,7 @@ import AuthSuccess from "./components/auth/AuthSuccess";
 import ProposalDetail from "./pages/Proposals/ProposalDetail";
 import Chatbot from "./components/Chatbot";
 import ScrollToTop from "./components/common/ScrollToTop";
+import ProposalWrite from "./pages/proposals/ProposalWrite";
 import SavedList from "./pages/mypage/SavedList";
 import ReviewList from "./pages/mypage/ReviewList";
 import FAQ from "./pages/footer/FAQ";
@@ -57,7 +58,9 @@ export default function App() {
           <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
 
           <Route path="/proposals" element={<Proposals />} />
+          <Route path="/proposals/write" element={<ProposalWrite />} />
           <Route path="/proposals/detail/:boardNo" element={<ProposalDetail />} />
+          <Route path="/proposals/edit/:boardNo" element={<ProposalWrite />} />
 
           <Route path="/unveiling" element={<Unveiling />} />
           <Route path="/unveiling/:id" element={<UnveilingDetail />} />
