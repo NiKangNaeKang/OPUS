@@ -6,37 +6,62 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState("report");
   const [items, setItems] = useState([]);
 
-  useEffect(() => {
-    const fetchAdminData = async () => {
-      try {
-        if (activeTab === "report") {
-          const resp = await axiosApi.get("/admin/report");
-          if (resp.status === 200) {
-            setItems(resp.data);
-          }
-        } else if (activeTab === "restore") {
-          const resp = await axiosApi.get("/admin/restore");
-          if (resp.status === 200) {
-            setItems(resp.data);
-          }
-        } else if (activeTab === "inquiry") {
-          const resp = await axiosApi.get("/admin/inquire");
-          if (resp.status === 200) {
-            setItems(resp.data);
-          }
+  const fetchAdminData = async () => {
+    try {
+      if (activeTab === "report") {
+        const resp = await axiosApi.get("/admin/report");
+        if (resp.status === 200) {
+          setItems(resp.data);
         }
-      } catch (error) {
-        console.error(error);
-        setItems([]);
+      } else if (activeTab === "restore") {
+        const resp = await axiosApi.get("/admin/restore");
+        if (resp.status === 200) {
+          setItems(resp.data);
+        }
+      } else if (activeTab === "inquiry") {
+        const resp = await axiosApi.get("/admin/inquire");
+        if (resp.status === 200) {
+          setItems(resp.data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+      setItems([]);
+    }
+  };
 
+  useEffect(() => {
     fetchAdminData();
   }, [activeTab]);
 
+  const confirmReview = async(reportNo) => {
+    try {
+      const resp = await axiosApi.post("/admin/confirmReview", null, {params : { reportNo }});
+
+      if(resp.status === 200) {
+        alert("신고된 후기가 삭제되었습니다.");
+        fetchAdminData();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const cancleReview = async(reportNo) => {
+    try {
+      const resp = await axiosApi.post("/admin/cancleReview", null, {params : { reportNo }})
+
+      if(resp.status === 200) {
+        alert("신고된 후기를 목록에서 삭제하였습니다. (신고 취소)")
+        fetchAdminData();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <main className="main orders-page">
-      {/* 헤더 */}
       <section className="orders-header">
         <h1 className="orders-title">관리자 페이지</h1>
         <p className="orders-subtitle">
@@ -44,7 +69,6 @@ const Admin = () => {
         </p>
       </section>
 
-      {/* 탭 버튼 */}
       <section className="orders-header">
         <div style={{ display: "flex", gap: "10px" }}>
           <button className="detail-btn" onClick={() => setActiveTab("report")}>
@@ -59,7 +83,6 @@ const Admin = () => {
         </div>
       </section>
 
-      {/* 목록 */}
       <section className="orders-list">
         <h2 style={{ marginBottom: "10px" }}>
           {activeTab === "report"
@@ -92,7 +115,7 @@ const Admin = () => {
                       ? "복구 요청"
                       : "1:1 문의"}
                   </span>
-                  <span className="order-id">
+                  <span className="product-price">
                     작성자: {item.reporterNo}
                   </span>
                 </div>
@@ -100,18 +123,18 @@ const Admin = () => {
                 <div style={{ display: "flex", gap: "8px" }}>
                   {activeTab === "report" && (
                     <>
-                      <button className="detail-btn">승인</button>
-                      <button className="detail-btn cancel-btn">취소</button>
+                      <button className="detail-btn" onClick={() => confirmReview(item.reportNo)}>승인</button>
+                      <button className="detail-btn" onClick={() => cancleReview(item.reportNo)}>취소</button>
                     </>
                   )}
-                
+
                   {activeTab === "restore" && (
                     <>
                       <button className="detail-btn">승인</button>
-                      <button className="detail-btn cancel-btn">취소</button>
+                      <button className="detail-btn">취소</button>
                     </>
                   )}
-                
+
                   {activeTab === "inquiry" && (
                     <button className="detail-btn">답변 처리</button>
                   )}
@@ -124,13 +147,13 @@ const Admin = () => {
                     <p className="product-name">
                       {item.reportReason || "신고 사유 없음"}
                     </p>
-                    <p className="product-price">
+                    <p className="product-name">
                       {item.reportDetail || "신고 상세 내용 없음"}
                     </p>
-                    <p className="product-price">
+                    <p className="product-name">
                       신고 상태: {item.reportStatus}
                     </p>
-                    <p className="product-price">
+                    <p className="product-name">
                       신고일: {item.reportDate}
                     </p>
                   </div>
