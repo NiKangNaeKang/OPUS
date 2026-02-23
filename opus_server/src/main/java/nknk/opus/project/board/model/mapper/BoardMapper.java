@@ -25,8 +25,16 @@ public interface BoardMapper {
 
 	int deleteBoard(@Param("boardNo") int boardNo);
 
-	List<String> selectBoardImageRenames(int boardNo);
+	List<String> selectBoardImageRenames(@Param("boardNo") int boardNo);
 
-	void deleteBoardImages(int boardNo);
+	int deleteBoardImages(@Param("boardNo") int boardNo);
+
+	List<String> selectImageRenamesByNos(@Param("boardNo") int boardNo, @Param("deleteNos") List<Integer> deleteNos);
+
+	int deleteImagesByNos(@Param("boardNo") int boardNo, @Param("deleteNos") List<Integer> deleteNos);
+
+	int reorderImages(@Param("boardNo") int boardNo);
+
+	int countImages(@Param("boardNo") int boardNo);
 
 }

@@ -33,35 +33,44 @@ public class BoardController {
 		return service.selectBoardList(boardTypeCode, sort);
 	}
 
-	/* 게시글 상세 조회 */
+	/* 게시글 상세 조회 + 조회수 증가 */
 	@GetMapping("/detail/{boardNo}")
 	public Board selectBoardDetail(@PathVariable("boardNo") int boardNo) {
-		// 상세 조회 시 서비스 단에서 조회수 증가 로직을 함께 처리하도록 구성
 		return service.selectBoardDetail(boardNo);
 	}
 
-	/* 게시글 등록 (이미지 최대 5개 업로드 포함) */
+	/* 게시글 등록 (텍스트 + 이미지 업로드) */
 	@PostMapping(value = "/insert", consumes = "multipart/form-data")
 	public int insertBoard(@RequestPart("board") Board board,
 			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
 		return service.insertBoard(board, images);
 	}
 
-	/* 게시글 수정 */
+	/* 게시글 텍스트 수정 */
 	@PutMapping("/update/{boardNo}")
-	public int updateBoard(@PathVariable int boardNo, @RequestBody Board board) {
+	public int updateBoard(@PathVariable("boardNo") int boardNo, @RequestBody Board board) {
 		board.setBoardNo(boardNo);
 		return service.updateBoard(board);
 	}
 
+	/* 게시글 전체 수정 (텍스트 + 이미지 교체) */
 	@PutMapping(value = "/update-with-images/{boardNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public int updateBoardWithImages(@PathVariable int boardNo, @RequestPart("board") Board board,
+	public int updateBoardWithImages(@PathVariable("boardNo") int boardNo, @RequestPart("board") Board board,
 			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
 		board.setBoardNo(boardNo);
 		return service.updateBoardWithImages(board, images);
 	}
 
-	/* 게시글 삭제 */
+	/* 게시글 이미지 부분 수정 (삭제 + 추가) */
+	@PutMapping(value = "/update-images/{boardNo}", consumes = "multipart/form-data")
+	public int updateBoardImagesPartial(@PathVariable("boardNo") int boardNo, @RequestPart("board") Board board,
+			@RequestPart(value = "deleteImgNos", required = false) String deleteImgNosJson,
+			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+		board.setBoardNo(boardNo);
+		return service.updateBoardImagesPartial(board, deleteImgNosJson, images);
+	}
+
+	/* 게시글 삭제 (논리 삭제) */
 	@DeleteMapping("/delete/{boardNo}")
 	public int deleteBoard(@PathVariable("boardNo") int boardNo) {
 		return service.deleteBoard(boardNo);

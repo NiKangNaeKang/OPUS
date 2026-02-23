@@ -128,36 +128,24 @@ const ProposalDetail = () => {
           </div>
         </header>
 
-        {/* 이미지 갤러리 */}
-        {images.length > 0 ? (
-          <section className="detail-gallery">
-            <div className="gallery-grid">
-              {images.map((src, idx) => (
-                <div className="gallery-item" key={`${src}-${idx}`}>
-                  <img
-                    src={src}
-                    alt={`image-${idx + 1}`}
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = FALLBACK_IMG;
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : (
-          // 이미지가 0장이면 기본 이미지
-          <section className="detail-gallery">
-            <div className="gallery-grid">
-              <div className="gallery-item">
-                <img src={FALLBACK_IMG} alt="no-image" />
+      {images.length > 0 && (
+        <section className="detail-gallery">
+          <div className="gallery-grid">
+            {images.map((src, idx) => (
+              <div className="gallery-item" key={`${src}-${idx}`}>
+                <img
+                  src={src}
+                  alt={`image-${idx + 1}`}
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = FALLBACK_IMG;
+                  }}
+                />
               </div>
-            </div>
-          </section>
-        )}
-
-        <hr />
+            ))}
+          </div>
+        </section>
+      )}
 
         <section className="detail-content">
           <div dangerouslySetInnerHTML={{ __html: data.boardContent }} />

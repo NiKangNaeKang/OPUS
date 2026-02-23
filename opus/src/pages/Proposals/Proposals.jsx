@@ -1,3 +1,4 @@
+// Proposals.jsx
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosApi from "../../api/axiosAPI";
@@ -11,8 +12,8 @@ const Proposals = () => {
   const { isLoggedIn, member } = useAuthStore();
   const role = member?.role;
 
-  const API_BASE = import.meta.env.VITE_API_URL; // http://localhost
-  const FALLBACK_THUMB = "/proposals-default.png"; // public에 있는 기본 이미지
+  const API_BASE = import.meta.env.VITE_API_URL;
+  const FALLBACK_THUMB = "/proposals-default.png";
 
   /* detail -> list로 돌아올 때 탭/페이지 복원 */
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || "notice");
@@ -31,7 +32,6 @@ const Proposals = () => {
     if (location.state?.activeTab) setActiveTab(location.state.activeTab);
   }, [location.state]);
 
-  /* 필터/검색 상태 */
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("latest");
   const [keyword, setKeyword] = useState("");
@@ -40,11 +40,27 @@ const Proposals = () => {
   const itemsPerPage = 8;
 
   const categoryLabel = {
+    opus: "OPUS",
     musical: "뮤지컬",
     exhibition: "전시",
     auction: "경매",
     goods: "굿즈",
   };
+
+  const isPromotion = activeTab === "promotion";
+
+  // ✅ 홍보탭에서는 OPUS 옵션 제거
+  const categoryOptions = useMemo(() => {
+    return Object.entries(categoryLabel).filter(([key]) => {
+      if (isPromotion) return key !== "opus";
+      return true;
+    });
+  }, [isPromotion]);
+
+  // ✅ 홍보탭인데 category가 opus면 all로 자동 보정
+  useEffect(() => {
+    if (isPromotion && category === "opus") setCategory("all");
+  }, [isPromotion, category]);
 
   /* 상대경로(/images/board/...) -> API 서버 절대경로로 변환 */
   const toAbsUrl = (path) => {
@@ -55,7 +71,6 @@ const Proposals = () => {
 
   /* 홍보 탭 썸네일 후보를 최대한 잡고, 최종 URL로 변환 */
   const getThumbSrc = (item) => {
-    // 우선순위: boardThumbnail(가공) -> boardImgFullpath -> path+re -> re(단독은 의미 없음)
     const path =
       item.boardThumbnail ||
       item.boardImgFullpath ||
@@ -133,8 +148,6 @@ const Proposals = () => {
   const formatDate = (iso) => (iso ? iso.split(" ")[0].replaceAll("-", ".") : "");
   const formatNumber = (n) => Number(n ?? 0).toLocaleString("ko-KR");
 
-  const isPromotion = activeTab === "promotion";
-
   const goDetail = (boardNo) => {
     navigate(`/proposals/detail/${boardNo}`, {
       state: { activeTab, currentPage },
@@ -144,7 +157,6 @@ const Proposals = () => {
   return (
     <main className="proposals-page">
       <div className="container board-container">
-        {/* 탭 */}
         <div className="tabs">
           <button
             className={`tab-btn ${activeTab === "notice" ? "is-active" : ""}`}
@@ -160,7 +172,6 @@ const Proposals = () => {
           </button>
         </div>
 
-        {/* 필터 + 검색 */}
         <section className="pp-filters">
           <div className="pp-filters__left">
             <select
@@ -169,7 +180,7 @@ const Proposals = () => {
               onChange={(e) => handleFilterChange("category", e.target.value)}
             >
               <option value="all">전체</option>
-              {Object.entries(categoryLabel).map(([key, label]) => (
+              {categoryOptions.map(([key, label]) => (
                 <option key={key} value={key}>
                   {label}
                 </option>
@@ -203,13 +214,11 @@ const Proposals = () => {
           </div>
         </section>
 
-        {/* 목록 렌더링 */}
         {isLoading ? (
           <div className="loading">로딩 중...</div>
         ) : paginatedItems.length === 0 ? (
           <div className="empty-state">게시글이 없습니다.</div>
         ) : isPromotion ? (
-          /* 홍보 탭: 카드 그리드 + 썸네일 */
           <div className="event-grid">
             {paginatedItems.map((item) => {
               const thumbSrc = getThumbSrc(item);
@@ -236,7 +245,9 @@ const Proposals = () => {
 
                   <div className="event-card__body">
                     <div className="event-card__title">
-                      {item.boardCategory && categoryLabel[item.boardCategory]
+                      {item.boardCategory &&
+                      categoryLabel[item.boardCategory] &&
+                      !(activeTab === "promotion" && item.boardCategory === "opus")
                         ? `[${categoryLabel[item.boardCategory]}] `
                         : ""}
                       {item.boardTitle}
@@ -255,7 +266,6 @@ const Proposals = () => {
             })}
           </div>
         ) : (
-          /* 공지 탭: 리스트 */
           <div className="board-list">
             {paginatedItems.map((item) => (
               <div
@@ -287,7 +297,6 @@ const Proposals = () => {
           </div>
         )}
 
-        {/* 글쓰기 버튼 */}
         {canWrite && (
           <div className="pp-actions">
             <button
