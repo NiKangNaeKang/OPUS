@@ -12,7 +12,6 @@ public interface BoardService {
 
 	Board selectBoardDetail(int boardNo);
 
-	/* 게시글 등록 (이미지 업로드 포함) */
 	int insertBoard(Board board, List<MultipartFile> images);
 
 	int updateBoard(Board board);

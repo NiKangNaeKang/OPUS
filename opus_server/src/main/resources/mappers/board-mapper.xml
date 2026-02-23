@@ -1,30 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper
 	namespace="nknk.opus.project.board.model.mapper.BoardMapper">
 
+	<!-- ================= 상세 resultMap (이미지 포함) ================= -->
+	<resultMap id="boardDetailMap" type="Board">
+		<id property="boardNo" column="BOARD_NO" />
+
+		<result property="boardTitle" column="BOARD_TITLE" />
+		<result property="boardContent" column="BOARD_CONTENT" />
+		<result property="writerCompany" column="WRITER_COMPANY" />
+		<result property="boardWriteDate" column="BOARD_WRITE_DATE" />
+		<result property="boardViewCount" column="BOARD_VIEW_COUNT" />
+		<result property="boardCategory" column="BOARD_CATEGORY" />
+		<result property="boardTypeCode" column="BOARD_TYPE_CODE" />
+		<result property="memberNo" column="MEMBER_NO" />
+		<result property="boardName" column="BOARD_NAME" />
+
+		<!-- BOARD_NO 값을 boardNo로 넘겨서 아래 selectBoardImageList를 호출 -->
+		<collection property="imageList" ofType="BoardImg"
+			column="BOARD_NO" select="selectBoardImageList" />
+	</resultMap>
+
 	<select id="selectBoardList" resultType="Board">
 		SELECT
-		BOARD_NO,
-		BOARD_TITLE,
-		WRITER_COMPANY,
-		BOARD_WRITE_DATE,
-		BOARD_VIEW_COUNT,
-		BOARD_CATEGORY
-		FROM "BOARD"
-		WHERE BOARD_DEL_FL = 'N'
-		AND BOARD_TYPE_CODE = #{boardTypeCode}
+		B.BOARD_NO,
+		B.BOARD_TITLE,
+		B.WRITER_COMPANY,
+		B.BOARD_WRITE_DATE,
+		B.BOARD_VIEW_COUNT,
+		B.BOARD_CATEGORY,
+		I.BOARD_IMG_PATH,
+		I.BOARD_IMG_RE
+		FROM "BOARD" B
+		LEFT JOIN "BOARD_IMG" I
+		ON I.BOARD_NO = B.BOARD_NO
+		AND I.BOARD_IMG_ORDER = 0
+		WHERE B.BOARD_DEL_FL = 'N'
+		AND B.BOARD_TYPE_CODE = #{boardTypeCode}
 		<choose>
 			<when test="sort == 'view'">
-				ORDER BY BOARD_VIEW_COUNT DESC, BOARD_NO DESC
+				ORDER BY B.BOARD_VIEW_COUNT DESC, B.BOARD_NO DESC
 			</when>
 			<otherwise>
-				ORDER BY BOARD_WRITE_DATE DESC, BOARD_NO DESC
+				ORDER BY B.BOARD_WRITE_DATE DESC, B.BOARD_NO DESC
 			</otherwise>
 		</choose>
 	</select>
 
-	<select id="selectBoardDetail" resultType="Board">
+	<select id="selectBoardDetail" resultMap="boardDetailMap">
 		SELECT
 		B.BOARD_NO,
 		B.BOARD_TITLE,
@@ -35,20 +60,44 @@
 		B.BOARD_CATEGORY,
 		B.BOARD_TYPE_CODE,
 		B.MEMBER_NO,
-		(SELECT BOARD_NAME FROM BOARD_TYPE BT WHERE BT.BOARD_TYPE_CODE =
+		(SELECT BOARD_NAME
+		FROM BOARD_TYPE BT
+		WHERE BT.BOARD_TYPE_CODE =
 		B.BOARD_TYPE_CODE) AS BOARD_NAME
 		FROM "BOARD" B
-		WHERE B.BOARD_DEL_FL = 'N'
+		WHERE B.BOARD_DEL_FL =
+		'N'
 		AND B.BOARD_NO = #{boardNo}
 	</select>
 
+	<!-- ================= 상세 이미지 목록 ================= -->
+	<select id="selectBoardImageList" resultType="BoardImg">
+		SELECT
+		BOARD_IMG_NO,
+		BOARD_NO,
+		BOARD_IMG_PATH,
+		BOARD_IMG_OG,
+		BOARD_IMG_RE,
+		BOARD_IMG_ORDER
+		FROM "BOARD_IMG"
+		WHERE BOARD_NO = #{value}
+		ORDER BY
+		BOARD_IMG_ORDER ASC
+	</select>
+
 	<update id="updateViewCount">
-		UPDATE "BOARD" SET
-		BOARD_VIEW_COUNT = BOARD_VIEW_COUNT + 1
+		UPDATE "BOARD"
+		SET BOARD_VIEW_COUNT = BOARD_VIEW_COUNT
+		+ 1
 		WHERE BOARD_NO = #{boardNo}
 	</update>
 
 	<insert id="insertBoard" parameterType="Board">
+		<!-- 게시글 번호 먼저 생성 -->
+		<selectKey keyProperty="boardNo" resultType="int"
+			order="BEFORE">
+			SELECT SEQ_BOARD_NO.NEXTVAL FROM DUAL
+		</selectKey>
 		INSERT INTO "BOARD" (
 		BOARD_NO,
 		BOARD_TYPE_CODE,
@@ -57,8 +106,9 @@
 		BOARD_CONTENT,
 		BOARD_CATEGORY,
 		WRITER_COMPANY
-		) VALUES (
-		SEQ_BOARD_NO.NEXTVAL,
+		)
+		VALUES (
+		#{boardNo},
 		#{boardTypeCode},
 		#{memberNo},
 		#{boardTitle},
@@ -68,21 +118,48 @@
 		)
 	</insert>
 
-	<update id="updateBoard" parameterType="Board">
-		UPDATE "BOARD" SET
+	<!-- ================= 이미지 여러개 등록 ================= -->
+	<insert id="insertImageLines">
+		INSERT ALL
+		<foreach collection="list" item="img">
+			INTO "BOARD_IMG" (
+			BOARD_IMG_NO,
+			BOARD_NO,
+			BOARD_IMG_PATH,
+			BOARD_IMG_OG,
+			BOARD_IMG_RE,
+			BOARD_IMG_ORDER
+			)
+			VALUES (
+			SEQ_BOARD_IMG_NO.NEXTVAL,
+			#{img.boardNo},
+			#{img.boardImgPath},
+			#{img.boardImgOg},
+			#{img.boardImgRe},
+			#{img.boardImgOrder}
+			)
+		</foreach>
+		SELECT 1 FROM DUAL
+	</insert>
+
+	<update id="updateBoard">
+		UPDATE "BOARD"
+		SET
 		BOARD_TITLE = #{boardTitle},
 		BOARD_CONTENT = #{boardContent},
 		BOARD_CATEGORY = #{boardCategory},
 		WRITER_COMPANY = #{writerCompany},
 		BOARD_UPDATE_DATE = SYSDATE
-		WHERE BOARD_NO = #{boardNo}
+		WHERE
+		BOARD_NO = #{boardNo}
 		AND BOARD_DEL_FL = 'N'
 	</update>
 
 	<update id="deleteBoard">
-		UPDATE "BOARD" SET
-		BOARD_DEL_FL = 'Y'
-		WHERE BOARD_NO = #{boardNo}
+		UPDATE "BOARD"
+		SET BOARD_DEL_FL = 'Y'
+		WHERE BOARD_NO =
+		#{boardNo}
 	</update>
 
 </mapper>

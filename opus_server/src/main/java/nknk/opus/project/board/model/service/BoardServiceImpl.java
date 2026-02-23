@@ -1,5 +1,8 @@
 package nknk.opus.project.board.model.service;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,12 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.board.model.dto.Board;
 import nknk.opus.project.board.model.dto.BoardImg;
 import nknk.opus.project.board.model.mapper.BoardMapper;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(rollbackFor = Exception.class)
 public class BoardServiceImpl implements BoardService {
 
 	private final BoardMapper mapper;
@@ -30,14 +36,12 @@ public class BoardServiceImpl implements BoardService {
 		return mapper.selectBoardList(boardTypeCode, sort);
 	}
 
-	// 조회수 증가와 상세 조회를 하나의 트랜잭션으로 처리 (예외 발생 시 롤백)
-	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public Board selectBoardDetail(int boardNo) {
-		// 1. 조회수 증가
+		// 1) 조회수 증가
 		int result = mapper.updateViewCount(boardNo);
 
-		// 2. 상세 내용 조회 (조회수 증가 성공 시에만 조회)
+		// 2) 상세 조회
 		if (result > 0) {
 			return mapper.selectBoardDetail(boardNo);
 		}
@@ -45,73 +49,101 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	/* 게시글 등록 + 이미지 업로드 */
-	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int insertBoard(Board board, List<MultipartFile> images) {
 
-		// 1. 게시글 먼저 저장 (boardNo 생성됨)
+		// 1) 게시글 insert
 		int result = mapper.insertBoard(board);
-
 		if (result <= 0)
-			return result;
+			return 0;
 
 		int boardNo = board.getBoardNo();
 
-		// 2. 이미지 없으면 종료
-		if (images == null || images.isEmpty()) {
-			return result;
-		}
+		// 2) 이미지 없으면 게시글만 성공
+		if (images == null || images.isEmpty())
+			return 1;
 
+		// 3) 폴더 준비
 		File dir = new File(folderPath);
 		if (!dir.exists())
 			dir.mkdirs();
 
-		int order = 1;
+		// 4) 업로드 목록 + 저장된 파일 추적(예외시 삭제)
+		List<BoardImg> uploadList = new ArrayList<>();
+		List<String> savedFiles = new ArrayList<>();
+
+		// 팀플 수준 체크
+		List<String> allowedExts = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", ".webp");
+		long maxSize = 10 * 1024 * 1024; // 10MB
 
 		try {
 			for (MultipartFile file : images) {
-
-				if (file.isEmpty() || order > 5)
+				if (file == null || file.isEmpty())
 					continue;
 
-				String origin = file.getOriginalFilename();
-
-				String ext = "";
-				if (origin != null && origin.lastIndexOf(".") != -1) {
-					ext = origin.substring(origin.lastIndexOf("."));
+				// 용량 체크
+				if (file.getSize() > maxSize) {
+					throw new RuntimeException("10MB 이하의 이미지만 업로드 가능합니다.");
 				}
 
+				// 확장자 체크
+				String originalName = file.getOriginalFilename();
+				String ext = "";
+				if (originalName != null && originalName.lastIndexOf(".") != -1) {
+					ext = originalName.substring(originalName.lastIndexOf(".")).toLowerCase();
+				}
+
+				if (!allowedExts.contains(ext)) {
+					throw new RuntimeException("이미지 파일(.jpg, .png, .gif, .webp)만 업로드 가능합니다.");
+				}
+
+				// rename 생성
 				String rename = UUID.randomUUID().toString().replace("-", "") + ext;
 
-				// 실제 파일 저장
+				// order는 실제 업로드된 순서 기준(빈 파일 있어도 안 꼬임)
+				int order = uploadList.size();
+
+				BoardImg img = BoardImg.builder().boardNo(boardNo).boardImgPath(webPath).boardImgOg(originalName)
+						.boardImgRe(rename).boardImgOrder(order).build();
+
+				// 물리 저장
 				file.transferTo(new File(dir, rename));
+				savedFiles.add(rename);
 
-				// DB 저장
-				BoardImg img = new BoardImg();
-				img.setBoardNo(boardNo);
-				img.setBoardImgPath(webPath);
-				img.setBoardImgOg(origin);
-				img.setBoardImgRe(rename);
-				img.setBoardImgOrder(order);
-
-				mapper.insertBoardImg(img);
-
-				order++;
+				uploadList.add(img);
 			}
-		} catch (Exception e) {
-			throw new RuntimeException("이미지 저장 실패", e);
-		}
 
-		return result;
+			// 5) DB insert
+			if (!uploadList.isEmpty()) {
+				int imgResult = mapper.insertImageLines(uploadList);
+				if (imgResult != uploadList.size()) {
+					throw new RuntimeException("이미지 DB 저장 실패");
+				}
+			}
+
+			return 1;
+
+		} catch (Exception e) {
+			// 예외 시 저장된 파일 삭제 (DB는 트랜잭션 롤백)
+			for (String rename : savedFiles) {
+				try {
+					File f = new File(dir, rename);
+					if (f.exists())
+						f.delete();
+				} catch (Exception ignore) {
+				}
+			}
+
+			log.error("게시글 등록 실패: {}", e.getMessage());
+			throw new RuntimeException(e.getMessage());
+		}
 	}
 
-	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int updateBoard(Board board) {
 		return mapper.updateBoard(board);
 	}
 
-	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int deleteBoard(int boardNo) {
 		return mapper.deleteBoard(boardNo);
