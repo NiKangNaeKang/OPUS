@@ -25,6 +25,8 @@ import OrderDetail from "./pages/selections/OrderDetail";
 import AuthSuccess from "./components/auth/AuthSuccess";
 import ProposalDetail from "./pages/Proposals/ProposalDetail";
 import ProposalWrite from "./pages/proposals/ProposalWrite";
+import SavedList from "./pages/mypage/SavedList";
+import ReviewList from "./pages/mypage/ReviewList";
 
 
 export default function App() {
@@ -49,9 +51,7 @@ export default function App() {
           <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
 
           <Route path="/proposals" element={<Proposals />} />
-          {/* 1. 고정된 경로(/write)를 위로 올리세요 */}
           <Route path="/proposals/write" element={<ProposalWrite />} />
-          {/* 2. 변수가 포함된 경로(:boardNo)를 아래로 내리세요 */}
           <Route path="/proposals/detail/:boardNo" element={<ProposalDetail />} />
           <Route path="/proposals/edit/:boardNo" element={<ProposalWrite />} />
 

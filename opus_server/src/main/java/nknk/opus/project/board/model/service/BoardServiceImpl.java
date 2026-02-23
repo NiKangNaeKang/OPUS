@@ -52,7 +52,6 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public int insertBoard(Board board, List<MultipartFile> images) {
 
-		// 1) 게시글 insert
 		int result = mapper.insertBoard(board);
 		if (result <= 0)
 			return 0;
@@ -72,7 +71,6 @@ public class BoardServiceImpl implements BoardService {
 		List<BoardImg> uploadList = new ArrayList<>();
 		List<String> savedFiles = new ArrayList<>();
 
-		// 팀플 수준 체크
 		List<String> allowedExts = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", ".webp");
 		long maxSize = 10 * 1024 * 1024; // 10MB
 
@@ -96,11 +94,11 @@ public class BoardServiceImpl implements BoardService {
 				if (!allowedExts.contains(ext)) {
 					throw new RuntimeException("이미지 파일(.jpg, .png, .gif, .webp)만 업로드 가능합니다.");
 				}
-
-				// rename 생성
+				
+				// 랜덤 문자열 생성기(ex. 550e8400-e29b-41d4-a716-446655440000), 하이픈 삭제
 				String rename = UUID.randomUUID().toString().replace("-", "") + ext;
 
-				// order는 실제 업로드된 순서 기준(빈 파일 있어도 안 꼬임)
+				// 실제 업로드된 순서
 				int order = uploadList.size();
 
 				BoardImg img = BoardImg.builder().boardNo(boardNo).boardImgPath(webPath).boardImgOg(originalName)
@@ -124,7 +122,6 @@ public class BoardServiceImpl implements BoardService {
 			return 1;
 
 		} catch (Exception e) {
-			// 예외 시 저장된 파일 삭제 (DB는 트랜잭션 롤백)
 			for (String rename : savedFiles) {
 				try {
 					File f = new File(dir, rename);
