@@ -18,4 +18,5 @@ public interface BoardService {
 
 	int deleteBoard(int boardNo);
 
+	int updateBoardWithImages(Board board, List<MultipartFile> images);
 }

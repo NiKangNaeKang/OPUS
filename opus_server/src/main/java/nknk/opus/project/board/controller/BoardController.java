@@ -2,6 +2,7 @@ package nknk.opus.project.board.controller;
 
 import java.util.List;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,6 +52,13 @@ public class BoardController {
 	public int updateBoard(@PathVariable int boardNo, @RequestBody Board board) {
 		board.setBoardNo(boardNo);
 		return service.updateBoard(board);
+	}
+
+	@PutMapping(value = "/update-with-images/{boardNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public int updateBoardWithImages(@PathVariable int boardNo, @RequestPart("board") Board board,
+			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+		board.setBoardNo(boardNo);
+		return service.updateBoardWithImages(board, images);
 	}
 
 	/* 게시글 삭제 */

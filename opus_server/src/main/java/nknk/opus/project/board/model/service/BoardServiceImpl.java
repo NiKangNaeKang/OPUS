@@ -94,7 +94,7 @@ public class BoardServiceImpl implements BoardService {
 				if (!allowedExts.contains(ext)) {
 					throw new RuntimeException("이미지 파일(.jpg, .png, .gif, .webp)만 업로드 가능합니다.");
 				}
-				
+
 				// 랜덤 문자열 생성기(ex. 550e8400-e29b-41d4-a716-446655440000), 하이픈 삭제
 				String rename = UUID.randomUUID().toString().replace("-", "") + ext;
 
@@ -112,11 +112,12 @@ public class BoardServiceImpl implements BoardService {
 			}
 
 			// 5) DB insert
-			if (!uploadList.isEmpty()) {
-				int imgResult = mapper.insertImageLines(uploadList);
-				if (imgResult != uploadList.size()) {
-					throw new RuntimeException("이미지 DB 저장 실패");
-				}
+			int imgResult = 0;
+			for (BoardImg img : uploadList) {
+				imgResult += mapper.insertBoardImageOne(img);
+			}
+			if (imgResult != uploadList.size()) {
+				throw new RuntimeException("이미지 DB 저장 실패");
 			}
 
 			return 1;
@@ -144,5 +145,98 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public int deleteBoard(int boardNo) {
 		return mapper.deleteBoard(boardNo);
+	}
+
+	@Override
+	public int updateBoardWithImages(Board board, List<MultipartFile> images) {
+
+		// 1) 텍스트 먼저 업데이트
+		int result = mapper.updateBoard(board);
+		if (result <= 0)
+			return 0;
+
+		// 2) 이미지 안 올리면 "텍스트만 수정" (기존 이미지 유지)
+		if (images == null || images.isEmpty())
+			return 1;
+
+		// 3) 기존 이미지 파일명 목록 조회(나중에 파일 삭제용)
+		List<String> oldRenames = mapper.selectBoardImageRenames(board.getBoardNo());
+
+		// 4) 기존 이미지 DB 삭제
+		mapper.deleteBoardImages(board.getBoardNo());
+
+		// 5) 폴더 준비
+		File dir = new File(folderPath);
+		if (!dir.exists())
+			dir.mkdirs();
+
+		List<BoardImg> uploadList = new ArrayList<>();
+		List<String> savedFiles = new ArrayList<>();
+
+		List<String> allowedExts = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", ".webp");
+		long maxSize = 10 * 1024 * 1024; // 10MB
+
+		try {
+			for (MultipartFile file : images) {
+				if (file == null || file.isEmpty())
+					continue;
+
+				if (file.getSize() > maxSize) {
+					throw new RuntimeException("10MB 이하의 이미지만 업로드 가능합니다.");
+				}
+
+				String originalName = file.getOriginalFilename();
+				String ext = "";
+				if (originalName != null && originalName.lastIndexOf(".") != -1) {
+					ext = originalName.substring(originalName.lastIndexOf(".")).toLowerCase();
+				}
+				if (!allowedExts.contains(ext)) {
+					throw new RuntimeException("이미지 파일(.jpg, .png, .gif, .webp)만 업로드 가능합니다.");
+				}
+
+				String rename = UUID.randomUUID().toString().replace("-", "") + ext;
+				int order = uploadList.size();
+
+				BoardImg img = BoardImg.builder().boardNo(board.getBoardNo()).boardImgPath(webPath) // "/images/board/"
+						.boardImgOg(originalName).boardImgRe(rename).boardImgOrder(order).build();
+
+				file.transferTo(new File(dir, rename));
+				savedFiles.add(rename);
+				uploadList.add(img);
+			}
+
+			int imgResult = 0;
+			for (BoardImg img : uploadList) {
+				imgResult += mapper.insertBoardImageOne(img);
+			}
+			if (imgResult != uploadList.size()) {
+				throw new RuntimeException("이미지 DB 저장 실패");
+			}
+
+			// 6) 새 이미지 저장/DB 성공했으면, 이제 옛 파일 삭제(실패해도 치명적이진 않게)
+			for (String old : oldRenames) {
+				try {
+					File f = new File(dir, old);
+					if (f.exists())
+						f.delete();
+				} catch (Exception ignore) {
+				}
+			}
+
+			return 1;
+
+		} catch (Exception e) {
+			// 새로 저장했던 파일은 롤백(삭제)
+			for (String rename : savedFiles) {
+				try {
+					File f = new File(dir, rename);
+					if (f.exists())
+						f.delete();
+				} catch (Exception ignore) {
+				}
+			}
+			log.error("게시글 수정(이미지 포함) 실패: {}", e.getMessage());
+			throw new RuntimeException(e.getMessage());
+		}
 	}
 }

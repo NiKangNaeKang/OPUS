@@ -32,10 +32,12 @@
 		I.BOARD_IMG_PATH,
 		I.BOARD_IMG_RE
 		FROM "BOARD" B
-		LEFT JOIN "BOARD_IMAGE" I ON (I.BOARD_NO = B.BOARD_NO AND
+		LEFT JOIN "BOARD_IMAGE" I ON (I.BOARD_NO = B.BOARD_NO
+		AND
 		I.BOARD_IMG_ORDER = 0)
 		WHERE B.BOARD_DEL_FL = 'N'
-		AND B.BOARD_TYPE_CODE
+		AND
+		B.BOARD_TYPE_CODE
 		= #{boardTypeCode}
 		<choose>
 			<when test="sort == 'view'">
@@ -75,8 +77,9 @@
 		BOARD_IMG_RE,
 		BOARD_IMG_ORDER
 		FROM "BOARD_IMAGE"
-		WHERE BOARD_NO = #{value}
-		ORDER BY BOARD_IMG_ORDER ASC
+		WHERE BOARD_NO = #{boardNo}
+		ORDER BY
+		BOARD_IMG_ORDER ASC
 	</select>
 
 	<update id="updateViewCount">
@@ -110,26 +113,22 @@
 		)
 	</insert>
 
-	<insert id="insertImageLines">
-		INSERT ALL
-		<foreach collection="list" item="img">
-			INTO "BOARD_IMAGE" (
-			BOARD_IMG_NO,
-			BOARD_NO,
-			BOARD_IMG_PATH,
-			BOARD_IMG_OG,
-			BOARD_IMG_RE,
-			BOARD_IMG_ORDER
-			) VALUES (
-			SEQ_BOARD_IMG_NO.NEXTVAL,
-			#{img.boardNo},
-			#{img.boardImgPath},
-			#{img.boardImgOg},
-			#{img.boardImgRe},
-			#{img.boardImgOrder}
-			)
-		</foreach>
-		SELECT 1 FROM DUAL
+	<insert id="insertBoardImageOne" parameterType="BoardImg">
+		INSERT INTO "BOARD_IMAGE" (
+		BOARD_IMG_NO,
+		BOARD_NO,
+		BOARD_IMG_PATH,
+		BOARD_IMG_OG,
+		BOARD_IMG_RE,
+		BOARD_IMG_ORDER
+		) VALUES (
+		SEQ_BOARD_IMG_NO.NEXTVAL,
+		#{boardNo},
+		#{boardImgPath},
+		#{boardImgOg},
+		#{boardImgRe},
+		#{boardImgOrder}
+		)
 	</insert>
 
 	<update id="updateBoard">
@@ -140,7 +139,8 @@
 		BOARD_CATEGORY = #{boardCategory},
 		WRITER_COMPANY = #{writerCompany},
 		BOARD_UPDATE_DATE = SYSDATE
-		WHERE BOARD_NO = #{boardNo}
+		WHERE
+		BOARD_NO = #{boardNo}
 		AND BOARD_DEL_FL = 'N'
 	</update>
 
@@ -150,5 +150,19 @@
 		WHERE BOARD_NO =
 		#{boardNo}
 	</update>
+
+	<!-- 기존 이미지 파일명(리네임) 조회 -->
+	<select id="selectBoardImageRenames" resultType="string">
+		SELECT
+		BOARD_IMG_RE
+		FROM "BOARD_IMAGE"
+		WHERE BOARD_NO = #{boardNo}
+	</select>
+
+	<!-- 기존 이미지 전부 삭제 -->
+	<delete id="deleteBoardImages">
+		DELETE FROM "BOARD_IMAGE"
+		WHERE BOARD_NO = #{boardNo}
+	</delete>
 
 </mapper>

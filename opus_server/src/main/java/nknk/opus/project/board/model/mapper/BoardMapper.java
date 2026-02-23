@@ -19,9 +19,14 @@ public interface BoardMapper {
 
 	int insertBoard(Board board);
 
-	int insertImageLines(@Param("list") List<BoardImg> uploadList);
+	int insertBoardImageOne(BoardImg img);
 
 	int updateBoard(Board board);
 
 	int deleteBoard(@Param("boardNo") int boardNo);
+
+	List<String> selectBoardImageRenames(int boardNo);
+
+	void deleteBoardImages(int boardNo);
+
 }
