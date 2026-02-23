@@ -10,7 +10,6 @@ const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
 
 export default function MusicalList({ status, search }) {
   const bottomRef = useRef(null);
-  const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   const {
     data,
@@ -47,19 +46,6 @@ export default function MusicalList({ status, search }) {
 
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollBtn(window.scrollY > 400);
-    }
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  const handleScrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
 
   const allItems = useMemo(() => {
     if (!data) return [];
@@ -149,28 +135,6 @@ export default function MusicalList({ status, search }) {
         >
           <Loading />
         </div>
-      )}
-
-      {showScrollBtn && (
-        <button
-          onClick={handleScrollToTop}
-          style={{
-            position: "fixed",
-            right: 20,
-            bottom: 80,
-            width: 48,
-            height: 48,
-            borderRadius: "50%",
-            border: "none",
-            background: "#000",
-            color: "#fff",
-            fontSize: 20,
-            cursor: "pointer",
-            zIndex: 9999,
-          }}
-        >
-          ↑
-        </button>
       )}
     </>
   )

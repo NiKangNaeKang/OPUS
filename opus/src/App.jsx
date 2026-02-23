@@ -28,6 +28,11 @@ import Chatbot from "./components/Chatbot";
 import ScrollToTop from "./components/common/ScrollToTop";
 import SavedList from "./pages/mypage/SavedList";
 import ReviewList from "./pages/mypage/ReviewList";
+import FAQ from "./pages/footer/FAQ";
+import Terms from "./pages/footer/Terms";
+import About from "./pages/footer/About";
+import Privacy from "./pages/footer/Privacy";
+
 
 
 export default function App() {
@@ -70,6 +75,11 @@ export default function App() {
           <Route path="/mypage/orders/:orderNo" element={<OrderDetail />} />
           <Route path="/mypage/wishlist" element={<SavedList />} />
           <Route path="/mypage/reviews" element={<ReviewList />} />
+
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/about" element={<About />} />
         </Route>
       </Routes>
 

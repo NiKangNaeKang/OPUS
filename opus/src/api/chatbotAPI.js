@@ -1,4 +1,3 @@
-import axios from "axios";
 import axiosApi from "./axiosAPI";
 
 export const chatbotApi = {

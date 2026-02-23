@@ -14,9 +14,6 @@ export const useCartStore = create(
       // 로그인 상태 설정
       setLoggedIn: (status) => {
         set({ isLoggedIn: status });
-        if (!status) {
-          set({ hasMerged: false });  // 로그아웃 시 초기화
-        }
       },
 
       // 서버에서 장바구니를 받아 한 번에 주입할 때(로그인/새로고침 후)
@@ -186,11 +183,20 @@ export const useCartStore = create(
             console.error("삭제 실패:", error);
           }
         } else {
-          // 로컬에서만 삭제
-          set((state) => ({
-            items: state.items.filter((item) => !cartKeys.includes(item.cartKey)),
-            checkedKeys: state.checkedKeys.filter((key) => !cartKeys.includes(key)),
-          }));
+          set((state) => {
+            const nextItems = state.items.filter(
+              (item) => !cartKeys.includes(item.cartKey)
+            );
+            return {
+              items: nextItems,
+              checkedKeys: state.checkedKeys.filter(
+                (key) => !cartKeys.includes(key)
+              ),
+              
+              // 비로그인 상태에서 items가 다 지워지면 hasMerged 초기화
+              hasMerged: nextItems.length > 0 ? state.hasMerged : false,
+            };
+          });
         }
       },
 
@@ -210,6 +216,11 @@ export const useCartStore = create(
         } else {
           // 로컬에서만 비우기
           set({ items: [], checkedKeys: [] });
+        }
+
+        // 비로그인 상태에서 장바구니를 완전히 비우면 hasMerged 초기화
+        if (!get().isLoggedIn) {
+          set({ hasMerged: false });
         }
       },
 
@@ -233,7 +244,7 @@ export const useCartStore = create(
         const { items } = get();
         set({ checkedKeys: items.map((item) => item.cartKey) });
       },
-      
+
       // 전체 체크 해제
       uncheckAll: () => {
         set({ checkedKeys: [] });

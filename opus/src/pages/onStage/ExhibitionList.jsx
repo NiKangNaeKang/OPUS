@@ -44,7 +44,6 @@ function getStatus(period) {
 
 export default function ExhibitionList({ search, status }) {
   const bottomRef = useRef(null);
-  const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   const {
     data,
@@ -75,19 +74,6 @@ export default function ExhibitionList({ search, status }) {
 
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollBtn(window.scrollY > 400);
-    }
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  const handleScrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
 
   const allItems = useMemo(() => {
     if (!data) return [];
@@ -123,7 +109,7 @@ export default function ExhibitionList({ search, status }) {
       })));
     }
   }, [allItems]);
-  
+
   // -------------------------------------------
 
   const filteredItems = useMemo(() => {
@@ -184,28 +170,6 @@ export default function ExhibitionList({ search, status }) {
         >
           <Loading />
         </div>
-      )}
-
-      {showScrollBtn && (
-        <button
-          onClick={handleScrollToTop}
-          style={{
-            position: "fixed",
-            right: 20,
-            bottom: 80,
-            width: 48,
-            height: 48,
-            borderRadius: "50%",
-            border: "none",
-            background: "#000",
-            color: "#fff",
-            fontSize: 20,
-            cursor: "pointer",
-            zIndex: 9999,
-          }}
-        >
-          ↑
-        </button>
       )}
     </>
   )

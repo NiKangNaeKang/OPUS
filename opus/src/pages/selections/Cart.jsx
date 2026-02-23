@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useCartStore } from "../../store/useCartStore";
 import { useNavigate } from "react-router-dom";
 import "../../css/Cart.css"
+import { useAuthStore } from "../../components/auth/useAuthStore";
 
 const Cart = () => {
 
@@ -22,6 +23,9 @@ const Cart = () => {
 
   // 선택된 상품 키 변경 함수
   const setCheckedKeys = useCartStore((state) => state.setCheckedKeys);
+
+  // 로그인 여부
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   // 기본값으로 전체 체크
   useEffect(() => {
@@ -91,6 +95,12 @@ const Cart = () => {
   // 결제 페이지 이동 함수
   const onGoCheckout = () => {
     if (checkedKeys.length === 0) return; // 선택 없으면 무시
+
+    if(!isLoggedIn) {
+      alert("상품 구매는 로그인 후 이용 가능힙니다.")
+      return;
+    }
+
     navigate("/selections/checkout");
   }
 
