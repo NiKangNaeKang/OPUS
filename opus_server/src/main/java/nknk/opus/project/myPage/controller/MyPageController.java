@@ -25,6 +25,13 @@ public class MyPageController {
 		
 		return ResponseEntity.ok(list);
 	}
+	
+	@GetMapping("/likeList")
+	public ResponseEntity<List<String>> getLikeList(@RequestParam("memberNo") int memberNo) {
+	    List<String> list = service.getLikeList(memberNo);
+	    return ResponseEntity.ok(list);
+	}
+	
 	@GetMapping("/reviewList")
 	public ResponseEntity<List<Reviews>> getReviewList(@RequestParam("memberNo") int memberNo) {
 		List<Reviews> list = service.getReviewList(memberNo);

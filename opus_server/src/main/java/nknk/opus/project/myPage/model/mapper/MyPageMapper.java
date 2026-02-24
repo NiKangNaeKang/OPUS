@@ -13,4 +13,6 @@ public interface MyPageMapper {
 
 	List<Reviews> getReviewList(int memberNo);
 
+	List<String> getLikeList(int memberNo);
+
 }

@@ -26,4 +26,9 @@ public class MyPageServiceImpl implements MyPageService {
 		return mapper.getReviewList(memberNo);
 	}
 
+	@Override
+	public List<String> getLikeList(int memberNo) {
+		return mapper.getLikeList(memberNo);
+	}
+
 }
