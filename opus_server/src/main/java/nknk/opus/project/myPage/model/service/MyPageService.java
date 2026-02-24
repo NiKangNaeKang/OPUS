@@ -10,4 +10,6 @@ public interface MyPageService {
 
 	List<Reviews> getReviewList(int memberNo);
 
+	List<String> getLikeList(int memberNo);
+
 }

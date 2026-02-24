@@ -14,4 +14,11 @@
 		WHERE MEMBER_NO = #{memberNo}
 		AND REVIEW_DEL_FL = 'N'
 	</select>
+	
+	<select id="getLikeList">
+		SELECT STAGE_NO
+		FROM STAGE_PREFER
+		WHERE MEMBER_NO = #{memberNo}
+		AND PREFER_TYPE = 'LIKE'
+	</select>
 </mapper>

@@ -635,3 +635,58 @@ input, textarea{ outline:none; }
   color: white;
   border: none;
 }
+
+#submitCommentBtn {
+  border-radius: 2px;
+  width: 75px;
+  height: 44px;
+  padding: 10px;
+}
+
+.comment-delete-btn, .comment-edit-btn {
+  font-size: 14px;
+}
+
+#review_comment_text {
+  font-size: 16px;
+}
+
+#update_comment_textarea {
+  border: 1px solid #d4d4d4;
+  padding: 12px 16px;
+  background-color: #fff;
+  resize: none;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.update_comment_inner_btn_box {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.update_comment_inner_btn{
+  background-color: black;
+  color: white;
+  border-radius: 1.5px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 5px 10px;
+}
+
+.comment-update-info-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment__meta {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+main {
+  padding-bottom: 30px;
+}
