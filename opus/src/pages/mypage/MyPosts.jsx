@@ -3,9 +3,12 @@ import { useNavigate } from "react-router-dom";
 import axiosApi from "../../api/axiosAPI";
 import { toast } from "react-toastify";
 import { showConfirm } from "../../components/toast/ToastUtils";
-import "../../css/proposals.css";
+import "../../css/myPosts.css";
 
 export default function MyPosts() {
+
+  console.log("baseURL:", axiosApi.defaults.baseURL); ////////////////////////////////
+
   const navigate = useNavigate();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +17,7 @@ export default function MyPosts() {
     const fetchMyPosts = async () => {
       try {
         setLoading(true);
-        const res = await axiosApi.get("/board/my");
+        const res = await axiosApi.get("/api/board/my");
         setList(res.data || []);
       } catch (err) {
         toast.error(err?.response?.data?.message || "작성 게시글 조회 실패");
@@ -26,7 +29,7 @@ export default function MyPosts() {
   }, []);
 
   const goDetail = (boardNo) => navigate(`/proposals/detail/${boardNo}`);
-  const goEdit = (boardNo) => navigate(`/proposals/write/${boardNo}`);
+  const goEdit = (boardNo) => navigate(`/proposals/edit/${boardNo}`);
 
   const handleDelete = (e, boardNo) => {
     e.stopPropagation();
@@ -36,7 +39,7 @@ export default function MyPosts() {
       "삭제한 글은 복구가 불가능합니다.",
       async () => {
         try {
-          await axiosApi.delete(`/board/delete/${boardNo}`);
+          await axiosApi.delete(`/api/board/delete/${boardNo}`);
           toast.success("삭제되었습니다.");
           setList((prev) => prev.filter((it) => it.boardNo !== boardNo));
         } catch (err) {
@@ -50,7 +53,7 @@ export default function MyPosts() {
   return (
     <main className="proposals-page my-posts-page">
       <header className="proposals-header">
-        <h2>작성 게시글</h2>
+        <h2>등록한 컨텐츠</h2>
         <p>내가 작성한 게시글을 확인/수정/삭제할 수 있습니다.</p>
       </header>
 

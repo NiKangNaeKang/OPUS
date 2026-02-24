@@ -40,7 +40,7 @@ public class BoardServiceImpl implements BoardService {
 		return mapper.selectBoardList(boardTypeCode, sort);
 	}
 
-	/* 게시글 상세 조회(조회수 증가 포함) */
+	/* 게시글 상세 조회 + 조회수 증가 */
 	@Override
 	public Board selectBoardDetail(int boardNo) {
 		int result = mapper.updateViewCount(boardNo);
@@ -50,7 +50,7 @@ public class BoardServiceImpl implements BoardService {
 		return null;
 	}
 
-	/* 게시글 등록(텍스트 저장 + 이미지 업로드/DB저장) */
+	/* 게시글 등록 (텍스트 + 이미지 업로드) */
 	@Override
 	public int insertBoard(Board board, List<MultipartFile> images) {
 
@@ -141,7 +141,7 @@ public class BoardServiceImpl implements BoardService {
 		return mapper.deleteBoard(boardNo);
 	}
 
-	/* 게시글 전체 수정(텍스트 수정 + 기존 이미지 전부 교체) */
+	/* 게시글 전체 수정 (텍스트 + 이미지 교체) */
 	@Override
 	public int updateBoardWithImages(Board board, List<MultipartFile> images) {
 
@@ -328,6 +328,7 @@ public class BoardServiceImpl implements BoardService {
 		}
 	}
 
+	/* 작성 게시글 조회 (기업회원만) */
 	@Override
 	public List<Board> selectMyBoards(int memberNo) {
 		return mapper.selectMyBoards(memberNo);

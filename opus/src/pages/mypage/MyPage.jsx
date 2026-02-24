@@ -57,7 +57,7 @@ export default function MyPage() {
       title: "활동 내역",
       items: [
         ...(role === "COMPANY"
-        ? [{ id: "my-posts", icon: "fa-regular fa-pen-to-square", label: "등록 컨텐츠" }]
+        ? [{ id: "myPosts", icon: "fa-regular fa-pen-to-square", label: "등록 컨텐츠" }]
         : []),
         { id: "wishlist", icon: "fa-regular fa-heart", label: "찜한 리스트" },
         { id: "reviews", icon: "fa-regular fa-comment", label: "작성 후기" },
@@ -260,7 +260,7 @@ export default function MyPage() {
                       <NavLink
                         to={
                           group.title === "활동 내역"
-                            ? `/myPage/${item.id}`
+                            ? `/mypage/${item.id}`
                             : "#"
                         }
                         className={`nav-link ${

@@ -57,7 +57,7 @@ const ProposalWrite = () => {
     navigate("/proposals");
   }, [isLoggedIn, role, navigate]);
 
-  // ✅ [추가] 관리자 신규 작성 시, 목록에서 넘어온 탭(activeTab) 기준으로 boardTypeCode 자동 세팅
+  // 관리자 신규 작성 시, 목록에서 넘어온 탭(activeTab) 기준으로 boardTypeCode 자동 세팅
   useEffect(() => {
     if (isEditMode) return;
     if (role !== "ADMIN") return;
@@ -74,14 +74,14 @@ const ProposalWrite = () => {
     }
   }, [isEditMode, role]);
 
-  // ✅ 이벤트 게시판에서는 OPUS 카테고리 자동 제거
+  // 이벤트 게시판에서는 OPUS 카테고리 자동 제거
   useEffect(() => {
     if (Number(formData.boardTypeCode) === 2 && formData.boardCategory === "opus") {
       setFormData((prev) => ({ ...prev, boardCategory: "musical" }));
     }
   }, [formData.boardTypeCode, formData.boardCategory]);
 
-  // ✅ [추가] 관리자 신규 작성 시 writerCompany 기본값 "관리자"로 세팅
+  // 관리자 신규 작성 시 writerCompany 기본값 "관리자"로 세팅
   useEffect(() => {
     if (!isEditMode && role === "ADMIN") {
       setFormData((prev) => ({
@@ -232,17 +232,12 @@ const ProposalWrite = () => {
       );
     }
 
-    // ✅ boardPayload에 writerCompany 최종 보정
+    // boardPayload에 writerCompany 최종 보정
     const boardPayload = {
-      ...formData,
-      writerCompany:
-        role === "ADMIN"
-          ? formData.writerCompany?.trim()
-            ? formData.writerCompany
-            : "관리자"
-          : formData.writerCompany,
-      boardNo: isEditMode ? Number(boardNo) : undefined,
-      memberNo: member?.memberNo,
+    ...formData,
+    writerCompany: formData.writerCompany,
+    boardNo: isEditMode ? Number(boardNo) : undefined,
+    memberNo: member?.memberNo,
     };
 
     try {
@@ -357,7 +352,7 @@ const ProposalWrite = () => {
             </div>
           </div>
 
-          {role === "COMPANY" && (
+          {(role === "COMPANY" || (role === "ADMIN" && isEditMode)) && (
             <div className="form-group">
               <label>작성자(회사명)</label>
               <input
@@ -403,14 +398,14 @@ const ProposalWrite = () => {
   onError={(e) => {
     const el = e.currentTarget;
 
-    // ✅ 동일 요소에서 중복 onError 방지
+    // 동일 요소에서 중복 onError 방지
     if (el.dataset.broken === "1") return;
     el.dataset.broken = "1";
 
-    // ✅ 깨진 이미지는 숨김 (파일명/깨진아이콘/깜빡임 방지)
+    // 깨진 이미지는 숨김 (파일명/깨진아이콘/깜빡임 방지)
     el.style.display = "none";
 
-    // ✅ 혹시라도 브라우저가 재시도하며 다시 호출해도 끝
+    // 혹시라도 브라우저가 재시도하며 다시 호출해도 끝
     el.onerror = null;
   }}
 />
