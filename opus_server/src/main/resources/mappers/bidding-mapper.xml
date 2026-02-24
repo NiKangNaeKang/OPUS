@@ -7,7 +7,7 @@
 	<insert id="insertBidding" parameterType="Bidding">
 		<selectKey keyProperty="bidNo" resultType="int"
 			order="BEFORE">
-			SELECT BID_SEQ.NEXTVAL FROM DUAL
+			SELECT BIDDING_SEQ.NEXTVAL FROM DUAL
 		</selectKey>
 		INSERT INTO BIDDING
 		(BID_NO, UNVEILING_NO, MEMBER_NO, BID_PRICE,
