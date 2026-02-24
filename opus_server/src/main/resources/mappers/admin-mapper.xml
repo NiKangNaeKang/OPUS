@@ -26,4 +26,113 @@
 		DELETE FROM REPORT
 		WHERE REPORT_NO = #{reportNo}
 	</delete>
+	
+	<!-- 상품 INSERT (goodsNo 자동 생성) -->
+	<insert id="insertGoods" parameterType="Goods">
+	    <selectKey keyProperty="goodsNo" resultType="int" order="BEFORE">
+	        SELECT SEQ_GOODS.NEXTVAL FROM DUAL
+	    </selectKey>
+	    
+	    INSERT INTO GOODS (
+	        GOODS_NO, GOODS_NAME, GOODS_SORT, GOODS_CATEGORY,
+	        GOODS_PRICE, DELIVERY_COST, GOODS_SELLER, GOODS_INFO,
+	    	GOODS_REG_DATE, GOODS_DEL_FL
+	    ) VALUES (
+	        #{goodsNo}, #{goodsName}, #{goodsSort}, #{goodsCategory},
+	        #{goodsPrice}, #{deliveryCost}, #{goodsSeller}, #{goodsInfo}, SYSDATE, 'N'
+	    )
+	</insert>
+	
+	<!-- 상세 이미지 INSERT -->
+	<insert id="insertGoodsImg" parameterType="GoodsImg">
+	    INSERT INTO GOODS_IMG (
+	        GOODS_IMG_NO, GOODS_NO, GOODS_IMG_PATH, GOODS_IMG_RE, GOODS_IMG_ORDER
+	    ) VALUES (
+	        SEQ_GOODS_IMG.NEXTVAL, #{goodsNo}, #{goodsImgPath}, 
+	        #{goodsImgRe}, #{goodsImgOrder}
+	    )
+	</insert>
+	
+	<!-- 옵션 INSERT -->
+	<insert id="insertGoodsOption" parameterType="GoodsOption">
+	    INSERT INTO GOODS_OPTION (
+	        GOODS_OPTION_NO, GOODS_NO, GOODS_SIZE, GOODS_COLOR, 
+	        STOCK
+	    ) VALUES (
+	        SEQ_GOODS_OPTION.NEXTVAL, #{goodsNo}, #{goodsSize}, 
+	        #{goodsColor}, #{stock}
+	    )
+	</insert>
+	
+	<!-- 관리자용 전체 상품 조회 (삭제된 상품 포함) -->
+	<select id="selectAllGoodsForAdmin" resultType="Goods">
+	    SELECT 
+	        G.GOODS_NO,
+	        G.GOODS_NAME,
+	        G.GOODS_SORT,
+	        G.GOODS_CATEGORY,
+	        G.GOODS_PRICE,
+	        G.DELIVERY_COST,
+	        G.GOODS_SELLER,
+	        G.GOODS_THUMBNAIL,
+	        TO_CHAR(G.GOODS_REG_DATE, 'YYYY-MM-DD') AS GOODS_REG_DATE,
+	        G.GOODS_DEL_FL
+	    FROM GOODS G
+	    ORDER BY G.GOODS_NO DESC
+	</select>
+	
+	<!-- 소프트 딜리트 -->
+	<update id="softDeleteGoods">
+	    UPDATE GOODS
+	    SET GOODS_DEL_FL = 'Y'
+	    WHERE GOODS_NO = #{goodsNo}
+	</update>
+	
+	<!-- 전체 주문 목록 조회 -->
+	<select id="selectAllOrders" resultType="map">
+	    SELECT 
+	        O.ORDER_NO,
+	        O.ORDER_ID,
+	        TO_CHAR(O.ORDER_DATE, 'YYYY-MM-DD HH24:MI') AS ORDER_DATE,
+	        O.ORDER_STATUS,
+	        O.RECIPIENT,
+	        O.RECIPIENT_TEL,
+	        O.BASIC_ADDRESS,
+	        O.DETAIL_ADDRESS,
+	        O.POSTCODE,
+	        O.TOTAL_AMOUNT,
+	        O.PAYMENT_METHOD,
+	        O.DELIVERY_COMPANY,
+	        O.TRACKING_NUMBER,
+	        M.MEMBER_EMAIL,
+	        (SELECT COUNT(*) FROM ORDER_ITEM WHERE ORDER_NO = O.ORDER_NO) AS TOTAL_ITEM_COUNT,
+	        (SELECT G.GOODS_NAME
+	         FROM ORDER_ITEM OI
+	         JOIN GOODS G ON OI.GOODS_NO = G.GOODS_NO
+	         WHERE OI.ORDER_NO = O.ORDER_NO
+	         AND ROWNUM = 1) AS FIRST_GOODS_NAME
+	    FROM TOTAL_ORDER O
+	    JOIN MEMBER M ON O.MEMBER_NO = M.MEMBER_NO
+	    <where>
+	        <if test="status != null and status != ''">
+	            O.ORDER_STATUS = #{status}
+	        </if>
+	    </where>
+	    ORDER BY O.ORDER_NO DESC
+	</select>
+	
+	<!-- 주문 상태 변경 -->
+	<update id="updateOrderStatus">
+	    UPDATE TOTAL_ORDER
+	    SET ORDER_STATUS = #{status}
+	    WHERE ORDER_NO = #{orderNo}
+	</update>
+	
+	<!-- 송장번호 등록 -->
+	<update id="updateTracking">
+	    UPDATE TOTAL_ORDER
+	    SET DELIVERY_COMPANY = #{deliveryCompany},
+	        TRACKING_NUMBER = #{trackingNumber}
+	    WHERE ORDER_NO = #{orderNo}
+	</update>
 </mapper>

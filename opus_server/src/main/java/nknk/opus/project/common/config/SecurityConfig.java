@@ -63,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/unveilings/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/bids/**").permitAll()
                 .requestMatchers("/chatbot/**").permitAll()
+                .requestMatchers("/admin/**").authenticated()
                 .anyRequest().authenticated()
             )
 				.oauth2Login(oauth -> oauth.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
@@ -83,7 +84,7 @@ public class SecurityConfig {
 		log.info("Allowed Origins: {}", origins);
 
 		config.setAllowedOrigins(origins);
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);
 
