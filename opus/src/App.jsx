@@ -26,6 +26,7 @@ import AuthSuccess from "./components/auth/AuthSuccess";
 import ProposalDetail from "./pages/Proposals/ProposalDetail";
 import SavedList from "./pages/mypage/SavedList";
 import ReviewList from "./pages/mypage/ReviewList";
+import UnveilingHistory from "./pages/mypage/UnveilingHistory";
 
 
 export default function App() {
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="/mypage/orders/:orderNo" element={<OrderDetail />} />
           <Route path="/mypage/wishlist" element={<SavedList />} />
           <Route path="/mypage/reviews" element={<ReviewList />} />
+          <Route path="/mypage/auction-history" element={<UnveilingHistory />} />
         </Route>
       </Routes>
 

@@ -2,6 +2,7 @@ package nknk.opus.project.unveiling.model.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -108,8 +109,8 @@ public class UnveilingServiceImpl implements UnveilingService {
 		return BidStateResponse.builder().unveilingNo(unveilingNo).startPrice(startPrice).currentPrice(currentPrice)
 				.biddingCount(u.getBiddingCount()).unveilingStatus(u.getUnveilingStatus()).finishedFl(finishedFl)
 				.bidAllowedFl(bidAllowedFl).reason(reason).tick(tick).nextBidPrice(nextBidPrice)
-				.finalizedFl(finalizedFl).winnerMemberNo(winnerMemberNo).finalPrice(finalPrice).paymentStatus(paymentStatus)
-				.topBidderMemberNo(topBidderMemberNo).build();
+				.finalizedFl(finalizedFl).winnerMemberNo(winnerMemberNo).finalPrice(finalPrice)
+				.paymentStatus(paymentStatus).topBidderMemberNo(topBidderMemberNo).build();
 	}
 
 	@Override
@@ -145,6 +146,15 @@ public class UnveilingServiceImpl implements UnveilingService {
 		int r = unveilingMapper.finalizeAuctionUsingMemberNo(u);
 		if (r == 0)
 			throw new IllegalStateException("낙찰 확정 처리에 실패했습니다.");
+
+		try {
+			String email = memberMapper.findEmailByMemberNo(top.getMemberNo());
+			if (email != null) {
+				sendWinnerEmail(email, unveilingNo, u.getUnveilingTitle(), u.getProductionArtist(), top.getBidPrice());
+			}
+		} catch (Exception e) {
+			log.warn("[낙찰 확정 메일 발송 실패] unveilingNo: {}, 사유: {}", unveilingNo, e.getMessage());
+		}
 
 		return Map.of("unveilingNo", unveilingNo, "finalizedFl", true, "winnerMemberNo", top.getMemberNo(),
 				"finalPrice", top.getBidPrice(), "paymentStatus", "PENDING");
@@ -197,7 +207,6 @@ public class UnveilingServiceImpl implements UnveilingService {
 			return Map.of("statusCode", 500, "message", "결제 처리에 실패했습니다.", "unveilingNo", unveilingNo);
 		}
 
-		// 결제 신청 완료 이메일 발송 (실패해도 결제 신청은 성공으로 처리)
 		try {
 			String email = memberMapper.findEmailByMemberNo(memberNo);
 			if (email != null) {
@@ -211,7 +220,92 @@ public class UnveilingServiceImpl implements UnveilingService {
 				"paymentStatus", "PAID");
 	}
 
+	/**
+	 * 마감 임박 알림 이메일 발송 — 해당 경매에 응찰한 회원 전원에게 발송
+	 * 스케줄러에서 호출 (markAlertSent는 스케줄러에서 처리)
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public void sendDeadlineAlertEmails(int unveilingNo, String unveilingTitle, String productionArtist, String finishDate) {
 
+		// 해당 경매 응찰자 전원의 memberNo 조회 (중복 제거)
+		List<Integer> bidderMemberNos = biddingMapper.selectDistinctBidderMemberNos(unveilingNo);
+
+		if (bidderMemberNos.isEmpty()) {
+			log.info("[마감 임박 알림] 응찰자 없음 - unveilingNo: {}", unveilingNo);
+			return;
+		}
+
+		int successCount = 0;
+		for (int memberNo : bidderMemberNos) {
+			try {
+				String email = memberMapper.findEmailByMemberNo(memberNo);
+				if (email != null) {
+					sendDeadlineAlertEmail(email, unveilingNo, unveilingTitle, productionArtist, finishDate);
+					successCount++;
+				}
+			} catch (Exception e) {
+				log.warn("[마감 임박 알림 개별 발송 실패] unveilingNo: {}, memberNo: {}, 사유: {}", unveilingNo, memberNo, e.getMessage());
+			}
+		}
+
+		log.info("[마감 임박 알림] 발송 완료 - unveilingNo: {}, 총 {}명 중 {}명 성공", unveilingNo, bidderMemberNos.size(), successCount);
+	}
+
+	/* 마감 임박 알림 이메일 */
+	private void sendDeadlineAlertEmail(String email, int unveilingNo, String unveilingTitle, String productionArtist, String finishDate) {
+		try {
+			String htmlContent = """
+					<!DOCTYPE html>
+					<html>
+					<body style="margin:0; padding:0; background-color:#f3f4f6; font-family:'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;">
+					    <div style="max-width:560px; margin:32px auto; background-color:#ffffff; border:1px solid #e5e7eb;">
+					        <div style="background-color:#111827; padding:28px 36px; display:flex; justify-content:space-between; align-items:center;">
+					            <span style="font-size:20px; font-weight:900; color:#ffffff;">OPUS</span>
+					            <span style="font-size:11px; color:rgba(255,255,255,0.45); text-transform:uppercase;">Auction Alert</span>
+					        </div>
+					        <div style="padding:36px 36px 28px;">
+					            <h1 style="font-size:20px; font-weight:900; color:#111827; margin:0 0 20px;">
+					                경매 마감 1시간 전입니다.
+					            </h1>
+					            <p style="font-size:14px; color:#374151; line-height:1.8; margin:0 0 24px;">
+					                응찰하신 경매가 곧 마감됩니다.<br/>
+					                마지막 기회를 놓치지 마세요.
+					            </p>
+					            <div style="background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:4px; padding:24px; margin-bottom:24px;">
+					                <p style="margin:0 0 8px; font-size:13px; color:#6b7280;">경매번호</p>
+					                <p style="margin:0 0 16px; font-size:16px; font-weight:900; color:#111827;">No. %d</p>
+					                <p style="margin:0 0 8px; font-size:13px; color:#6b7280;">작품명</p>
+					                <p style="margin:0 0 16px; font-size:16px; font-weight:900; color:#111827;">%s</p>
+					                <p style="margin:0 0 8px; font-size:13px; color:#6b7280;">작가</p>
+					                <p style="margin:0 0 16px; font-size:15px; color:#111827;">%s</p>
+					                <p style="margin:0 0 8px; font-size:13px; color:#6b7280;">마감 일시</p>
+					                <p style="margin:0; font-size:15px; font-weight:900; color:#dc2626;">%s</p>
+					            </div>
+					            <div style="background-color:#fffbeb; border:1px solid #fde68a; border-radius:4px; padding:12px 14px; font-size:12px; color:#92400e; line-height:1.7;">
+					                ⚠ 마감 후에는 응찰이 불가합니다. 지금 바로 경매 페이지를 확인해주세요.
+					            </div>
+					        </div>
+					        <div style="background-color:#f9fafb; border-top:1px solid #e5e7eb; padding:20px 36px;">
+					            <p style="font-size:11px; color:#9ca3af; margin:0;">© 2026 OPUS. All rights reserved.<br/>본 메일은 발신 전용입니다.</p>
+					        </div>
+					    </div>
+					</body>
+					</html>
+					"""
+					.formatted(unveilingNo, unveilingTitle, productionArtist, finishDate);
+
+			MimeMessage mimeMessage = mailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			helper.setTo(email);
+			helper.setSubject("[OPUS] 경매 마감 1시간 전 - " + unveilingTitle);
+			helper.setText(htmlContent, true);
+			mailSender.send(mimeMessage);
+
+		} catch (Exception e) {
+			throw new RuntimeException("메일 발송 실패: " + e.getMessage());
+		}
+	}
 
 	/* 결제 신청 안내 이메일 발송 */
 	private void sendPaymentRequestEmail(String email, int unveilingNo, int finalPrice) {
@@ -270,4 +364,68 @@ public class UnveilingServiceImpl implements UnveilingService {
 			throw new RuntimeException("메일 발송 실패: " + e.getMessage());
 		}
 	}
+
+	/* 낙찰 확정 안내 이메일 발송 */
+	private void sendWinnerEmail(String email, int unveilingNo, String unveilingTitle, String productionArtist, int bidPrice) {
+		try {
+			String htmlContent = """
+					<!DOCTYPE html>
+					<html>
+					<body style="margin:0; padding:0; background-color:#f3f4f6; font-family:'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;">
+					    <div style="max-width:560px; margin:32px auto; background-color:#ffffff; border:1px solid #e5e7eb;">
+					        <div style="background-color:#111827; padding:28px 36px;">
+					            <span style="font-size:20px; font-weight:900; color:#ffffff;">OPUS</span>
+					        </div>
+					        <div style="padding:36px 36px 28px;">
+					            <h1 style="font-size:20px; font-weight:900; color:#111827; margin:0 0 20px;">
+					                낙찰을 축하드립니다! 🎉
+					            </h1>
+					            <p style="font-size:14px; color:#374151; line-height:1.8; margin:0 0 24px;">
+					                고객님께서 응찰하신 작품의 최고가 입찰자로 확정되었습니다.<br/>
+					                아래 내용을 확인하시고 기한 내 결제를 완료해 주세요.
+					            </p>
+					            <div style="background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:4px; padding:24px; margin-bottom:24px;">
+					                <p style="margin:0 0 8px; font-size:13px; color:#6b7280;">경매번호</p>
+					                <p style="margin:0 0 16px; font-size:16px; font-weight:900; color:#111827;">No. %d</p>
+					                <p style="margin:0 0 8px; font-size:13px; color:#6b7280;">작품명</p>
+					                <p style="margin:0 0 16px; font-size:16px; font-weight:900; color:#111827;">%s</p>
+					                <p style="margin:0 0 8px; font-size:13px; color:#6b7280;">작가</p>
+					                <p style="margin:0 0 16px; font-size:15px; color:#111827;">%s</p>
+					                <p style="margin:0 0 8px; font-size:13px; color:#6b7280;">낙찰가</p>
+					                <p style="margin:0; font-size:20px; font-weight:900; color:#111827;">₩%s</p>
+					            </div>
+					            <p style="font-size:14px; color:#374151; line-height:1.8; margin:0 0 8px;">
+					                <strong>① 계좌이체</strong><br/>
+					                은행명: OO은행 / 계좌번호: 000-0000-0000 / 예금주: OPUS
+					            </p>
+					            <p style="font-size:14px; color:#374151; line-height:1.8; margin:0 0 24px;">
+					                <strong>② 방문 결제</strong><br/>
+					                영업시간(월~금 10:00 ~ 18:00) 내 방문 후 카드 결제 가능합니다.
+					            </p>
+					            <div style="background-color:#fffbeb; border:1px solid #fde68a; border-radius:4px; padding:12px 14px; font-size:12px; color:#92400e; line-height:1.7;">
+					                ⚠ 결제는 낙찰 확정일로부터 <strong>1일 이내</strong>에 완료되어야 합니다.<br/>
+					                기한 내 미결제 시 낙찰이 취소될 수 있습니다.
+					            </div>
+					        </div>
+					        <div style="background-color:#f9fafb; border-top:1px solid #e5e7eb; padding:20px 36px;">
+					            <p style="font-size:11px; color:#9ca3af; margin:0;">© 2026 OPUS. All rights reserved.</p>
+					        </div>
+					    </div>
+					</body>
+					</html>
+					"""
+					.formatted(unveilingNo, unveilingTitle, productionArtist, String.format("%,d", bidPrice));
+
+			MimeMessage mimeMessage = mailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			helper.setTo(email);
+			helper.setSubject("[OPUS] 낙찰을 축하드립니다 - 경매번호 No." + unveilingNo);
+			helper.setText(htmlContent, true);
+			mailSender.send(mimeMessage);
+
+		} catch (Exception e) {
+			throw new RuntimeException("메일 발송 실패: " + e.getMessage());
+		}
+	}
+
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import nknk.opus.project.myPage.model.dto.UnveilingHistoryResponse;
 import nknk.opus.project.myPage.model.service.MyPageService;
 import nknk.opus.project.reviews.model.dto.Reviews;
 
@@ -31,4 +32,15 @@ public class MyPageController {
 		
 		return ResponseEntity.ok(list);
 	}
+	
+	// 경매 응찰 내역
+	@GetMapping("/unveilingHistory")
+	public ResponseEntity<List<UnveilingHistoryResponse>> getUnveilingHistory(@RequestParam("memberNo") int memberNo) {
+		List<UnveilingHistoryResponse> list = service.getUnveilingHistory(memberNo);
+		return ResponseEntity.ok(list);
+	}
+	
+	
 }
+
+
