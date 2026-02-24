@@ -14,8 +14,11 @@ const ProposalDetail = () => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // 이미지 전부 깨졌을 때 fallback 1장만 띄우기 위한 카운트
+  const [brokenCount, setBrokenCount] = useState(0);
+
   const API_BASE = import.meta.env.VITE_API_URL;
-  const FALLBACK_IMG = "/images/no-image.png";
+  const FALLBACK_IMG = "/proposals-no-image.png";
 
   const categoryLabel = {
     musical: "뮤지컬",
@@ -72,6 +75,11 @@ const ProposalDetail = () => {
       .filter(Boolean);
   }, [data, API_BASE]);
 
+  // 게시글(또는 이미지 목록) 바뀌면 깨짐 카운트 초기화
+  useEffect(() => {
+    setBrokenCount(0);
+  }, [boardNo, images.length]);
+
   const handleDelete = async () => {
     if (!window.confirm("정말 이 게시글을 삭제하시겠습니까?")) return;
 
@@ -105,8 +113,10 @@ const ProposalDetail = () => {
   const role = member?.role;
   const isOwner = Number(data.memberNo) === Number(member?.memberNo);
   const canEditDelete =
-    isLoggedIn &&
-    (role === "ADMIN" || (role === "COMPANY" && data.boardTypeCode === 2 && isOwner));
+    isLoggedIn && (role === "ADMIN" || (role === "COMPANY" && data.boardTypeCode === 2 && isOwner));
+
+  // 이미지가 있는데 전부 깨졌으면 fallback 1장만
+  const allBroken = images.length > 0 && brokenCount >= images.length;
 
   return (
     <main className="proposal-detail-page">
@@ -128,24 +138,51 @@ const ProposalDetail = () => {
           </div>
         </header>
 
-      {images.length > 0 && (
-        <section className="detail-gallery">
-          <div className="gallery-grid">
-            {images.map((src, idx) => (
-              <div className="gallery-item" key={`${src}-${idx}`}>
-                <img
-                  src={src}
-                  alt={`image-${idx + 1}`}
-                  loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.src = FALLBACK_IMG;
-                  }}
-                />
+        {images.length > 0 && (
+          allBroken ? (
+            <section className="detail-gallery">
+              <div className="gallery-grid">
+                <div className="gallery-item">
+                  <img
+                    src={FALLBACK_IMG}
+                    alt="no-image"
+                    onError={(e) => {
+                      // fallback마저 없으면 깨끗하게 숨김
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
               </div>
-            ))}
-          </div>
-        </section>
-      )}
+            </section>
+          ) : (
+            <section className="detail-gallery">
+              <div className="gallery-grid">
+                {images.map((src, idx) => (
+                  <div className="gallery-item" key={`${src}-${idx}`}>
+                    <img
+                      src={src}
+                      alt={`image-${idx + 1}`}
+                      loading="lazy"
+                      onError={(e) => {
+                        const img = e.currentTarget;
+
+                        // 같은 img에서 여러번 카운트 방지
+                        if (img.dataset.broken === "1") return;
+                        img.dataset.broken = "1";
+
+                        // 깨진 이미지는 숨김
+                        img.style.display = "none";
+
+                        // 전체 실패 판단용 카운트 증가
+                        setBrokenCount((c) => c + 1);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )
+        )}
 
         <section className="detail-content">
           <div dangerouslySetInnerHTML={{ __html: data.boardContent }} />
