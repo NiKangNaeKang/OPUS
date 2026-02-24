@@ -132,13 +132,14 @@ public class BoardServiceImpl implements BoardService {
 	/* 게시글 텍스트 수정 */
 	@Override
 	public int updateBoard(Board board) {
-		return mapper.updateBoard(board);
+		int result = mapper.updateBoard(board); // result == 0 : (1) 글 없음 (2) 삭제됨 (3) 본인글 아님
+		return result;
 	}
 
 	/* 게시글 삭제(논리 삭제) */
 	@Override
-	public int deleteBoard(int boardNo) {
-		return mapper.deleteBoard(boardNo);
+	public int deleteBoard(int boardNo, int memberNo) {
+		return mapper.deleteBoard(boardNo, memberNo);
 	}
 
 	/* 게시글 전체 수정 (텍스트 + 이미지 교체) */

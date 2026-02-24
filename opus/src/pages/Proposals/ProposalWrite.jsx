@@ -1,4 +1,3 @@
-// ProposalWrite.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axiosApi from "../../api/axiosAPI";
@@ -232,7 +231,6 @@ const ProposalWrite = () => {
       );
     }
 
-    // boardPayload에 writerCompany 최종 보정
     const boardPayload = {
     ...formData,
     writerCompany: formData.writerCompany,
@@ -342,7 +340,7 @@ const ProposalWrite = () => {
                 onChange={handleChange}
                 className="pp-select"
               >
-                {/* ✅ 공지(1)일 때만 OPUS 노출 */}
+                {/* 공지(1)일 때만 OPUS 노출 */}
                 {Number(formData.boardTypeCode) === 1 && <option value="opus">OPUS</option>}
                 <option value="musical">뮤지컬</option>
                 <option value="exhibition">전시</option>
@@ -392,23 +390,21 @@ const ProposalWrite = () => {
                       title={willDelete ? "삭제 예정" : "유지"}
                     >
                       
-<img
-  src={img.url}
-  alt={`existing-${idx}`}
-  onError={(e) => {
-    const el = e.currentTarget;
+                      <img
+                        src={img.url}
+                        alt={`existing-${idx}`}
+                        onError={(e) => {
+                          const el = e.currentTarget;
 
-    // 동일 요소에서 중복 onError 방지
-    if (el.dataset.broken === "1") return;
-    el.dataset.broken = "1";
+                          if (el.dataset.broken === "1") return;
+                          el.dataset.broken = "1";
 
-    // 깨진 이미지는 숨김 (파일명/깨진아이콘/깜빡임 방지)
-    el.style.display = "none";
+                          el.style.display = "none";
+                          el.onerror = null; // 재호출 방지
 
-    // 혹시라도 브라우저가 재시도하며 다시 호출해도 끝
-    el.onerror = null;
-  }}
-/>
+                          setBrokenCount((c) => c + 1); // 필요할 때만
+                        }}
+                      />
 
                       <button
                         type="button"

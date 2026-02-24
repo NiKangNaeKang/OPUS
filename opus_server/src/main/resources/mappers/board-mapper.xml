@@ -140,25 +140,27 @@
 	</insert>
 
 	<!-- 게시글 수정(텍스트) -->
-	<update id="updateBoard">
-		UPDATE "BOARD"
-		SET
-		BOARD_TITLE = #{boardTitle},
-		BOARD_CONTENT = #{boardContent},
-		BOARD_CATEGORY = #{boardCategory},
-		WRITER_COMPANY = #{writerCompany},
-		BOARD_UPDATE_DATE = SYSDATE
-		WHERE
-		BOARD_NO = #{boardNo}
-		AND BOARD_DEL_FL = 'N'
-	</update>
+<update id="updateBoard">
+  UPDATE "BOARD"
+  SET
+    BOARD_TITLE = #{boardTitle},
+    BOARD_CONTENT = #{boardContent},
+    BOARD_CATEGORY = #{boardCategory},
+    WRITER_COMPANY = #{writerCompany},
+    BOARD_UPDATE_DATE = SYSDATE
+  WHERE
+    BOARD_NO = #{boardNo}
+    AND MEMBER_NO = #{memberNo}
+    AND BOARD_DEL_FL = 'N'
+</update>
 
 	<!-- 게시글 삭제(논리 삭제) -->
 	<update id="deleteBoard">
 		UPDATE "BOARD"
 		SET BOARD_DEL_FL = 'Y'
-		WHERE BOARD_NO =
-		#{boardNo}
+		WHERE BOARD_NO = #{boardNo}
+		AND MEMBER_NO = #{memberNo}
+		AND BOARD_DEL_FL = 'N'
 	</update>
 
 	<!-- 해당 게시글 이미지 파일명(리네임) 전체 조회 -->
@@ -241,11 +243,14 @@
 		B.WRITER_COMPANY,
 		BT.BOARD_NAME
 		FROM "BOARD" B
-		JOIN "BOARD_TYPE" BT
+		JOIN
+		"BOARD_TYPE" BT
 		ON BT.BOARD_TYPE_CODE = B.BOARD_TYPE_CODE
-		WHERE B.MEMBER_NO = #{memberNo}
+		WHERE
+		B.MEMBER_NO = #{memberNo}
 		AND B.BOARD_TYPE_CODE = 2
-		AND B.BOARD_DEL_FL = 'N'
+		AND B.BOARD_DEL_FL =
+		'N'
 		ORDER BY B.BOARD_NO DESC
 	</select>
 

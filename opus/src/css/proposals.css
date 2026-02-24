@@ -469,3 +469,106 @@
   cursor: not-allowed;
   background: #f5f5f5;
 }
+
+/* =========================================================
+   Responsive (proposals.css) - 추가
+   기준: 1100 / 860 / 520
+========================================================= */
+
+@media (max-width: 1100px){
+  /* 컨테이너 패딩 축소 */
+  .proposals-page .board-container{
+    padding: 70px 28px 90px;
+  }
+
+  /* 검색창 폭 줄이기 */
+  .proposals-page .pp-search__input{
+    width: 360px;
+  }
+
+  /* 공지 리스트 오른쪽 컬럼 폭 축소 */
+  .proposals-page .board-item{
+    grid-template-columns: 1fr 300px;
+  }
+  .proposals-page .item__right{
+    grid-template-columns: 30px 100px 80px;
+    column-gap: 18px;
+  }
+}
+
+@media (max-width: 860px){
+  /* 필터/검색: 2열 -> 1열 스택 */
+  .proposals-page .pp-filters{
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .proposals-page .pp-filters__right{
+    justify-content: flex-start;
+  }
+  .proposals-page .pp-search-wrap{
+    width: 100%;
+  }
+  .proposals-page .pp-search__input{
+    width: 100%;
+  }
+
+  /* 공지 리스트: 2열 -> 1열(오른쪽 정보 아래로) */
+  .proposals-page .board-item{
+    grid-template-columns: 1fr;
+    row-gap: 10px;
+    padding: 16px 10px;
+  }
+  .proposals-page .item__right{
+    justify-content: start;
+    grid-template-columns: auto auto auto;
+    column-gap: 14px;
+    font-size: 13px;
+  }
+  .proposals-page .item__right span{
+    justify-self: start;
+    text-align: left;
+  }
+  .proposals-page .item__right span:first-child{
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 520px){
+  /* 컨테이너 더 컴팩트 */
+  .proposals-page .board-container{
+    padding: 64px 18px 80px;
+  }
+
+  /* 탭 간격/글자 줄이기 */
+  .proposals-page .tabs{
+    gap: 14px;
+  }
+  .proposals-page .tab-btn{
+    font-size: 16px;
+    padding: 10px 2px;
+  }
+
+  /* 셀렉트/검색 버튼 모바일 최적화 */
+  .proposals-page .pp-filters__left{
+    flex-wrap: wrap;
+  }
+  .proposals-page .pp-select{
+    min-width: 120px;
+    flex: 1;
+  }
+  .proposals-page .pp-search-wrap{
+    gap: 8px;
+  }
+  .proposals-page .pp-search__btn{
+    min-width: 74px;
+    padding: 0 16px;
+  }
+
+  /* 공지 리스트 폰트 살짝 다운 */
+  .proposals-page .item__title{
+    font-size: 16px;
+  }
+  .proposals-page .item__excerpt{
+    font-size: 13px;
+  }
+}

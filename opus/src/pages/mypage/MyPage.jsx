@@ -50,7 +50,9 @@ export default function MyPage() {
               },
             ]
           : []),
-        { id: "withdrawal", icon: "fa-solid fa-user-slash", label: "회원 탈퇴" },
+      ...(role !== "ADMIN"
+        ? [{ id: "withdrawal", icon: "fa-solid fa-user-slash", label: "회원 탈퇴" }]
+        : []),
       ],
     },
     {
@@ -155,7 +157,7 @@ export default function MyPage() {
 
   const processWithdrawal = async () => {
     try {
-      /* ********************** [실제 서버 통신용 - 나중에 주석 해제]
+      // ✅ [실제 서버 통신용 - 주석 해제]
       const res = await axiosApi.post(`/auth/withdraw/${member.memberNo}`);
       if (res.status === 200) {
         toast.success("탈퇴 처리가 완료되었습니다.");
@@ -167,42 +169,11 @@ export default function MyPage() {
     } catch (err) {
       toast.error(err.response?.data?.message || "탈퇴 처리 중 오류가 발생했습니다.");
     }
-      **************************** */
-
-      // [임시 목업 테스트용]
-      console.log(
-        "서버 탈퇴 API 호출 시뮬레이션 (회원번호:",
-        member?.memberNo,
-        ")"
-      );
-      toast.success("탈퇴 처리가 완료되었습니다. (테스트)");
-
-      setTimeout(() => {
-        logout();
-        navigate("/");
-      }, 1500);
-    } catch (err) {
-      toast.error(err.response?.data || "탈퇴 처리 중 오류가 발생했습니다.");
-    }
   };
 
   const handleWithdrawalClick = async () => {
     try {
-      const mockActiveCount = 3; // 테스트용, 0이면 탈퇴 가능
-      if (mockActiveCount > 0) {
-        toast.error(
-          <>
-            진행 중인 경매나 주문이 ({mockActiveCount}건) 있어
-            <br />
-            탈퇴가 불가능합니다.
-            <br />
-            관리자에게 문의해주세요.
-          </>
-        );
-        return;
-      }
-      // --------------------------------------------- 여기까지 삭제
-
+      // ✅ 목업(진행중 건수) 체크 블록 삭제
       showConfirm(
         "정말 탈퇴하시겠습니까?",
         "탈퇴 시 모든 데이터는 복구가 불가능하며\n즉시 로그아웃됩니다.\n구글 로그인은 추가로 연동해제 해주세요.",

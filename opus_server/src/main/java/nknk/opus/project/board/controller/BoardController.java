@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +28,25 @@ public class BoardController {
 
 	private final BoardService service;
 
+	/** 토큰(로그인) 필수 체크 */
+	private void requireAuth(Authentication authentication) {
+		if (authentication == null || authentication.getPrincipal() == null) {
+			throw new RuntimeException("로그인이 필요합니다.");
+		}
+	}
+
+	/** Authentication에서 memberNo 추출 */
+	private int getMemberNo(Authentication authentication) {
+		requireAuth(authentication);
+		return Integer.parseInt((String) authentication.getPrincipal());
+	}
+
+	/** Authentication에서 role 추출 */
+	private String getRole(Authentication authentication) {
+		requireAuth(authentication);
+		return authentication.getAuthorities().stream().map(a -> a.getAuthority()).findFirst().orElse(null);
+	}
+
 	/* 게시글 목록 조회 */
 	@GetMapping("/list/{boardTypeCode}")
 	public List<Board> selectBoardList(@PathVariable("boardTypeCode") int boardTypeCode,
@@ -42,64 +60,72 @@ public class BoardController {
 		return service.selectBoardDetail(boardNo);
 	}
 
-	/* 게시글 등록 (텍스트 + 이미지 업로드) */
-	@PostMapping(value = "/insert", consumes = "multipart/form-data")
-	public int insertBoard(@RequestPart("board") Board board,
+	/* 게시글 등록 */
+	@PostMapping(value = "/insert", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public int insertBoard(Authentication authentication, @RequestPart("board") Board board,
 			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+		int memberNo = getMemberNo(authentication);
+		board.setMemberNo(memberNo);
 		return service.insertBoard(board, images);
 	}
 
 	/* 게시글 텍스트 수정 */
 	@PutMapping("/update/{boardNo}")
-	public int updateBoard(@PathVariable("boardNo") int boardNo, @RequestBody Board board) {
+	public int updateBoard(Authentication authentication, @PathVariable("boardNo") int boardNo,
+			@RequestBody Board board) {
+		int memberNo = getMemberNo(authentication);
+
 		board.setBoardNo(boardNo);
+		board.setMemberNo(memberNo);
+
 		return service.updateBoard(board);
 	}
 
 	/* 게시글 전체 수정 (텍스트 + 이미지 교체) */
 	@PutMapping(value = "/update-with-images/{boardNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public int updateBoardWithImages(@PathVariable("boardNo") int boardNo, @RequestPart("board") Board board,
+	public int updateBoardWithImages(Authentication authentication, @PathVariable("boardNo") int boardNo,
+			@RequestPart("board") Board board,
 			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+		int memberNo = getMemberNo(authentication);
+
 		board.setBoardNo(boardNo);
+		board.setMemberNo(memberNo);
+
 		return service.updateBoardWithImages(board, images);
 	}
 
 	/* 게시글 이미지 부분 수정 (기존삭제 + 신규추가) */
-	@PutMapping(value = "/update-images/{boardNo}", consumes = "multipart/form-data")
-	public int updateBoardImagesPartial(@PathVariable("boardNo") int boardNo, @RequestPart("board") Board board,
+	@PutMapping(value = "/update-images/{boardNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public int updateBoardImagesPartial(Authentication authentication, @PathVariable("boardNo") int boardNo,
+			@RequestPart("board") Board board,
 			@RequestPart(value = "deleteImgNos", required = false) String deleteImgNosJson,
 			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+		int memberNo = getMemberNo(authentication);
+
 		board.setBoardNo(boardNo);
+		board.setMemberNo(memberNo);
+
 		return service.updateBoardImagesPartial(board, deleteImgNosJson, images);
 	}
 
-	/* 게시글 삭제 (논리 삭제) */
+	/* 게시글 삭제 */
 	@DeleteMapping("/delete/{boardNo}")
-	public int deleteBoard(@PathVariable("boardNo") int boardNo) {
-		return service.deleteBoard(boardNo);
+	public int deleteBoard(Authentication authentication, @PathVariable("boardNo") int boardNo) {
+		int memberNo = getMemberNo(authentication);
+		return service.deleteBoard(boardNo, memberNo);
 	}
 
 	/* 작성 게시글 조회 (기업회원만) */
 	@GetMapping("/my")
 	public List<Board> selectMyBoards(Authentication authentication) {
 
-	    if (authentication == null) {
-	        throw new RuntimeException("로그인이 필요합니다.");
-	    }
+		int memberNo = getMemberNo(authentication);
 
-	    // JWT 필터에서 넣어준 memberNo 꺼내기
-	    String memberNoStr = (String) authentication.getPrincipal();
-	    int memberNo = Integer.parseInt(memberNoStr);
+		String role = getRole(authentication);
+		if (!Role.COMPANY.getKey().equals(role)) {
+			throw new RuntimeException("기업 회원만 접근 가능합니다.");
+		}
 
-	    // 권한(role) 꺼내기
-	    String role = authentication.getAuthorities()
-	            .iterator().next()
-	            .getAuthority();
-
-	    if (!role.equals(Role.COMPANY.getKey())) {
-	        throw new RuntimeException("기업 회원만 접근 가능합니다.");
-	    }
-
-	    return service.selectMyBoards(memberNo);
+		return service.selectMyBoards(memberNo);
 	}
 }

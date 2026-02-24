@@ -275,3 +275,143 @@
   border-radius: 10px;
   font-weight: 700;
 }
+
+/* =========================================================
+   Responsive (mypage)
+   - PC 기본(현재)
+   - 1100px: 패딩/사이드바 축소
+   - 860px: 사이드바+메인 세로 스택(상단 가로 메뉴)
+   - 520px: 모바일 버튼/패딩 최적화
+========================================================= */
+
+@media (max-width: 1100px){
+  .mypage{
+    --sidebar: 220px;
+    --pad: 28px;
+  }
+
+  .mypage .sidebar__nav{
+    padding: 0 var(--pad) 0 16px;
+  }
+
+  .mypage .main{
+    margin-top: -20px; /* 기존 -45px 완화 */
+  }
+
+  .mypage .card__head{
+    padding: 10px 24px;
+  }
+  .mypage .card__body{
+    padding: 24px;
+  }
+
+  .mypage .input{
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 860px){
+  /* ✅ 레이아웃: 사이드바(좌) -> 상단 메뉴로 */
+  .mypage{
+    flex-direction: column;
+  }
+
+  .mypage .sidebar{
+    position: relative; /* sticky 해제 */
+    top: 0;
+    width: 100%;
+    flex: none;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #f3f4f6;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .mypage .sidebar__nav{
+    padding: 0 16px;
+  }
+
+  .mypage .nav-group{
+    margin-bottom: 12px;
+  }
+
+  .mypage .nav-group__title{
+    display: none; /* 모바일/태블릿에선 그룹 타이틀 숨김 */
+  }
+
+  /* 세로 리스트 -> 가로 스크롤 탭 */
+  .mypage .nav-list{
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mypage .nav-link{
+    white-space: nowrap;
+    padding: 10px 12px;
+    border-radius: 999px;
+    background: #f9fafb;
+  }
+
+  .mypage .nav-link i{
+    display: none; /* 공간 아껴서 탭처럼 */
+  }
+
+  .mypage .main{
+    width: 100%;
+    margin-top: 0;     /* 음수 마진 제거 */
+    min-height: auto;
+  }
+
+  .mypage .main__inner{
+    padding: 16px 16px 28px;
+  }
+
+  .mypage .card{
+    margin-bottom: 18px;
+  }
+
+  .mypage .card__head{
+    padding: 12px 18px;
+  }
+  .mypage .card__body{
+    padding: 18px;
+  }
+
+  /* 인풋/버튼 폭은 화면에 맞게 */
+  .mypage .input{
+    max-width: 100%;
+  }
+
+  /* 버튼 줄바꿈 허용 */
+  .mypage .tel-buttons{
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 520px){
+  .mypage{
+    --pad: 16px;
+  }
+
+  .mypage .main__inner{
+    padding: 14px 14px 24px;
+  }
+
+  .mypage .card__title{
+    font-size: 18px;
+  }
+
+  /* 모바일에서 버튼 꽉 차게(필요하면) */
+  .mypage .btn--check,
+  .mypage .btn--primary.btn--save{
+    width: 100%;
+  }
+
+  .mypage .tel-buttons{
+    width: 100%;
+  }
+}

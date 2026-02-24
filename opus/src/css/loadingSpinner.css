@@ -48,3 +48,23 @@
     opacity: 1;
   }
 }
+
+/* =========================================
+   Loading Responsive (Optional)
+========================================= */
+
+@media (max-width: 520px){
+  .loading-wrapper{
+    min-height: 50vh; /* 화면 작은데 공간 너무 먹는 것 방지 */
+    gap: 14px;
+  }
+
+  .loading-text{
+    font-size: 18px;
+  }
+
+  .dot-loader span{
+    width: 8px;
+    height: 8px;
+  }
+}

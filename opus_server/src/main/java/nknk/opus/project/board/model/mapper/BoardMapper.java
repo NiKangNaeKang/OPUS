@@ -23,7 +23,7 @@ public interface BoardMapper {
 
 	int updateBoard(Board board);
 
-	int deleteBoard(@Param("boardNo") int boardNo);
+	int deleteBoard(@Param("boardNo") int boardNo, @Param("memberNo") int memberNo);
 
 	List<String> selectBoardImageRenames(@Param("boardNo") int boardNo);
 

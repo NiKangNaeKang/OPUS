@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosApi from "../../api/axiosAPI";
 import { toast } from "react-toastify";
@@ -6,12 +6,25 @@ import { showConfirm } from "../../components/toast/ToastUtils";
 import "../../css/myPosts.css";
 
 export default function MyPosts() {
-
-  console.log("baseURL:", axiosApi.defaults.baseURL); ////////////////////////////////
-
   const navigate = useNavigate();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const API_BASE = import.meta.env.VITE_API_URL;
+  const FALLBACK_IMG = "/proposals-no-image.png";
+
+  const categoryLabel = {
+    musical: "뮤지컬",
+    exhibition: "전시",
+    auction: "경매",
+    goods: "굿즈",
+  };
+
+  const toAbsUrl = (path) => {
+    if (!path) return "";
+    if (/^https?:\/\//i.test(path)) return path;
+    return `${API_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+  };
 
   useEffect(() => {
     const fetchMyPosts = async () => {
@@ -50,8 +63,20 @@ export default function MyPosts() {
     );
   };
 
+  const getThumb = (item) => {
+    const t1 = item.thumbnailPath;
+    if (t1) return toAbsUrl(t1);
+
+    const first = item.imageList?.[0];
+    if (first?.boardImgFullpath) return toAbsUrl(first.boardImgFullpath);
+    if (first?.imgPath && first?.imgRename) return toAbsUrl(first.imgPath + first.imgRename);
+
+    return FALLBACK_IMG;
+  };
+
   return (
     <main className="proposals-page my-posts-page">
+      <div className="my-posts-container">
       <header className="proposals-header">
         <h2>등록한 컨텐츠</h2>
         <p>내가 작성한 게시글을 확인/수정/삭제할 수 있습니다.</p>
@@ -62,28 +87,36 @@ export default function MyPosts() {
       ) : list.length === 0 ? (
         <div className="proposals-empty">작성한 글이 없습니다.</div>
       ) : (
-        <div className="proposals-grid">
+        <div className="mycards-grid">
           {list.map((item) => (
-            <div
+            <article
               key={item.boardNo}
-              className="proposal-card"
+              className="mycard"
               onClick={() => goDetail(item.boardNo)}
               role="button"
             >
-              <div className="proposal-card__top">
-                <div className="proposal-card__title">{item.boardTitle}</div>
-                <div className="proposal-card__meta">
-                  <span>{item.boardWriteDate?.substring(0, 10)}</span>
-                  <span>{item.boardCategory}</span>
+              <div className="mycard__thumb">
+                <img
+                  src={getThumb(item)}
+                  alt=""
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.src = FALLBACK_IMG;
+                  }}
+                />
+              </div>
+
+              <div className="mycard__body">
+                <div className="mycard__meta">
+                  <span className="pill">
+                    {categoryLabel[item.boardCategory] ?? item.boardCategory ?? "카테고리"}
+                  </span>
+                  <span className="date">{item.boardWriteDate?.substring(0, 10)}</span>
                 </div>
+                <h3 className="mycard__title">{item.boardTitle}</h3>
               </div>
 
-              <div className="proposal-card__content">
-                {(item.boardContent || "").slice(0, 80)}
-                {(item.boardContent || "").length > 80 ? "..." : ""}
-              </div>
-
-              <div className="proposal-card__actions">
+              <div className="mycard__actions">
                 <button
                   type="button"
                   className="btn btn--primary"
@@ -103,10 +136,11 @@ export default function MyPosts() {
                   삭제
                 </button>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}
+      </div>
     </main>
   );
 }

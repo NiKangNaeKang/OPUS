@@ -1,197 +1,126 @@
-/* my-posts.css
-   - orders.css 스타일을 MyPosts.jsx 구조에 맞게 이식
-   - MyPosts 마크업: .proposals-page.my-posts-page / .proposals-header / .proposals-grid / .proposal-card ...
-*/
+.mycards-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 320px));
+  gap: 18px;
+  justify-content: left;
+}
 
-/* 페이지 래퍼 */
-.proposals-page.my-posts-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 120px 24px 80px;
-
-  /* 기본 텍스트/배경 톤 */
+.mycard{
+  border: 0;              /* ✅ 회색 테두리 제거 */
+  border-radius: 12px;
+  overflow: hidden;
   background: #fff;
-  color: #111827;
-  font-family: "Noto Sans KR", system-ui, sans-serif;
-}
-
-/* 헤더 */
-.proposals-page.my-posts-page .proposals-header {
-  margin-bottom: 40px;
-  text-align: center;
-}
-
-.proposals-page.my-posts-page .proposals-header h2 {
-  font-size: 32px;
-  font-weight: 900;
-  margin: 0 0 12px;
-}
-
-.proposals-page.my-posts-page .proposals-header p {
-  font-size: 14px;
-  color: #6b7280;
-  margin: 0;
-}
-
-/* 로딩/빈상태 (MyPosts에서 proposals-empty 사용) */
-.proposals-page.my-posts-page .proposals-empty {
-  text-align: center;
-  padding: 80px 20px;
-  color: #6b7280;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-/* 리스트(카드 그리드) */
-.proposals-page.my-posts-page .proposals-grid {
+  cursor: pointer;
+  transition: transform .2s; /* ✅ 커짐만 */
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  min-height: 300px;
 }
 
-/* 카드 */
-.proposals-page.my-posts-page .proposal-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  background: #fff;
-  padding: 24px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.proposals-page.my-posts-page .proposal-card:hover {
+.mycard:hover{
   border-color: #111827;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
 }
 
-/* 카드 헤더(상단) */
-.proposals-page.my-posts-page .proposal-card__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #f3f4f6;
-  gap: 16px;
-}
-
-.proposals-page.my-posts-page .proposal-card__title {
-  font-size: 16px;
-  font-weight: 900;
-  margin: 0;
-  flex: 1;
-
-  /* 길면 말줄임 */
+.mycard__thumb{
+  background: #f3f4f6;
+  aspect-ratio: 4 / 3;   /* 썸네일 영역 */
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-/* 메타(날짜/카테고리) */
-.proposals-page.my-posts-page .proposal-card__meta {
+.mycard__thumb img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mycard__body{
+  padding: 16px 16px 10px;
   display: flex;
+  flex-direction: column;
   gap: 10px;
+  flex: 1; /* ✅ 버튼을 아래로 밀기 */
+}
+
+.mycard__meta{
+  display: flex;
   align-items: center;
-  flex-shrink: 0;
+  justify-content: space-between;
+  gap: 12px;
   color: #6b7280;
   font-size: 12px;
   font-weight: 700;
-  white-space: nowrap;
 }
 
-/* 카테고리 pill 느낌 */
-.proposals-page.my-posts-page .proposal-card__meta span:last-child {
-  padding: 6px 12px;
+.mycard__meta .pill{
+  padding: 6px 10px;
   border-radius: 999px;
   border: 1px solid #e5e7eb;
+  color: #374151;
   background: #fff;
-  color: #374151;
 }
 
-/* 본문 요약 */
-.proposals-page.my-posts-page .proposal-card__content {
-  color: #374151;
-  font-size: 14px;
-  line-height: 1.6;
-  margin: 14px 0 0;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-/* 액션 버튼 영역 */
-.proposals-page.my-posts-page .proposal-card__actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid #f3f4f6;
-}
-
-/* 버튼 베이스 */
-.proposals-page.my-posts-page .btn {
-  padding: 8px 20px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
-  font-size: 13px;
-  font-weight: 800;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.proposals-page.my-posts-page .btn:hover {
-  border-color: #111827;
+.mycard__title{
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
   color: #111827;
+  line-height: 1.3;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* primary 버튼 */
-.proposals-page.my-posts-page .btn.btn--primary {
-  border-color: #111827;
-  background: #111827;
-  color: #fff;
+.mycard__actions{
+  border-top: 1px solid #f3f4f6;
+  padding: 12px 16px 16px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
 }
 
-.proposals-page.my-posts-page .btn.btn--primary:hover {
-  opacity: 0.9;
+@media (max-width: 1024px){
+  .mycards-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* 반응형 */
-@media (max-width: 768px) {
-  .proposals-page.my-posts-page {
-    padding: 100px 16px 60px;
-  }
-
-  .proposals-page.my-posts-page .proposals-header h2 {
-    font-size: 24px;
-  }
-
-  .proposals-page.my-posts-page .proposal-card {
-    padding: 16px;
-  }
-
-  .proposals-page.my-posts-page .proposal-card__top {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .proposals-page.my-posts-page .proposal-card__title {
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .proposals-page.my-posts-page .proposal-card__actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .proposals-page.my-posts-page .btn {
-    width: 100%;
-  }
+@media (max-width: 640px){
+  .mycards-grid{ grid-template-columns: 1fr; }
 }
+
+/* 페이지 래퍼: padding만 담당 */
+.proposals-page.my-posts-page{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 90px 24px 80px;
+  background:#fff;
+}
+
+.mycard:hover{
+  transform: scale(1.02);   /* ✅ 카드 전체 커짐만 */
+}
+
+/* ===== 수정 / 삭제 버튼 ===== */
+
+.mycard__actions .btn{
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #fff;
+
+  /* ✅ 테두리 추가 */
+  border: 1px solid #d1d5db;
+  color: #374151;
+
+  transition: all .15s ease;
+}
+
+.mycard__actions .btn:hover{
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+

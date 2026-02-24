@@ -1,12 +1,9 @@
-// Proposals.jsx
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosApi from "../../api/axiosAPI";
 import "../../css/proposals.css";
 import Pagination from "./Pagination";
 import { useAuthStore } from "../../components/auth/useAuthStore";
-
-// ✅ 추가
 import LoadingSpinner from "../../components/loading/LoadingSpinner";
 
 const Proposals = () => {
@@ -72,7 +69,6 @@ const Proposals = () => {
     return `${API_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
   };
 
-  /* 홍보 탭 썸네일 후보를 최대한 잡고, 최종 URL로 변환 */
   const getThumbSrc = (item) => {
     const path =
       item.boardThumbnail ||

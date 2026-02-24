@@ -165,3 +165,35 @@
   color: var(--muted);
   font-size: 18px;
 }
+
+/* Responsive (proposal-detail.css) */
+@media (max-width: 860px){
+  .proposal-detail-page .detail-container{
+    padding: 0 20px;
+  }
+  .proposal-detail-page .detail-title{
+    font-size: 26px;
+    line-height: 1.4;
+  }
+  .proposal-detail-page .detail-info{
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 520px){
+  .proposal-detail-page .detail-container{
+    padding: 0 16px;
+  }
+  .proposal-detail-page .detail-title{
+    font-size: 22px;
+  }
+  .proposal-detail-page .detail-footer{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .proposal-detail-page .btn-group{
+    justify-content: flex-end;
+  }
+}
