@@ -12,4 +12,10 @@ public interface AdminMapper {
 
 	List<Report> getReport();
 
+	int confirmReview(int reportNo);
+
+	int cancleReview(int reportNo);
+
+	int updateReviewDelFl(int reportNo);
+
 }

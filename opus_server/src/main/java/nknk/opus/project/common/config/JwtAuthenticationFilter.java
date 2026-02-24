@@ -26,35 +26,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		// 1. Authorization 헤더 확인
 		String authHeader = request.getHeader("Authorization");
-		String token = null;
 
-		// 2. Bearer 토큰 추출
-		if (authHeader != null && authHeader.startsWith("Bearer ")) {
-			token = authHeader.substring(7);
+		// Authorization 헤더 없으면 그냥 통과 (비로그인 상태)
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			filterChain.doFilter(request, response);
+			return;
+		}
 
-			// 3. 토큰 검증
+		String token = authHeader.substring(7).trim();
+
+		// 프론트에서 오는 쓰레기 토큰 방어
+		if (token.isBlank() || token.equalsIgnoreCase("undefined") || token.equalsIgnoreCase("null")
+				|| token.equalsIgnoreCase("NaN")) {
+
+			// 로그인 안 한 요청으로 간주
+			filterChain.doFilter(request, response);
+			return;
+		}
+
+		try {
+			// 정상 토큰 검증
 			if (jwtUtil.validateToken(token)) {
-				// 4. 정보 추출 및 권한 설정
+
 				String memberNo = jwtUtil.getMemberNo(token);
 				String role = jwtUtil.getMemberRole(token);
 
-				// 5. 시큐리티 인증 객체 생성 및 컨텍스트 저장
 				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(memberNo,
 						null, Collections.singletonList(new SimpleGrantedAuthority(role)));
-				SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			} else {
-				// 6. 유효하지 않은 토큰 처리 (401 에러)
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.setContentType("application/json;charset=UTF-8");
-				response.getWriter().write("{\"message\":\"로그인이 만료되었습니다. 다시 로그인해주세요.\"}");
-				return;
+				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
+
+		} catch (Exception e) {
+			// 토큰 파싱 실패도 비로그인으로 처리
+			SecurityContextHolder.clearContext();
 		}
 
-		// 7. 다음 필터로 진행
+		// 무조건 다음 필터 진행
 		filterChain.doFilter(request, response);
 	}
 }

@@ -6,4 +6,24 @@
 		SELECT REPORT_NO, REPORT_REASON, REPORT_DETAIL, REPORT_DATE, REPORT_STATUS, REPORTER_NO, REPORTED_NO, REVIEW_NO
 		FROM REPORT
 	</select>
+	
+	<update id="confirmReview">
+		UPDATE REPORT
+		SET REPORT_STATUS = 'APPROVED'
+		WHERE REPORT_NO = #{reportNo}
+	</update>
+	
+	<update id="updateReviewDelFl">
+		UPDATE REVIEWS
+		SET REVIEW_DEL_FL = 'Y'
+		WHERE REVIEW_NO = (
+			SELECT REVIEW_NO FROM REPORT
+			WHERE REPORT_NO = #{reportNo}
+		)
+	</update>
+	
+	<delete id="cancleReview">
+		DELETE FROM REPORT
+		WHERE REPORT_NO = #{reportNo}
+	</delete>
 </mapper>
