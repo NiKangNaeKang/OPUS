@@ -18,11 +18,6 @@ const Admin = () => {
         if (resp.status === 200) {
           setItems(resp.data);
         }
-      } else if (activeTab === "inquiry") {
-        const resp = await axiosApi.get("/admin/inquire");
-        if (resp.status === 200) {
-          setItems(resp.data);
-        }
       }
     } catch (error) {
       console.error(error);
@@ -39,7 +34,7 @@ const Admin = () => {
       const resp = await axiosApi.post("/admin/confirmReview", null, {params : { reportNo }});
 
       if(resp.status === 200) {
-        alert("신고된 후기가 삭제되었습니다.");
+        alert("신고된 후기가 삭제되었습니다. (신고 승인)");
         fetchAdminData();
       }
     } catch (error) {
@@ -49,10 +44,23 @@ const Admin = () => {
 
   const cancleReview = async(reportNo) => {
     try {
-      const resp = await axiosApi.post("/admin/cancleReview", null, {params : { reportNo }})
+      const resp = await axiosApi.post("/admin/rejectReview", null, {params : { reportNo }})
 
       if(resp.status === 200) {
-        alert("신고된 후기를 목록에서 삭제하였습니다. (신고 취소)")
+        alert("신고된 후기를 목록에서 삭제하였습니다. (신고 거절)")
+        fetchAdminData();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const restoreReview = async(reviewNo) => {
+    try {
+      const resp = await axiosApi.post("/admin/restoreReview", null, {params : { reviewNo }})
+
+      if(resp.status === 200) {
+        alert("삭제된 후기를 복구하였습니다.")
         fetchAdminData();
       }
     } catch (error) {
@@ -65,7 +73,7 @@ const Admin = () => {
       <section className="orders-header">
         <h1 className="orders-title">관리자 페이지</h1>
         <p className="orders-subtitle">
-          신고 / 복구 / 문의를 관리할 수 있습니다.
+          신고 / 복구를 관리할 수 있습니다.
         </p>
       </section>
 
@@ -76,9 +84,6 @@ const Admin = () => {
           </button>
           <button className="detail-btn" onClick={() => setActiveTab("restore")}>
             복구 관리
-          </button>
-          <button className="detail-btn" onClick={() => setActiveTab("inquiry")}>
-            문의 관리
           </button>
         </div>
       </section>
@@ -130,34 +135,50 @@ const Admin = () => {
 
                   {activeTab === "restore" && (
                     <>
-                      <button className="detail-btn">승인</button>
-                      <button className="detail-btn">취소</button>
+                      <button className="detail-btn" onClick={() => restoreReview(item.reviewNo)}>복구</button>
                     </>
-                  )}
-
-                  {activeTab === "inquiry" && (
-                    <button className="detail-btn">답변 처리</button>
                   )}
                 </div>
               </div>
 
               <div className="order-card__body">
-                <div className="order-product">
-                  <div className="product-info">
-                    <p className="product-name">
-                      {item.reportReason || "신고 사유 없음"}
-                    </p>
-                    <p className="product-name">
-                      {item.reportDetail || "신고 상세 내용 없음"}
-                    </p>
-                    <p className="product-name">
-                      신고 상태: {item.reportStatus}
-                    </p>
-                    <p className="product-name">
-                      신고일: {item.reportDate}
-                    </p>
+                {activeTab === "report" && (
+                  <div className="order-product">
+                    <div className="product-info">
+                      <p className="product-name">
+                        {item.reportReason || "신고 사유 없음"}
+                      </p>
+                      <p className="product-name">
+                        {item.reportDetail || "신고 상세 내용 없음"}
+                      </p>
+                      <p className="product-name">
+                        신고 상태: {item.reportStatus}
+                      </p>
+                      <p className="product-name">
+                        신고일: {item.reportDate}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {activeTab === "restore" && (
+                  <div className="order-product">
+                    <div className="product-info">
+                      <p className="product-name">
+                        회원 이메일 : {item.memberEmail}
+                      </p>
+                      <p className="product-name">
+                        공연/전시 번호 : {item.stageNo}
+                      </p>
+                      <p className="product-name">
+                        후기 내용 : {item.reviewContent}
+                      </p>
+                      <p className="product-name">
+                        작성일 : {item.reviewWriteDate}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))
