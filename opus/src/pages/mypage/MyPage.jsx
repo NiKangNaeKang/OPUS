@@ -12,13 +12,10 @@ export default function MyPage() {
   const { member, token, login, logout } = useAuthStore();
   const { isTelChecked, setIsTelChecked, handleCheckTel } = useAuthValidation();
 
-  // ✅ role 변수 (ADMIN / COMPANY / USER 등)
   const role = member?.role;
 
-  // 구글 로그인 타입 확인
   const isSocialUser = member?.loginType?.toLowerCase() === "google";
 
-  // ✅ 계정 타입 문구 (Google / ADMIN / COMPANY)
   const accountLabel = useMemo(() => {
     if (member?.loginType?.toLowerCase() === "google")
       return "(Google 계정으로 사용 중 입니다.)";
@@ -59,6 +56,9 @@ export default function MyPage() {
     {
       title: "활동 내역",
       items: [
+        ...(role === "COMPANY"
+        ? [{ id: "my-posts", icon: "fa-regular fa-pen-to-square", label: "등록 컨텐츠" }]
+        : []),
         { id: "wishlist", icon: "fa-regular fa-heart", label: "찜한 리스트" },
         { id: "reviews", icon: "fa-regular fa-comment", label: "작성 후기" },
         { id: "orders", icon: "fa-solid fa-receipt", label: "주문 내역" },
@@ -205,7 +205,7 @@ export default function MyPage() {
 
       showConfirm(
         "정말 탈퇴하시겠습니까?",
-        "탈퇴 시 모든 데이터는 복구가 불가능하며\n즉시 로그아웃됩니다.\n구글 로그인은 추가로 연동해제해주세요.",
+        "탈퇴 시 모든 데이터는 복구가 불가능하며\n즉시 로그아웃됩니다.\n구글 로그인은 추가로 연동해제 해주세요.",
         processWithdrawal,
         "확인"
       );
@@ -291,7 +291,6 @@ export default function MyPage() {
                 <div className="field">
                   <label className="label">
                     이메일
-                    {/* ✅ Google/관리자/기업 모두 표시되게 변경 */}
                     {accountLabel && (
                       <span
                         style={{

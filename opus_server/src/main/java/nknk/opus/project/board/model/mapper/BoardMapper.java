@@ -37,4 +37,6 @@ public interface BoardMapper {
 
 	int countImages(@Param("boardNo") int boardNo);
 
+	List<Board> selectMyBoards(int memberNo);
+
 }

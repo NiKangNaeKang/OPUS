@@ -71,7 +71,7 @@ public class BoardServiceImpl implements BoardService {
 		List<String> savedFiles = new ArrayList<>();
 
 		List<String> allowedExts = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", ".webp");
-		long maxSize = 10 * 1024 * 1024; //10mb
+		long maxSize = 10 * 1024 * 1024; // 10mb
 
 		try {
 			for (MultipartFile file : images) {
@@ -327,4 +327,10 @@ public class BoardServiceImpl implements BoardService {
 			throw new RuntimeException(e.getMessage());
 		}
 	}
+
+	@Override
+	public List<Board> selectMyBoards(int memberNo) {
+		return mapper.selectMyBoards(memberNo);
+	}
+
 }

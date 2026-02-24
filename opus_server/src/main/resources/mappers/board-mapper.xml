@@ -163,7 +163,8 @@
 
 	<!-- 해당 게시글 이미지 파일명(리네임) 전체 조회 -->
 	<select id="selectBoardImageRenames" resultType="string">
-		SELECT BOARD_IMG_RE
+		SELECT
+		BOARD_IMG_RE
 		FROM "BOARD_IMAGE"
 		WHERE BOARD_NO = #{boardNo}
 	</select>
@@ -224,5 +225,27 @@
 		WHEN MATCHED THEN
 		UPDATE SET BI.BOARD_IMG_ORDER = T.NEW_ORDER
 	</update>
+
+	<!-- 작성 게시글 조회 (기업회원: BOARD_TYPE_CODE=2 고정) -->
+	<select id="selectMyBoards" resultMap="boardDetailMap">
+		SELECT
+		BOARD_NO,
+		BOARD_TYPE_CODE,
+		MEMBER_NO,
+		BOARD_TITLE,
+		BOARD_CONTENT,
+		BOARD_WRITE_DATE,
+		BOARD_UPDATE_DATE,
+		BOARD_VIEW_COUNT,
+		BOARD_CATEGORY,
+		WRITER_COMPANY,
+		BOARD_NAME
+		FROM "BOARD"
+		WHERE MEMBER_NO = #{memberNo}
+		AND BOARD_TYPE_CODE
+		= 2
+		AND BOARD_DEL_FL = 'N'
+		ORDER BY BOARD_NO DESC
+	</select>
 
 </mapper>

@@ -33,7 +33,7 @@ const ProposalWrite = () => {
   const [deleteImgNos, setDeleteImgNos] = useState(new Set());
 
   const newPreviews = useMemo(
-    () => newImages.map((f) => ({ file: f, url: URL.createObjectURL(f) })),
+    () => newImages.map((f) => ({ url: URL.createObjectURL(f) })),
     [newImages]
   );
 
@@ -217,13 +217,6 @@ const ProposalWrite = () => {
       return alert("기업회원은 이벤트/홍보글만 작성/수정 가능합니다.");
     }
 
-    // ✅ 관리자/기업 둘 다 writerCompany 공백 방지
-    if (role === "ADMIN") {
-      if (!formData.writerCompany?.trim()) {
-        setFormData((prev) => ({ ...prev, writerCompany: "관리자" }));
-      }
-    }
-
     if (role === "COMPANY" && !formData.writerCompany.trim()) {
       return alert("작성자(회사명)를 입력해주세요.");
     }
@@ -403,11 +396,25 @@ const ProposalWrite = () => {
                       key={img.boardImgNo}
                       title={willDelete ? "삭제 예정" : "유지"}
                     >
-                      <img
-                        src={img.url}
-                        alt={`existing-${idx}`}
-                        onError={(e) => (e.currentTarget.src = FALLBACK_IMG)}
-                      />
+                      
+<img
+  src={img.url}
+  alt={`existing-${idx}`}
+  onError={(e) => {
+    const el = e.currentTarget;
+
+    // ✅ 동일 요소에서 중복 onError 방지
+    if (el.dataset.broken === "1") return;
+    el.dataset.broken = "1";
+
+    // ✅ 깨진 이미지는 숨김 (파일명/깨진아이콘/깜빡임 방지)
+    el.style.display = "none";
+
+    // ✅ 혹시라도 브라우저가 재시도하며 다시 호출해도 끝
+    el.onerror = null;
+  }}
+/>
+
                       <button
                         type="button"
                         className="preview-remove"

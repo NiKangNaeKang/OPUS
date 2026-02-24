@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axiosApi from "../../api/axiosAPI";
 import { useAuthStore } from "../../components/auth/useAuthStore";
 import "../../css/proposals-detail.css";
+import LoadingSpinner from "../../components/loading/LoadingSpinner";
 
 const ProposalDetail = () => {
   const { boardNo } = useParams();
@@ -107,7 +108,7 @@ const ProposalDetail = () => {
     });
   };
 
-  if (isLoading) return <div className="loading">로딩 중...</div>;
+  if (isLoading) return <LoadingSpinner text="게시글을 불러오고 있습니다!" />;
   if (!data) return null;
 
   const role = member?.role;

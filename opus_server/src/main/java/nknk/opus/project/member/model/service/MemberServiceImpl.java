@@ -154,7 +154,7 @@ public class MemberServiceImpl implements MemberService {
 		return mapper.signup(inputMember);
 	}
 
-	/* 연락처 수정 */
+	/* 연락처 변경 */
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int updateTel(Member inputMember) {

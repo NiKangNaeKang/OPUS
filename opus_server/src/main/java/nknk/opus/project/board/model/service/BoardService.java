@@ -21,4 +21,6 @@ public interface BoardService {
 	int updateBoardWithImages(Board board, List<MultipartFile> images);
 
 	int updateBoardImagesPartial(Board board, String deleteImgNosJson, List<MultipartFile> images);
+
+	List<Board> selectMyBoards(int memberNo);
 }

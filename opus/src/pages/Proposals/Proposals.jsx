@@ -6,6 +6,9 @@ import "../../css/proposals.css";
 import Pagination from "./Pagination";
 import { useAuthStore } from "../../components/auth/useAuthStore";
 
+// ✅ 추가
+import LoadingSpinner from "../../components/loading/LoadingSpinner";
+
 const Proposals = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,7 +40,7 @@ const Proposals = () => {
   const [keyword, setKeyword] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   const categoryLabel = {
     opus: "OPUS",
@@ -49,7 +52,7 @@ const Proposals = () => {
 
   const isPromotion = activeTab === "promotion";
 
-  // ✅ 홍보탭에서는 OPUS 옵션 제거
+  // 홍보탭에서는 OPUS 옵션 제거
   const categoryOptions = useMemo(() => {
     return Object.entries(categoryLabel).filter(([key]) => {
       if (isPromotion) return key !== "opus";
@@ -57,7 +60,7 @@ const Proposals = () => {
     });
   }, [isPromotion]);
 
-  // ✅ 홍보탭인데 category가 opus면 all로 자동 보정
+  // 홍보탭인데 category가 opus면 all로 자동 보정
   useEffect(() => {
     if (isPromotion && category === "opus") setCategory("all");
   }, [isPromotion, category]);
@@ -215,7 +218,7 @@ const Proposals = () => {
         </section>
 
         {isLoading ? (
-          <div className="loading">로딩 중...</div>
+          <LoadingSpinner text="게시글을 불러오고 있습니다!" />
         ) : paginatedItems.length === 0 ? (
           <div className="empty-state">게시글이 없습니다.</div>
         ) : isPromotion ? (
