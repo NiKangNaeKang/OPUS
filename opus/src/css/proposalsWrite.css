@@ -11,8 +11,8 @@
 
 .proposals-write-page .write-header {
   border-bottom: 2px solid #111;
-  padding-bottom: 20px;
-  margin-bottom: 40px;
+  padding-bottom: 10px;
+  margin-bottom: 30px;
 }
 
 .proposals-write-page .write-header h1 {
@@ -51,12 +51,13 @@
   align-items: center;
 }
 
-.proposals-write-page .pp-input {
+.proposals-write-page .pp-input,
+.proposals-write-page .pp-select {
   width: 100%;
-  height: 44px;
-  padding: 0 16px;
+  height: 38px;
+  padding: 0 20px;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 12px;
   outline: none;
 }
 
@@ -81,7 +82,7 @@
 .proposals-write-page .btn-cancel,
 .proposals-write-page .btn-submit {
   padding: 12px 40px;
-  border-radius: 8px;
+  border-radius: 12px;
   font-weight: 700;
   cursor: pointer;
   font-size: 16px;
@@ -129,12 +130,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 44px;
-  padding: 0 18px;
-  border-radius: 10px;
+  height: 38px;
+  padding: 0 20px;
+  border-radius: 12px;
   border: 1px solid #e5e7eb;
   background: #fff;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
   user-select: none;
 }
@@ -150,7 +151,7 @@
 
 .proposals-write-page .upload-help {
   color: #6b7280;
-  font-size: 13px;
+  font-size: 16px;
 }
 
 .proposals-write-page .preview-grid {
