@@ -32,10 +32,6 @@ export default function MusicalDetail () {
       return res.data;
     }
   })
-  
-  if (isPending) return 'Loading...'
-  if (error) return error.message
-  if (!data) return 'No data'
 
   // =============== react-share 사용하기 ===============
   const currentURL = window.location.href;
@@ -122,6 +118,10 @@ export default function MusicalDetail () {
     },
     enabled: !!bestReview?.reviewNo
   });
+
+  if (isPending) return 'Loading...'
+  if (error) return error.message
+  if (!data) return 'No data'
 
   return (
     <main className="detail-page">
