@@ -221,6 +221,11 @@
   background: #374151; 
 }
 
+.regist-submit-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .regist-grid { 
     grid-template-columns: 1fr; 
