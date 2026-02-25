@@ -290,7 +290,7 @@ export default function UnveilingDetail() {
 
   // 응찰 모달 확인 클릭 → 비밀번호 검증 후 입찰
   const onBidConfirm = useCallback(async () => {
-    if (!modalPw) {
+    if (!isSocialLogin && !modalPw) {
       setModalError("비밀번호를 입력해주세요.");
       return;
     }
