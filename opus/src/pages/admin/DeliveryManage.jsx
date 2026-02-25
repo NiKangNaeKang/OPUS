@@ -25,7 +25,6 @@ const NEXT_STATUS = {
   READY: "PAID",
   WAITING_FOR_DEPOSIT: "PAID",
   PAID: "PREPARING",
-  PREPARING: "SHIPPING",
   SHIPPING: "DELIVERED"
 };
 
@@ -176,7 +175,7 @@ const DeliveryManage = () => {
                   )}
 
                   {/* 송장 입력 */}
-                  {order.ORDER_STATUS === "PAID" && (
+                  {order.ORDER_STATUS === "PREPARING" && (
                     <button
                       className="detail-btn"
                       onClick={() => {

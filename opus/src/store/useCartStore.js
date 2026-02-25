@@ -16,6 +16,16 @@ export const useCartStore = create(
         set({ isLoggedIn: status });
       },
 
+      // 로그아웃 시 호출 — localStorage 장바구니까지 완전 초기화
+      resetCart: () => {
+        set({
+          items: [],
+          checkedKeys: [],
+          isLoggedIn: false,
+          hasMerged: false,
+        });
+      },
+
       // 서버에서 장바구니를 받아 한 번에 주입할 때(로그인/새로고침 후)
       setItems: (items) => set({ items: Array.isArray(items) ? items : [] }),
       setCheckedKeys: (keys) => set({ checkedKeys: Array.isArray(keys) ? keys : [] }),
@@ -264,7 +274,10 @@ export const useCartStore = create(
       name: "opus_cart", // localStorage key
 
       // 로그인 상태는 persist 하지 않음
-      partialize: (state) => ({ items: state.items, checkedKeys: state.checkedKeys, hasMerged: state.hasMerged }),
+      partialize: (state) => ({ 
+        items: state.items, 
+        checkedKeys: state.checkedKeys, 
+      }),
     }
   )
 );

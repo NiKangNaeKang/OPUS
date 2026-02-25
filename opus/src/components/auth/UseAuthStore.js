@@ -22,6 +22,11 @@ export const useAuthStore = create(
       // 3. 로그아웃 함수: 모든 데이터를 초기화하고 스토리지 흔적을 지움
       logout: () => {
         // Zustand 상태값을 기본값으로 변경
+
+        // 로컬 스토리지 비우기
+        localStorage.removeItem("auth-storage");
+        localStorage.removeItem("opus_cart");
+
         set({
           token: null,
           member: null,
@@ -31,12 +36,6 @@ export const useAuthStore = create(
           hasMerged: false,   // 장바구니 병합 여부 플래그 초기화
         });
 
-        // 로컬스토리지에 저장된 물리적 데이터 삭제 (계정 전환 시 데이터 꼬임 방지 핵심)
-        localStorage.removeItem("auth-storage"); // 로그인 정보 스토리지 삭제
-        localStorage.removeItem("opus-cart");    // 결제팀 장바구니 스토리지 삭제
-        
-        // 브라우저 메모리 잔상을 완전히 비우고 깨끗한 상태로 메인 이동
-        window.location.href = "/"; 
       },
     }),
     {
