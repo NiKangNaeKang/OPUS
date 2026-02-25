@@ -690,3 +690,17 @@ input, textarea{ outline:none; }
 main {
   padding-bottom: 30px;
 }
+
+#report-cancle-btn, #report-action-btn {
+  width: 80px;
+  height: 40px;
+  border-radius: 2px;
+}
+
+.report-textarea {
+  margin-top: 12px;
+}
+
+.report-actions {
+  height: 45px;
+}
