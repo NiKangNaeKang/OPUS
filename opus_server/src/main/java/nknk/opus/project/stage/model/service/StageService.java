@@ -12,5 +12,4 @@ public interface StageService {
 	int savePerform(StagePrefer stage);
 
 	Reviews selectBestReview(String stageNo);
-
 }
