@@ -68,7 +68,6 @@ public class BoardController {
 		int memberNo = getMemberNo(authentication);
 		String role = getRole(authentication);
 
-		// 기업회원은 2번 게시판만 작성 가능
 		if (Role.COMPANY.getKey().equals(role) && board.getBoardTypeCode() != 2) {
 			throw new RuntimeException("기업회원은 2번 게시판만 작성 가능합니다.");
 		}
