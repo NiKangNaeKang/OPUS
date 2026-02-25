@@ -28,6 +28,7 @@ import ScrollToTop from "./components/common/ScrollToTop";
 import ProposalWrite from "./pages/proposals/ProposalWrite";
 import SavedList from "./pages/mypage/SavedList";
 import ReviewList from "./pages/mypage/ReviewList";
+import UnveilingHistory from "./pages/mypage/UnveilingHistory";
 import FAQ from "./pages/footer/FAQ";
 import Terms from "./pages/footer/Terms";
 import About from "./pages/footer/About";
@@ -79,6 +80,7 @@ export default function App() {
           <Route path="/mypage/orders/:orderNo" element={<OrderDetail />} />
           <Route path="/mypage/wishlist" element={<SavedList />} />
           <Route path="/mypage/reviews" element={<ReviewList />} />
+          <Route path="/mypage/auction-history" element={<UnveilingHistory />} />
           <Route path="/mypage/myPosts" element={<MyPosts />} />
 
           <Route path="/faq" element={<FAQ />} />

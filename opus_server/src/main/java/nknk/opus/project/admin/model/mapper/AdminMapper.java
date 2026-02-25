@@ -10,6 +10,7 @@ import nknk.opus.project.reviews.model.dto.Report;
 import nknk.opus.project.selections.model.dto.Goods;
 import nknk.opus.project.selections.model.dto.GoodsImg;
 import nknk.opus.project.selections.model.dto.GoodsOption;
+import nknk.opus.project.unveiling.model.dto.Unveiling;
 import nknk.opus.project.reviews.model.dto.Reviews;
 
 
@@ -54,5 +55,9 @@ public interface AdminMapper {
 	int updateTracking(@Param("orderNo") int orderNo, 
 			@Param("deliveryCompany") String deliveryCompany, 
 			@Param("trackingNumber") String trackingNumber);
+
+	List<Unveiling> selectAllUnveilings();
+
+	int insertUnveiling(Unveiling unveiling);
 
 }
