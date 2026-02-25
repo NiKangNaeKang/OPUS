@@ -78,22 +78,60 @@
 	        #{goodsColor}, #{stock}
 	    )
 	</insert>
+
+<!-- 상품 기본 정보 수정 -->
+	<update id="updateGoods" parameterType="Goods">
+	    UPDATE GOODS
+	    SET GOODS_NAME     = #{goodsName},
+	        GOODS_SORT     = #{goodsSort},
+	        GOODS_CATEGORY = #{goodsCategory},
+	        GOODS_PRICE    = #{goodsPrice},
+	        DELIVERY_COST  = #{deliveryCost},
+	        GOODS_SELLER   = #{goodsSeller},
+	        GOODS_INFO     = #{goodsInfo}
+	    WHERE GOODS_NO = #{goodsNo}
+	</update>
+
+	<!-- 특정 order 이미지 삭제 (썸네일 교체 시 기존 썸네일 제거) -->
+	<delete id="deleteGoodsImgByOrder">
+	    DELETE FROM GOODS_IMG
+	    WHERE GOODS_NO      = #{goodsNo}
+	      AND GOODS_IMG_ORDER = #{order}
+	</delete>
+
+	<!-- 상세 이미지 마지막 order 조회 (수정 시 이어서 추가하기 위해) -->
+	<select id="selectLastDetailImgOrder" resultType="int">
+	    SELECT NVL(MAX(TO_NUMBER(GOODS_IMG_ORDER)), 0)
+	    FROM GOODS_IMG
+	    WHERE GOODS_NO = #{goodsNo}
+	      AND GOODS_IMG_ORDER != '0'
+	</select>
+
+	<!-- 상품 옵션 전체 삭제 (수정 시 재삽입용) -->
+	<delete id="deleteGoodsOptions">
+	    DELETE FROM GOODS_OPTION
+	    WHERE GOODS_NO = #{goodsNo}
+	</delete>
 	
 	<!-- 관리자용 전체 상품 조회 (삭제된 상품 포함) -->
 	<select id="selectAllGoodsForAdmin" resultType="Goods">
 	    SELECT 
-	        G.GOODS_NO,
-	        G.GOODS_NAME,
-	        G.GOODS_SORT,
-	        G.GOODS_CATEGORY,
-	        G.GOODS_PRICE,
-	        G.DELIVERY_COST,
-	        G.GOODS_SELLER,
-	        G.GOODS_THUMBNAIL,
-	        TO_CHAR(G.GOODS_REG_DATE, 'YYYY-MM-DD') AS GOODS_REG_DATE,
-	        G.GOODS_DEL_FL
-	    FROM GOODS G
-	    ORDER BY G.GOODS_NO DESC
+        G.GOODS_NO,
+        G.GOODS_NAME,
+        G.GOODS_SORT,
+        G.GOODS_CATEGORY,
+        G.GOODS_PRICE,
+        G.DELIVERY_COST,
+        G.GOODS_SELLER,
+        GI.GOODS_IMG_PATH,
+        GI.GOODS_IMG_RE,
+        TO_CHAR(G.GOODS_REG_DATE, 'YYYY-MM-DD') AS GOODS_REG_DATE,
+        G.GOODS_DEL_FL
+    FROM GOODS G
+    LEFT JOIN GOODS_IMG GI
+        ON G.GOODS_NO = GI.GOODS_NO
+        AND GI.GOODS_IMG_ORDER = 0
+    ORDER BY G.GOODS_NO DESC
 	</select>
 	
 	<!-- 소프트 딜리트 -->

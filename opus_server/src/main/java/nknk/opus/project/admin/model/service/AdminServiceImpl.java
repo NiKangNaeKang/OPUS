@@ -180,10 +180,115 @@ public class AdminServiceImpl implements AdminService {
 	    return result;
 	}
 
+	@Override
+	public int updateGoods(int goodsNo, GoodsRegist dto) throws Exception {
+
+		String uploadPath = fileConfig.getGoodsUploadPath();
+
+		// 기본 정보 수정
+		Goods goods = Goods.builder()
+				.goodsNo(goodsNo)
+				.goodsName(dto.getGoodsName())
+				.goodsSort(dto.getGoodsSort())
+				.goodsCategory(dto.getGoodsCategory())
+				.goodsPrice(dto.getGoodsPrice())
+				.deliveryCost(dto.getDeliveryCost())
+				.goodsSeller(dto.getGoodsSeller())
+				.goodsInfo(dto.getGoodsInfo())
+				.build();
+
+		int result = mapper.updateGoods(goods);
+		String category = dto.getGoodsCategory();
+
+		File dir = new File(uploadPath);
+		if (!dir.exists()) dir.mkdirs();
+
+		// 썸네일 변경 (새 파일이 있을 때만)
+		MultipartFile thumbnail = dto.getThumbnail();
+		if (thumbnail != null && !thumbnail.isEmpty()) {
+			String ext = thumbnail.getOriginalFilename()
+					.substring(thumbnail.getOriginalFilename().lastIndexOf("."));
+			String fileName = category + "_" + goodsNo + "_0" + ext;
+			thumbnail.transferTo(new File(uploadPath + fileName));
+
+			// 기존 썸네일 삭제 후 재삽입
+			mapper.deleteGoodsImgByOrder(goodsNo, "0");
+			GoodsImg thumbImg = GoodsImg.builder()
+					.goodsNo(goodsNo)
+					.goodsImgPath("/images/goods/")
+					.goodsImgRe(fileName)
+					.goodsImgOrder("0")
+					.build();
+			mapper.insertGoodsImg(thumbImg);
+		}
+
+		// 상세 이미지 추가 (기존 이미지 유지 + 새 이미지 이어서 추가)
+		if (dto.getDetailImgs() != null) {
+			int lastOrder = mapper.selectLastDetailImgOrder(goodsNo);
+
+			for (MultipartFile img : dto.getDetailImgs()) {
+				if (!img.isEmpty()) {
+					lastOrder++;
+					String ext = img.getOriginalFilename()
+							.substring(img.getOriginalFilename().lastIndexOf("."));
+					String fileName = category + "_" + goodsNo + "_" + lastOrder + ext;
+					img.transferTo(new File(uploadPath + fileName));
+
+					GoodsImg goodsImg = GoodsImg.builder()
+							.goodsNo(goodsNo)
+							.goodsImgPath("/images/goods/")
+							.goodsImgRe(fileName)
+							.goodsImgOrder(String.valueOf(lastOrder))
+							.build();
+					mapper.insertGoodsImg(goodsImg);
+				}
+			}
+		}
+
+		// 옵션 수정 (기존 옵션 전체 삭제 후 재삽입)
+		if (dto.getOptionsJson() != null && !dto.getOptionsJson().isEmpty()) {
+			mapper.deleteGoodsOptions(goodsNo);
+
+			ObjectMapper om = new ObjectMapper();
+			GoodsOption[] options = om.readValue(dto.getOptionsJson(), GoodsOption[].class);
+
+			boolean hasRealOption = false;
+			int defaultStock = 0;
+
+			for (GoodsOption option : options) {
+				defaultStock = option.getStock();
+				if ((option.getGoodsSize() != null && !option.getGoodsSize().isBlank())
+						|| (option.getGoodsColor() != null && !option.getGoodsColor().isBlank())) {
+					hasRealOption = true;
+					option.setGoodsNo(goodsNo);
+					mapper.insertGoodsOption(option);
+				}
+			}
+
+			if (!hasRealOption) {
+				GoodsOption nullOption = GoodsOption.builder()
+						.goodsNo(goodsNo)
+						.goodsSize(null)
+						.goodsColor(null)
+						.stock(defaultStock)
+						.build();
+				mapper.insertGoodsOption(nullOption);
+			}
+		}
+
+		return result;
+	}
+
 	// 관리자용 전체 상품 조회
 	@Override
 	public List<Goods> getGoodsListForAdmin() {
-		return mapper.selectAllGoodsForAdmin();
+		List<Goods> goodsList = mapper.selectAllGoodsForAdmin();
+		
+		for(Goods goods : goodsList) {
+			goods.setGoodsThumbnail(goods.getGoodsImgPath() + goods.getGoodsImgRe());
+		}
+		
+		return goodsList;
 	}
 
 	// 상품 소프트 삭제

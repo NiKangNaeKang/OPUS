@@ -23,6 +23,8 @@ public interface AdminService {
 
 	int registGoods(GoodsRegist dto) throws Exception;
 
+	int updateGoods(int goodsNo, GoodsRegist dto) throws Exception;
+
 	List<Goods> getGoodsListForAdmin();
 
 	int deleteGoods(int goodsNo);

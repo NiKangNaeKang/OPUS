@@ -6,6 +6,7 @@ const STATUS_OPTIONS = [
   { value: "READY", label: "주문접수" },
   { value: "WAITING_FOR_DEPOSIT", label: "입금대기" },
   { value: "PAID", label: "결제완료" },
+  { value: "PREPARING", label: "배송준비중" },
   { value: "SHIPPING", label: "배송중" },
   { value: "DELIVERED", label: "배송완료" },
   { value: "CANCELED", label: "취소" },

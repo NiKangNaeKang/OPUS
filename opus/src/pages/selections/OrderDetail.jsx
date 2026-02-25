@@ -120,7 +120,16 @@ const OrderDetail = () => {
           <div className="info-row">
             <span className="info-label">주문상태</span>
             <span className={`info-value status-${order.orderStatus.toLowerCase()}`}>
-              {order.orderStatus}
+              {{
+                READY: "주문접수",
+                WAITING_FOR_DEPOSIT: "입금대기",
+                PAID: "결제완료",
+                PREPARING: "배송준비중",
+                SHIPPING: "배송중",
+                DELIVERED: "배송완료",
+                CANCELED: "취소",
+                REFUNDED: "환불완료",
+              }[order.orderStatus] || order.orderStatus}
             </span>
           </div>
         </div>
@@ -222,6 +231,19 @@ const OrderDetail = () => {
           )}
 
           {/* 송장 정보 */}
+          {order.orderStatus === "PREPARING" && !order.trackingNumber && (
+            <>
+              <div className="info-divider"></div>
+              <div className="info-row">
+                <span className="info-label">배송 현황</span>
+                <span className="info-value" style={{ color: "#c2410c" }}>
+                  배송 준비 중입니다. 곧 출발 예정입니다.
+                </span>
+              </div>
+            </>
+          )}
+
+          {/* ✅ 송장번호 표시 (배송중 이상일 때) */}
           {order.trackingNumber && (
             <>
               <div className="info-divider"></div>
@@ -269,7 +291,6 @@ const OrderDetail = () => {
         }}
       />
 
-      <ScrollToTop />
     </main>
   );
 };

@@ -10,6 +10,14 @@ export const adminApi = {
     return resp.data;
   },
 
+  // 상품 수정 
+  updateGoods: async (goodsNo, formData) => {
+      const resp = await axiosApi.put(`/admin/goods/${goodsNo}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return resp.data;
+    },
+
   // 관리자용 상품 목록
   getGoodsList: async () => {
     const resp = await axiosApi.get("/admin/goods");

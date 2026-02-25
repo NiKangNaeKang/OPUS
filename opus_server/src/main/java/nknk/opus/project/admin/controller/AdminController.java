@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -129,6 +130,27 @@ public class AdminController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다: " + e.getMessage());
 		}
 	}
+
+	/**
+	 * 상품 수정
+	 */
+	@PutMapping("/goods/{goodsNo}")
+	public ResponseEntity<String> updateGoods(
+			@PathVariable("goodsNo") int goodsNo,
+			@ModelAttribute GoodsRegist dto) {
+		try {
+			log.info("상품 수정 요청: goodsNo={}, name={}", goodsNo, dto.getGoodsName());
+			int result = service.updateGoods(goodsNo, dto);
+			if (result == 0) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("상품 수정에 실패했습니다.");
+			}
+			return ResponseEntity.ok("상품이 수정되었습니다.");
+		} catch (Exception e) {
+			log.error("상품 수정 오류", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다: " + e.getMessage());
+		}
+	}
+
 
 	/**
 	 * 관리자용 상품 목록 조회 (삭제된 상품 포함)

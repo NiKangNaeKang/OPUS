@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axiosApi from "../../api/axiosAPI";
 import "../../css/Orders.css";
-import GoodsRegist from "./GoodsRegist";
 import DeliveryManage from "./DeliveryManage";
+import GoodsManage from "./GoodsManage";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("report");
@@ -94,10 +94,10 @@ const Admin = () => {
             복구 관리
           </button>
           <button
-            className={`filter-btn ${activeTab === "goodsRegist" ? "active" : ""}`}
-            onClick={() => setActiveTab("goodsRegist")}
+            className={`filter-btn ${activeTab === "goodsManage" ? "active" : ""}`}
+            onClick={() => setActiveTab("goodsManage")}
           >
-            상품 등록
+            상품 관리
           </button>
           <button
             className={`filter-btn ${activeTab === "delivery" ? "active" : ""}`}
@@ -216,7 +216,7 @@ const Admin = () => {
       )}
 
       {/* 상품 등록 탭 */}
-      {activeTab === "goodsRegist" && <GoodsRegist />}
+      {activeTab === "goodsManage" && <GoodsManage />}
 
       {/* 배송 관리 탭 */}
       {activeTab === "delivery" && <DeliveryManage />}

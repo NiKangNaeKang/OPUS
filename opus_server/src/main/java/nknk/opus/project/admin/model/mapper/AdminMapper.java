@@ -34,6 +34,14 @@ public interface AdminMapper {
 
 	void insertGoodsOption(GoodsOption option);
 
+	int updateGoods(Goods goods);
+
+  int deleteGoodsImgByOrder(@Param("goodsNo") int goodsNo, @Param("order") String order);
+
+  int selectLastDetailImgOrder(int goodsNo);
+	
+  int deleteGoodsOptions(int goodsNo);
+
 	List<Goods> selectAllGoodsForAdmin();
 
 	int softDeleteGoods(int goodsNo);
