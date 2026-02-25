@@ -69,10 +69,6 @@ export default function MusicalList({ status, search }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleScrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const scrollLeft = (ref) => {
     ref.current?.scrollBy({ left: -300, behavior: "smooth" });
   };
@@ -242,26 +238,6 @@ export default function MusicalList({ status, search }) {
           </div>
         )}
       </section>
-
-      {showScrollBtn && (
-        <button
-          onClick={handleScrollToTop}
-          style={{
-            position: "fixed",
-            bottom: 40,
-            right: 40,
-            width: 48,
-            height: 48,
-            borderRadius: "50%",
-            background: "#111",
-            color: "#fff",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          ↑
-        </button>
-      )}
     </>
   );
 }

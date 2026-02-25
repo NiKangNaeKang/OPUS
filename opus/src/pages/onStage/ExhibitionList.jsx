@@ -90,10 +90,6 @@ export default function ExhibitionList({ search, status }) {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  const handleScrollToTop = () => {
-    window.scrollTo({ top : 0, behavior : "smooth" });
-  }
-
   const scrollLeft = (ref) => {
     if (ref.current) {
       ref.current.scrollBy({ left: -300, behavior: "smooth" });
@@ -170,12 +166,6 @@ export default function ExhibitionList({ search, status }) {
     
       fetchPrefer();
     }, [status, loginMemberNo, allItems]);
-
-    useEffect(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, [status, search]);
-
-
     
   if (isLoading) {
     return <div style={{ padding: 80 }}>전시 불러오는 중...</div>;
@@ -317,16 +307,6 @@ export default function ExhibitionList({ search, status }) {
           </div>
         )}
       </section>
-
-      {showScrollBtn && (
-        <button
-          onClick={handleScrollToTop}
-          style={{ position: "fixed", bottom: "40px", right: "40px", width: "48px", height: "48px", borderRadius: "50%", border: "none", background: "#111", color: "#fff", fontSize: "20px", cursor: "pointer", boxShadow: "0 4px 10px rgba(0,0,0,0.2)", zIndex: 999
-          }}
-        >
-          ↑
-        </button>
-      )}
     </>
   );
 }
