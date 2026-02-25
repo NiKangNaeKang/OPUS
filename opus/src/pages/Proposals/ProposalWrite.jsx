@@ -8,6 +8,7 @@ import "../../css/proposalsWrite.css";
 const MAX_IMAGES = 5;
 
 const ProposalWrite = () => {
+
   const { boardNo } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -190,7 +191,7 @@ const ProposalWrite = () => {
 
     const remainSlots = MAX_IMAGES - remainExistingCount - newImages.length;
     if (remainSlots <= 0) {
-      alert(`이미지는 최대 ${MAX_IMAGES}장까지 가능합니다. (기존 유지 이미지 포함)`);
+      alert(`이미지는 최대 ${MAX_IMAGES}장까지 가능합니다. (기존 이미지 포함)`);
       e.target.value = "";
       return;
     }
@@ -262,7 +263,7 @@ const ProposalWrite = () => {
           newImages.forEach((file) => fd.append("images", file));
 
           await axiosUpload.put(`/api/board/update-images/${boardNo}`, fd);
-          alert("수정되었습니다. (이미지 반영)");
+          alert("수정되었습니다.");
         }
       } else {
         const fd = new FormData();

@@ -8,7 +8,7 @@ export default function AdminProtectedRoute({ children }) {
   if (!token) {
     if (!toast.isActive("auth-required")) {
       toast.error("관리자만 이용 가능합니다.", {
-        icon: false, toastId: "auth-required",
+        toastId: "auth-required",
       });
     }
     return <Navigate to="/" replace />;
@@ -17,7 +17,7 @@ export default function AdminProtectedRoute({ children }) {
   if (member?.role !== "ADMIN") {
     if (!toast.isActive("admin-only")) {
       toast.error("관리자만 접근 가능합니다.", {
-        icon: false, toastId: "admin-only",
+        toastId: "admin-only",
       });
     }
     return <Navigate to="/" replace />;

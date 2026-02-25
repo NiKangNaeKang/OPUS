@@ -6,7 +6,6 @@ const ConfirmContent = ({ closeToast, title, message, onConfirm, confirmText }) 
 const formatMessage = (msg) => {
     if (typeof msg !== "string") return msg;
 
-    // 수정된 타겟 문구
     const targetText = "구글 로그인은 추가로 연동해제 해주세요.";
     
     if (msg.includes(targetText)) {

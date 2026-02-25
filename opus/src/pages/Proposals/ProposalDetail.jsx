@@ -184,7 +184,7 @@ const ProposalDetail = () => {
         )}
 
         <section className="detail-content">
-          <div dangerouslySetInnerHTML={{ __html: data.boardContent }} />
+          <div className="detail-content-text">{data.boardContent}</div>
         </section>
 
         <footer className="detail-footer">

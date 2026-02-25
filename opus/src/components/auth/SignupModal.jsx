@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import "../../css/loginModal.css";
 import axiosApi from "../../api/axiosAPI";
-import { useAuthValidation } from "./useAuthValidation"; 
+import { useAuthValidation } from "./useAuthValidation";
+import { toast } from "react-toastify";
 
 export default function SignupModal({ open, onClose }) {
-
   const { isTelChecked, setIsTelChecked, handleCheckTel } = useAuthValidation();
 
-  // 1. 입력 데이터 상태 관리
   const [formData, setFormData] = useState({
     memberEmail: "",
     memberPw: "",
@@ -15,7 +14,6 @@ export default function SignupModal({ open, onClose }) {
     memberTel: "",
   });
 
-  // 2. 가입 절차 상태 관리
   const [authCode, setAuthCode] = useState("");
   const [isEmailChecked, setIsEmailChecked] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
@@ -26,14 +24,13 @@ export default function SignupModal({ open, onClose }) {
 
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-  // 타이머 로직
   useEffect(() => {
     let timer;
     if (isTimerActive && timeLeft > 0) {
       timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     } else if (timeLeft === 0) {
       setIsTimerActive(false);
-      setAuthCode(""); 
+      setAuthCode("");
       clearInterval(timer);
     }
     return () => clearInterval(timer);
@@ -45,7 +42,6 @@ export default function SignupModal({ open, onClose }) {
     return `${m}:${s < 10 ? `0${s}` : s}`;
   };
 
-  // 모달 닫힐 때 데이터 초기화
   useEffect(() => {
     if (!open) {
       setFormData({
@@ -64,20 +60,21 @@ export default function SignupModal({ open, onClose }) {
     }
   }, [open, setIsTelChecked]);
 
-  // 입력값 실시간 반영 및 포맷팅
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "memberTel") {
       const cleaned = value.replace(/[^0-9]/g, "");
       let formatted = cleaned;
+
       if (cleaned.length > 3 && cleaned.length <= 7) {
         formatted = `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
       } else if (cleaned.length > 7) {
         formatted = `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7, 11)}`;
       }
+
       setFormData({ ...formData, [name]: formatted });
-      setIsTelChecked(false); 
+      setIsTelChecked(false);
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -91,82 +88,131 @@ export default function SignupModal({ open, onClose }) {
   };
 
   const handleCheckEmail = async () => {
-    if (!formData.memberEmail) return alert("이메일을 입력해주세요.");
-    if (!emailRegex.test(formData.memberEmail)) return alert("올바른 이메일 형식이 아닙니다.");
+    if (!formData.memberEmail) {
+      toast.error("이메일을 입력해주세요.", { toastId: "signup-email-empty" });
+      return;
+    }
+    if (!emailRegex.test(formData.memberEmail)) {
+      toast.error("올바른 이메일 형식이 아닙니다.", { toastId: "signup-email-invalid" });
+      return;
+    }
 
     try {
       setLoading(true);
       const res = await axiosApi.post("/auth/check-email", { email: formData.memberEmail });
+
       if (res.data === true) {
-        alert("사용 중인 이메일입니다.");
+        toast.error("사용 중인 이메일입니다.", { toastId: "signup-email-duplicate" });
         setIsEmailChecked(false);
       } else {
-        alert("사용 가능한 이메일입니다.");
+        toast.success("사용 가능한 이메일입니다.", { toastId: "signup-email-available" });
         setIsEmailChecked(true);
       }
     } catch (err) {
-      alert("이메일 중복 확인 실패");
+      toast.error("이메일 중복 확인 실패", { toastId: "signup-email-check-fail" });
     } finally {
       setLoading(false);
     }
   };
 
   const handleSendCode = async () => {
+    if (!formData.memberEmail) {
+      toast.error("이메일을 입력해주세요.", { toastId: "signup-email-empty" });
+      return;
+    }
+    if (!isEmailChecked) {
+      toast.error("이메일 중복 확인을 먼저 해주세요.", { toastId: "signup-email-not-checked" });
+      return;
+    }
+
     try {
       setLoading(true);
       await axiosApi.post("/auth/email-send", { email: formData.memberEmail });
-      alert("인증번호가 발송되었습니다.");
+
+      toast.success("인증번호가 발송되었습니다.", { toastId: "signup-email-code-sent" });
+
       setIsEmailSent(true);
       setTimeLeft(300);
       setIsTimerActive(true);
     } catch (err) {
-      alert("인증번호 발송 실패");
+      toast.error("인증번호 발송 실패", { toastId: "signup-email-send-fail" });
     } finally {
       setLoading(false);
     }
   };
 
   const handleVerifyCode = async () => {
-    if (timeLeft === 0) return alert("시간이 만료되었습니다."); 
+    if (timeLeft === 0) {
+      toast.error("시간이 만료되었습니다.", { toastId: "signup-email-timeout" });
+      return;
+    }
+    if (!authCode || authCode.trim().length === 0) {
+      toast.error("인증번호를 입력해주세요.", { toastId: "signup-email-code-empty" });
+      return;
+    }
+
     try {
       const res = await axiosApi.post("/auth/email-verify", {
         email: formData.memberEmail,
         code: authCode,
       });
+
       if (res.data === true) {
-        alert("인증에 성공했습니다.");
+        toast.success("인증에 성공했습니다.", { toastId: "signup-email-verified" });
         setIsEmailVerified(true);
         setIsTimerActive(false);
       } else {
-        alert("인증번호가 일치하지 않습니다.");
+        toast.error("인증번호가 일치하지 않습니다.", { toastId: "signup-email-code-mismatch" });
       }
     } catch (err) {
-      alert("인증 확인 오류");
+      toast.error("인증 확인 오류", { toastId: "signup-email-verify-fail" });
     }
   };
 
   // 최종 회원가입 제출
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
-    
-    if (!pwRegex.test(formData.memberPw)) return alert("비밀번호는 영문, 숫자를 포함하여 8~16자여야 합니다.");
-    if (!isEmailVerified) return alert("이메일 인증을 완료해주세요.");
-    if (!isTelChecked) return alert("연락처 중복 확인을 완료해주세요.");
-    if (formData.memberPw !== formData.memberPwConfirm) return alert("비밀번호가 일치하지 않습니다.");
+
+    if (!pwRegex.test(formData.memberPw)) {
+      toast.error("비밀번호는 영문, 숫자를 포함하여 8~16자여야 합니다.", {
+        toastId: "signup-pw-invalid",
+      });
+      return;
+    }
+
+    if (!isEmailVerified) {
+      toast.error("이메일 인증을 완료해주세요.", { toastId: "signup-email-not-verified" });
+      return;
+    }
+
+    if (!isTelChecked) {
+      toast.error("연락처 중복 확인을 완료해주세요.", { toastId: "signup-tel-not-checked" });
+      return;
+    }
+
+    if (formData.memberPw !== formData.memberPwConfirm) {
+      toast.error("비밀번호가 일치하지 않습니다.", { toastId: "signup-pw-mismatch" });
+      return;
+    }
 
     setLoading(true);
     try {
       const cleanPhone = formData.memberTel.replace(/[^0-9]/g, "");
+
       await axiosApi.post("/auth/signup", {
         memberEmail: formData.memberEmail,
         memberPw: formData.memberPw,
         memberTel: cleanPhone,
       });
-      alert("회원가입이 완료되었습니다!");
-      onClose();
+
+      toast.success("회원가입이 완료되었습니다!", { toastId: "signup-success" });
+      onClose?.();
     } catch (err) {
-      alert("회원가입 실패: " + (err.response?.data || "다시 확인해주세요."));
+      toast.error("회원가입 실패: " + (err.response?.data || "다시 확인해주세요."), {
+        toastId: "signup-fail",
+      });
     } finally {
       setLoading(false);
     }
@@ -179,7 +225,9 @@ export default function SignupModal({ open, onClose }) {
       <div className="lm-modal">
         <div className="lm-header">
           <h2 className="lm-title">회원가입</h2>
-          <button className="lm-close" type="button" onClick={onClose}>✕</button>
+          <button className="lm-close" type="button" onClick={onClose}>
+            ✕
+          </button>
         </div>
 
         <form className="lm-body" onSubmit={handleSubmit}>
@@ -223,12 +271,7 @@ export default function SignupModal({ open, onClose }) {
                     onChange={(e) => setAuthCode(e.target.value)}
                     disabled={!isEmailSent || timeLeft === 0}
                   />
-                  <button
-                    type="button"
-                    onClick={handleSendCode}
-                    className="lm-link"
-                    disabled={loading}
-                  >
+                  <button type="button" onClick={handleSendCode} className="lm-link" disabled={loading}>
                     {isEmailSent ? "재발송" : "인증요청"}
                   </button>
                   {isEmailSent && (
@@ -243,8 +286,15 @@ export default function SignupModal({ open, onClose }) {
                   )}
                 </div>
               </label>
+
               {isEmailSent && (
-                <p style={{ color: timeLeft > 0 ? "red" : "gray", fontSize: "12px", marginTop: "5px" }}>
+                <p
+                  style={{
+                    color: timeLeft > 0 ? "red" : "gray",
+                    fontSize: "12px",
+                    marginTop: "5px",
+                  }}
+                >
                   {timeLeft > 0 ? `남은 시간: ${formatTime(timeLeft)}` : "인증 시간이 만료되었습니다."}
                 </p>
               )}
@@ -252,7 +302,9 @@ export default function SignupModal({ open, onClose }) {
           )}
 
           {isEmailVerified && (
-            <p style={{ color: "blue", fontSize: "12px", marginBottom: "10px" }}>✓ 이메일 인증 완료</p>
+            <p style={{ color: "blue", fontSize: "12px", marginBottom: "10px" }}>
+              ✓ 이메일 인증 완료
+            </p>
           )}
 
           <label className="lm-label">
@@ -279,8 +331,15 @@ export default function SignupModal({ open, onClose }) {
               required
             />
             {formData.memberPwConfirm && (
-              <p style={{ color: formData.memberPw === formData.memberPwConfirm ? "blue" : "red", fontSize: "12px" }}>
-                {formData.memberPw === formData.memberPwConfirm ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다."}
+              <p
+                style={{
+                  color: formData.memberPw === formData.memberPwConfirm ? "blue" : "red",
+                  fontSize: "12px",
+                }}
+              >
+                {formData.memberPw === formData.memberPwConfirm
+                  ? "비밀번호가 일치합니다."
+                  : "비밀번호가 일치하지 않습니다."}
               </p>
             )}
           </label>
@@ -310,11 +369,7 @@ export default function SignupModal({ open, onClose }) {
             </div>
           </label>
 
-          <button 
-            className="lm-submit" 
-            type="submit" 
-            disabled={loading || !isEmailVerified || !isTelChecked}
-          >
+          <button className="lm-submit" type="submit" disabled={loading || !isEmailVerified || !isTelChecked}>
             {loading ? "처리 중..." : "가입하기"}
           </button>
         </form>
