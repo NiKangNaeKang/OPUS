@@ -19,5 +19,7 @@ public interface BiddingMapper {
 	int selectMaxBidPrice(int unveilingNo);
 	
 	Bidding selectTopBid(int unveilingNo);
+	
+	List<Integer> selectDistinctBidderMemberNos(int unveilingNo); // 해당 경매 응찰자 memberNo 목록 조회 (중복 제거) — 마감 임박 알림 발송용
 
 }

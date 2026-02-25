@@ -29,4 +29,14 @@ public interface UnveilingMapper {
 	int markPaymentExpired(int unveilingNo);
 
 	List<Unveiling> selectUnveilingList();
+	
+	List<Unveiling> selectUnveilingsToFinalize(); // 낙찰 확정 대상 경매 목록
+
+	void markNoWinner(int unveilingNo);
+	
+	List<Unveiling> selectUnveilingsToAlert(); // 마감 1시간 이내 + 아직 알림 미발송인 LIVE 경매 목록 조회
+	
+	int markAlertSent(int unveilingNo);	// 알림 발송 완료 처리
+	
+	
 }

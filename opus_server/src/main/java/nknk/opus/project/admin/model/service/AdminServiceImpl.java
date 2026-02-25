@@ -20,6 +20,7 @@ import nknk.opus.project.reviews.model.dto.Report;
 import nknk.opus.project.selections.model.dto.Goods;
 import nknk.opus.project.selections.model.dto.GoodsImg;
 import nknk.opus.project.selections.model.dto.GoodsOption;
+import nknk.opus.project.unveiling.model.dto.Unveiling;
 import nknk.opus.project.reviews.model.dto.Reviews;
 
 @Service
@@ -314,5 +315,18 @@ public class AdminServiceImpl implements AdminService {
 	    mapper.updateOrderStatus(orderNo, "SHIPPING");
 	    return result;
 	}
+	
+	@Override
+	public List<Unveiling> getUnveilingListForAdmin() {
+		
+		return mapper.selectAllUnveilings();
+	}
+	
+	@Override
+	public int registUnveiling(Unveiling unveiling) {
+
+		return mapper.insertUnveiling(unveiling);
+	}
+	
 	
 }

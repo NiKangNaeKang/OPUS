@@ -51,5 +51,17 @@ export const adminApi = {
       trackingNumber
     });
     return resp.data;
-  }
+  },
+
+  // 경매 목록 조회
+  getUnveilingList: async () => {
+    const resp = await axiosApi.get("/admin/unveilings");
+    return resp.data;
+  },
+
+  // 경매 등록
+  registUnveiling: async (data) => {
+    const resp = await axiosApi.post("/admin/unveilings", data);
+    return resp.data;
+  },
 };

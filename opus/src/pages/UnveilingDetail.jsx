@@ -38,26 +38,20 @@ const STATUS = {
 function normalizeFromDummy(item) {
   return {
     unveilingNo: item.id,
-
     image: item.image,
     alt: item.alt || "auction item image",
-
     status: item.status ?? "LIVE",
     title: item.detailTitle ?? item.title ?? "무제 (Untitled)",
     artist: item.artist ? `${item.artist} 작가` : "작가 정보",
-
     year: item.year ?? "",
     material: item.material ?? "",
     size: item.size ?? "",
-
     estimate: item.estimate ?? "",
     startPrice: item.startPrice ?? "",
     currentPrice: item.currentPrice ?? item.pricing?.display ?? "",
     bidCount: item.bidCount ?? item.stats?.count ?? 0,
-
     endAt: item.endAt ?? null,
     endAtLabel: item.endAtLabel ?? "",
-
     description: item.description ?? [],
     artistName: item.artistName ?? (item.artist ?? ""),
     artistBio: item.artistBio ?? "",
@@ -156,15 +150,21 @@ export default function UnveilingDetail() {
     };
   }, [dummyItem, unveilingNo]);
 
+  // ===== State =====
   const [detail, setDetail] = useState(dummyDetail);
   const [bidState, setBidState] = useState(null);
   const [showTop, setShowTop] = useState(false);
 
-  // ✅ 모달 관련 state
+  // 응찰 모달
   const [modal, setModal] = useState(false);
   const [modalPw, setModalPw] = useState("");
   const [modalError, setModalError] = useState("");
   const [modalLoading, setModalLoading] = useState(false);
+  const [isSocialLogin, setIsSocialLogin] = useState(false);
+
+  // 결제 모달
+  const [payModal, setPayModal] = useState(false);
+  const [payLoading, setPayLoading] = useState(false);
 
   // 라우트 이동 시 리셋
   useEffect(() => {
@@ -185,6 +185,7 @@ export default function UnveilingDetail() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  // ===== API 호출 =====
   const fetchDetail = useCallback(async () => {
     try {
       const { data } = await axiosApi.get(`/api/unveilings/${unveilingNo}`);
@@ -210,22 +211,26 @@ export default function UnveilingDetail() {
           bidCount: typeof data?.biddingCount === "number" ? data.biddingCount : prev.bidCount,
         }));
       }
-    } catch(e) {
+    } catch (e) {
       console.error("fetchBidState 에러:", e);
     }
   }, [unveilingNo]);
 
+  // interval은 분리
   useEffect(() => {
     if (!Number.isFinite(unveilingNo) || unveilingNo <= 0) return;
     fetchDetail();
     fetchBidState();
+  }, [fetchDetail, fetchBidState, unveilingNo]);
 
-    const isLive = bidState?.unveilingStatus === "LIVE" || bidState === null;
-    if (isLive) {
-      const interval = setInterval(fetchBidState, 10000);
-      return () => clearInterval(interval);
-    }
-  }, [fetchDetail, fetchBidState, unveilingNo, bidState?.unveilingStatus]);
+  // 폴링은 별도 useEffect로 분리
+  useEffect(() => {
+    if (!Number.isFinite(unveilingNo) || unveilingNo <= 0) return;
+    if (bidState?.unveilingStatus === "ENDED") return; // 종료된 경매는 폴링 중단
+
+    const interval = setInterval(fetchBidState, 10000);
+    return () => clearInterval(interval);
+  }, [fetchBidState, unveilingNo, bidState?.unveilingStatus]);
 
   // 카운트다운 (1초 간격)
   const [remain, setRemain] = useState(() => getRemaining(detail.endAt));
@@ -236,12 +241,21 @@ export default function UnveilingDetail() {
     return () => clearInterval(t);
   }, [detail.endAt]);
 
-  // ===== 상태 판단(서버 우선) =====
+  // ===== 상태 판단 =====
   const serverStatus = bidState?.unveilingStatus || detail.status;
   const status = STATUS[serverStatus] ?? STATUS.LIVE;
   const { isLoggedIn, member } = useAuthStore();
-  const isTopBidder = bidState?.topBidderMemberNo > 0
+
+  // LIVE 상태일 때만 본인 최고가 표시
+  const isTopBidder = serverStatus === "LIVE"
+    && bidState?.topBidderMemberNo > 0
     && member?.memberNo === bidState?.topBidderMemberNo;
+
+  // 낙찰 관련 상태 판단
+  const isWinner = bidState?.finalizedFl === 1
+    && member?.memberNo === bidState?.winnerMemberNo;
+  const paymentStatus = bidState?.paymentStatus ?? null;
+  const isNoWinner = bidState?.paymentStatus === "NO_WINNER";
 
   const bidAllowed = bidState ? !!bidState.bidAllowedFl : true;
   const bidDisabled = bidState ? (!bidAllowed || isTopBidder) : false;
@@ -249,17 +263,13 @@ export default function UnveilingDetail() {
     ? "본인이 최고가 입찰자입니다."
     : (bidState?.reason || (remain.done ? "마감됨" : "응찰 불가"));
 
-  console.log("bidState:", bidState);
-  console.log("bidAllowed:", bidAllowed);
-  console.log("bidDisabled:", bidDisabled);
-  console.log("serverStatus:", serverStatus);
-
   const statusClass = `status status--${status.key}`;
   const timerClass = `timer timer--${status.key}${!bidAllowed ? " is-ended" : ""}`;
   const bidBtnClass = `bid-btn${bidDisabled ? " is-ended" : ""}`;
 
+  // ===== 핸들러 =====
 
-  // ✅ 응찰 버튼 클릭 → 모달 오픈
+  // 응찰 버튼 클릭 → 모달 오픈
   const onBid = useCallback(() => {
     if (!isLoggedIn) {
       alert("로그인 후 응찰할 수 있습니다.");
@@ -269,15 +279,18 @@ export default function UnveilingDetail() {
       alert(bidState.reason || "현재 응찰할 수 없습니다.");
       return;
     }
-    // 모달 초기화 후 오픈
+
+    const social = member?.loginType !== "NORMAL";
+    setIsSocialLogin(social);
+
     setModalPw("");
     setModalError("");
     setModal(true);
-  }, [isLoggedIn, bidState]);
+  }, [isLoggedIn, bidState, member]);
 
-  // ✅ 모달에서 확인 클릭 → 비밀번호 검증 후 입찰
+  // 응찰 모달 확인 클릭 → 비밀번호 검증 후 입찰
   const onBidConfirm = useCallback(async () => {
-    if (!modalPw) {
+    if (!isSocialLogin && !modalPw) {
       setModalError("비밀번호를 입력해주세요.");
       return;
     }
@@ -286,19 +299,20 @@ export default function UnveilingDetail() {
     setModalError("");
 
     try {
-      // 1. 비밀번호 검증
-      await axios.post("/auth/verify-password",
-        { memberPw: modalPw },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${useAuthStore.getState().token}`,
-          },
-          withCredentials: true,
-        }
-      )
+      // 일반 로그인만 비밀번호 검증 (소셜 로그인은 Oauth를 통해 본인인증이 된 셈)
+      if (!isSocialLogin) {
+        await axios.post("/auth/verify-password",
+          { memberPw: modalPw },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${useAuthStore.getState().token}`,
+            },
+            withCredentials: true,
+          }
+        );
+      }
 
-      // 2. 검증 성공 → 입찰 요청
       const { data } = await axiosApi.post(`/api/bids/${unveilingNo}`, {});
 
       setDetail((prev) => ({
@@ -324,9 +338,31 @@ export default function UnveilingDetail() {
     } finally {
       setModalLoading(false);
     }
-  }, [modalPw, unveilingNo, fetchBidState]);
+  }, [isSocialLogin, modalPw, unveilingNo, fetchBidState]);
 
-  // 잘못된 id
+  // 결제하기 버튼 클릭 → 결제 모달 오픈
+  const onPay = useCallback(() => {
+    setPayModal(true);
+  }, []);
+
+  // 결제 모달 확인 클릭 → 실제 결제 처리
+  const onPayConfirm = useCallback(async () => {
+    setPayLoading(true);
+    try {
+      const { data } = await axiosApi.post(`/api/unveilings/${unveilingNo}/pay`);
+      setPayModal(false);
+      alert(data.message || "결제가 완료되었습니다.");
+      await fetchBidState();
+    } catch (err) {
+      const msg = err?.response?.data?.message || "결제 중 오류가 발생했습니다.";
+      setPayModal(false);
+      alert(msg);
+    } finally {
+      setPayLoading(false);
+    }
+  }, [unveilingNo, fetchBidState]);
+
+  // ===== 잘못된 id 처리 =====
   if (!Number.isFinite(unveilingNo) || unveilingNo <= 0) {
     return (
       <div className="page unveiling-detail">
@@ -343,6 +379,7 @@ export default function UnveilingDetail() {
     );
   }
 
+  // ===== 렌더링 =====
   return (
     <div className="page unveiling-detail">
       <main className="container">
@@ -367,7 +404,6 @@ export default function UnveilingDetail() {
           <div id="info-section" className="info">
             <div className="info__top">
               <span className={statusClass}>{status.text}</span>
-
               <h1 className="title">{detail.title}</h1>
               <p className="artist">{detail.artist}</p>
 
@@ -392,21 +428,18 @@ export default function UnveilingDetail() {
                 <p className="pricebox__label">추정가</p>
                 <p className="pricebox__value pricebox__value--lg">{detail.estimate}</p>
               </div>
-
               <div className="pricebox__block pricebox__divider">
                 <p className="pricebox__label">시작가</p>
                 <p className="pricebox__value">{detail.startPrice}</p>
               </div>
-
               <div className="pricebox__block pricebox__divider">
                 <p className="pricebox__label">현재가</p>
                 <p className="pricebox__value pricebox__value--xl">{detail.currentPrice}</p>
                 <p className="pricebox__hint">응찰 {detail.bidCount}회</p>
-
                 {bidState && bidState.bidAllowedFl && typeof bidState.nextBidPrice === "number" && (
                   <p className="pricebox__hint">
                     다음 자동 입찰가: ₩{Number(bidState.nextBidPrice).toLocaleString("ko-KR")}
-                    {" "} (호가: ₩{Number(bidState.tick).toLocaleString("ko-KR")})
+                    {" "}(호가: ₩{Number(bidState.tick).toLocaleString("ko-KR")})
                   </p>
                 )}
               </div>
@@ -415,7 +448,6 @@ export default function UnveilingDetail() {
             <div className={timerClass}>
               <div className="timer__row">
                 <span className="timer__label">마감까지</span>
-
                 <div className="countdown" aria-label="countdown">
                   <div className="countdown__unit">
                     <span>{remain.days}</span>
@@ -438,10 +470,10 @@ export default function UnveilingDetail() {
                   </div>
                 </div>
               </div>
-
               <p className="timer__hint">{detail.endAtLabel}</p>
             </div>
 
+            {/* 응찰 버튼 */}
             <button
               className={bidBtnClass}
               type="button"
@@ -453,6 +485,39 @@ export default function UnveilingDetail() {
                 ? (isTopBidder ? "본인 최고가" : (bidState?.reason || "마감됨"))
                 : "응찰하기"}
             </button>
+
+            {/* 낙찰 후 결제 UI */}
+            {bidState?.finalizedFl === 1 && (
+              <div className="payment-box">
+                {isNoWinner ? (
+                  <button className="bid-btn is-ended" type="button" disabled>
+                    유찰된 경매입니다
+                  </button>
+                ) : isWinner && (
+                  <>
+                    <p className="payment-box__label">
+                      🎉 낙찰을 축하드립니다!
+                      낙찰가: <strong>₩{Number(bidState?.finalPrice ?? bidState?.currentPrice).toLocaleString("ko-KR")}</strong>
+                    </p>
+                    {paymentStatus === "PENDING" && (
+                      <button className="bid-btn" type="button" disabled={payLoading} onClick={onPay}>
+                        {payLoading ? "처리 중..." : "결제 신청"}
+                      </button>
+                    )}
+                    {paymentStatus === "PAID" && (
+                      <button className="bid-btn is-ended" type="button" disabled>
+                        결제 신청 완료
+                      </button>
+                    )}
+                    {paymentStatus === "EXPIRED" && (
+                      <button className="bid-btn is-ended" type="button" disabled>
+                        결제 기한 만료
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
 
             <div className="notice">
               <div className="notice__row">
@@ -478,12 +543,10 @@ export default function UnveilingDetail() {
 
         <section id="artist-section" className="section">
           <h2 className="section__title">작가 소개</h2>
-
           <div className="artist-box">
             <div className="artist-box__info">
               <h3 className="artist-box__name">{detail.artistName}</h3>
               <p className="artist-box__desc">{detail.artistBio}</p>
-
               <div className="artist-box__meta">
                 <p><strong>주요 전시:</strong> {detail.exhibitions}</p>
                 <p><strong>수상:</strong> {detail.awards}</p>
@@ -494,11 +557,9 @@ export default function UnveilingDetail() {
 
         <section id="bidding-guide-section" className="section">
           <h2 className="section__title">응찰 안내</h2>
-
           <div className="guide-grid">
             <div>
               <h3 className="sub-title">호가표</h3>
-
               <div className="tick-table">
                 <div className="tick-table__head">
                   <div>현재가</div>
@@ -529,7 +590,6 @@ export default function UnveilingDetail() {
 
             <div>
               <h3 className="sub-title">응찰 필수 정보</h3>
-
               <div className="bullets">
                 <Bullet text="경매 참여를 위해서는 실명 인증이 필수입니다." />
                 <Bullet text="응찰 후 취소는 불가능하며, 낙찰 시 구매 의무가 발생합니다." />
@@ -555,7 +615,6 @@ export default function UnveilingDetail() {
 
         <section id="service-info-section" className="section">
           <h2 className="section__title">경매 이용 안내</h2>
-
           <div className="service-info">
             <div className="service-info__item">
               <h3 className="service-info__title">낙찰 수수료</h3>
@@ -564,30 +623,25 @@ export default function UnveilingDetail() {
                 수수료는 부가세가 포함된 금액이며, 낙찰 확정 후 최종 결제 금액에 합산됩니다.
               </p>
             </div>
-
             <div className="service-info__item">
               <h3 className="service-info__title">출고 및 수령</h3>
               <p className="service-info__desc">
                 작품 인도는 <strong>직접 출고(대면 수령)</strong>를 원칙으로 진행됩니다.
               </p>
-
               <ul className="service-info__list">
                 <li>출고 가능 요일: 매주 월요일 ~ 금요일</li>
                 <li>직접 수령 가능 시간: 10:00 ~ 18:00</li>
                 <li>출고 요청 마감: 출고 요청일 기준 2일 전까지 접수</li>
               </ul>
-
               <p className="service-info__desc">
                 낙찰자 승용차로 작품 상차 시, 작품 전체 크기 90 × 118cm까지 적재가 가능합니다
                 (캔버스 50호 기준).
               </p>
-
               <p className="service-info__desc">
                 부득이하게 배송, 설치 또는 보관이 필요한 경우에는
                 낙찰 확정 후 고객센터를 통해 별도 문의가 가능합니다.
               </p>
             </div>
-
             <div className="service-info__item">
               <h3 className="service-info__title">설치 및 보관</h3>
               <p className="service-info__desc">
@@ -598,7 +652,7 @@ export default function UnveilingDetail() {
           </div>
         </section>
 
-        {/* ✅ 응찰 확인 모달 */}
+        {/* 응찰 확인 모달 */}
         {modal && (
           <div style={{
             position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
@@ -610,7 +664,6 @@ export default function UnveilingDetail() {
               display: "flex", flexDirection: "column", gap: "16px"
             }}>
               <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 900 }}>응찰 확인</h2>
-
               <p style={{ margin: 0, color: "#374151", fontSize: "14px", lineHeight: 1.7 }}>
                 응찰 금액:{" "}
                 <strong>₩{Number(bidState?.nextBidPrice).toLocaleString("ko-KR")}</strong>
@@ -618,23 +671,39 @@ export default function UnveilingDetail() {
                 응찰 후에는 취소가 불가능하며, 낙찰 시 구매 의무가 발생합니다.
               </p>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <label style={{ fontSize: "13px", fontWeight: 700 }}>비밀번호 확인</label>
-                <input
-                  type="password"
-                  value={modalPw}
-                  onChange={(e) => setModalPw(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && onBidConfirm()}
-                  placeholder="비밀번호를 입력해주세요"
-                  style={{
-                    padding: "10px 14px", border: "1px solid #d1d5db",
-                    borderRadius: "8px", fontSize: "14px", outline: "none"
-                  }}
-                />
-                {modalError && (
-                  <p style={{ margin: 0, color: "#dc2626", fontSize: "13px" }}>{modalError}</p>
-                )}
-              </div>
+              {/* 핵심 분기: 일반 로그인 → 비밀번호 입력 / 소셜 로그인 → 안내 문구 */}
+              {!isSocialLogin ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <label style={{ fontSize: "13px", fontWeight: 700 }}>비밀번호 확인</label>
+                  <input
+                    type="password"
+                    value={modalPw}
+                    onChange={(e) => setModalPw(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && onBidConfirm()}
+                    placeholder="비밀번호를 입력해주세요"
+                    style={{
+                      padding: "10px 14px", border: "1px solid #d1d5db",
+                      borderRadius: "8px", fontSize: "14px", outline: "none"
+                    }}
+                  />
+                  {modalError && (
+                    <p style={{ margin: 0, color: "#dc2626", fontSize: "13px" }}>{modalError}</p>
+                  )}
+                </div>
+              ) : (
+                <div style={{
+                  background: "#fffbeb", border: "1px solid #fde68a",
+                  borderRadius: "8px", padding: "14px 16px",
+                  fontSize: "13px", color: "#92400e", lineHeight: 1.7
+                }}>
+                  ⚠ 소셜 로그인(Google) 계정으로 응찰합니다.
+                  <br />
+                  확인 버튼을 누르면 즉시 응찰이 진행되며, <strong>되돌릴 수 없습니다.</strong>
+                  {modalError && (
+                    <p style={{ margin: "8px 0 0", color: "#dc2626", fontSize: "13px" }}>{modalError}</p>
+                  )}
+                </div>
+              )}
 
               <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
                 <button
@@ -659,6 +728,60 @@ export default function UnveilingDetail() {
                   }}
                 >
                   {modalLoading ? "처리 중..." : "응찰하기"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 결제 확인 모달 */}
+        {payModal && (
+          <div style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000
+          }}>
+            <div style={{
+              background: "#fff", borderRadius: "12px",
+              padding: "36px 32px", width: "100%", maxWidth: "400px",
+              display: "flex", flexDirection: "column", gap: "16px"
+            }}>
+              <h2 style={{ margin: 0, fontSize: "20px", fontWeight: 900 }}>결제 확인</h2>
+              <p style={{ margin: 0, color: "#374151", fontSize: "14px", lineHeight: 1.8 }}>
+                아래 방법 중 하나를 선택하신 후 신청 버튼을 눌러주세요.
+                신청 완료 후 안내 메일이 발송됩니다.
+                <br /><br />
+                <strong>① 계좌이체</strong><br />
+                입금 계좌 정보는 낙찰 확정 메일을 확인해주세요.<br /><br />
+                <strong>② 방문 결제</strong><br />
+                영업시간(월~금 10:00 ~ 18:00) 내 방문 후 카드 결제가 가능합니다.
+                <br /><br />
+                <span style={{ color: "#dc2626", fontSize: "13px" }}>
+                  ⚠ 실제 결제 완료 전 확인 버튼을 누르실 경우 불이익이 발생할 수 있습니다.
+                </span>
+              </p>
+              <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+                <button
+                  onClick={() => setPayModal(false)}
+                  style={{
+                    flex: 1, height: "44px", border: "1px solid #d1d5db",
+                    borderRadius: "8px", background: "#fff",
+                    fontWeight: 700, cursor: "pointer"
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  onClick={onPayConfirm}
+                  disabled={payLoading}
+                  style={{
+                    flex: 1, height: "44px", border: 0,
+                    borderRadius: "8px", background: "#111827",
+                    color: "#fff", fontWeight: 800,
+                    cursor: payLoading ? "not-allowed" : "pointer",
+                    opacity: payLoading ? 0.7 : 1
+                  }}
+                >
+                  {payLoading ? "처리 중..." : "결제 신청하기"}
                 </button>
               </div>
             </div>
