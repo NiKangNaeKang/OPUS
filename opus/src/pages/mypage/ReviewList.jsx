@@ -76,13 +76,15 @@ const ReviewList = () => {
     fetchReviewList();
   }, [loginMemberNo]);
 
-  const goToDetail = (stageNo) => {
+  const goToDetail = (stageNo, itemData) => {
     if (!stageNo) return;
 
     if (stageNo.startsWith("PF")) {
       navigate(`/onStage/musical/${stageNo}`);
     } else {
-      navigate(`/onStage/exhibition/${stageNo}`);
+      navigate(`/onStage/exhibition/${stageNo}`, {
+        state : { item : itemData }
+      });
     }
   };
 
@@ -106,7 +108,7 @@ const ReviewList = () => {
             <div
               key={item.reviewNo}
               className="order-card"
-              onClick={() => goToDetail(item.stageNo)}
+              onClick={() => goToDetail(item.stageNo, item)}
             >
               <div className="order-card__header">
                 <div className="order-info">
@@ -121,7 +123,7 @@ const ReviewList = () => {
                   className="detail-btn"
                   onClick={(e) => {
                     e.stopPropagation();
-                    goToDetail(item.stageNo);
+                    goToDetail(item.stageNo, item);
                   }}
                 >
                   작품 보기
