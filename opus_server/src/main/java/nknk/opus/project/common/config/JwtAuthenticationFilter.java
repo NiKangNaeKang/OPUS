@@ -19,42 +19,68 @@ import nknk.opus.project.common.util.JwtUtil;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-	@Autowired
-	private JwtUtil jwtUtil;
+    @Autowired
+    private JwtUtil jwtUtil;
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
+    private void write401(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"message\":\"세션이 만료되었습니다. 다시 로그인해주세요.\"}");
+    }
 
-		// 1. Authorization 헤더 확인
-		String authHeader = request.getHeader("Authorization");
-		String token = null;
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-		// 2. Bearer 토큰 추출
-		if (authHeader != null && authHeader.startsWith("Bearer ")) {
-			token = authHeader.substring(7);
+        String uri = request.getRequestURI();
+        String authHeader = request.getHeader("Authorization");
 
-			// 3. 토큰 검증
-			if (jwtUtil.validateToken(token)) {
-				// 4. 정보 추출 및 권한 설정
-				String memberNo = jwtUtil.getMemberNo(token);
-				String role = jwtUtil.getMemberRole(token);
+        // 헤더 자체가 없으면: 여기서 막지 말고 시큐리티가 판단하게 둠
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("[JWT] NO AUTH HEADER: " + uri);
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-				// 5. 시큐리티 인증 객체 생성 및 컨텍스트 저장
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(memberNo,
-						null, Collections.singletonList(new SimpleGrantedAuthority(role)));
-				SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = authHeader.substring(7).trim();
 
-			} else {
-				// 6. 유효하지 않은 토큰 처리 (401 에러)
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.setContentType("application/json;charset=UTF-8");
-				response.getWriter().write("{\"message\":\"로그인이 만료되었습니다. 다시 로그인해주세요.\"}");
-				return;
-			}
-		}
+        // "undefined/null/blank" 같은 이상 토큰이면 즉시 401 고정 (랜덤 증상 제거)
+        if (token.isBlank() || token.equalsIgnoreCase("undefined") || token.equalsIgnoreCase("null")
+                || token.equalsIgnoreCase("NaN")) {
+            System.out.println("[JWT] BAD TOKEN STRING: " + uri + " token=" + token);
+            SecurityContextHolder.clearContext();
+            write401(response);
+            return;
+        }
 
-		// 7. 다음 필터로 진행
-		filterChain.doFilter(request, response);
-	}
+        try {
+            boolean valid = jwtUtil.validateToken(token);
+            System.out.println("[JWT] validate=" + valid + " uri=" + uri);
+
+            if (!valid) {
+                // 만료/위조/검증실패면 즉시 401
+                SecurityContextHolder.clearContext();
+                write401(response);
+                return;
+            }
+
+            String memberNo = jwtUtil.getMemberNo(token);
+            String role = jwtUtil.getMemberRole(token);
+            System.out.println("[JWT] memberNo=" + memberNo + " role=" + role);
+
+            UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                    memberNo, null, Collections.singletonList(new SimpleGrantedAuthority(role))
+                );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        } catch (Exception e) {
+            System.out.println("[JWT] EXCEPTION uri=" + uri + " msg=" + e.getMessage());
+            SecurityContextHolder.clearContext();
+            write401(response);
+            return;
+        }
+
+        filterChain.doFilter(request, response);
+    }
 }

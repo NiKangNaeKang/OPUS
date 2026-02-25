@@ -14,6 +14,8 @@ export default function HeaderModal({ variant }) {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const logout = useAuthStore((state) => state.logout);
 
+  const role = useAuthStore(state => state.member?.role)
+
   const handleIconClick = useCallback(() => {
     if (isLoggedIn) {
       navigate("/mypage");
@@ -38,6 +40,8 @@ export default function HeaderModal({ variant }) {
     );
   }, [logout, navigate]);
 
+  const authState = useAuthStore(state => state);
+
   return (
     <>
       <Header 
@@ -45,6 +49,9 @@ export default function HeaderModal({ variant }) {
         isLoggedIn={isLoggedIn} 
         onClickUser={handleIconClick} 
         onLogout={handleLogout} 
+
+        // 관리자
+        role = {role}
       />
       
       {modalType === "login" && (

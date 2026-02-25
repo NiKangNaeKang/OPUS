@@ -12,8 +12,23 @@ export default function MyPage() {
   const { member, token, login, logout } = useAuthStore();
   const { isTelChecked, setIsTelChecked, handleCheckTel } = useAuthValidation();
 
+  // ✅ role 변수 (ADMIN / COMPANY / USER 등)
+  const role = member?.role;
+
   // 구글 로그인 타입 확인
   const isSocialUser = member?.loginType?.toLowerCase() === "google";
+
+  // ✅ 계정 타입 문구 (Google / ADMIN / COMPANY)
+  const accountLabel = useMemo(() => {
+    if (member?.loginType?.toLowerCase() === "google")
+      return "(Google 계정으로 사용 중 입니다.)";
+
+    if (role === "ADMIN") return "(관리자 계정입니다.)";
+
+    if (role === "COMPANY") return "(기업 회원 계정입니다.)";
+
+    return null;
+  }, [member, role]);
 
   const [activeId, setActiveId] = useState("profile-edit");
   const [newPhone, setNewPhone] = useState("");
@@ -29,7 +44,15 @@ export default function MyPage() {
       title: "내 정보",
       items: [
         { id: "profile-edit", icon: "fa-regular fa-user", label: "연락처 변경" },
-        ...(!isSocialUser ? [{ id: "password-change", icon: "fa-solid fa-lock", label: "비밀번호 변경" }] : []),
+        ...(!isSocialUser
+          ? [
+              {
+                id: "password-change",
+                icon: "fa-solid fa-lock",
+                label: "비밀번호 변경",
+              },
+            ]
+          : []),
         { id: "withdrawal", icon: "fa-solid fa-user-slash", label: "회원 탈퇴" },
       ],
     },
@@ -39,7 +62,11 @@ export default function MyPage() {
         { id: "wishlist", icon: "fa-regular fa-heart", label: "찜한 리스트" },
         { id: "reviews", icon: "fa-regular fa-comment", label: "작성 후기" },
         { id: "orders", icon: "fa-solid fa-receipt", label: "주문 내역" },
-        { id: "auction-history", icon: "fa-solid fa-gavel", label: "경매 내역" },
+        {
+          id: "auction-history",
+          icon: "fa-solid fa-gavel",
+          label: "경매 내역",
+        },
       ],
     },
   ];
@@ -54,8 +81,7 @@ export default function MyPage() {
 
   useEffect(() => {
     setIsTelChecked(false);
-  }, []); // 마이페이지 진입 시(마운트 시) 단 한 번 초기화, 빈 배열이 의도 명확
-
+  }, []); // 마이페이지 진입 시(마운트 시) 단 한 번 초기화
 
   const handleNewPhoneChange = (e) => {
     const formatted = formatPhoneNumber(e.target.value);
@@ -69,7 +95,8 @@ export default function MyPage() {
 
     if (!rawPhone) return toast.error("연락처를 입력해주세요.");
     if (!isTelChecked) return toast.error("연락처 중복 확인을 해주세요.");
-    if (rawPhone === member?.memberTel) return toast.error("기존 연락처와 동일한 번호입니다.");
+    if (rawPhone === member?.memberTel)
+      return toast.error("기존 연락처와 동일한 번호입니다.");
 
     try {
       const res = await axiosApi.post("/auth/updateTel", {
@@ -87,13 +114,19 @@ export default function MyPage() {
     }
   };
 
-
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (!pwData.currentPw) return toast.error("현재 비밀번호를 입력해주세요.");
 
     const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
-    if (!pwRegex.test(pwData.newPw)) return toast.error(<>비밀번호 형식(8~16자 영문/숫자)을<br />확인해주세요.</>);
+    if (!pwRegex.test(pwData.newPw))
+      return toast.error(
+        <>
+          비밀번호 형식(8~16자 영문/숫자)을
+          <br />
+          확인해주세요.
+        </>
+      );
 
     try {
       const res = await axiosApi.post("/auth/changePw", {
@@ -102,8 +135,14 @@ export default function MyPage() {
         newPw: pwData.newPw,
       });
       if (res.status === 200) {
-
-        toast.success(<>비밀번호가 변경되었습니다.<br />다시 로그인 해주세요.</>, { icon: false });
+        toast.success(
+          <>
+            비밀번호가 변경되었습니다.
+            <br />
+            다시 로그인 해주세요.
+          </>,
+          { icon: false }
+        );
         setTimeout(() => {
           logout();
           navigate("/");
@@ -114,50 +153,34 @@ export default function MyPage() {
     }
   };
 
-
   const processWithdrawal = async () => {
     try {
       /* ********************** [실제 서버 통신용 - 나중에 주석 해제]
-    const res = await axiosApi.post(`/auth/withdraw/${member.memberNo}`);
-        if (res.status === 200) {
-          toast.success("탈퇴 처리가 완료되었습니다.");
-          setTimeout(() => {
-            logout();
-            navigate("/");
-          }, 1500);
-        }
-      } catch (err) {
-        toast.error(err.response?.data?.message || "탈퇴 처리 중 오류가 발생했습니다.");
+      const res = await axiosApi.post(`/auth/withdraw/${member.memberNo}`);
+      if (res.status === 200) {
+        toast.success("탈퇴 처리가 완료되었습니다.");
+        setTimeout(() => {
+          logout();
+          navigate("/");
+        }, 1500);
       }
-    };
-  
-    const handleWithdrawalClick = async () => {
-      try {
-        const checkRes = await axiosApi.get(`/auth/withdraw-check/${member.memberNo}`);
-        const activeCount = checkRes.data.activeCount;
-  
-        if (activeCount > 0) {
-          toast.error(<>진행 중인 경매나 주문이 ({activeCount}건) 있어<br />탈퇴가 불가능합니다.<br />관리자에게 문의해주세요.</>);
-          return;
-        }
-  
-        await processWithdrawal();
-  
-      } catch (err) {
-        toast.error("상태 확인 중 오류가 발생했습니다.");
-      }
-    };
+    } catch (err) {
+      toast.error(err.response?.data?.message || "탈퇴 처리 중 오류가 발생했습니다.");
+    }
       **************************** */
 
-      // [임시 목업 테스트용] -------------------------------------
-      console.log("서버 탈퇴 API 호출 시뮬레이션 (회원번호:", member?.memberNo, ")");
+      // [임시 목업 테스트용]
+      console.log(
+        "서버 탈퇴 API 호출 시뮬레이션 (회원번호:",
+        member?.memberNo,
+        ")"
+      );
       toast.success("탈퇴 처리가 완료되었습니다. (테스트)");
 
       setTimeout(() => {
         logout();
         navigate("/");
       }, 1500);
-
     } catch (err) {
       toast.error(err.response?.data || "탈퇴 처리 중 오류가 발생했습니다.");
     }
@@ -165,22 +188,27 @@ export default function MyPage() {
 
   const handleWithdrawalClick = async () => {
     try {
-      const mockActiveCount = 3;  // 테스트용, 0일시 탈퇴, 1 이상 탈퇴불가
+      const mockActiveCount = 3; // 테스트용, 0이면 탈퇴 가능
       if (mockActiveCount > 0) {
-        toast.error(<>진행 중인 경매나 주문이 ({mockActiveCount}건) 있어<br />탈퇴가 불가능합니다.<br />관리자에게 문의해주세요.</>);
+        toast.error(
+          <>
+            진행 중인 경매나 주문이 ({mockActiveCount}건) 있어
+            <br />
+            탈퇴가 불가능합니다.
+            <br />
+            관리자에게 문의해주세요.
+          </>
+        );
         return;
       }
       // --------------------------------------------- 여기까지 삭제
 
-
       showConfirm(
-
         "정말 탈퇴하시겠습니까?",
         "탈퇴 시 모든 데이터는 복구가 불가능하며\n즉시 로그아웃됩니다.\n구글 로그인은 추가로 연동해제해주세요.",
         processWithdrawal,
         "확인"
       );
-
     } catch (err) {
       toast.error("탈퇴 가능 여부 확인 중 오류가 발생했습니다.");
     }
@@ -199,18 +227,20 @@ export default function MyPage() {
     if (element) {
       element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-
   };
 
   /* 찜 리스트 */
   const [wishItems, setWishItems] = useState([]);
   const [wishTab, setWishTab] = useState("all");
 
-  const wishCounts = useMemo(() => ({
-    all: 0,
-    musical: 0,
-    exhibit: 0,
-  }), []);
+  const wishCounts = useMemo(
+    () => ({
+      all: 0,
+      musical: 0,
+      exhibit: 0,
+    }),
+    []
+  );
 
   const filteredWish = useMemo(() => [], []);
 
@@ -228,8 +258,14 @@ export default function MyPage() {
                   {group.items.map((item) => (
                     <li key={item.id}>
                       <NavLink
-                        to={group.title === "활동 내역" ? `/myPage/${item.id}` : "#"}
-                        className={`nav-link ${activeId === item.id ? "is-active" : ""}`}
+                        to={
+                          group.title === "활동 내역"
+                            ? `/myPage/${item.id}`
+                            : "#"
+                        }
+                        className={`nav-link ${
+                          activeId === item.id ? "is-active" : ""
+                        }`}
                         onClick={(e) => handleSideNavClick(e, item.id)}
                       >
                         <i className={item.icon} />
@@ -247,27 +283,80 @@ export default function MyPage() {
       <main className="main">
         <div className="main__inner">
           <section id="profile-edit" className="card">
-            <header className="card__head"><h2 className="card__title">연락처 변경</h2></header>
+            <header className="card__head">
+              <h2 className="card__title">연락처 변경</h2>
+            </header>
             <div className="card__body">
               <div className="form">
                 <div className="field">
-                  <label className="label">이메일 {isSocialUser && <span style={{ fontSize: '12px', color: '#4285F4', marginLeft: '8px' }}>(Google 계정으로 사용 중 입니다.)</span>}</label>
-                  <input className="input input--disabled" value={member?.memberEmail || "정보 없음"} disabled readOnly />
+                  <label className="label">
+                    이메일
+                    {/* ✅ Google/관리자/기업 모두 표시되게 변경 */}
+                    {accountLabel && (
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          color: "#4285F4",
+                          marginLeft: "8px",
+                        }}
+                      >
+                        {accountLabel}
+                      </span>
+                    )}
+                  </label>
+                  <input
+                    className="input input--disabled"
+                    value={member?.memberEmail || "정보 없음"}
+                    disabled
+                    readOnly
+                  />
                 </div>
+
                 <div className="field">
                   <label className="label">기존 연락처</label>
-                  <input className="input input--disabled" value={formatPhoneNumber(member?.memberTel) || "등록된 번호 없음"} disabled readOnly />
+                  <input
+                    className="input input--disabled"
+                    value={
+                      formatPhoneNumber(member?.memberTel) || "등록된 번호 없음"
+                    }
+                    disabled
+                    readOnly
+                  />
                 </div>
+
                 <div className="field">
                   <label className="label">새 연락처</label>
                   <div className="tel-group">
-                    <input className="input tel-input" type="text" inputMode="numeric" value={newPhone} onChange={handleNewPhoneChange} maxLength={13} />
+                    <input
+                      className="input tel-input"
+                      type="text"
+                      inputMode="numeric"
+                      value={newPhone}
+                      onChange={handleNewPhoneChange}
+                      maxLength={13}
+                    />
 
                     <div className="tel-buttons">
-                    <button type="button" className={`btn btn--check ${isTelChecked ? "is-checked" : ""}`} onClick={() => handleCheckTel(newPhone.replace(/[^0-9]/g, ""))} disabled={isTelChecked}>{isTelChecked ? "확인됨" : "중복 확인"}</button>
-                    <button type="button" className="btn btn--primary btn--save" onClick={handleUpdatePhone}>연락처 변경</button>
+                      <button
+                        type="button"
+                        className={`btn btn--check ${
+                          isTelChecked ? "is-checked" : ""
+                        }`}
+                        onClick={() =>
+                          handleCheckTel(newPhone.replace(/[^0-9]/g, ""))
+                        }
+                        disabled={isTelChecked}
+                      >
+                        {isTelChecked ? "확인됨" : "중복 확인"}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--primary btn--save"
+                        onClick={handleUpdatePhone}
+                      >
+                        연락처 변경
+                      </button>
                     </div>
-
                   </div>
                 </div>
               </div>
@@ -276,28 +365,77 @@ export default function MyPage() {
 
           {!isSocialUser && (
             <section id="password-change" className="card">
-              <header className="card__head"><h2 className="card__title">비밀번호 변경</h2></header>
+              <header className="card__head">
+                <h2 className="card__title">비밀번호 변경</h2>
+              </header>
               <div className="card__body">
-                <form className="form form--narrow" onSubmit={handlePasswordChange}>
+                <form
+                  className="form form--narrow"
+                  onSubmit={handlePasswordChange}
+                >
                   <div className="field">
                     <label className="label">현재 비밀번호</label>
-                    <input className="input" type="password" value={pwData.currentPw} onChange={(e) => setPwData({ ...pwData, currentPw: e.target.value })} required />
+                    <input
+                      className="input"
+                      type="password"
+                      value={pwData.currentPw}
+                      onChange={(e) =>
+                        setPwData({ ...pwData, currentPw: e.target.value })
+                      }
+                      required
+                    />
                   </div>
+
                   <div className="field">
                     <label className="label">새 비밀번호</label>
-                    <input className="input" type="password" placeholder="영문, 숫자 포함 8~16자" value={pwData.newPw} onChange={(e) => setPwData({ ...pwData, newPw: e.target.value })} required />
+                    <input
+                      className="input"
+                      type="password"
+                      placeholder="영문, 숫자 포함 8~16자"
+                      value={pwData.newPw}
+                      onChange={(e) =>
+                        setPwData({ ...pwData, newPw: e.target.value })
+                      }
+                      required
+                    />
                   </div>
+
                   <div className="field">
                     <label className="label">새 비밀번호 확인</label>
-                    <input className="input" type="password" value={pwData.newPwConfirm} onChange={(e) => setPwData({ ...pwData, newPwConfirm: e.target.value })} required />
+                    <input
+                      className="input"
+                      type="password"
+                      value={pwData.newPwConfirm}
+                      onChange={(e) =>
+                        setPwData({ ...pwData, newPwConfirm: e.target.value })
+                      }
+                      required
+                    />
                     {pwData.newPwConfirm.length > 0 && (
-                      <p className={`pw-msg ${pwData.newPw === pwData.newPwConfirm ? "is-match" : "is-error"}`}>
-                        {pwData.newPw === pwData.newPwConfirm ? "새 비밀번호가 일치합니다." : "새 비밀번호가 일치하지 않습니다."}
+                      <p
+                        className={`pw-msg ${
+                          pwData.newPw === pwData.newPwConfirm
+                            ? "is-match"
+                            : "is-error"
+                        }`}
+                      >
+                        {pwData.newPw === pwData.newPwConfirm
+                          ? "새 비밀번호가 일치합니다."
+                          : "새 비밀번호가 일치하지 않습니다."}
                       </p>
                     )}
                   </div>
+
                   <div className="form__actions">
-                    <button className="btn btn--primary" type="submit" disabled={!pwData.newPw || pwData.newPw !== pwData.newPwConfirm}>비밀번호 변경</button>
+                    <button
+                      className="btn btn--primary"
+                      type="submit"
+                      disabled={
+                        !pwData.newPw || pwData.newPw !== pwData.newPwConfirm
+                      }
+                    >
+                      비밀번호 변경
+                    </button>
                   </div>
                 </form>
               </div>

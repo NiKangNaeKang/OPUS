@@ -17,4 +17,6 @@ public interface MyPageMapper {
 	// 경매 응찰 내역 조회 (같은 경매 중 내 최고 응찰가 1건 대표)
 	List<UnveilingHistoryResponse> getUnveilingHistory(int memberNo);
 
+	List<String> getLikeList(int memberNo);
+
 }

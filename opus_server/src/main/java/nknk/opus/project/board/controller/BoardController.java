@@ -1,16 +1,27 @@
 package nknk.opus.project.board.controller;
 
+import java.util.List;
+
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.RequiredArgsConstructor;
 import nknk.opus.project.board.model.dto.Board;
 import nknk.opus.project.board.model.service.BoardService;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/board")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class BoardController {
 
 	private final BoardService service;
@@ -22,26 +33,44 @@ public class BoardController {
 		return service.selectBoardList(boardTypeCode, sort);
 	}
 
-	/* 게시글 상세 조회 */
+	/* 게시글 상세 조회 + 조회수 증가 */
 	@GetMapping("/detail/{boardNo}")
 	public Board selectBoardDetail(@PathVariable("boardNo") int boardNo) {
-		// 상세 조회 시 서비스 단에서 조회수 증가 로직을 함께 처리하도록 구성
 		return service.selectBoardDetail(boardNo);
 	}
 
-	/* 게시글 등록 */
-	@PostMapping("/insert")
-	public int insertBoard(@RequestBody Board board) {
-		return service.insertBoard(board);
+	/* 게시글 등록 (텍스트 + 이미지 업로드) */
+	@PostMapping(value = "/insert", consumes = "multipart/form-data")
+	public int insertBoard(@RequestPart("board") Board board,
+			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+		return service.insertBoard(board, images);
 	}
 
-	/* 게시글 수정 */
-	@PutMapping("/update")
-	public int updateBoard(@RequestBody Board board) {
+	/* 게시글 텍스트 수정 */
+	@PutMapping("/update/{boardNo}")
+	public int updateBoard(@PathVariable("boardNo") int boardNo, @RequestBody Board board) {
+		board.setBoardNo(boardNo);
 		return service.updateBoard(board);
 	}
 
-	/* 게시글 삭제 */
+	/* 게시글 전체 수정 (텍스트 + 이미지 교체) */
+	@PutMapping(value = "/update-with-images/{boardNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public int updateBoardWithImages(@PathVariable("boardNo") int boardNo, @RequestPart("board") Board board,
+			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+		board.setBoardNo(boardNo);
+		return service.updateBoardWithImages(board, images);
+	}
+
+	/* 게시글 이미지 부분 수정 (삭제 + 추가) */
+	@PutMapping(value = "/update-images/{boardNo}", consumes = "multipart/form-data")
+	public int updateBoardImagesPartial(@PathVariable("boardNo") int boardNo, @RequestPart("board") Board board,
+			@RequestPart(value = "deleteImgNos", required = false) String deleteImgNosJson,
+			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+		board.setBoardNo(boardNo);
+		return service.updateBoardImagesPartial(board, deleteImgNosJson, images);
+	}
+
+	/* 게시글 삭제 (논리 삭제) */
 	@DeleteMapping("/delete/{boardNo}")
 	public int deleteBoard(@PathVariable("boardNo") int boardNo) {
 		return service.deleteBoard(boardNo);

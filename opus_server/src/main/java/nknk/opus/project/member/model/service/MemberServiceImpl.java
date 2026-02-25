@@ -191,8 +191,8 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	/* 회원 탈퇴 */
+	@Transactional(rollbackFor = Exception.class)
 	@Override
-	@Transactional
 	public boolean withdrawMember(int memberNo) {
 		return mapper.withdrawMember(memberNo) > 0;
 	}

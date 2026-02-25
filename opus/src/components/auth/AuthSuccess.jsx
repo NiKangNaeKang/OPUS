@@ -24,7 +24,7 @@ const AuthSuccess = () => {
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h2>로그인 처리 중입니다...</h2>
+      <h2>로그인 중입니다...</h2>
     </div>
   );
 };

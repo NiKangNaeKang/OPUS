@@ -18,15 +18,16 @@ import ToastConfig from "./components/toast/ToastConfig";
 import AuthInitializer from "./components/common/AuthInitializer";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MyPage from "./pages/mypage/MyPage";
-import ExhibitionList from "./pages/onStage/ExhibitionList";
 import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
 import Orders from "./pages/selections/Orders";
 import OrderDetail from "./pages/selections/OrderDetail";
 import AuthSuccess from "./components/auth/AuthSuccess";
 import ProposalDetail from "./pages/Proposals/ProposalDetail";
+import ProposalWrite from "./pages/proposals/ProposalWrite";
 import SavedList from "./pages/mypage/SavedList";
 import ReviewList from "./pages/mypage/ReviewList";
 import UnveilingHistory from "./pages/mypage/UnveilingHistory";
+import Admin from "./pages/admin/Admin";
 
 
 export default function App() {
@@ -51,7 +52,9 @@ export default function App() {
           <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
 
           <Route path="/proposals" element={<Proposals />} />
+          <Route path="/proposals/write" element={<ProposalWrite />} />
           <Route path="/proposals/detail/:boardNo" element={<ProposalDetail />} />
+          <Route path="/proposals/edit/:boardNo" element={<ProposalWrite />} />
 
           <Route path="/unveiling" element={<Unveiling />} />
           <Route path="/unveiling/:id" element={<UnveilingDetail />} />
@@ -70,6 +73,8 @@ export default function App() {
           <Route path="/mypage/wishlist" element={<SavedList />} />
           <Route path="/mypage/reviews" element={<ReviewList />} />
           <Route path="/mypage/auction-history" element={<UnveilingHistory />} />
+
+          <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>
 

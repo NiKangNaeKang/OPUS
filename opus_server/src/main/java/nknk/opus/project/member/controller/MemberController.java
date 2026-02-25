@@ -26,7 +26,6 @@ import nknk.opus.project.member.model.service.MemberService;
 @RestController
 @RequestMapping("/auth")
 @Slf4j
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class MemberController {
 
 	@Autowired

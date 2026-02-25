@@ -14,4 +14,6 @@ public interface MyPageService {
 	// 경매 응찰 내역
 	List<UnveilingHistoryResponse> getUnveilingHistory(int memberNo);
 
+	List<String> getLikeList(int memberNo);
+
 }

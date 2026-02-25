@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, Link, NavLink } from "react-router-dom";
 import "../../css/common/Header.css";
 
-function Header({ onClickUser, onLogout, isLoggedIn, variant }) {
+function Header({ onClickUser, onLogout, isLoggedIn, variant, role }) {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
 
@@ -68,6 +68,18 @@ function Header({ onClickUser, onLogout, isLoggedIn, variant }) {
             >
               Selections
             </NavLink>
+
+            {/* 관리자 */}
+            {role === "ADMIN" && (
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  `gnb__link admin-link ${isActive ? "is-active" : ""}`
+                }
+              >
+                ADMIN
+              </NavLink>
+            )}
           </nav>
         </div>
 
