@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import nknk.opus.project.bidding.model.dto.BidResponse;
 import nknk.opus.project.bidding.model.dto.Bidding;
 import nknk.opus.project.bidding.model.mapper.BiddingMapper;
+import nknk.opus.project.common.util.UnveilingUtils;
 import nknk.opus.project.unveiling.model.dto.Unveiling;
 import nknk.opus.project.unveiling.model.mapper.UnveilingMapper;
 
@@ -71,7 +72,7 @@ public class BiddingServiceImpl implements BiddingService{
         int current = Math.max(baseCurrent, maxBid);
         
         // 4) 호가 단위 계산 + 다음 입찰가격 산출
-        int nextPrice = current + calcTick(current);
+        int nextPrice = current + UnveilingUtils.calcTick(current);
 
         // 5) Bidding insert
         bidding.setBidPrice(nextPrice);
@@ -99,25 +100,7 @@ public class BiddingServiceImpl implements BiddingService{
         							.unveilingStatus(u.getUnveilingStatus())
         							.build();
 	}
-	
-    /* 호가표: 현재가 구간 별 응찰단위
-      5백만 원 미만 : 100,000
-      5백만 이상 1천만 미만 : 500,000
-      1천만 이상 3천만 미만 : 1,000,000
-      3천만 이상 5천만 미만 : 2,000,000
-      5천만 이상 : 5,000,000 */
-    private int calcTick(int currentPrice) {
-     
-    	if (currentPrice < 5000000) return 100000;
-        
-    	if (currentPrice < 10000000) return 500000;
-        
-    	if (currentPrice < 30000000) return 1000000;
-        
-    	if (currentPrice < 50000000) return 2000000;
-        
-    	return 5000000;
-    }
+
 
 	
 }

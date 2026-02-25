@@ -29,5 +29,6 @@ public class BidStateResponse {
     private int topBidderMemberNo; // 종료 전, 현재 상태에서 최고가 입찰자    
     private int finalizedFl;
     private int winnerMemberNo;
+    private int finalPrice;
     private String paymentStatus;
 }

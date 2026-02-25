@@ -189,4 +189,60 @@
 	    WHERE ORDER_NO = #{orderNo}
 	</update>
 	
+
+	<!-- 관리자용 경매 전체 목록 조회 -->
+	<select id="selectAllUnveilings" resultType="Unveiling">
+		SELECT
+			UNVEILING_NO,
+			UNVEILING_TITLE,
+			PRODUCTION_ARTIST,
+			UNVEILING_STATUS,
+			START_PRICE,
+			CURRENT_PRICE,
+			BIDDING_COUNT,
+			TO_CHAR(FINISH_DATE, 'YYYY-MM-DD"T"HH24:MI:SS') AS FINISH_DATE
+		FROM UNVEILING
+		ORDER BY UNVEILING_NO DESC
+	</select>
+
+	<!-- 경매 등록 -->
+	<insert id="insertUnveiling" parameterType="Unveiling">
+		<selectKey keyProperty="unveilingNo" resultType="int" order="BEFORE">
+			SELECT UNVEILING_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO UNVEILING (
+			UNVEILING_NO,
+			UNVEILING_TITLE,
+			PRODUCTION_ARTIST,
+			PRODUCTION_YEAR,
+			PRODUCTION_MATERIAL,
+			PRODUCTION_SIZE,
+			START_PRICE,
+			CURRENT_PRICE,
+			BIDDING_COUNT,
+			FINISH_DATE,
+			PRODUCTION_DETAIL,
+			ARTIST_DETAIL,
+			UNVEILING_STATUS,
+			FINALIZED_FL,
+			PAYMENT_STATUS
+		) VALUES (
+			#{unveilingNo},
+			#{unveilingTitle},
+			#{productionArtist},
+			#{productionYear},
+			#{productionMaterial},
+			#{productionSize},
+			#{startPrice},
+			#{startPrice},
+			0,
+			TO_TIMESTAMP(#{finishDate}, 'YYYY-MM-DD"T"HH24:MI:SS'),
+			#{productionDetail},
+			#{artistDetail},
+			#{unveilingStatus},
+			0,
+			'NONE'
+		)
+	</insert>
+	
 </mapper>

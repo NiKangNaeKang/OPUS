@@ -41,7 +41,8 @@
 		DEFAULT,
 		DEFAULT,
 		NVL(#{memberRole}, 'MEMBER'),
-		NVL(#{loginType}, 'NORMAL')
+		NVL(#{loginType},
+		'NORMAL')
 		)
 	</insert>
 
@@ -154,5 +155,14 @@
 		'N'
 		)
 	</insert>
+
+	<!-- memberNo로 이메일 조회 -->
+	<select id="findEmailByMemberNo" parameterType="int"
+		resultType="string">
+		SELECT MEMBER_EMAIL
+		FROM "MEMBER"
+		WHERE MEMBER_NO = #{memberNo}
+		AND MEMBER_DEL_FL = 'N'
+	</select>
 
 </mapper>

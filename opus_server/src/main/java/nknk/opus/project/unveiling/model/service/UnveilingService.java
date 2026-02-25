@@ -20,5 +20,8 @@ public interface UnveilingService {
 	Map<String, Object> mockPay(int unveilingNo, int memberNo);
 
 	List<Unveiling> getList();
+	
+	void sendDeadlineAlertEmails(int unveilingNo, String unveilingTitle, String productionArtist, String finishDate);
+
 
 }
