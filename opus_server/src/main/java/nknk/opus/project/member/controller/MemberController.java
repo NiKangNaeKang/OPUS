@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +30,7 @@ public class MemberController {
 
 	private final MemberService service;
 	private final JwtUtil jwtUtil;
+	private final BCryptPasswordEncoder encoder;
 
 	/** 토큰(로그인) 필수 체크 */
 	private void requireAuth(Authentication authentication) {
@@ -231,6 +233,69 @@ public class MemberController {
 		} catch (Exception e) {
 			log.error("[구글 가입 에러] 사유: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	/** 내 정보 조회 (소셜 로그인 후 member 정보 로드용)
+	 * @param authentication
+	 * @return
+	 * by Sanghoo
+	 */
+	@GetMapping("/me")
+	public ResponseEntity<?> getMe(Authentication authentication) {
+		try {
+			int memberNo = getMemberNo(authentication);
+			Member member = service.getMemberByMemberNo(memberNo);
+
+			if (member == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("회원 정보를 찾을 수 없습니다.");
+			}
+
+			Map<String, Object> memberInfo = new HashMap<>();
+			memberInfo.put("memberNo", member.getMemberNo());
+			memberInfo.put("memberEmail", member.getMemberEmail());
+			memberInfo.put("memberTel", member.getMemberTel());
+			memberInfo.put("role", member.getMemberRole() == null ? null : member.getMemberRole().name());
+			memberInfo.put("loginType", member.getLoginType());
+
+			return ResponseEntity.ok(memberInfo);
+		} catch (Exception e) {
+			log.error("[내 정보 조회 에러] 사유: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 실패");
+		}
+	}
+	
+	/** LOGIN_TYPE=NORMAL 응찰 시 비밀번호 검증
+	 * @param body
+	 * @param authentication
+	 * @return
+	 * by Sanghoo
+	 */
+	@PostMapping("/verify-password")
+	public ResponseEntity<?> verifyPassword(@RequestBody Map<String, String> body, Authentication authentication) {
+		try {
+			int memberNo = getMemberNo(authentication);
+			String inputPw = body.get("memberPw");
+
+			if (inputPw == null || inputPw.isBlank()) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호를 입력해주세요.");
+			}
+
+			String savedPw = service.getCurrentPw(memberNo);
+
+			if (savedPw == null) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("회원 정보를 찾을 수 없습니다.");
+			}
+
+			if (!encoder.matches(inputPw, savedPw)) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
+			}
+
+			return ResponseEntity.ok("본인 확인이 완료되었습니다.");
+
+		} catch (Exception e) {
+			log.error("[비밀번호 검증 에러] 사유: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
 		}
 	}
 

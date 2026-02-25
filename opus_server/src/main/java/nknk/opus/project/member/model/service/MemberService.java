@@ -31,4 +31,8 @@ public interface MemberService {
   int googleRegister(Member inputMember);
 
   Member getMemberByEmail(String email);
+
+  Member getMemberByMemberNo(int memberNo);
+
+  String getCurrentPw(int memberNo);
 }
