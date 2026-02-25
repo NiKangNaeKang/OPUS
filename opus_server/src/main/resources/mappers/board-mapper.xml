@@ -140,30 +140,33 @@
 	</insert>
 
 	<!-- 게시글 수정(텍스트) -->
-	<update id="updateBoard">
-		UPDATE "BOARD"
-		SET
-		BOARD_TITLE = #{boardTitle},
-		BOARD_CONTENT = #{boardContent},
-		BOARD_CATEGORY = #{boardCategory},
-		WRITER_COMPANY = #{writerCompany},
-		BOARD_UPDATE_DATE = SYSDATE
-		WHERE
-		BOARD_NO = #{boardNo}
-		AND BOARD_DEL_FL = 'N'
-	</update>
+<update id="updateBoard">
+  UPDATE "BOARD"
+  SET
+    BOARD_TITLE = #{boardTitle},
+    BOARD_CONTENT = #{boardContent},
+    BOARD_CATEGORY = #{boardCategory},
+    WRITER_COMPANY = #{writerCompany},
+    BOARD_UPDATE_DATE = SYSDATE
+  WHERE
+    BOARD_NO = #{boardNo}
+    AND MEMBER_NO = #{memberNo}
+    AND BOARD_DEL_FL = 'N'
+</update>
 
 	<!-- 게시글 삭제(논리 삭제) -->
 	<update id="deleteBoard">
 		UPDATE "BOARD"
 		SET BOARD_DEL_FL = 'Y'
-		WHERE BOARD_NO =
-		#{boardNo}
+		WHERE BOARD_NO = #{boardNo}
+		AND MEMBER_NO = #{memberNo}
+		AND BOARD_DEL_FL = 'N'
 	</update>
 
 	<!-- 해당 게시글 이미지 파일명(리네임) 전체 조회 -->
 	<select id="selectBoardImageRenames" resultType="string">
-		SELECT BOARD_IMG_RE
+		SELECT
+		BOARD_IMG_RE
 		FROM "BOARD_IMAGE"
 		WHERE BOARD_NO = #{boardNo}
 	</select>
@@ -224,5 +227,31 @@
 		WHEN MATCHED THEN
 		UPDATE SET BI.BOARD_IMG_ORDER = T.NEW_ORDER
 	</update>
+
+	<!-- 작성 게시글 조회 (기업회원: BOARD_TYPE_CODE=2 고정) -->
+	<select id="selectMyBoards" resultMap="boardDetailMap">
+		SELECT
+		B.BOARD_NO,
+		B.BOARD_TYPE_CODE,
+		B.MEMBER_NO,
+		B.BOARD_TITLE,
+		B.BOARD_CONTENT,
+		B.BOARD_WRITE_DATE,
+		B.BOARD_UPDATE_DATE,
+		B.BOARD_VIEW_COUNT,
+		B.BOARD_CATEGORY,
+		B.WRITER_COMPANY,
+		BT.BOARD_NAME
+		FROM "BOARD" B
+		JOIN
+		"BOARD_TYPE" BT
+		ON BT.BOARD_TYPE_CODE = B.BOARD_TYPE_CODE
+		WHERE
+		B.MEMBER_NO = #{memberNo}
+		AND B.BOARD_TYPE_CODE = 2
+		AND B.BOARD_DEL_FL =
+		'N'
+		ORDER BY B.BOARD_NO DESC
+	</select>
 
 </mapper>

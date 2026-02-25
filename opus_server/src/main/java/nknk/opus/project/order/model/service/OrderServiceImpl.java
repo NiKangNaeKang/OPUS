@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.common.exception.BusinessException;
 import nknk.opus.project.common.exception.ResourceNotFoundException;
+import nknk.opus.project.notification.model.service.NotificationService;
 import nknk.opus.project.order.model.dto.CancelRequest;
 import nknk.opus.project.order.model.dto.Order;
 import nknk.opus.project.order.model.dto.OrderItem;
@@ -34,6 +35,9 @@ public class OrderServiceImpl implements OrderService {
 
 	@Autowired
 	private EmailService emailService; // 이메일 발송 서비스
+	
+	@Autowired
+	private NotificationService notificationService;
 
 	/**
 	 * 주문 생성 (결제 전)
@@ -79,6 +83,17 @@ public class OrderServiceImpl implements OrderService {
 
 		// 4. 주문명 생성
 		String orderName = generateOrderName(request.getItems());
+		int itemCount = request.getItems().size();                      // 총 상품 개수
+
+	    notificationService.createNotification(
+	        memberNo,
+	        "ORDER",
+	        "주문이 완료되었습니다.",
+	        itemCount == 1
+	            ? orderName                                     // 1개면 상품명만
+	            : orderName + " 외 " + (itemCount - 1) + "건", // 2개 이상이면 "외 N건"
+	        "/mypage/orders"
+	    );
 
 		// 5. 응답 데이터
 		Map<String, Object> response = new HashMap<>();

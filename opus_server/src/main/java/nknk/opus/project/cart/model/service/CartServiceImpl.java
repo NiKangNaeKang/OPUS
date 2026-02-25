@@ -46,7 +46,7 @@ public class CartServiceImpl implements CartService {
 			throw new BusinessException("장바구니 추가에 실패했습니다.");
 		}
 
-		return mapper.selectCartByNo(cart.getCartNo());
+		return mapper.selectCartByNo(newCart.getCartNo());
 	}
 
 	@Override

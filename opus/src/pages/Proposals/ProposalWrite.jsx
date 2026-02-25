@@ -1,4 +1,3 @@
-// ProposalWrite.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axiosApi from "../../api/axiosAPI";
@@ -33,7 +32,7 @@ const ProposalWrite = () => {
   const [deleteImgNos, setDeleteImgNos] = useState(new Set());
 
   const newPreviews = useMemo(
-    () => newImages.map((f) => ({ file: f, url: URL.createObjectURL(f) })),
+    () => newImages.map((f) => ({ url: URL.createObjectURL(f) })),
     [newImages]
   );
 
@@ -57,7 +56,7 @@ const ProposalWrite = () => {
     navigate("/proposals");
   }, [isLoggedIn, role, navigate]);
 
-  // ✅ [추가] 관리자 신규 작성 시, 목록에서 넘어온 탭(activeTab) 기준으로 boardTypeCode 자동 세팅
+  // 관리자 신규 작성 시, 목록에서 넘어온 탭(activeTab) 기준으로 boardTypeCode 자동 세팅
   useEffect(() => {
     if (isEditMode) return;
     if (role !== "ADMIN") return;
@@ -74,14 +73,14 @@ const ProposalWrite = () => {
     }
   }, [isEditMode, role]);
 
-  // ✅ 이벤트 게시판에서는 OPUS 카테고리 자동 제거
+  // 이벤트 게시판에서는 OPUS 카테고리 자동 제거
   useEffect(() => {
     if (Number(formData.boardTypeCode) === 2 && formData.boardCategory === "opus") {
       setFormData((prev) => ({ ...prev, boardCategory: "musical" }));
     }
   }, [formData.boardTypeCode, formData.boardCategory]);
 
-  // ✅ [추가] 관리자 신규 작성 시 writerCompany 기본값 "관리자"로 세팅
+  // 관리자 신규 작성 시 writerCompany 기본값 "관리자"로 세팅
   useEffect(() => {
     if (!isEditMode && role === "ADMIN") {
       setFormData((prev) => ({
@@ -217,13 +216,6 @@ const ProposalWrite = () => {
       return alert("기업회원은 이벤트/홍보글만 작성/수정 가능합니다.");
     }
 
-    // ✅ 관리자/기업 둘 다 writerCompany 공백 방지
-    if (role === "ADMIN") {
-      if (!formData.writerCompany?.trim()) {
-        setFormData((prev) => ({ ...prev, writerCompany: "관리자" }));
-      }
-    }
-
     if (role === "COMPANY" && !formData.writerCompany.trim()) {
       return alert("작성자(회사명)를 입력해주세요.");
     }
@@ -239,17 +231,11 @@ const ProposalWrite = () => {
       );
     }
 
-    // ✅ boardPayload에 writerCompany 최종 보정
     const boardPayload = {
-      ...formData,
-      writerCompany:
-        role === "ADMIN"
-          ? formData.writerCompany?.trim()
-            ? formData.writerCompany
-            : "관리자"
-          : formData.writerCompany,
-      boardNo: isEditMode ? Number(boardNo) : undefined,
-      memberNo: member?.memberNo,
+    ...formData,
+    writerCompany: formData.writerCompany,
+    boardNo: isEditMode ? Number(boardNo) : undefined,
+    memberNo: member?.memberNo,
     };
 
     try {
@@ -354,7 +340,7 @@ const ProposalWrite = () => {
                 onChange={handleChange}
                 className="pp-select"
               >
-                {/* ✅ 공지(1)일 때만 OPUS 노출 */}
+                {/* 공지(1)일 때만 OPUS 노출 */}
                 {Number(formData.boardTypeCode) === 1 && <option value="opus">OPUS</option>}
                 <option value="musical">뮤지컬</option>
                 <option value="exhibition">전시</option>
@@ -364,7 +350,7 @@ const ProposalWrite = () => {
             </div>
           </div>
 
-          {role === "COMPANY" && (
+          {(role === "COMPANY" || (role === "ADMIN" && isEditMode)) && (
             <div className="form-group">
               <label>작성자(회사명)</label>
               <input
@@ -403,11 +389,23 @@ const ProposalWrite = () => {
                       key={img.boardImgNo}
                       title={willDelete ? "삭제 예정" : "유지"}
                     >
+                      
                       <img
                         src={img.url}
                         alt={`existing-${idx}`}
-                        onError={(e) => (e.currentTarget.src = FALLBACK_IMG)}
+                        onError={(e) => {
+                          const el = e.currentTarget;
+
+                          if (el.dataset.broken === "1") return;
+                          el.dataset.broken = "1";
+
+                          el.style.display = "none";
+                          el.onerror = null; // 재호출 방지
+
+                          setBrokenCount((c) => c + 1); // 필요할 때만
+                        }}
                       />
+
                       <button
                         type="button"
                         className="preview-remove"

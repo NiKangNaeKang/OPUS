@@ -1794,3 +1794,149 @@ INSERT INTO GOODS_IMG VALUES (
   1
 );
 
+/* 35번 상품 : <게임사회> 반팔 티셔츠 */
+
+INSERT INTO GOODS VALUES (
+  SEQ_GOODS.NEXTVAL,
+  '<게임사회> 반팔 티셔츠',
+  'exhibition',
+  'clothes',
+  '게임에서 얻어지는 즐거운 성취감을 상상하며 제작한 티셔츠입니다.
+
+난이도에 따라 레벨이 달라지는 80~90년대 컴퓨터, 비디오 게임의 구성 속
+마지막 화면의 문구를 연상하는 뒷면 프린팅이 인상적입니다.
+
+무난한 회색 바탕에 경쾌한 노란색 코인과 구름 아이콘이
+픽셀 문구와 함께 더해져 귀여운 느낌을 줍니다.',
+  'MMCA',
+  39800,
+  3000,
+  SYSDATE,
+  'N'
+);
+
+-- M / 블랙
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  'M',
+  '블랙',
+  50
+);
+
+-- M / 화이트
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  'M',
+  '화이트',
+  50
+);
+
+-- M / 그레이
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  'M',
+  '그레이',
+  50
+);
+
+-- XL / 블랙
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  'XL',
+  '블랙',
+  50
+);
+
+-- XL / 화이트
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  'XL',
+  '화이트',
+  50
+);
+
+-- XL / 그레이
+INSERT INTO GOODS_OPTION VALUES (
+  SEQ_GOODS_OPTION.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  'XL',
+  '그레이',
+  50
+);
+
+-- 썸네일
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '게임사회 반팔 티셔츠 썸네일.jpg',
+  'e_clothes_35_0.jpg',
+  0
+);
+
+-- 상세1
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '게임사회 반팔 티셔츠 상세1.jpg',
+  'e_clothes_35_1.jpg',
+  1
+);
+
+-- 상세2
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '게임사회 반팔 티셔츠 상세2.jpg',
+  'e_clothes_35_2.jpg',
+  2
+);
+
+-- 상세3
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '게임사회 반팔 티셔츠 상세3.jpg',
+  'e_clothes_35_3.jpg',
+  3
+);
+
+-- 상세4
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '게임사회 반팔 티셔츠 상세4.jpg',
+  'e_clothes_35_4.jpg',
+  4
+);
+
+-- 상세5
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '게임사회 반팔 티셔츠 상세5.jpg',
+  'e_clothes_35_5.jpg',
+  5
+);
+
+-- 상세6
+INSERT INTO GOODS_IMG VALUES (
+  SEQ_GOODS_IMG.NEXTVAL,
+  SEQ_GOODS.CURRVAL,
+  '/images/goods/',
+  '게임사회 반팔 티셔츠 상세6.jpg',
+  'e_clothes_35_6.jpg',
+  6
+);
+
+COMMIT;

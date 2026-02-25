@@ -322,7 +322,7 @@ const SelectionsDetail = () => {
     }
 
     if (!isLoggedIn) {
-      alert("회원 전용 서비스입니다. 로그인 후 이용해주세요.");
+      alert("상품 구매는 로그인 후 이용 가능힙니다.");
       return;
     }
 

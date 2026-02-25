@@ -22,12 +22,20 @@ import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
 import Orders from "./pages/selections/Orders";
 import OrderDetail from "./pages/selections/OrderDetail";
 import AuthSuccess from "./components/auth/AuthSuccess";
-import ProposalDetail from "./pages/Proposals/ProposalDetail";
+import ProposalDetail from "./pages/proposals/ProposalDetail";
+import Chatbot from "./components/Chatbot";
+import ScrollToTop from "./components/common/ScrollToTop";
 import ProposalWrite from "./pages/proposals/ProposalWrite";
 import SavedList from "./pages/mypage/SavedList";
 import ReviewList from "./pages/mypage/ReviewList";
 import UnveilingHistory from "./pages/mypage/UnveilingHistory";
+import FAQ from "./pages/footer/FAQ";
+import Terms from "./pages/footer/Terms";
+import About from "./pages/footer/About";
+import Privacy from "./pages/footer/Privacy";
+
 import Admin from "./pages/admin/Admin";
+import MyPosts from "./pages/mypage/MyPosts";
 
 
 export default function App() {
@@ -73,11 +81,18 @@ export default function App() {
           <Route path="/mypage/wishlist" element={<SavedList />} />
           <Route path="/mypage/reviews" element={<ReviewList />} />
           <Route path="/mypage/auction-history" element={<UnveilingHistory />} />
+          <Route path="/mypage/myPosts" element={<MyPosts />} />
 
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/about" element={<About />} />
           <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>
 
+      <Chatbot />
+      <ScrollToTop />
     </>
   );
 }

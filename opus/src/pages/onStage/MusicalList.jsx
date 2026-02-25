@@ -2,10 +2,11 @@ import { Link } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAllMusicals, dateRange } from "../../api/kopisAPI";
+import '../../css/pages/onStage/OnStage.css'
+import Loading from "../../components/common/Loading.jsx";
 import axiosApi from "../../api/axiosAPI";
 import { useAuthStore } from "../../components/auth/useAuthStore";
-import "../../css/pages/onStage/OnStage.css";
-import Loading from "../../components/common/Loading.jsx";
+import { useContentStore } from "../../store/useContentStore.js";
 
 const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
 
@@ -72,7 +73,7 @@ export default function MusicalList({ status, search }) {
   const scrollLeft = (ref) => {
     ref.current?.scrollBy({ left: -300, behavior: "smooth" });
   };
-  
+
   const scrollRight = (ref) => {
     ref.current?.scrollBy({ left: 300, behavior: "smooth" });
   };
@@ -81,6 +82,22 @@ export default function MusicalList({ status, search }) {
     if (!data) return [];
     return data.pages.flatMap((page) => page.items);
   }, [data]);
+
+  // 챗봇에게 데이터 전달용 (박유진 추가)
+  const setMusicals = useContentStore((s) => s.setMusicals);
+
+  useEffect(() => {
+    if (allItems.length > 0) {
+      setMusicals(allItems.slice(0, 20).map(m => ({
+        title: m.prfnm,
+        period: `${m.prfpdfrom} ~ ${m.prfpdto}`,
+        place: m.fcltynm,
+        status: m.prfstate
+      })));
+    }
+  }, [allItems]);
+
+  // -------------------------------------------
 
   useEffect(() => {
     if (status !== "all" || !loginMemberNo || !allItems.length) return;
@@ -164,9 +181,10 @@ export default function MusicalList({ status, search }) {
               >
                 ›
               </button>
-            </div>
-        </section>
-      )}
+            </div >
+        </section >
+      )
+}
 
       {status === "all" && (
         <section className="show-row">
