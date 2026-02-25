@@ -13,7 +13,7 @@ const Proposals = () => {
   const role = member?.role;
 
   const API_BASE = import.meta.env.VITE_API_URL;
-  const FALLBACK_THUMB = "/proposals-default.png";
+  const FALLBACK_THUMB = "/proposals-default.webp";
 
   /* detail -> list로 돌아올 때 탭/페이지 복원 */
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || "notice");

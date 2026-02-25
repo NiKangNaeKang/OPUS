@@ -19,7 +19,7 @@ const ProposalDetail = () => {
   const [brokenCount, setBrokenCount] = useState(0);
 
   const API_BASE = import.meta.env.VITE_API_URL;
-  const FALLBACK_IMG = "/proposals-no-image.png";
+  const FALLBACK_IMG = "/proposals-no-image.webp";
 
   const categoryLabel = {
     musical: "뮤지컬",
