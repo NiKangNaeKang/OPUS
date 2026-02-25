@@ -5,21 +5,30 @@ import { useRef, useState } from 'react';
 import axiosApi from '../../api/axiosAPI';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../components/auth/useAuthStore';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { getAllExhibitions } from '../../api/kcisaAPI';
 
 export default function ExhibitionDetail () {
-  const { state } = useLocation();
-  const item = state?.item;
+  const { exhibitionId } = useParams();
   const loginMemberNo = useAuthStore(state => state.member?.memberNo);
-  console.log("loginMemberNo:", loginMemberNo);
-
-  if(!item) {
-    return <div>잘못된 접근입니다.</div>
-  }
-
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const modalBackground = useRef();
-  
+  const [like, setLike] = useState(false);
+  const [dislike, setDislike] = useState(false);
+  const [save, setSave] = useState(false);
+
+  const { data: item, isLoading } = useQuery({
+    queryKey: ["exhibitionDetail", exhibitionId],
+    queryFn: async () => {
+      const exhibitions = await getAllExhibitions({
+        serviceKey: "bcec5111-252e-47c3-9dca-4b943cf5a0ed",
+        pageParam: 1
+      });
+      return exhibitions.find(e => String(e.exhibitionId) === exhibitionId);
+    },
+    enabled: !!exhibitionId
+  });
+
   const currentURL = window.location.href;
 
   const copyURL = async () => {
@@ -30,10 +39,6 @@ export default function ExhibitionDetail () {
       alert('복사에 실패했습니다');
     }
   };
-
-  const [like, setLike] = useState(false);
-  const [dislike, setDislike] = useState(false);
-  const [save, setSave] = useState(false);
 
   const toggleLike = async () => {
     console.log("보내는 memberNo:", loginMemberNo);
@@ -98,13 +103,27 @@ export default function ExhibitionDetail () {
   };
 
   const { data: bestReview } = useQuery({
-    queryKey: ["bestReview", item.exhibitionId],
+    queryKey: ["bestReview", exhibitionId],
     queryFn: async () => {
-      const res = await axiosApi.get(`/stage/bestReview?stageNo=${item.exhibitionId}`);
+      const res = await axiosApi.get(`/stage/bestReview?stageNo=${exhibitionId}`);
       return res.data;
     },
-    enabled: !!item.exhibitionId
+    enabled: !!exhibitionId
   });
+
+  const { data: bestReviewLikeCount } = useQuery({
+    queryKey: ["bestReviewLikeCount", bestReview?.reviewNo],
+    queryFn: async () => {
+      const res = await axiosApi.get("/reviews/likeCount", {
+        params: { reviewNo: bestReview.reviewNo }
+      });
+      return res.data;
+    },
+    enabled: !!bestReview?.reviewNo
+  });
+  
+  if (isLoading) return <div>로딩 중...</div>;
+  if (!item) return <div>잘못된 접근입니다.</div>;
 
   return (
     <main className="detail-page">
@@ -247,7 +266,7 @@ export default function ExhibitionDetail () {
 
                         <div className="review__like">
                           <i className="fa-solid fa-thumbs-up" id='review-like-btn'></i>
-                          <span className="like-count">{bestReview.likeCount}</span>
+                          <span className="like-count">{bestReviewLikeCount ?? 0}</span>
                         </div>
                       </div>
 
