@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axiosApi from "../../api/axiosAPI";
 import { useAuthStore } from "../../components/auth/useAuthStore";
 import "../../css/proposals-detail.css";
-import LoadingSpinner from "../../components/loading/LoadingSpinner";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const ProposalDetail = () => {
   const { boardNo } = useParams();

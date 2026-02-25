@@ -4,7 +4,7 @@ import axiosApi from "../../api/axiosAPI";
 import "../../css/proposals.css";
 import Pagination from "./Pagination";
 import { useAuthStore } from "../../components/auth/useAuthStore";
-import LoadingSpinner from "../../components/loading/LoadingSpinner";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const Proposals = () => {
   const navigate = useNavigate();
