@@ -161,6 +161,20 @@
 		resultType="string">
 		SELECT MEMBER_EMAIL
 		FROM "MEMBER"
+		WHERE MEMBER_NO =
+		#{memberNo}
+		AND MEMBER_DEL_FL = 'N'
+	</select>
+
+	<!-- 응찰 시 회원 정보 확인 -->
+	<select id="findByMemberNo" resultType="Member">
+		SELECT
+		MEMBER_NO,
+		MEMBER_EMAIL,
+		MEMBER_TEL,
+		MEMBER_ROLE,
+		LOGIN_TYPE
+		FROM MEMBER
 		WHERE MEMBER_NO = #{memberNo}
 		AND MEMBER_DEL_FL = 'N'
 	</select>

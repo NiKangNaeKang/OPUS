@@ -25,13 +25,14 @@ const EMPTY_FORM = {
   productionDetail:   "",
   artistDetail:       "",
   unveilingStatus:    "UPCOMING",
+  thumbUrl:           "",
 };
 
 const UnveilingManage = () => {
-  const [view, setView]               = useState("list");
-  const [items, setItems]             = useState([]);
-  const [loading, setLoading]         = useState(false);
-  const [form, setForm]               = useState({ ...EMPTY_FORM });
+  const [view, setView]                   = useState("list");
+  const [items, setItems]                 = useState([]);
+  const [loading, setLoading]             = useState(false);
+  const [form, setForm]                   = useState({ ...EMPTY_FORM });
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const fetchList = async () => {
@@ -83,16 +84,10 @@ const UnveilingManage = () => {
     <div>
       {/* 헤더 */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <h2 style={{ fontSize: "20px", fontWeight: 900, color: "#111827", margin: 0 }}>
-          경매 관리
-        </h2>
+        <h2 style={{ fontSize: "20px", fontWeight: 900, color: "#111827", margin: 0 }}>경매 관리</h2>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button className={`filter-btn ${view === "list" ? "active" : ""}`} onClick={() => setView("list")}>
-            목록
-          </button>
-          <button className={`filter-btn ${view === "regist" ? "active" : ""}`} onClick={() => setView("regist")}>
-            + 경매 등록
-          </button>
+          <button className={`filter-btn ${view === "list" ? "active" : ""}`} onClick={() => setView("list")}>목록</button>
+          <button className={`filter-btn ${view === "regist" ? "active" : ""}`} onClick={() => setView("regist")}>+ 경매 등록</button>
         </div>
       </div>
 
@@ -112,16 +107,14 @@ const UnveilingManage = () => {
                 <thead>
                   <tr style={{ borderBottom: "2px solid #e5e7eb", background: "#f9fafb" }}>
                     {["번호", "작품명", "작가", "상태", "시작가", "현재가", "응찰수", "마감일시"].map((h) => (
-                      <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontWeight: 700, color: "#374151", whiteSpace: "nowrap" }}>
-                        {h}
-                      </th>
+                      <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontWeight: 700, color: "#374151", whiteSpace: "nowrap" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {items.map((item) => (
                     <tr key={item.unveilingNo}
-                      style={{ borderBottom: "1px solid #f3f4f6", cursor: "default" }}
+                      style={{ borderBottom: "1px solid #f3f4f6" }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = "#f9fafb")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "")}
                     >
@@ -129,19 +122,12 @@ const UnveilingManage = () => {
                       <td style={{ padding: "12px 16px", fontWeight: 700, color: "#111827" }}>{item.unveilingTitle}</td>
                       <td style={{ padding: "12px 16px", color: "#374151" }}>{item.productionArtist}</td>
                       <td style={{ padding: "12px 16px" }}>
-                        <span style={{
-                          padding: "4px 10px", borderRadius: "20px", fontSize: "12px", fontWeight: 700,
-                          ...(STATUS_COLOR[item.unveilingStatus] ?? STATUS_COLOR.ENDED),
-                        }}>
+                        <span style={{ padding: "4px 10px", borderRadius: "20px", fontSize: "12px", fontWeight: 700, ...(STATUS_COLOR[item.unveilingStatus] ?? STATUS_COLOR.ENDED) }}>
                           {STATUS_LABEL[item.unveilingStatus] ?? item.unveilingStatus}
                         </span>
                       </td>
-                      <td style={{ padding: "12px 16px", color: "#374151" }}>
-                        ₩{Number(item.startPrice).toLocaleString("ko-KR")}
-                      </td>
-                      <td style={{ padding: "12px 16px", fontWeight: 700, color: "#111827" }}>
-                        ₩{Number(item.currentPrice).toLocaleString("ko-KR")}
-                      </td>
+                      <td style={{ padding: "12px 16px", color: "#374151" }}>₩{Number(item.startPrice).toLocaleString("ko-KR")}</td>
+                      <td style={{ padding: "12px 16px", fontWeight: 700, color: "#111827" }}>₩{Number(item.currentPrice).toLocaleString("ko-KR")}</td>
                       <td style={{ padding: "12px 16px", color: "#374151" }}>{item.biddingCount}회</td>
                       <td style={{ padding: "12px 16px", color: "#374151", whiteSpace: "nowrap" }}>
                         {item.finishDate ? String(item.finishDate).replace("T", " ").slice(0, 16) : "-"}
@@ -208,6 +194,32 @@ const UnveilingManage = () => {
                   placeholder="작가에 대한 소개를 입력하세요." rows={4} />
               </div>
 
+            </div>
+          </section>
+
+          {/* 이미지 */}
+          <section className="regist-section">
+            <h3 className="regist-section__title">작품 이미지</h3>
+            <p className="regist-desc">Google Cloud Storage에 업로드된 이미지 URL을 입력하세요.</p>
+            <div className="regist-grid">
+              <div className="regist-field regist-field--wide">
+                <label className="regist-label">이미지 URL</label>
+                <input className="regist-input" name="thumbUrl"
+                  value={form.thumbUrl} onChange={handleChange}
+                  placeholder="https://storage.googleapis.com/..." />
+              </div>
+
+              {form.thumbUrl && (
+                <div className="regist-field regist-field--wide">
+                  <label className="regist-label">미리보기</label>
+                  <img
+                    src={form.thumbUrl}
+                    alt="미리보기"
+                    style={{ width: "200px", height: "250px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e5e7eb" }}
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
+                </div>
+              )}
             </div>
           </section>
 

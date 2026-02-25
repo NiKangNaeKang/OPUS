@@ -42,14 +42,14 @@ public class AdminServiceImpl implements AdminService {
 	public int confirmReview(int reportNo) {
 		int hideReview = mapper.hideReview(reportNo);
 		int confirmResult = mapper.confirmReview(reportNo);
-		
+
 		return hideReview * confirmResult;
 	}
 
 	@Override
 	public int rejectReview(int reportNo) {
 		int rejectReview = mapper.rejectReview(reportNo);
-		
+
 		return rejectReview;
 	}
 
@@ -66,119 +66,101 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public int registGoods(GoodsRegist dto) throws Exception {
 
-	    String uploadPath = fileConfig.getGoodsUploadPath();
+		String uploadPath = fileConfig.getGoodsUploadPath();
 
-	    // GOODS 먼저 INSERT (번호 생성용)
-	    Goods goods = Goods.builder()
-	            .goodsName(dto.getGoodsName())
-	            .goodsSort(dto.getGoodsSort())
-	            .goodsCategory(dto.getGoodsCategory())
-	            .goodsPrice(dto.getGoodsPrice())
-	            .deliveryCost(dto.getDeliveryCost())
-	            .goodsSeller(dto.getGoodsSeller())
-	            .goodsInfo(dto.getGoodsInfo())
-	            .build();
+		// GOODS 먼저 INSERT (번호 생성용)
+		Goods goods = Goods.builder().goodsName(dto.getGoodsName()).goodsSort(dto.getGoodsSort())
+				.goodsCategory(dto.getGoodsCategory()).goodsPrice(dto.getGoodsPrice())
+				.deliveryCost(dto.getDeliveryCost()).goodsSeller(dto.getGoodsSeller()).goodsInfo(dto.getGoodsInfo())
+				.build();
 
-	    int result = mapper.insertGoods(goods);
+		int result = mapper.insertGoods(goods);
 
-	    int goodsNo = goods.getGoodsNo();
-	    String category = dto.getGoodsCategory();
+		int goodsNo = goods.getGoodsNo();
+		String category = dto.getGoodsCategory();
 
-	    File dir = new File(uploadPath);
-	    if (!dir.exists()) dir.mkdirs();
+		File dir = new File(uploadPath);
+		if (!dir.exists())
+			dir.mkdirs();
 
-	    // 썸네일 저장 (order = 0)
-	    MultipartFile thumbnail = dto.getThumbnail();
+		// 썸네일 저장 (order = 0)
+		MultipartFile thumbnail = dto.getThumbnail();
 
-	    if (thumbnail != null && !thumbnail.isEmpty()) {
+		if (thumbnail != null && !thumbnail.isEmpty()) {
 
-	        String ext = thumbnail.getOriginalFilename()
-	                .substring(thumbnail.getOriginalFilename().lastIndexOf("."));
+			String ext = thumbnail.getOriginalFilename().substring(thumbnail.getOriginalFilename().lastIndexOf("."));
 
-	        String fileName = category + "_" + goodsNo + "_0" + ext;
+			String fileName = category + "_" + goodsNo + "_0" + ext;
 
-	        thumbnail.transferTo(new File(uploadPath + fileName));
+			thumbnail.transferTo(new File(uploadPath + fileName));
 
-	        GoodsImg thumbImg = GoodsImg.builder()
-	                .goodsNo(goodsNo)
-	                .goodsImgPath("/images/goods/")
-	                .goodsImgRe(fileName)
-	                .goodsImgOrder("0")
-	                .build();
+			GoodsImg thumbImg = GoodsImg.builder().goodsNo(goodsNo).goodsImgPath("/images/goods/").goodsImgRe(fileName)
+					.goodsImgOrder("0").build();
 
-	        mapper.insertGoodsImg(thumbImg);
-	    }
+			mapper.insertGoodsImg(thumbImg);
+		}
 
-	    // 상세 이미지 (1부터 시작)
-	    if (dto.getDetailImgs() != null) {
+		// 상세 이미지 (1부터 시작)
+		if (dto.getDetailImgs() != null) {
 
-	        int order = 1;
+			int order = 1;
 
-	        for (MultipartFile img : dto.getDetailImgs()) {
+			for (MultipartFile img : dto.getDetailImgs()) {
 
-	            if (!img.isEmpty()) {
+				if (!img.isEmpty()) {
 
-	                String ext = img.getOriginalFilename()
-	                        .substring(img.getOriginalFilename().lastIndexOf("."));
+					String ext = img.getOriginalFilename().substring(img.getOriginalFilename().lastIndexOf("."));
 
-	                String fileName = category + "_" + goodsNo + "_" + order + ext;
+					String fileName = category + "_" + goodsNo + "_" + order + ext;
 
-	                img.transferTo(new File(uploadPath + fileName));
+					img.transferTo(new File(uploadPath + fileName));
 
-	                GoodsImg goodsImg = GoodsImg.builder()
-	                        .goodsNo(goodsNo)
-	                        .goodsImgPath("/images/goods/")
-	                        .goodsImgRe(fileName)
-	                        .goodsImgOrder(String.valueOf(order))
-	                        .build();
+					GoodsImg goodsImg = GoodsImg.builder().goodsNo(goodsNo).goodsImgPath("/images/goods/")
+							.goodsImgRe(fileName).goodsImgOrder(String.valueOf(order)).build();
 
-	                mapper.insertGoodsImg(goodsImg);
+					mapper.insertGoodsImg(goodsImg);
 
-	                order++;
-	            }
-	        }
-	    }
-	    
-	    boolean hasRealOption = false;
-	    int defaultStock = 0;
+					order++;
+				}
+			}
+		}
 
-	    if (dto.getOptionsJson() != null && !dto.getOptionsJson().isEmpty()) {
+		boolean hasRealOption = false;
+		int defaultStock = 0;
 
-	        ObjectMapper om = new ObjectMapper();
-	        GoodsOption[] options =
-	                om.readValue(dto.getOptionsJson(), GoodsOption[].class);
+		if (dto.getOptionsJson() != null && !dto.getOptionsJson().isEmpty()) {
 
-	        for (GoodsOption option : options) {
+			ObjectMapper om = new ObjectMapper();
+			GoodsOption[] options = om.readValue(dto.getOptionsJson(), GoodsOption[].class);
 
-	            // 기본 재고 저장 (옵션 없는 경우 대비)
-	            defaultStock = option.getStock();
+			for (GoodsOption option : options) {
 
-	            // 실제 옵션인지 체크 (사이즈 or 컬러 값이 있을 때)
-	            if ((option.getGoodsSize() != null && !option.getGoodsSize().isBlank())
-	                    || (option.getGoodsColor() != null && !option.getGoodsColor().isBlank())) {
+				// 기본 재고 저장 (옵션 없는 경우 대비)
+				defaultStock = option.getStock();
 
-	                hasRealOption = true;
+				// 실제 옵션인지 체크 (사이즈 or 컬러 값이 있을 때)
+				if ((option.getGoodsSize() != null && !option.getGoodsSize().isBlank())
+						|| (option.getGoodsColor() != null && !option.getGoodsColor().isBlank())) {
 
-	                option.setGoodsNo(goodsNo);
-	                mapper.insertGoodsOption(option);
-	            }
-	        }
-	    }
+					hasRealOption = true;
 
-	    // 옵션이 없을 경우만 NULL NULL + 입력한 재고값
-	    if (!hasRealOption) {
+					option.setGoodsNo(goodsNo);
+					mapper.insertGoodsOption(option);
+				}
+			}
+		}
 
-	        GoodsOption nullOption = GoodsOption.builder()
-	                .goodsNo(goodsNo)
-	                .goodsSize(null)
-	                .goodsColor(null)
-	                .stock(defaultStock) // 프론트에서 입력한 재고 사용
-	                .build();
+		// 옵션이 없을 경우만 NULL NULL + 입력한 재고값
+		if (!hasRealOption) {
 
-	        mapper.insertGoodsOption(nullOption);
-	    }
+			GoodsOption nullOption = GoodsOption.builder().goodsNo(goodsNo).goodsSize(null).goodsColor(null)
+					.stock(defaultStock) // 프론트에서 입력한 재고 사용
+					.build();
 
-	    return result;
+			mapper.insertGoodsOption(nullOption);
+		}
+
+		return result;
 	}
 
 	@Override
@@ -187,39 +169,29 @@ public class AdminServiceImpl implements AdminService {
 		String uploadPath = fileConfig.getGoodsUploadPath();
 
 		// 기본 정보 수정
-		Goods goods = Goods.builder()
-				.goodsNo(goodsNo)
-				.goodsName(dto.getGoodsName())
-				.goodsSort(dto.getGoodsSort())
-				.goodsCategory(dto.getGoodsCategory())
-				.goodsPrice(dto.getGoodsPrice())
-				.deliveryCost(dto.getDeliveryCost())
-				.goodsSeller(dto.getGoodsSeller())
-				.goodsInfo(dto.getGoodsInfo())
+		Goods goods = Goods.builder().goodsNo(goodsNo).goodsName(dto.getGoodsName()).goodsSort(dto.getGoodsSort())
+				.goodsCategory(dto.getGoodsCategory()).goodsPrice(dto.getGoodsPrice())
+				.deliveryCost(dto.getDeliveryCost()).goodsSeller(dto.getGoodsSeller()).goodsInfo(dto.getGoodsInfo())
 				.build();
 
 		int result = mapper.updateGoods(goods);
 		String category = dto.getGoodsCategory();
 
 		File dir = new File(uploadPath);
-		if (!dir.exists()) dir.mkdirs();
+		if (!dir.exists())
+			dir.mkdirs();
 
 		// 썸네일 변경 (새 파일이 있을 때만)
 		MultipartFile thumbnail = dto.getThumbnail();
 		if (thumbnail != null && !thumbnail.isEmpty()) {
-			String ext = thumbnail.getOriginalFilename()
-					.substring(thumbnail.getOriginalFilename().lastIndexOf("."));
+			String ext = thumbnail.getOriginalFilename().substring(thumbnail.getOriginalFilename().lastIndexOf("."));
 			String fileName = category + "_" + goodsNo + "_0" + ext;
 			thumbnail.transferTo(new File(uploadPath + fileName));
 
 			// 기존 썸네일 삭제 후 재삽입
 			mapper.deleteGoodsImgByOrder(goodsNo, "0");
-			GoodsImg thumbImg = GoodsImg.builder()
-					.goodsNo(goodsNo)
-					.goodsImgPath("/images/goods/")
-					.goodsImgRe(fileName)
-					.goodsImgOrder("0")
-					.build();
+			GoodsImg thumbImg = GoodsImg.builder().goodsNo(goodsNo).goodsImgPath("/images/goods/").goodsImgRe(fileName)
+					.goodsImgOrder("0").build();
 			mapper.insertGoodsImg(thumbImg);
 		}
 
@@ -230,17 +202,12 @@ public class AdminServiceImpl implements AdminService {
 			for (MultipartFile img : dto.getDetailImgs()) {
 				if (!img.isEmpty()) {
 					lastOrder++;
-					String ext = img.getOriginalFilename()
-							.substring(img.getOriginalFilename().lastIndexOf("."));
+					String ext = img.getOriginalFilename().substring(img.getOriginalFilename().lastIndexOf("."));
 					String fileName = category + "_" + goodsNo + "_" + lastOrder + ext;
 					img.transferTo(new File(uploadPath + fileName));
 
-					GoodsImg goodsImg = GoodsImg.builder()
-							.goodsNo(goodsNo)
-							.goodsImgPath("/images/goods/")
-							.goodsImgRe(fileName)
-							.goodsImgOrder(String.valueOf(lastOrder))
-							.build();
+					GoodsImg goodsImg = GoodsImg.builder().goodsNo(goodsNo).goodsImgPath("/images/goods/")
+							.goodsImgRe(fileName).goodsImgOrder(String.valueOf(lastOrder)).build();
 					mapper.insertGoodsImg(goodsImg);
 				}
 			}
@@ -267,12 +234,8 @@ public class AdminServiceImpl implements AdminService {
 			}
 
 			if (!hasRealOption) {
-				GoodsOption nullOption = GoodsOption.builder()
-						.goodsNo(goodsNo)
-						.goodsSize(null)
-						.goodsColor(null)
-						.stock(defaultStock)
-						.build();
+				GoodsOption nullOption = GoodsOption.builder().goodsNo(goodsNo).goodsSize(null).goodsColor(null)
+						.stock(defaultStock).build();
 				mapper.insertGoodsOption(nullOption);
 			}
 		}
@@ -284,11 +247,11 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public List<Goods> getGoodsListForAdmin() {
 		List<Goods> goodsList = mapper.selectAllGoodsForAdmin();
-		
-		for(Goods goods : goodsList) {
+
+		for (Goods goods : goodsList) {
 			goods.setGoodsThumbnail(goods.getGoodsImgPath() + goods.getGoodsImgRe());
 		}
-		
+
 		return goodsList;
 	}
 
@@ -297,36 +260,43 @@ public class AdminServiceImpl implements AdminService {
 	public int deleteGoods(int goodsNo) {
 		return mapper.softDeleteGoods(goodsNo);
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> getAllOrders(String status) {
-	    return mapper.selectAllOrders(status);
+		return mapper.selectAllOrders(status);
 	}
 
 	@Override
 	public int updateOrderStatus(int orderNo, String status) {
-	    return mapper.updateOrderStatus(orderNo, status);
+		return mapper.updateOrderStatus(orderNo, status);
 	}
 
 	@Override
 	public int updateTracking(int orderNo, String deliveryCompany, String trackingNumber) {
-	    int result = mapper.updateTracking(orderNo, deliveryCompany, trackingNumber);
-	    // 송장 입력 시 자동으로 SHIPPING 상태로 변경
-	    mapper.updateOrderStatus(orderNo, "SHIPPING");
-	    return result;
+		int result = mapper.updateTracking(orderNo, deliveryCompany, trackingNumber);
+		// 송장 입력 시 자동으로 SHIPPING 상태로 변경
+		mapper.updateOrderStatus(orderNo, "SHIPPING");
+		return result;
 	}
-	
+
 	@Override
 	public List<Unveiling> getUnveilingListForAdmin() {
-		
+
 		return mapper.selectAllUnveilings();
 	}
-	
+
 	@Override
 	public int registUnveiling(Unveiling unveiling) {
 
-		return mapper.insertUnveiling(unveiling);
+		// 1) UNVEILING INSERT (selectKey로 unveilingNo 자동 세팅됨)
+		int result = mapper.insertUnveiling(unveiling);
+
+		// 2) 이미지 URL이 있으면 UNVEILING_IMG INSERT
+		if (unveiling.getThumbUrl() != null && !unveiling.getThumbUrl().isBlank()) {
+			mapper.insertUnveilingImg(unveiling);
+		}
+
+		return result;
 	}
-	
-	
+
 }

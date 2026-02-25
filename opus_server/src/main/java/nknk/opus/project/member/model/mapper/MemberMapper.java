@@ -38,4 +38,10 @@ public interface MemberMapper {
 	 * by Sanghoo
 	 */
 	String findEmailByMemberNo(int memberNo);
+
+	/** 
+	 * @param memberNo
+	 * @return
+	 */
+	Member findByMemberNo(int memberNo);
 }

@@ -252,4 +252,16 @@ public class MemberServiceImpl implements MemberService {
 	public Member getMemberByEmail(String email) {
 		return mapper.findByEmail(email);
 	}
+	
+	@Override
+	public Member getMemberByMemberNo(int memberNo) {
+
+		return mapper.findByMemberNo(memberNo);
+	}
+	
+	@Override
+	public String getCurrentPw(int memberNo) {
+
+		return mapper.selectCurrentPw(memberNo);
+	}
 }

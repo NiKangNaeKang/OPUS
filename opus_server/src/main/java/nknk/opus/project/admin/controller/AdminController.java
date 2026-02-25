@@ -212,6 +212,7 @@ public class AdminController {
 	/** 경매 등록 */
 	@PostMapping("/unveilings")
 	public ResponseEntity<String> registUnveiling(@RequestBody Unveiling unveiling) {
+		
 		try {
 			int result = service.registUnveiling(unveiling);
 			if (result == 0) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("경매 등록에 실패했습니다.");

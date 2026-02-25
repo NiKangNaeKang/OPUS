@@ -60,4 +60,6 @@ public interface AdminMapper {
 
 	int insertUnveiling(Unveiling unveiling);
 
+	void insertUnveilingImg(Unveiling unveiling);
+
 }

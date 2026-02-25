@@ -205,6 +205,7 @@
 		ORDER BY UNVEILING_NO DESC
 	</select>
 
+
 	<!-- 경매 등록 -->
 	<insert id="insertUnveiling" parameterType="Unveiling">
 		<selectKey keyProperty="unveilingNo" resultType="int" order="BEFORE">
@@ -242,6 +243,21 @@
 			#{unveilingStatus},
 			0,
 			'NONE'
+		)
+	</insert>
+
+	<!-- 경매 이미지 등록 (URL만 저장, OG/RE는 NULL 허용) -->
+	<insert id="insertUnveilingImg" parameterType="Unveiling">
+		INSERT INTO UNVEILING_IMG (
+			UV_IMG_NO,
+			UV_IMG_PATH,
+			UV_IMG_ORDER,
+			UNVEILING_NO
+		) VALUES (
+			UNVEILING_IMG_SEQ.NEXTVAL,
+			#{thumbUrl},
+			1,
+			#{unveilingNo}
 		)
 	</insert>
 	
