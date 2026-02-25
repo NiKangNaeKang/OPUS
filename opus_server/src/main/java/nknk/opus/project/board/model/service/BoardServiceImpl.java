@@ -40,7 +40,7 @@ public class BoardServiceImpl implements BoardService {
 		return mapper.selectBoardList(boardTypeCode, sort);
 	}
 
-	/* 게시글 상세 조회(조회수 증가 포함) */
+	/* 게시글 상세 조회 + 조회수 증가 */
 	@Override
 	public Board selectBoardDetail(int boardNo) {
 		int result = mapper.updateViewCount(boardNo);
@@ -50,7 +50,7 @@ public class BoardServiceImpl implements BoardService {
 		return null;
 	}
 
-	/* 게시글 등록(텍스트 저장 + 이미지 업로드/DB저장) */
+	/* 게시글 등록 (텍스트 + 이미지 업로드) */
 	@Override
 	public int insertBoard(Board board, List<MultipartFile> images) {
 
@@ -71,7 +71,7 @@ public class BoardServiceImpl implements BoardService {
 		List<String> savedFiles = new ArrayList<>();
 
 		List<String> allowedExts = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", ".webp");
-		long maxSize = 10 * 1024 * 1024; //10mb
+		long maxSize = 10 * 1024 * 1024; // 10mb
 
 		try {
 			for (MultipartFile file : images) {
@@ -132,16 +132,17 @@ public class BoardServiceImpl implements BoardService {
 	/* 게시글 텍스트 수정 */
 	@Override
 	public int updateBoard(Board board) {
-		return mapper.updateBoard(board);
+		int result = mapper.updateBoard(board); // result == 0 : (1) 글 없음 (2) 삭제됨 (3) 본인글 아님
+		return result;
 	}
 
 	/* 게시글 삭제(논리 삭제) */
 	@Override
-	public int deleteBoard(int boardNo) {
-		return mapper.deleteBoard(boardNo);
+	public int deleteBoard(int boardNo, int memberNo) {
+		return mapper.deleteBoard(boardNo, memberNo);
 	}
 
-	/* 게시글 전체 수정(텍스트 수정 + 기존 이미지 전부 교체) */
+	/* 게시글 전체 수정 (텍스트 + 이미지 교체) */
 	@Override
 	public int updateBoardWithImages(Board board, List<MultipartFile> images) {
 
@@ -327,4 +328,11 @@ public class BoardServiceImpl implements BoardService {
 			throw new RuntimeException(e.getMessage());
 		}
 	}
+
+	/* 작성 게시글 조회 (기업회원만) */
+	@Override
+	public List<Board> selectMyBoards(int memberNo) {
+		return mapper.selectMyBoards(memberNo);
+	}
+
 }

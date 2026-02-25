@@ -16,9 +16,11 @@ public interface BoardService {
 
 	int updateBoard(Board board);
 
-	int deleteBoard(int boardNo);
+	int deleteBoard(int boardNo, int memberNo);
 
 	int updateBoardWithImages(Board board, List<MultipartFile> images);
 
 	int updateBoardImagesPartial(Board board, String deleteImgNosJson, List<MultipartFile> images);
+
+	List<Board> selectMyBoards(int memberNo);
 }

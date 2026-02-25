@@ -22,7 +22,7 @@ import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
 import Orders from "./pages/selections/Orders";
 import OrderDetail from "./pages/selections/OrderDetail";
 import AuthSuccess from "./components/auth/AuthSuccess";
-import ProposalDetail from "./pages/Proposals/ProposalDetail";
+import ProposalDetail from "./pages/proposals/ProposalDetail";
 import Chatbot from "./components/Chatbot";
 import ScrollToTop from "./components/common/ScrollToTop";
 import ProposalWrite from "./pages/proposals/ProposalWrite";
@@ -34,6 +34,7 @@ import About from "./pages/footer/About";
 import Privacy from "./pages/footer/Privacy";
 
 import Admin from "./pages/admin/Admin";
+import MyPosts from "./pages/mypage/MyPosts";
 
 
 export default function App() {
@@ -78,6 +79,7 @@ export default function App() {
           <Route path="/mypage/orders/:orderNo" element={<OrderDetail />} />
           <Route path="/mypage/wishlist" element={<SavedList />} />
           <Route path="/mypage/reviews" element={<ReviewList />} />
+          <Route path="/mypage/myPosts" element={<MyPosts />} />
 
           <Route path="/faq" element={<FAQ />} />
           <Route path="/terms" element={<Terms />} />

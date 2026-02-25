@@ -176,7 +176,7 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
               </div>
 
               <div className="lm-footer">
-                <button type="button" className="lm-link" onClick={onSwitchSignup}>회원가입</button>
+                <button type="button" className="lm-link" onClick={onSwitchSignup}>회원가입 (기업 회원은 별도 문의)</button>
               </div>
             </>
           )}
