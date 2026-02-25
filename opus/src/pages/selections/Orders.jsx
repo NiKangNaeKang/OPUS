@@ -22,6 +22,7 @@ const Orders = () => {
     { value: "ALL", label: "전체" },
     { value: "WAITING_FOR_DEPOSIT", label: "입금대기" },
     { value: "PAID", label: "결제완료" },
+    { value: "PREPARING", label: "배송준비중" },
     { value: "SHIPPING", label: "배송중" },
     { value: "DELIVERED", label: "배송완료" },
     { value: "CANCELED", label: "취소" },
@@ -59,6 +60,7 @@ const Orders = () => {
       "READY": "주문접수",
       "WAITING_FOR_DEPOSIT": "입금대기",
       "PAID": "결제완료",
+      "PREPARING": "배송준비중",
       "SHIPPING": "배송중",
       "DELIVERED": "배송완료",
       "CANCELED": "취소",
@@ -155,12 +157,19 @@ const Orders = () => {
               {/* 주문 푸터 */}
               <div className="order-card__footer">
                 <div className="delivery-info">
-                  {order.trackingNumber && (
-                    <>
-                      <span className="delivery-company">{order.deliveryCompany}</span>
-                      <span className="tracking-number">{order.trackingNumber}</span>
-                    </>
-                  )}
+                  {order.trackingNumber ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                      <span style={{ fontWeight: 700, color: "#374151" }}>
+                        {order.deliveryCompany}
+                      </span>
+                      <span>송장번호: {order.trackingNumber}</span>
+                    </div>
+                  ) : order.orderStatus === "PREPARING" ? (
+                    // 배송준비중일 때 안내 문구
+                    <span style={{ color: "#c2410c", fontWeight: 600 }}>
+                      배송 준비 중입니다
+                    </span>
+                  ) : null}
                 </div>
                 <button
                   className="detail-btn"
@@ -176,8 +185,6 @@ const Orders = () => {
           ))
         )}
       </section>
-
-      <ScrollToTop />
     </main>
   );
 };

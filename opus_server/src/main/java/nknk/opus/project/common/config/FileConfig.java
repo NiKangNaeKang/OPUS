@@ -53,6 +53,10 @@ public class FileConfig implements WebMvcConfigurer {
 	@Value("${opus.board.resource-location}")
 	private String boardResourceLocation;
 	
+	// 굿즈 업로드 경로
+	@Value("${opus.goods.upload-path}")
+	private String goodsUploadPath;
+	
 	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -94,4 +98,8 @@ public class FileConfig implements WebMvcConfigurer {
 		return new StandardServletMultipartResolver();
 	}
 
+	public String getGoodsUploadPath() {
+	    return goodsUploadPath;
+	}
+	
 }

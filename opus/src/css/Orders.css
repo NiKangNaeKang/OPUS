@@ -149,6 +149,11 @@
   color: #1e40af;
 }
 
+.order-status--preparing {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
 .order-status--shipping {
   background: #ddd6fe;
   color: #5b21b6;

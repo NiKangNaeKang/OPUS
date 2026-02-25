@@ -53,14 +53,19 @@ public class SecurityConfig {
 							response.getWriter().write("{\"message\":\"세션이 만료되었습니다. 다시 로그인해주세요.\"}");
 						}))
 
-				.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.requestMatchers("/auth/**", "/common/**").permitAll()
-						.requestMatchers("/selections/**", "/images/**").permitAll()
-						.requestMatchers("/unveiling/**", "/api/board/**").permitAll()
-						.requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/unveilings/**").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/bids/**").permitAll().anyRequest().authenticated())
-
+            // 경로별 권한 설정
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/auth/**", "/common/**").permitAll()
+                .requestMatchers("/selections/**", "/images/**").permitAll()
+                .requestMatchers("/unveiling/**", "/api/board/**").permitAll()
+                .requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/unveilings/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/bids/**").permitAll()
+                .requestMatchers("/chatbot/**").permitAll()
+                .requestMatchers("/admin/**").authenticated()
+                .anyRequest().authenticated()
+            )
 				.oauth2Login(oauth -> oauth.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
 						.successHandler(oauth2SuccessHandler))
 
@@ -79,7 +84,7 @@ public class SecurityConfig {
 		log.info("Allowed Origins: {}", origins);
 
 		config.setAllowedOrigins(origins);
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);
 

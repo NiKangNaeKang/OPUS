@@ -114,6 +114,10 @@
   color: #10b981;
 }
 
+.info-value.status-preparing {
+  color: #c2410c;
+}
+
 .info-value.status-shipping {
   color: #8b5cf6;
 }
