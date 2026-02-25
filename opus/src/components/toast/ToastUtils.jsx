@@ -3,10 +3,12 @@ import { toast } from "react-toastify";
 // 1. 토스트 내부 UI
 const ConfirmContent = ({ closeToast, title, message, onConfirm, confirmText }) => {
   // 특정 문구 강조
-  const formatMessage = (msg) => {
+const formatMessage = (msg) => {
     if (typeof msg !== "string") return msg;
 
-    const targetText = "구글 로그인은 추가로 연동해제해주세요.";
+    // 수정된 타겟 문구
+    const targetText = "구글 로그인은 추가로 연동해제 해주세요.";
+    
     if (msg.includes(targetText)) {
       const parts = msg.split(targetText);
       return (
