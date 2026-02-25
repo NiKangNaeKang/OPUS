@@ -29,6 +29,8 @@ public interface AdminMapper {
 
 	int restoreReview(int reviewNo);
 
+
+	// 상품 등록
 	int insertGoods(Goods goods);
 
 	void insertGoodsImg(GoodsImg goodsImg);
@@ -43,11 +45,29 @@ public interface AdminMapper {
 	
   int deleteGoodsOptions(int goodsNo);
 
+	
+	// 상품 목록/상세 조회
 	List<Goods> selectAllGoodsForAdmin();
 
+	Goods selectGoodsDetailForAdmin(int goodsNo); 
+
+  List<GoodsImg> selectGoodsImgsForAdmin(int goodsNo); 
+
+  List<GoodsOption> selectGoodsOptionsForAdmin(int goodsNo); 
+
+
+	// 상품 삭제 / 복구
 	int softDeleteGoods(int goodsNo);
 
+	int restoreGoods(int goodsNo);
+
+	int deleteGoodsImgByNo(int goodsImgNo);
+
+	// 주문/배송 관리
 	List<Map<String, Object>> selectAllOrders(@Param("status") String status);
+
+	// 주문 정보 조회 (알림용)
+	Map<String, Object> selectOrderInfo(@Param("orderNo") int orderNo);
 
 	int updateOrderStatus(@Param("orderNo") int orderNo, 
 			@Param("status") String status);

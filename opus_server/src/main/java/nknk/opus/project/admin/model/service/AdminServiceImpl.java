@@ -13,9 +13,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.admin.model.dto.GoodsRegist;
 import nknk.opus.project.admin.model.mapper.AdminMapper;
 import nknk.opus.project.common.config.FileConfig;
+import nknk.opus.project.notification.model.service.NotificationService;
 import nknk.opus.project.reviews.model.dto.Report;
 import nknk.opus.project.selections.model.dto.Goods;
 import nknk.opus.project.selections.model.dto.GoodsImg;
@@ -23,6 +25,7 @@ import nknk.opus.project.selections.model.dto.GoodsOption;
 import nknk.opus.project.unveiling.model.dto.Unveiling;
 import nknk.opus.project.reviews.model.dto.Reviews;
 
+@Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class AdminServiceImpl implements AdminService {
@@ -32,6 +35,9 @@ public class AdminServiceImpl implements AdminService {
 
 	@Autowired
 	private FileConfig fileConfig;
+
+	@Autowired
+	private NotificationService notificationService;
 
 	@Override
 	public List<Report> getReport() {
@@ -255,12 +261,38 @@ public class AdminServiceImpl implements AdminService {
 		return goodsList;
 	}
 
+	// 관리자용 상품 상세 조회 (goodsInfo + 이미지 + 옵션)
+	@Override
+	public Map<String, Object> getGoodsDetailForAdmin(int goodsNo) {
+		Goods goods = mapper.selectGoodsDetailForAdmin(goodsNo);
+		List<GoodsImg> images = mapper.selectGoodsImgsForAdmin(goodsNo);
+		List<GoodsOption> options = mapper.selectGoodsOptionsForAdmin(goodsNo);
+
+		Map<String, Object> result = new java.util.HashMap<>();
+		result.put("goodsInfo", goods != null ? goods.getGoodsInfo() : "");
+		result.put("images", images);
+		result.put("options", options);
+		return result;
+	}
+
 	// 상품 소프트 삭제
 	@Override
 	public int deleteGoods(int goodsNo) {
 		return mapper.softDeleteGoods(goodsNo);
 	}
 
+	// 삭제된 상품 복구
+	@Override
+	public int restoreGoods(int goodsNo) {
+		return mapper.restoreGoods(goodsNo);
+	}
+
+	// 상세 이미지 단건 삭제
+	@Override
+	public int deleteGoodsImage(int goodsImgNo) {
+		return mapper.deleteGoodsImgByNo(goodsImgNo);
+	}
+	
 	@Override
 	public List<Map<String, Object>> getAllOrders(String status) {
 		return mapper.selectAllOrders(status);
@@ -268,14 +300,95 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public int updateOrderStatus(int orderNo, String status) {
-		return mapper.updateOrderStatus(orderNo, status);
+	    int result = mapper.updateOrderStatus(orderNo, status);
+		
+		if (result > 0) {
+			// 주문 정보 조회 (memberNo, orderId 필요)
+			Map<String, Object> orderInfo = mapper.selectOrderInfo(orderNo);
+			
+			if (orderInfo != null) {
+				int memberNo = ((Number) orderInfo.get("MEMBER_NO")).intValue();
+				String orderId = (String) orderInfo.get("ORDER_ID");
+				
+				// 상태별 알림 메시지
+				String notiTitle = "";
+				String notiContent = "";
+				
+				switch (status) {
+					case "PAID":
+						notiTitle = "결제가 완료되었습니다.";
+						notiContent = "주문번호: " + orderId;
+						break;
+					case "PREPARING":
+						notiTitle = "상품 준비 중입니다.";
+						notiContent = "주문번호: " + orderId;
+						break;
+					case "SHIPPING":
+						notiTitle = "배송이 시작되었습니다.";
+						notiContent = "주문번호: " + orderId;
+						break;
+					case "DELIVERED":
+						notiTitle = "배송이 완료되었습니다.";
+						notiContent = "주문번호: " + orderId;
+						break;
+					case "CANCELED":
+						notiTitle = "주문이 취소되었습니다.";
+						notiContent = "주문번호: " + orderId;
+						break;
+					default:
+						return result; // 알림 없이 리턴
+				}
+				
+				// 알림 생성
+				try {
+					notificationService.createNotification(
+						memberNo,
+						"ORDER",
+						notiTitle,
+						notiContent,
+						"/mypage/orders"
+					);
+					log.info("주문 상태 변경 알림 생성 - orderNo: {}, status: {}", orderNo, status);
+				} catch (Exception e) {
+					log.error("주문 상태 변경 알림 생성 실패", e);
+				}
+			}
+		}
+		
+		return result;
 	}
 
 	@Override
 	public int updateTracking(int orderNo, String deliveryCompany, String trackingNumber) {
+		
 		int result = mapper.updateTracking(orderNo, deliveryCompany, trackingNumber);
-		// 송장 입력 시 자동으로 SHIPPING 상태로 변경
-		mapper.updateOrderStatus(orderNo, "SHIPPING");
+		
+	    if (result > 0) {
+			// 자동으로 SHIPPING 상태로 변경 + 알림 생성
+			mapper.updateOrderStatus(orderNo, "SHIPPING");
+			
+			// 주문 정보 조회
+			Map<String, Object> orderInfo = mapper.selectOrderInfo(orderNo);
+			
+			if (orderInfo != null) {
+				int memberNo = ((Number) orderInfo.get("MEMBER_NO")).intValue();
+				String orderId = (String) orderInfo.get("ORDER_ID");
+				
+				try {
+					notificationService.createNotification(
+						memberNo,
+						"ORDER",
+						"배송이 시작되었습니다.",
+						"주문번호: " + orderId + "\n택배사: " + deliveryCompany,
+						"/mypage/orders"
+					);
+					log.info("배송 시작 알림 생성 - orderNo: {}", orderNo);
+				} catch (Exception e) {
+					log.error("배송 시작 알림 생성 실패", e);
+				}
+			}
+		}
+		
 		return result;
 	}
 

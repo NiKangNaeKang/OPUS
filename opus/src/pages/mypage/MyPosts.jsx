@@ -4,6 +4,7 @@ import axiosApi from "../../api/axiosAPI";
 import { toast } from "react-toastify";
 import { showConfirm } from "../../components/toast/ToastUtils";
 import "../../css/myPosts.css";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 export default function MyPosts() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function MyPosts() {
   const [loading, setLoading] = useState(true);
 
   const API_BASE = import.meta.env.VITE_API_URL;
-  const FALLBACK_IMG = "/proposals-no-image.png";
+  const FALLBACK_IMG = "/proposals-no-image.webp";
 
   const categoryLabel = {
     musical: "뮤지컬",
@@ -83,7 +84,7 @@ export default function MyPosts() {
       </header>
 
       {loading ? (
-        <div className="proposals-empty">로딩중...</div>
+        <LoadingSpinner text="게시글을 불러오고 있습니다!" />
       ) : list.length === 0 ? (
         <div className="proposals-empty">작성한 글이 없습니다.</div>
       ) : (

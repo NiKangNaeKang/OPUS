@@ -157,8 +157,7 @@ export default function MyPage() {
 
   const processWithdrawal = async () => {
     try {
-      // ✅ [실제 서버 통신용 - 주석 해제]
-      const res = await axiosApi.post(`/auth/withdraw/${member.memberNo}`);
+      const res = await axiosApi.post("/auth/withdraw");
       if (res.status === 200) {
         toast.success("탈퇴 처리가 완료되었습니다.");
         setTimeout(() => {
@@ -173,7 +172,6 @@ export default function MyPage() {
 
   const handleWithdrawalClick = async () => {
     try {
-      // ✅ 목업(진행중 건수) 체크 블록 삭제
       showConfirm(
         "정말 탈퇴하시겠습니까?",
         "탈퇴 시 모든 데이터는 복구가 불가능하며\n즉시 로그아웃됩니다.\n구글 로그인은 추가로 연동해제 해주세요.",

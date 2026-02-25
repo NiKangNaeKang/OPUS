@@ -139,6 +139,21 @@ public class AdminController {
 		}
 	}
 
+	/**
+	 * 관리자용 상품 상세 조회 (goodsInfo + 이미지 + 옵션)
+	 * 수정 폼 진입 시 기존 데이터 프리필용
+	 */
+	@GetMapping("/goods/{goodsNo}/detail")
+	public ResponseEntity<Map<String, Object>> getGoodsDetail(@PathVariable("goodsNo") int goodsNo) {
+		try {
+			Map<String, Object> detail = service.getGoodsDetailForAdmin(goodsNo);
+			return ResponseEntity.ok(detail);
+		} catch (Exception e) {
+			log.error("상품 상세 조회 오류", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
+
 	/** 상품 삭제 (소프트 딜리트) */
 	@DeleteMapping("/goods/{goodsNo}")
 	public ResponseEntity<String> deleteGoods(@PathVariable("goodsNo") int goodsNo) {
@@ -148,6 +163,40 @@ public class AdminController {
 			return ResponseEntity.ok("삭제 완료");
 		} catch (Exception e) {
 			log.error("상품 삭제 오류", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류");
+		}
+	}
+
+	/**
+	 * 삭제된 상품 복구
+	 */
+	@PatchMapping("/goods/{goodsNo}/restore")
+	public ResponseEntity<String> restoreGoods(@PathVariable("goodsNo") int goodsNo) {
+		try {
+			int result = service.restoreGoods(goodsNo);
+			if (result == 0) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("복구 실패");
+			}
+			return ResponseEntity.ok("상품이 복구되었습니다.");
+		} catch (Exception e) {
+			log.error("상품 복구 오류", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류");
+		}
+	}
+
+	/**
+	 * 상세 이미지 단건 삭제 (수정 폼에서 X 버튼 클릭 시)
+	 */
+	@DeleteMapping("/goods/image/{goodsImgNo}")
+	public ResponseEntity<String> deleteGoodsImage(@PathVariable("goodsImgNo") int goodsImgNo) {
+		try {
+			int result = service.deleteGoodsImage(goodsImgNo);
+			if (result == 0) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미지 삭제 실패");
+			}
+			return ResponseEntity.ok("이미지가 삭제되었습니다.");
+		} catch (Exception e) {
+			log.error("이미지 삭제 오류", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류");
 		}
 	}

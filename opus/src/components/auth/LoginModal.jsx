@@ -84,7 +84,13 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
 
   const handleLoginSuccess = (token, member) => {
     const userName = member?.memberEmail?.split("@")[0] || "사용자";
-    toast.success(<>{userName}님,<br />환영합니다!</>, { icon: false });
+    toast.success(
+      <div>
+        {userName}님,<br />
+        환영합니다!
+      </div>,
+      { icon: false }
+    );
     doLogin({ token, member });
     onClose?.();
   };

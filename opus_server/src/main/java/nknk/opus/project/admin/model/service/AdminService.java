@@ -28,7 +28,13 @@ public interface AdminService {
 
 	List<Goods> getGoodsListForAdmin();
 
+	Map<String, Object> getGoodsDetailForAdmin(int goodsNo);
+
 	int deleteGoods(int goodsNo);
+
+	int restoreGoods(int goodsNo);
+
+	int deleteGoodsImage(int goodsImgNo);
 
 	int updateOrderStatus(int orderNo, String status);
 

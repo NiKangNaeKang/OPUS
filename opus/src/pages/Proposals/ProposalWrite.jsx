@@ -17,7 +17,7 @@ const ProposalWrite = () => {
   const role = member?.role;
 
   const API_BASE = import.meta.env.VITE_API_URL;
-  const FALLBACK_IMG = "/images/no-image.png";
+  const FALLBACK_IMG = "/images/no-image.webp";
 
   const [formData, setFormData] = useState({
     writerCompany: "",
@@ -375,7 +375,7 @@ const ProposalWrite = () => {
                 <input type="file" accept="image/*" multiple onChange={handleNewImagesChange} />
               </label>
 
-              <div className="upload-help">이미지가 없으면 목록에서 기본 포스터가 표시돼요.</div>
+              <div className="upload-help">이미지가 없으면 목록에서 기본 포스터가 표시돼요. (jpg, jpeg, png, gif, webp 가능)</div>
             </div>
 
             {isEditMode && existingImages.length > 0 && (

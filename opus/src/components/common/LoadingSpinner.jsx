@@ -14,3 +14,6 @@ export default function LoadingSpinner({ text = "로딩 중" }) {
     </div>
   );
 }
+
+//<LoadingSpinner text="게시글을 불러오고 있습니다!" />;
+//글자 추가 가능
