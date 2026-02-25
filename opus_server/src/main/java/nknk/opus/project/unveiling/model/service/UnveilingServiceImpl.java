@@ -18,6 +18,7 @@ import nknk.opus.project.bidding.model.dto.RecentBidResponse;
 import nknk.opus.project.bidding.model.mapper.BiddingMapper;
 import nknk.opus.project.common.util.UnveilingUtils;
 import nknk.opus.project.member.model.mapper.MemberMapper;
+import nknk.opus.project.notification.model.service.NotificationService;
 import nknk.opus.project.unveiling.model.dto.Unveiling;
 import nknk.opus.project.unveiling.model.mapper.UnveilingMapper;
 
@@ -37,6 +38,9 @@ public class UnveilingServiceImpl implements UnveilingService {
 
 	@Autowired
 	private JavaMailSender mailSender;
+
+	@Autowired
+	private NotificationService notificationService;
 
 	@Override
 	public List<Unveiling> getList() {
@@ -152,6 +156,17 @@ public class UnveilingServiceImpl implements UnveilingService {
 			if (email != null) {
 				sendWinnerEmail(email, unveilingNo, u.getUnveilingTitle(), u.getProductionArtist(), top.getBidPrice());
 			}
+
+			// 사이트 알림 생성
+			notificationService.createNotification(
+				top.getMemberNo(),
+				"AUCTION",
+				"🎉 낙찰을 축하드립니다!",
+				u.getUnveilingTitle() + " - " + String.format("₩%,d", top.getBidPrice()),
+				"/unveiling/" + unveilingNo
+			);
+			log.info("낙찰 알림 생성 완료 - unveilingNo: {}, memberNo: {}", unveilingNo, top.getMemberNo());
+
 		} catch (Exception e) {
 			log.warn("[낙찰 확정 메일 발송 실패] unveilingNo: {}, 사유: {}", unveilingNo, e.getMessage());
 		}
@@ -242,8 +257,20 @@ public class UnveilingServiceImpl implements UnveilingService {
 				String email = memberMapper.findEmailByMemberNo(memberNo);
 				if (email != null) {
 					sendDeadlineAlertEmail(email, unveilingNo, unveilingTitle, productionArtist, finishDate);
-					successCount++;
 				}
+
+				// 사이트 알림 생성
+				notificationService.createNotification(
+					memberNo,
+					"AUCTION",
+					"⏰ 경매 마감 1시간 전입니다!",
+					unveilingTitle + " - " + productionArtist,
+					"/unveiling/" + unveilingNo
+				);
+				
+				successCount++;
+				log.info("[마감 임박 알림] 발송 완료 - unveilingNo: {}, memberNo: {}", unveilingNo, memberNo);
+
 			} catch (Exception e) {
 				log.warn("[마감 임박 알림 개별 발송 실패] unveilingNo: {}, memberNo: {}, 사유: {}", unveilingNo, memberNo, e.getMessage());
 			}

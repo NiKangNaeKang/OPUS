@@ -12,11 +12,11 @@ export const adminApi = {
 
   // 상품 수정 
   updateGoods: async (goodsNo, formData) => {
-      const resp = await axiosApi.put(`/admin/goods/${goodsNo}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      return resp.data;
-    },
+    const resp = await axiosApi.put(`/admin/goods/${goodsNo}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return resp.data;
+  },
 
   // 관리자용 상품 목록
   getGoodsList: async () => {
@@ -24,9 +24,27 @@ export const adminApi = {
     return resp.data;
   },
 
+  // 상품 상세 조회 (goodsInfo + 이미지 + 옵션)
+  getGoodsDetail: async (goodsNo) => {
+    const resp = await axiosApi.get(`/admin/goods/${goodsNo}/detail`);
+    return resp.data;
+  },
+
   // 상품 삭제
   deleteGoods: async (goodsNo) => {
     const resp = await axiosApi.delete(`/admin/goods/${goodsNo}`);
+    return resp.data;
+  },
+
+  // 상품 복구
+  restoreGoods: async (goodsNo) => {
+    const resp = await axiosApi.patch(`/admin/goods/${goodsNo}/restore`);
+    return resp.data;
+  },
+
+  // 상세 이미지 단건 삭제
+  deleteGoodsImage: async (goodsImgNo) => {
+    const resp = await axiosApi.delete(`/admin/goods/image/${goodsImgNo}`);
     return resp.data;
   },
 
