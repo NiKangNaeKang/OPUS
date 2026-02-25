@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axiosApi from "../../api/axiosAPI";
+import { adminApi } from "../../api/adminAPI"
 import "../../css/GoodsRegist.css";
 
 const EMPTY_OPTION = { goodsSize: "", goodsColor: "", stock: 0 };
@@ -10,27 +10,29 @@ const CATEGORY_LABEL = {
   etc: "잡화", archive: "아카이브", record: "음반/DVD",
 };
 
-// ─────────────────────────────────────────────
-// 상품 등록 / 수정 폼
-// ─────────────────────────────────────────────
+// 상품 등록 / 수정 
 const GoodsForm = ({ editTarget, onSuccess, onCancel }) => {
   const isEdit = !!editTarget;
+
+  // 수정 모드: 상세 API 호출 전까지 로딩 처리
+  const [isDetailLoading, setIsDetailLoading] = useState(isEdit);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [form, setForm] = useState(
     isEdit
       ? {
-          goodsName:    editTarget.goodsName    || "",
-          goodsSort:    editTarget.goodsSort    || "exhibition",
-          goodsCategory:editTarget.goodsCategory|| "poster",
-          goodsPrice:   editTarget.goodsPrice   || "",
-          deliveryCost: editTarget.deliveryCost ?? "3000",
-          goodsSeller:  editTarget.goodsSeller  || "",
-          goodsInfo:    editTarget.goodsInfo    || "",
-        }
+        goodsName: editTarget.goodsName || "",
+        goodsSort: editTarget.goodsSort || "exhibition",
+        goodsCategory: editTarget.goodsCategory || "poster",
+        goodsPrice: editTarget.goodsPrice || "",
+        deliveryCost: editTarget.deliveryCost ?? "3000",
+        goodsSeller: editTarget.goodsSeller || "",
+        goodsInfo: "",
+      }
       : {
-          goodsName: "", goodsSort: "exhibition", goodsCategory: "poster",
-          goodsPrice: "", deliveryCost: "3000", goodsSeller: "", goodsInfo: "",
-        }
+        goodsName: "", goodsSort: "exhibition", goodsCategory: "poster",
+        goodsPrice: "", deliveryCost: "3000", goodsSeller: "", goodsInfo: "",
+      }
   );
 
   const [thumbnail, setThumbnail] = useState(null);
@@ -39,9 +41,57 @@ const GoodsForm = ({ editTarget, onSuccess, onCancel }) => {
       ? `${import.meta.env.VITE_API_URL}${editTarget.goodsThumbnail}`
       : null
   );
-  const [detailImgs, setDetailImgs] = useState([]);
-  const [detailPreviews, setDetailPreviews] = useState([]);
+
+  const [existingDetailImgs, setExistingDetailImgs] = useState([]);
+  const [newDetailImgs, setNewDetailImgs] = useState([]);
+  const [newDetailPreviews, setNewDetailPreviews] = useState([]);
+
   const [options, setOptions] = useState([{ ...EMPTY_OPTION }]);
+
+  useEffect(() => {
+    if (!isEdit) return;
+
+    const fetchDetail = async () => {
+      try {
+        setIsDetailLoading(true);
+        const detail = await adminApi.getGoodsDetail(editTarget.goodsNo);
+
+        // 상품 설명 업데이트
+        setForm((prev) => ({ ...prev, goodsInfo: detail.goodsInfo || "" }));
+
+        // 기존 상세 이미지 (order != 0)
+        if (detail.images) {
+          const detailImgList = detail.images
+            .filter((img) => img.goodsImgOrder !== "0")
+            .sort((a, b) => Number(a.goodsImgOrder) - Number(b.goodsImgOrder))
+            .map((img) => ({
+              goodsImgNo: img.goodsImgNo,
+              url: `${import.meta.env.VITE_API_URL}${img.goodsImgPath}${img.goodsImgRe}`,
+              order: img.goodsImgOrder,
+            }));
+          setExistingDetailImgs(detailImgList);
+        }
+
+        // 기존 옵션 프리필
+        if (detail.options && detail.options.length > 0) {
+          setOptions(
+            detail.options.map((opt) => ({
+              goodsSize: opt.goodsSize || "",
+              goodsColor: opt.goodsColor || "",
+              stock: opt.stock || 0,
+            }))
+          );
+        }
+      } catch (e) {
+        console.error("상품 상세 조회 실패", e);
+        alert("상품 상세 정보를 불러오는데 실패했습니다.");
+      } finally {
+        setIsDetailLoading(false);
+      }
+    };
+
+    fetchDetail();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,15 +105,28 @@ const GoodsForm = ({ editTarget, onSuccess, onCancel }) => {
     setThumbnailPreview(URL.createObjectURL(file));
   };
 
-  const handleDetailImgs = (e) => {
+  // 새 상세 이미지 추가
+  const handleNewDetailImgs = (e) => {
     const files = Array.from(e.target.files);
-    setDetailImgs((prev) => [...prev, ...files]);
-    setDetailPreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
+    setNewDetailImgs((prev) => [...prev, ...files]);
+    setNewDetailPreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
+    e.target.value = "";  // 같은 파일 재선택 가능하도록 초기화
   };
 
-  const removeDetailImg = (idx) => {
-    setDetailImgs((prev) => prev.filter((_, i) => i !== idx));
-    setDetailPreviews((prev) => prev.filter((_, i) => i !== idx));
+  // 기존 상세 이미지 삭제 (서버에 삭제 요청 포함)
+  const removeExistingDetailImg = async (goodsImgNo, idx) => {
+    try {
+      await adminApi.deleteGoodsImage(goodsImgNo);
+      setExistingDetailImgs((prev) => prev.filter((_, i) => i !== idx));
+    } catch (e) {
+      alert("이미지 삭제에 실패했습니다.");
+    }
+  };
+
+  // 새로 추가한 이미지 제거 (서버 요청 없이 로컬에서만)
+  const removeNewDetailImg = (idx) => {
+    setNewDetailImgs((prev) => prev.filter((_, i) => i !== idx));
+    setNewDetailPreviews((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const handleOptionChange = (idx, field, value) => {
@@ -74,33 +137,58 @@ const GoodsForm = ({ editTarget, onSuccess, onCancel }) => {
   const removeOptionRow = (idx) => setOptions((prev) => prev.filter((_, i) => i !== idx));
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     if (!form.goodsName) { alert("상품명은 필수입니다."); return; }
     if (!isEdit && !thumbnail) { alert("썸네일 이미지는 필수입니다."); return; }
 
-    const formData = new FormData();
-    Object.entries(form).forEach(([key, val]) => formData.append(key, val));
-    if (thumbnail) formData.append("thumbnail", thumbnail);
-    detailImgs.forEach((img) => formData.append("detailImgs", img));
-    formData.append("optionsJson", JSON.stringify(options));
-
     try {
+      setIsSubmitting(true);
+      const formData = new FormData();
+      Object.entries(form).forEach(([key, val]) => formData.append(key, val));
+      if (thumbnail) formData.append("thumbnail", thumbnail);
+      newDetailImgs.forEach((img) => formData.append("detailImgs", img));
+      formData.append("optionsJson", JSON.stringify(options));
+
+
       if (isEdit) {
-        await axiosApi.put(`/admin/goods/${editTarget.goodsNo}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await adminApi.updateGoods(editTarget.goodsNo, formData);
         alert("상품이 수정되었습니다.");
       } else {
-        await axiosApi.post("/admin/goods", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await adminApi.registGoods(formData);
         alert("상품이 등록되었습니다.");
       }
       onSuccess();
     } catch (error) {
       console.error(error);
       alert(isEdit ? "상품 수정에 실패했습니다." : "상품 등록에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  // 상세 로딩 중 스피너
+  if (isDetailLoading) {
+    return (
+      <div className="goods-regist">
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+          <button
+            onClick={onCancel}
+            style={{
+              background: "none", border: "1px solid #e5e7eb", borderRadius: "8px",
+              padding: "8px 16px", fontSize: "13px", cursor: "pointer", color: "#6b7280",
+            }}
+          >
+            ← 목록으로
+          </button>
+          <h2 className="regist-title" style={{ margin: 0 }}>상품 수정</h2>
+        </div>
+        <div style={{ textAlign: "center", padding: "80px 20px", color: "#6b7280" }}>
+          <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: "32px", marginBottom: "16px", display: "block" }}></i>
+          상품 정보를 불러오는 중...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="goods-regist">
@@ -196,25 +284,56 @@ const GoodsForm = ({ editTarget, onSuccess, onCancel }) => {
       {/* 상세 이미지 */}
       <section className="regist-section">
         <h3 className="regist-section__title">상세 이미지 (복수 가능)</h3>
-        {isEdit && (
-          <p className="regist-desc">새로 추가한 이미지가 기존 상세 이미지에 추가됩니다.</p>
-        )}
         <div className="regist-upload-area">
           <label className="regist-upload-btn" htmlFor="detailImgs">
             <i className="fa-solid fa-plus"></i> 이미지 추가
           </label>
           <input id="detailImgs" type="file" accept="image/*" multiple
-            style={{ display: "none" }} onChange={handleDetailImgs} />
+            style={{ display: "none" }} onChange={handleNewDetailImgs} />
+
           <div className="regist-preview-list">
-            {detailPreviews.map((src, idx) => (
-              <div className="regist-preview" key={idx}>
-                <img src={src} alt={`상세${idx + 1}`} />
-                <button className="regist-preview__remove" onClick={() => removeDetailImg(idx)}>
+            {/* 기존 서버 이미지 (수정 모드) - X 누르면 서버에서도 삭제 */}
+            {existingDetailImgs.map((img, idx) => (
+              <div className="regist-preview" key={`exist-${img.goodsImgNo}`}>
+                <img src={img.url} alt={`기존상세${idx + 1}`} />
+                <button
+                  className="regist-preview__remove"
+                  onClick={() => removeExistingDetailImg(img.goodsImgNo, idx)}
+                  title="이미지 삭제"
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            ))}
+
+            {/* 새로 추가한 이미지 (아직 서버에 없음) */}
+            {newDetailPreviews.map((src, idx) => (
+              <div className="regist-preview" key={`new-${idx}`}>
+                <img src={src} alt={`새이미지${idx + 1}`} />
+                {/* 새 이미지 구분 뱃지 */}
+                <span style={{
+                  position: "absolute", bottom: "4px", left: "4px",
+                  fontSize: "9px", fontWeight: 700, background: "#3b82f6",
+                  color: "#fff", borderRadius: "4px", padding: "1px 4px",
+                }}>
+                  NEW
+                </span>
+                <button
+                  className="regist-preview__remove"
+                  onClick={() => removeNewDetailImg(idx)}
+                  title="추가 취소"
+                >
                   <i className="fa-solid fa-xmark"></i>
                 </button>
               </div>
             ))}
           </div>
+
+          {isEdit && existingDetailImgs.length === 0 && newDetailPreviews.length === 0 && (
+            <p style={{ fontSize: "13px", color: "#9ca3af", margin: "8px 0 0" }}>
+              등록된 상세 이미지가 없습니다. 이미지를 추가해보세요.
+            </p>
+          )}
         </div>
       </section>
 
@@ -263,17 +382,24 @@ const GoodsForm = ({ editTarget, onSuccess, onCancel }) => {
         >
           취소
         </button>
-        <button className="regist-submit-btn" onClick={handleSubmit}>
-          {isEdit ? "수정 저장" : "상품 등록하기"}
+        <button
+          className="regist-submit-btn"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting
+            ? "처리 중..."
+            : isEdit
+              ? "수정 저장"
+              : "상품 등록하기"}
         </button>
       </div>
     </div>
   );
 };
 
-// ─────────────────────────────────────────────
+
 // 상품 목록 (메인)
-// ─────────────────────────────────────────────
 const GoodsManage = () => {
   const [view, setView] = useState("list");           // "list" | "form"
   const [editTarget, setEditTarget] = useState(null); // null=신규등록, object=수정
@@ -283,8 +409,8 @@ const GoodsManage = () => {
   const fetchGoods = async () => {
     try {
       setIsLoading(true);
-      const resp = await axiosApi.get("/admin/goods");
-      setGoodsList(resp.data);
+      const data = await adminApi.getGoodsList();
+      setGoodsList(data);
     } catch (e) {
       console.error(e);
       alert("상품 목록 조회에 실패했습니다.");
@@ -301,11 +427,24 @@ const GoodsManage = () => {
     if (!window.confirm(`"${goodsName}" 상품을 삭제하시겠습니까?\n삭제된 상품은 사용자 화면에서 숨겨집니다.`))
       return;
     try {
-      await axiosApi.delete(`/admin/goods/${goodsNo}`);
+      await adminApi.deleteGoods(goodsNo);
       alert("상품이 삭제되었습니다.");
       fetchGoods();
     } catch (e) {
       alert("삭제에 실패했습니다.");
+    }
+  };
+
+  // 삭제된 상품 복구
+  const handleRestore = async (goodsNo, goodsName) => {
+    if (!window.confirm(`"${goodsName}" 상품을 복구하시겠습니까?\n복구 후 사용자 화면에 다시 표시됩니다.`))
+      return;
+    try {
+      await adminApi.restoreGoods(goodsNo);
+      alert("상품이 복구되었습니다.");
+      fetchGoods();
+    } catch (e) {
+      alert("복구에 실패했습니다.");
     }
   };
 
@@ -413,24 +552,37 @@ const GoodsManage = () => {
 
               {/* 버튼 */}
               <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
-                <button
-                  className="detail-btn"
-                  disabled={goods.goodsDelFl === "Y"}
-                  onClick={() => { setEditTarget(goods); setView("form"); }}
-                  style={{ opacity: goods.goodsDelFl === "Y" ? 0.4 : 1 }}
-                >
-                  수정
-                </button>
-                {goods.goodsDelFl !== "Y" && (
+                {goods.goodsDelFl !== "Y" ? (
+                  <>
+                    {/* 정상 상품: 수정 + 삭제 */}
+                    <button
+                      className="detail-btn"
+                      onClick={() => { setEditTarget(goods); setView("form"); }}
+                    >
+                      수정
+                    </button>
+                    <button
+                      style={{
+                        padding: "8px 20px", border: "1px solid #fca5a5",
+                        borderRadius: "8px", background: "#fff", fontSize: "13px",
+                        fontWeight: 700, color: "#ef4444", cursor: "pointer",
+                      }}
+                      onClick={() => handleDelete(goods.goodsNo, goods.goodsName)}
+                    >
+                      삭제
+                    </button>
+                  </>
+                ) : (
+                  // 삭제된 상품: 복구 버튼만
                   <button
                     style={{
-                      padding: "8px 20px", border: "1px solid #fca5a5",
+                      padding: "8px 20px", border: "1px solid #86efac",
                       borderRadius: "8px", background: "#fff", fontSize: "13px",
-                      fontWeight: 700, color: "#ef4444", cursor: "pointer",
+                      fontWeight: 700, color: "#16a34a", cursor: "pointer",
                     }}
-                    onClick={() => handleDelete(goods.goodsNo, goods.goodsName)}
+                    onClick={() => handleRestore(goods.goodsNo, goods.goodsName)}
                   >
-                    삭제
+                    복구
                   </button>
                 )}
               </div>
