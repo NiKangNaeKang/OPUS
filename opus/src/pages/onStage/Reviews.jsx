@@ -640,11 +640,13 @@ export default function Reviews() {
                       <button
                         className="btn btn--outline btn--sm"
                         onClick={() => setReportOpenId(null)}
+                        id='report-cancle-btn'
                       >
                         취소
                       </button>
                       <button
                         className="btn btn--danger btn--sm"
+                        id='report-action-btn'
                         onClick={() => submitReport(review)}
                       >
                         신고
