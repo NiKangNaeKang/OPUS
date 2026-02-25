@@ -5,11 +5,12 @@ import { useRef, useState } from 'react';
 import axiosApi from '../../api/axiosAPI';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../components/auth/useAuthStore';
-import { Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getAllExhibitions } from '../../api/kcisaAPI';
 
 export default function ExhibitionDetail () {
   const { exhibitionId } = useParams();
+  const navigate = useNavigate();
   const loginMemberNo = useAuthStore(state => state.member?.memberNo);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const modalBackground = useRef();
@@ -41,7 +42,11 @@ export default function ExhibitionDetail () {
   };
 
   const toggleLike = async () => {
-    console.log("보내는 memberNo:", loginMemberNo);
+    if (!loginMemberNo) {
+      alert("로그인 후 이용해주세요.");
+      return;
+    }
+    
     try {
       const res = await axiosApi.post("/stage/like", {
         memberNo: loginMemberNo,
@@ -63,6 +68,11 @@ export default function ExhibitionDetail () {
   };
 
   const toggleDislike = async () => {
+    if (!loginMemberNo) {
+      alert("로그인 후 이용해주세요.");
+      return;
+    }
+
     try {
       const res = await axiosApi.post("/stage/dislike", {
         memberNo: loginMemberNo,
@@ -84,19 +94,19 @@ export default function ExhibitionDetail () {
   };
 
   const savePerform = async () => {
+    if (!loginMemberNo) {
+      alert("로그인 후 이용해주세요.");
+      return;
+    }
+    
     try {
       const res = await axiosApi.post("/stage/save", {
         memberNo: loginMemberNo,
         stageNo: item.exhibitionId
       });
 
-      if (res.data === 1) {
-        setSave(true);
-        alert("찜에 추가되었습니다.");
-      } else if (res.data === -1) {
-        setSave(false);
-        alert("찜이 취소되었습니다.");
-      }
+      alert(res.data);
+      setSave(prev => !prev);
     } catch (error) {
       console.log(error);
     }
@@ -248,9 +258,14 @@ export default function ExhibitionDetail () {
               <div className="section" id="reviews-section">
                 <div className="reviews-head">
                   <h2 className="section-title">관람 후기</h2>
-                  <Link to={`/onStage/reviews/${item.exhibitionId}`}>
-                    <button className="btn btn-sm btn-outline" id='more-review-btn' type="button">후기 더보기</button>
-                  </Link>
+                  <button className="btn btn-sm btn-outline" id='more-review-btn' type="button"
+                    onClick={() => {
+                      if(!loginMemberNo) {
+                        alert("로그인 후 이용해주세요.");
+                        return;
+                      }
+                      navigate(`/onStage/reviews/${item.exhibitionId}`)
+                    }}>후기 더보기</button>
                 </div>
 
                 <div className="reviews">

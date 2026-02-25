@@ -200,7 +200,7 @@ export default function ExhibitionList({ search, status }) {
 
   return (
     <>
-      {status === "all" && (
+      {status === "all" && loginMemberNo && (
         <section className="show-row">
           <h2 className="exhibition-title">내가 좋아요 누른 전시</h2>
 
@@ -245,7 +245,7 @@ export default function ExhibitionList({ search, status }) {
         </section>
       )}
 
-      {status === "all" && (
+      {status === "all" && loginMemberNo && (
         <section className="show-row">
           <h2 className="exhibition-title">내가 저장한 전시</h2>
 

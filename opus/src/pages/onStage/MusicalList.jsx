@@ -145,7 +145,7 @@ export default function MusicalList({ status, search }) {
 
   return (
     <>
-      {status === "all" && (
+      {status === "all" && loginMemberNo && (
         <section className="show-row">
           <h2>내가 좋아요 누른 공연</h2>
           <div style={{ position: "relative" }}>
@@ -186,7 +186,7 @@ export default function MusicalList({ status, search }) {
       )
 }
 
-      {status === "all" && (
+      {status === "all" && loginMemberNo && (
         <section className="show-row">
           <h2>내가 저장한 공연</h2>
           <div style={{ position: "relative" }}>
