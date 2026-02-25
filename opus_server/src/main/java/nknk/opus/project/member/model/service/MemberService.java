@@ -1,32 +1,34 @@
 package nknk.opus.project.member.model.service;
 
 import java.util.Map;
+
 import nknk.opus.project.member.model.dto.Member;
 
 public interface MemberService {
-	Member login(Member inputMember);
 
-	void sendEmail(String email);
+  Member login(Member inputMember);
 
-	boolean verifyCode(String email, String code);
+  void sendEmail(String email);
 
-	int signup(Member inputMember);
+  boolean verifyCode(String email, String code);
 
-	boolean checkEmail(String email);
+  int signup(Member inputMember);
 
-	boolean checkTel(String tel);
+  boolean checkEmail(String email);
 
-	int updateTel(Member inputMember);
+  boolean checkTel(String tel);
 
-	int changePw(Map<String, Object> param);
+  int updateTel(Member inputMember);
 
-	int getActiveTransactionCount(int memberNo);
+  int changePw(Map<String, Object> param);
 
-	boolean withdrawMember(int memberNo);
+  int getActiveTransactionCount(int memberNo);
 
-	Member loginGoogle(String googleAccessToken);
+  boolean withdrawMember(int memberNo);
 
-	int googleRegister(Member inputMember);
+  Member loginGoogle(String googleAccessToken);
 
-	Member getMemberByEmail(String email);
+  int googleRegister(Member inputMember);
+
+  Member getMemberByEmail(String email);
 }

@@ -41,8 +41,7 @@
 		DEFAULT,
 		DEFAULT,
 		NVL(#{memberRole}, 'MEMBER'),
-		NVL(#{loginType},
-		'NORMAL')
+		NVL(#{loginType}, 'NORMAL')
 		)
 	</insert>
 
@@ -80,14 +79,17 @@
 		SELECT
 		(SELECT COUNT(*)
 		FROM UNVEILING
-		WHERE MEMBER_NO = #{memberNo}
+		WHERE MEMBER_NO =
+		#{memberNo}
 		AND UNVEILING_STATUS = 'UPCOMING')
 		+
 		(SELECT COUNT(*)
-		FROM TOTAL_ORDER
+		FROM
+		TOTAL_ORDER
 		WHERE MEMBER_NO = #{memberNo}
 		AND ORDER_STATUS = 'READY')
-		AS active_count
+		AS
+		active_count
 		FROM DUAL
 	</select>
 
