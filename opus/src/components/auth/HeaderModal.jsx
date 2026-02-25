@@ -44,9 +44,7 @@ export default function HeaderModal({ variant }) {
     resetNotifications();
   }, [logout, navigate]);
 
-  console.log("현재 role:", role);
   const authState = useAuthStore(state => state);
-  console.log("authState:", authState);
 
   return (
     <>

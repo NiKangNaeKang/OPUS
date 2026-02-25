@@ -49,6 +49,7 @@ export default function Reviews() {
 
   // 후기 조회
   const [reviews, setReviews] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(5);
 
   const showReviews = async() => {
     try {
@@ -95,7 +96,7 @@ export default function Reviews() {
         resp.data.forEach(r => {
           getCommentCount(r.reviewNo);
           getLikeCount(r.reviewNo);
-          getIsLiked(r.reviewNo);
+          // getIsLiked(r.reviewNo);
         });
       }
     };
@@ -354,6 +355,21 @@ export default function Reviews() {
   // 좋아요 개수
   const [likeCount, setLikeCount] = useState({});
 
+  const [sortType, setSortType] = useState("latest");
+  const sortedReviews = [...reviews].sort((a, b) => {
+    if (sortType === "latest") {
+      return new Date(b.reviewWriteDate) - new Date(a.reviewWriteDate);
+    }
+  
+    if (sortType === "popular") {
+      const likeA = likeCount[a.reviewNo] ?? 0;
+      const likeB = likeCount[b.reviewNo] ?? 0;
+      return likeB - likeA;
+    }
+  
+    return 0;
+  });
+
   // 내가 눌렀는지
   const [likedMap, setLikedMap] = useState({});
 
@@ -449,6 +465,25 @@ export default function Reviews() {
     }
   };
 
+  const maskEmail = (email) => {
+    if (!email) return "";
+
+    const [id, domain] = email.split("@");
+    if (!id) return email;
+
+    if (id.length <= 2) {
+      return id[0] + "*" + "@" + domain;
+    }
+
+    const maskLength = 3;
+    const start = Math.floor((id.length - maskLength) / 2);
+    const end = start + maskLength;
+
+    const maskedId = id.slice(0, start) + "***" + id.slice(end);
+
+    return `${maskedId}@${domain}`;
+  };
+
   return (
     <main className="reviews-page">
       <section id="review-header" className="section section--mb-lg">
@@ -485,12 +520,25 @@ export default function Reviews() {
       <section id="review-controls" className="section section--mb-md">
         <div className="row row--between row--gap-md">
           <div className="count">
-            총 <span className="count__strong">#{reviewsCount}</span>개의 후기
+            총 <span className="count__strong">{reviewsCount}</span>개의 후기
           </div>
 
           <div className="seg">
-            <button className="seg-sort-btn is-active" type="button" data-sort="latest">최신순</button>
-            <button className="seg-sort-btn" type="button" data-sort="popular">인기순</button>
+            <button
+              className={`seg-sort-btn ${sortType === "latest" ? "is-active" : ""}`}
+              type="button"
+              onClick={() => setSortType("latest")}
+            >
+              최신순
+            </button>
+
+            <button
+              className={`seg-sort-btn ${sortType === "popular" ? "is-active" : ""}`}
+              type="button"
+              onClick={() => setSortType("popular")}
+            >
+              인기순
+            </button>
           </div>
         </div>
       </section>
@@ -500,10 +548,7 @@ export default function Reviews() {
         {reviews.length === 0 ? (
           <div>등록된 후기가 없습니다.</div>
         ) : (
-          reviews.map((review) => {
-            console.log("review.memberNo:", review.memberNo);
-            console.log("loginMemberNo:", loginMemberNo);
-
+          sortedReviews.slice(0, visibleCount).map((review) => {
             const isMine = Number(review.memberNo) === Number(loginMemberNo);
 
             return(
@@ -511,8 +556,8 @@ export default function Reviews() {
                 <div className="review__top">
                   <div className="user">
                     <div className="user__meta">
-                      <div className="user__name">#{review.memberEmail}</div>
-                      <div className="user__date">#{review.reviewWriteDate  }</div>
+                      <div className="user__name">{maskEmail(review.memberEmail)}</div>
+                      <div className="user__date">{review.reviewWriteDate  }</div>
                     </div>
                   </div>
 
@@ -657,11 +702,13 @@ export default function Reviews() {
                           <div key={c.commentNo} className="comment">
                             <div className="comment__main">
                               <div className="comment__meta">
-                                <span>{c.memberEmail}</span>
-                                <span>{c.commentWriteDate}</span>
+                                <div className='comment-update-info-box'>
+                                  <div className='user__name'>{maskEmail(c.memberEmail)}</div>
+                                  <div className='user__date'>{c.commentWriteDate}</div>
+                                </div>
                         
                                 {isCommentMine && (
-                                  <>
+                                  <div className='comment-update-btn-box'>
                                     <button
                                       onClick={() => clickEditCommentBtn(c)}
                                       className="comment-edit-btn"
@@ -674,7 +721,7 @@ export default function Reviews() {
                                     >
                                       삭제
                                     </button>
-                                  </>
+                                  </div>
                                 )}
                               </div>
                               
@@ -684,12 +731,15 @@ export default function Reviews() {
                                   <textarea
                                     value={editCommentContent}
                                     onChange={(e) => setEditCommentContent(e.target.value)}
+                                    id='update_comment_textarea'
                                   />
-                                  <button onClick={() => saveEditComment(c.commentNo, review.reviewNo)}>저장</button>
-                                  <button onClick={cancelEditComment}>취소</button>
+                                  <div className='update_comment_inner_btn_box'>
+                                    <button className='update_comment_inner_btn' onClick={cancelEditComment}>취소</button>
+                                    <button className='update_comment_inner_btn' onClick={() => saveEditComment(c.commentNo, review.reviewNo)}>저장하기</button>
+                                  </div>
                                 </div>
                               ) : (
-                                <p className="comment__text">{c.commentContent}</p>
+                                <p className="comment__text" id="review_comment_text">{c.commentContent}</p>
                               )}
                             </div>
                           </div>
@@ -699,7 +749,6 @@ export default function Reviews() {
 
                     {/* 댓글 작성하기 */}
                     <div className="comment-input">
-                      <div className="avatar avatar--sm"><span>나</span></div>
                       <input className="input input--sm" type="text" placeholder="댓글을 입력하세요" 
                         value={inputComment[review.reviewNo] || ""}
                         onChange={(e) => setInputComment(prev => ({
@@ -707,7 +756,7 @@ export default function Reviews() {
                           [review.reviewNo] : e.target.value
                         }))}
                       />
-                      <button className="btn btn--dark btn--sm" type="button"
+                      <button className="btn btn--dark btn--sm" id="submitCommentBtn" type="button"
                         onClick={() => submitComment(review.reviewNo)}>등록</button>
                     </div>
                   </div>
@@ -718,9 +767,17 @@ export default function Reviews() {
         )}
       </section>
 
-      <div className="more">
-        <button className="btn btn--outline btn--lg" type="button">더보기</button>
-      </div>
+      {sortedReviews.length > visibleCount && (
+        <div className="more">
+          <button
+            className="btn btn--outline btn--lg"
+            type="button"
+            onClick={() => setVisibleCount(prev => prev + 5)}
+          >
+            더보기
+          </button>
+        </div>
+      )}
     </main>
   )
 }

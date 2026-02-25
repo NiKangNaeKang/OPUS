@@ -20,17 +20,25 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.admin.model.dto.GoodsRegist;
 import nknk.opus.project.admin.model.service.AdminService;
+import nknk.opus.project.common.exception.ApiExceptionHandler;
 import nknk.opus.project.reviews.model.dto.Report;
 import nknk.opus.project.selections.model.dto.Goods;
+import nknk.opus.project.reviews.model.dto.Reviews;
 
 @Slf4j
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
 
+    private final ApiExceptionHandler apiExceptionHandler;
+
 	@Autowired
 	private AdminService service;
 
+    AdminController(ApiExceptionHandler apiExceptionHandler) {
+        this.apiExceptionHandler = apiExceptionHandler;
+    }
+	
 	@GetMapping("/report")
 	public ResponseEntity<List<Report>> getReport() {
 		try {
@@ -51,26 +59,52 @@ public class AdminController {
 			if (result == 0) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("후기 삭제에 실패하였습니다.");
 			}
-
-			return ResponseEntity.status(HttpStatus.OK).body("후기를 삭제하였습니다.");
+			
+			return ResponseEntity.status(HttpStatus.OK).body("신고된 후기가 삭제되었습니다. (신고 승인)");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
 	}
-
-	@PostMapping("/cancleReview")
-	public ResponseEntity<String> cancleReview(@RequestParam("reportNo") int reportNo) {
+	
+	@PostMapping("/rejectReview")
+	public ResponseEntity<String> rejectReview(@RequestParam("reportNo") int reportNo) {
 		try {
-			System.out.println("취소 요청 reportNo: " + reportNo);
-			int result = service.cancleReview(reportNo);
-			System.out.println("삭제 결과 result: " + result);
-
-			if (result == 0) {
+			int result = service.rejectReview(reportNo);
+			
+			if(result == 0) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("신고된 후기를 목록에서의 삭제에 실패하였습니다.");
 			}
-
-			return ResponseEntity.status(HttpStatus.OK).body("신고된 후기를 목록에서 삭제하였습니다. (신고 취소)");
+			
+			return ResponseEntity.status(HttpStatus.OK).body("신고된 후기를 목록에서 삭제하였습니다. (신고 거절)");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
+	
+	@GetMapping("/restore")
+	public ResponseEntity<List<Reviews>> getRestore() {
+		try {
+			List<Reviews> result = service.getRestore();
+			
+			return ResponseEntity.status(HttpStatus.OK).body(result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+	}
+	
+	@PostMapping("/restoreReview")
+	public ResponseEntity<String> restoreReview(@RequestParam("reviewNo") int reviewNo) {
+		try {
+			int result = service.restoreReview(reviewNo);
+			
+			if(result == 0) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("삭제된 후기 복구에 실패하였습니다.");
+			}
+			
+			return ResponseEntity.status(HttpStatus.OK).body("삭제된 후기를 복구하였습니다");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

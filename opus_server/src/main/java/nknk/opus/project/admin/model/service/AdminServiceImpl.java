@@ -20,6 +20,7 @@ import nknk.opus.project.reviews.model.dto.Report;
 import nknk.opus.project.selections.model.dto.Goods;
 import nknk.opus.project.selections.model.dto.GoodsImg;
 import nknk.opus.project.selections.model.dto.GoodsOption;
+import nknk.opus.project.reviews.model.dto.Reviews;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -38,15 +39,27 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public int confirmReview(int reportNo) {
-		return mapper.confirmReview(reportNo);
+		int hideReview = mapper.hideReview(reportNo);
+		int confirmResult = mapper.confirmReview(reportNo);
+		
+		return hideReview * confirmResult;
 	}
 
 	@Override
-	public int cancleReview(int reportNo) {
-		int updateReviewDelFl = mapper.updateReviewDelFl(reportNo);
-		int cancleReview = mapper.cancleReview(reportNo);
+	public int rejectReview(int reportNo) {
+		int rejectReview = mapper.rejectReview(reportNo);
+		
+		return rejectReview;
+	}
 
-		return updateReviewDelFl * cancleReview;
+	@Override
+	public List<Reviews> getRestore() {
+		return mapper.getRestore();
+	}
+
+	@Override
+	public int restoreReview(int reviewNo) {
+		return mapper.restoreReview(reviewNo);
 	}
 
 	@Override
@@ -54,7 +67,7 @@ public class AdminServiceImpl implements AdminService {
 
 	    String uploadPath = fileConfig.getGoodsUploadPath();
 
-	    // 1️⃣ GOODS 먼저 INSERT (번호 생성용)
+	    // GOODS 먼저 INSERT (번호 생성용)
 	    Goods goods = Goods.builder()
 	            .goodsName(dto.getGoodsName())
 	            .goodsSort(dto.getGoodsSort())
@@ -73,7 +86,7 @@ public class AdminServiceImpl implements AdminService {
 	    File dir = new File(uploadPath);
 	    if (!dir.exists()) dir.mkdirs();
 
-	    // 2️⃣ 썸네일 저장 (order = 0)
+	    // 썸네일 저장 (order = 0)
 	    MultipartFile thumbnail = dto.getThumbnail();
 
 	    if (thumbnail != null && !thumbnail.isEmpty()) {
@@ -95,7 +108,7 @@ public class AdminServiceImpl implements AdminService {
 	        mapper.insertGoodsImg(thumbImg);
 	    }
 
-	    // 3️⃣ 상세 이미지 (1부터 시작)
+	    // 상세 이미지 (1부터 시작)
 	    if (dto.getDetailImgs() != null) {
 
 	        int order = 1;

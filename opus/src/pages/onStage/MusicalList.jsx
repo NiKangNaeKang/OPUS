@@ -3,13 +3,23 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAllMusicals, dateRange } from "../../api/kopisAPI";
 import '../../css/pages/onStage/OnStage.css'
-import Loading from "../../components/common/Loading.jsx"
+import Loading from "../../components/common/Loading.jsx";
+import axiosApi from "../../api/axiosAPI";
+import { useAuthStore } from "../../components/auth/useAuthStore";
 import { useContentStore } from "../../store/useContentStore.js";
 
 const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
 
 export default function MusicalList({ status, search }) {
+  const loginMemberNo = useAuthStore(state => state.member?.memberNo);
+
   const bottomRef = useRef(null);
+  const likedScrollRef = useRef(null);
+  const savedScrollRef = useRef(null);
+
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const [likedItems, setLikedItems] = useState([]);
+  const [savedItems, setSavedItems] = useState([]);
 
   const {
     data,
@@ -24,14 +34,19 @@ export default function MusicalList({ status, search }) {
     enabled: Boolean(SERVICE_KEY),
     queryFn: ({ pageParam }) => {
       const range = dateRange[pageParam - 1];
-      if (!range) {
-        return { items: [], hasNext: false };
-      }
+      if (!range) return { items: [], hasNext: false };
 
-      return getAllMusicals({ serviceKey: SERVICE_KEY, startDate: range.start, endDate: range.end, pageParam: 1, search })
+      return getAllMusicals({
+        serviceKey: SERVICE_KEY,
+        startDate: range.start,
+        endDate: range.end,
+        pageParam: 1,
+        search,
+      });
     },
     initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) => lastPage.hasNext ? allPages.length + 1 : undefined,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasNext ? allPages.length + 1 : undefined,
   });
 
   useEffect(() => {
@@ -41,15 +56,35 @@ export default function MusicalList({ status, search }) {
       if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
         fetchNextPage();
       }
-    }, { threshold: 0 })
-    observer.observe(bottomRef.current);
+    });
 
+    observer.observe(bottomRef.current);
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollBtn(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const scrollLeft = (ref) => {
+    ref.current?.scrollBy({ left: -300, behavior: "smooth" });
+  };
+
+  const scrollRight = (ref) => {
+    ref.current?.scrollBy({ left: 300, behavior: "smooth" });
+  };
+
   const allItems = useMemo(() => {
     if (!data) return [];
-    return data.pages.flatMap(page => page.items);
+    return data.pages.flatMap((page) => page.items);
   }, [data]);
 
   // 챗봇에게 데이터 전달용 (박유진 추가)
@@ -68,8 +103,34 @@ export default function MusicalList({ status, search }) {
 
   // -------------------------------------------
 
+  useEffect(() => {
+    if (status !== "all" || !loginMemberNo || !allItems.length) return;
+
+    const fetchPrefer = async () => {
+      try {
+        const savedResp = await axiosApi.get("/myPage/savedList", {
+          params: { memberNo: loginMemberNo },
+        });
+
+        const likedResp = await axiosApi.get("/myPage/likeList", {
+          params: { memberNo: loginMemberNo },
+        });
+
+        const savedIds = savedResp.data || [];
+        const likedIds = likedResp.data || [];
+
+        setSavedItems(allItems.filter((item) => savedIds.includes(item.mt20id)));
+        setLikedItems(allItems.filter((item) => likedIds.includes(item.mt20id)));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchPrefer();
+  }, [status, loginMemberNo, allItems]);
+
   const filteredItems = useMemo(() => {
-    return allItems.filter(item => {
+    return allItems.filter((item) => {
       const matchStatus =
         status === "all" ||
         (status === "02" && item.prfstate === "공연중") ||
@@ -83,59 +144,142 @@ export default function MusicalList({ status, search }) {
     });
   }, [allItems, status, search]);
 
-  if (isLoading) {
-    return <div style={{ padding: 80 }}>뮤지컬 불러오는 중...</div>;
-  }
-
-  if (isError) {
-    return <div style={{ padding: 80 }}>오류: {String(error)}</div>;
-  }
-
-  if (!allItems.length) {
-    return <div style={{ padding: 80 }}>표시할 뮤지컬 정보가 없습니다.</div>;
-  }
+  if (isLoading) return <div style={{ padding: 80 }}>뮤지컬 불러오는 중...</div>;
+  if (isError) return <div style={{ padding: 80 }}>오류: {String(error)}</div>;
 
   return (
     <>
-      <div className="show-grid">
-        {filteredItems.map((item) => (
-          <article key={item.mt20id} className="show-card">
-            <Link to={`/onStage/musical/${item.mt20id}`}>
-              <div className="show-card__thumb">
-                {item.poster ? (
+      {status === "all" && (
+        <section className="show-row">
+          <h2>내가 좋아요 누른 공연</h2>
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={() => scrollLeft(likedScrollRef)} style={{ position: "absolute", left: 0, top: "40%", transform: "translateY(-50%)", zIndex: 10, border: "none", background: "#111", color: "#fff", width: 36, height: 36, borderRadius: "50%", cursor: "pointer" }}
+            >
+              ‹
+            </button>
+
+            <div ref={likedScrollRef} className="show-grid show-grid--row">
+              {likedItems.map((item) => (
+                <article key={item.mt20id} className="show-card">
+                  <Link to={`/onStage/musical/${item.mt20id}`}>
+                    <div className="show-card__thumb">
+                      <img src={item.poster} alt={item.prfnm} />
+                      <span className="show-badge show-badge--dark">
+                        {item.prfstate || "상태없음"}
+                      </span>
+                    </div>
+                    <h3 className="show-card__title">{item.prfnm}</h3>
+                    <p className="show-card__meta">
+                      {item.prfpdfrom} ~ {item.prfpdto}
+                    </p>
+                    <p className="show-card__meta">{item.fcltynm}</p>
+                  </Link>
+                </article>
+              ))}
+            </div>
+
+              <button
+                onClick={() => scrollRight(likedScrollRef)}
+                style={{ position: "absolute", right: 0, top: "40%", transform: "translateY(-50%)", zIndex: 10, border: "none", background: "#111", color: "#fff", width: 36, height: 36, borderRadius: "50%", cursor: "pointer" }}
+              >
+                ›
+              </button>
+            </div >
+        </section >
+      )
+}
+
+      {status === "all" && (
+        <section className="show-row">
+          <h2>내가 저장한 공연</h2>
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={() => scrollLeft(likedScrollRef)} style={{ position: "absolute", left: 0, top: "40%", transform: "translateY(-50%)", zIndex: 10, border: "none", background: "#111", color: "#fff", width: 36, height: 36, borderRadius: "50%", cursor: "pointer" }}
+            >
+              ‹
+            </button>
+
+            <div ref={savedScrollRef} className="show-grid show-grid--row">
+              {savedItems.map((item) => (
+                <article key={item.mt20id} className="show-card">
+                  <Link to={`/onStage/musical/${item.mt20id}`}>
+                    <div className="show-card__thumb">
+                      <img src={item.poster} alt={item.prfnm} />
+                      <span className="show-badge show-badge--dark">
+                        {item.prfstate || "상태없음"}
+                      </span>
+                    </div>
+                    <h3 className="show-card__title">{item.prfnm}</h3>
+                    <p className="show-card__meta">
+                      {item.prfpdfrom} ~ {item.prfpdto}
+                    </p>
+                    <p className="show-card__meta">{item.fcltynm}</p>
+                  </Link>
+                </article>
+              ))}
+            </div>
+
+            <button
+                onClick={() => scrollRight(likedScrollRef)}
+                style={{ position: "absolute", right: 0, top: "40%", transform: "translateY(-50%)", zIndex: 10, border: "none", background: "#111", color: "#fff", width: 36, height: 36, borderRadius: "50%", cursor: "pointer" }}
+              >
+                ›
+            </button>
+          </div>
+        </section>
+      )}
+
+      <section className="show-row">
+        <h2>전체 공연</h2>
+        <div className="show-grid">
+          {filteredItems.map((item) => (
+            <article key={item.mt20id} className="show-card">
+              <Link to={`/onStage/musical/${item.mt20id}`}>
+                <div className="show-card__thumb">
                   <img src={item.poster} alt={item.prfnm} />
-                ) : (
-                  <div style={{ height: 220 }} />
-                )}
-                <span className="show-badge show-badge--dark">
-                  {item.prfstate || "상태없음"}
-                </span>
-              </div>
-              <h3 className="show-card__title">{item.prfnm}</h3>
-              <p className="show-card__meta">
-                {item.prfpdfrom} ~ {item.prfpdto}
-              </p>
-              <p className="show-card__meta">{item.fcltynm}</p>
-            </Link>
-          </article>
-        ))}
-      </div>
+                  <span className="show-badge show-badge--dark">
+                    {item.prfstate || "상태없음"}
+                  </span>
+                </div>
+                <h3 className="show-card__title">{item.prfnm}</h3>
+                <p className="show-card__meta">
+                  {item.prfpdfrom} ~ {item.prfpdto}
+                </p>
+                <p className="show-card__meta">{item.fcltynm}</p>
+              </Link>
+            </article>
+          ))}
+        </div>
 
-      <div ref={bottomRef} style={{ height: 1 }}></div>
+        <div ref={bottomRef} style={{ height: 1 }} />
 
-      {isFetchingNextPage && (
-        <div
+        {isFetchingNextPage && (
+          <div style={{ display: "flex", justifyContent: "center", padding: "40px 0" }}>
+            <Loading />
+          </div>
+        )}
+      </section>
+
+      {showScrollBtn && (
+        <button
+          onClick={handleScrollToTop}
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "40px 0",
-            width: "100%",
+            position: "fixed",
+            bottom: 40,
+            right: 40,
+            width: 48,
+            height: 48,
+            borderRadius: "50%",
+            background: "#111",
+            color: "#fff",
+            border: "none",
+            cursor: "pointer",
           }}
         >
-          <Loading />
-        </div>
+          ↑
+        </button>
       )}
     </>
-  )
+  );
 }

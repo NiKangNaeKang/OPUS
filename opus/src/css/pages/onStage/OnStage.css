@@ -125,7 +125,6 @@ img{ display:block; max-width:100%; }
 .content{
   display:flex;
   flex-direction:column;
-  gap:40px;
 }
 
 .block__title{
@@ -138,6 +137,7 @@ img{ display:block; max-width:100%; }
 .show-grid{
   margin-top: 20px;
   gap:20px;
+  display: grid;
 }
 
 /* 가로 스크롤 레일 */
@@ -249,3 +249,36 @@ img{ display:block; max-width:100%; }
     grid-template-columns:1fr;
   }
 }
+
+.show-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.show-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.show-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.show-scroll::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+}
+
+.show-card-title {
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.show-scroll .show-card {
+  min-width: 160px;
+  flex: 0 0 auto;
+}
+

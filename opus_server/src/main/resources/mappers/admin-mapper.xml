@@ -5,15 +5,10 @@
 	<select id="getReport">
 		SELECT REPORT_NO, REPORT_REASON, REPORT_DETAIL, REPORT_DATE, REPORT_STATUS, REPORTER_NO, REPORTED_NO, REVIEW_NO
 		FROM REPORT
+		WHERE REPORT_STATUS = 'PENDING'
 	</select>
 	
-	<update id="confirmReview">
-		UPDATE REPORT
-		SET REPORT_STATUS = 'APPROVED'
-		WHERE REPORT_NO = #{reportNo}
-	</update>
-	
-	<update id="updateReviewDelFl">
+	<update id="hideReview">
 		UPDATE REVIEWS
 		SET REVIEW_DEL_FL = 'Y'
 		WHERE REVIEW_NO = (
@@ -22,10 +17,30 @@
 		)
 	</update>
 	
-	<delete id="cancleReview">
-		DELETE FROM REPORT
+	<update id="confirmReview">
+		UPDATE REPORT
+		SET REPORT_STATUS = 'APPROVED'
+		WHERE REPORT_NO = #{reportNo}
+	</update>
+	
+	<delete id="rejectReview">
+		UPDATE REPORT
+		SET REPORT_STATUS = 'REJECTED'
 		WHERE REPORT_NO = #{reportNo}
 	</delete>
+	
+	<select id="getRestore">
+		SELECT REVIEW_NO, MEMBER_NO, MEMBER_EMAIL, STAGE_NO, REVIEW_CONTENT, REVIEW_WRITE_DATE, REVIEW_UPDATE_DATE
+		FROM REVIEWS
+		JOIN MEMBER USING (MEMBER_NO)
+		WHERE REVIEW_DEL_FL = 'Y'
+	</select>
+	
+	<update id="restoreReview">
+		UPDATE REVIEWS
+		SET REVIEW_DEL_FL = 'N'
+		WHERE REVIEW_NO = #{reviewNo}
+	</update>
 	
 	<!-- 상품 INSERT (goodsNo 자동 생성) -->
 	<insert id="insertGoods" parameterType="Goods">
@@ -135,4 +150,5 @@
 	        TRACKING_NUMBER = #{trackingNumber}
 	    WHERE ORDER_NO = #{orderNo}
 	</update>
+	
 </mapper>
