@@ -17,7 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.admin.model.dto.GoodsRegist;
 import nknk.opus.project.admin.model.mapper.AdminMapper;
 import nknk.opus.project.common.config.FileConfig;
+import nknk.opus.project.common.exception.BusinessException;
 import nknk.opus.project.notification.model.service.NotificationService;
+import nknk.opus.project.order.model.dto.OrderItem;
+import nknk.opus.project.order.model.mapper.OrderMapper;
 import nknk.opus.project.reviews.model.dto.Report;
 import nknk.opus.project.selections.model.dto.Goods;
 import nknk.opus.project.selections.model.dto.GoodsImg;
@@ -38,6 +41,12 @@ public class AdminServiceImpl implements AdminService {
 
 	@Autowired
 	private NotificationService notificationService;
+
+	@Autowired
+	private OrderMapper orderMapper;
+	
+	//  낙관적 락 재시도 횟수
+	private static final int MAX_RETRY = 3;
 
 	@Override
 	public List<Report> getReport() {
@@ -300,58 +309,84 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public int updateOrderStatus(int orderNo, String status) {
-	    int result = mapper.updateOrderStatus(orderNo, status);
+
+	  // 주문 정보 조회
+		Map<String, Object> orderInfo = mapper.selectOrderInfo(orderNo);
+		
+		if (orderInfo == null) {
+			log.error("주문 정보를 찾을 수 없음 - orderNo: {}", orderNo);
+			throw new BusinessException("주문 정보를 찾을 수 없습니다.");
+		}
+		
+		String currentStatus = (String) orderInfo.get("ORDER_STATUS");
+		String orderId = (String) orderInfo.get("ORDER_ID");
+		int memberNo = ((Number) orderInfo.get("MEMBER_NO")).intValue();
+		
+		// WAITING_FOR_DEPOSIT → PAID 변경 시 재고 차감
+		if ("WAITING_FOR_DEPOSIT".equals(currentStatus) && "PAID".equals(status)) {
+			
+			log.info("입금 대기 → 결제 완료 변경 감지, 재고 차감 시작 - orderNo: {}, orderId: {}", orderNo, orderId);
+			
+			try {
+				// 주문 상품 목록 조회
+				List<OrderItem> orderItems = orderMapper.selectOrderItems(orderId);
+				
+				// 재고 차감 (낙관적 락 + 재시도)
+				deductStockForItems(orderItems, orderId);
+				
+				log.info("재고 차감 완료 - orderNo: {}, orderId: {}", orderNo, orderId);
+				
+			} catch (Exception e) {
+				log.error("재고 차감 실패 - orderNo: {}, orderId: {}", orderNo, orderId, e);
+				throw new BusinessException("재고 차감에 실패했습니다: " + e.getMessage());
+			}
+		}
+		
+		// 주문 상태 업데이트
+		int result = mapper.updateOrderStatus(orderNo, status);
 		
 		if (result > 0) {
-			// 주문 정보 조회 (memberNo, orderId 필요)
-			Map<String, Object> orderInfo = mapper.selectOrderInfo(orderNo);
+			// 상태별 알림 생성
+			String notiTitle = "";
+			String notiContent = "";
 			
-			if (orderInfo != null) {
-				int memberNo = ((Number) orderInfo.get("MEMBER_NO")).intValue();
-				String orderId = (String) orderInfo.get("ORDER_ID");
-				
-				// 상태별 알림 메시지
-				String notiTitle = "";
-				String notiContent = "";
-				
-				switch (status) {
-					case "PAID":
-						notiTitle = "결제가 완료되었습니다.";
-						notiContent = "주문번호: " + orderId;
-						break;
-					case "PREPARING":
-						notiTitle = "상품 준비 중입니다.";
-						notiContent = "주문번호: " + orderId;
-						break;
-					case "SHIPPING":
-						notiTitle = "배송이 시작되었습니다.";
-						notiContent = "주문번호: " + orderId;
-						break;
-					case "DELIVERED":
-						notiTitle = "배송이 완료되었습니다.";
-						notiContent = "주문번호: " + orderId;
-						break;
-					case "CANCELED":
-						notiTitle = "주문이 취소되었습니다.";
-						notiContent = "주문번호: " + orderId;
-						break;
-					default:
-						return result; // 알림 없이 리턴
-				}
-				
-				// 알림 생성
-				try {
-					notificationService.createNotification(
-						memberNo,
-						"ORDER",
-						notiTitle,
-						notiContent,
-						"/mypage/orders"
-					);
-					log.info("주문 상태 변경 알림 생성 - orderNo: {}, status: {}", orderNo, status);
-				} catch (Exception e) {
-					log.error("주문 상태 변경 알림 생성 실패", e);
-				}
+			switch (status) {
+				case "PAID":
+					notiTitle = "결제가 완료되었습니다.";
+					notiContent = "주문번호: " + orderId;
+					break;
+				case "PREPARING":
+					notiTitle = "상품 준비 중입니다.";
+					notiContent = "주문번호: " + orderId;
+					break;
+				case "SHIPPING":
+					notiTitle = "배송이 시작되었습니다.";
+					notiContent = "주문번호: " + orderId;
+					break;
+				case "DELIVERED":
+					notiTitle = "배송이 완료되었습니다.";
+					notiContent = "주문번호: " + orderId;
+					break;
+				case "CANCELED":
+					notiTitle = "주문이 취소되었습니다.";
+					notiContent = "주문번호: " + orderId;
+					break;
+				default:
+					return result; // 알림 없이 리턴
+			}
+			
+			// 알림 생성
+			try {
+				notificationService.createNotification(
+					memberNo,
+					"ORDER",
+					notiTitle,
+					notiContent,
+					"/mypage/orders"
+				);
+				log.info("주문 상태 변경 알림 생성 - orderNo: {}, status: {}", orderNo, status);
+			} catch (Exception e) {
+				log.error("주문 상태 변경 알림 생성 실패", e);
 			}
 		}
 		
@@ -410,6 +445,66 @@ public class AdminServiceImpl implements AdminService {
 		}
 
 		return result;
+	}
+
+	/**
+	 * 주문 상품 목록 전체에 대해 낙관적 락 재고 차감 수행
+	 * OrderServiceImpl의 로직과 동일
+	 */
+	private void deductStockForItems(List<OrderItem> orderItems, String orderId) {
+		
+		for (OrderItem item : orderItems) {
+			
+			if (item.getGoodsOptionNo() <= 0) {
+				log.info("옵션 없는 상품 재고 차감 스킵 - goodsNo: {}", item.getGoodsNo());
+				continue;
+			}
+			
+			deductStockWithRetry(item.getGoodsOptionNo(), item.getQty(), orderId);
+		}
+	}
+	
+	/**
+	 * 낙관적 락 재고 차감 (재시도 포함)
+	 * OrderServiceImpl의 로직과 동일
+	 */
+	private void deductStockWithRetry(int goodsOptionNo, int qty, String orderId) {
+		
+		int attempt = 0;
+		
+		while (attempt < MAX_RETRY) {
+			attempt++;
+			
+			// 최신 version 조회
+			int currentVersion = orderMapper.selectOptionVersion(goodsOptionNo);
+			
+			// 낙관적 락 차감 시도
+			int updated = orderMapper.decreaseStock(goodsOptionNo, qty, currentVersion);
+			
+			if (updated == 1) {
+				log.info("[관리자 재고 차감] 성공 - orderId: {}, optionNo: {}, qty: {}, version: {} → {}", 
+						orderId, goodsOptionNo, qty, currentVersion, currentVersion + 1);
+				return;
+			}
+			
+			// 실패 원인 구분
+			int currentStock = orderMapper.selectOptionStock(goodsOptionNo);
+			
+			if (currentStock < qty) {
+				// 재고 부족
+				log.warn("[관리자 재고 차감] 재고 부족 - orderId: {}, optionNo: {}, 요청: {}개, 현재: {}개", 
+						orderId, goodsOptionNo, qty, currentStock);
+				throw new BusinessException("재고가 부족합니다. 현재 재고: " + currentStock + "개 (요청: " + qty + "개)");
+			}
+			
+			// 버전 충돌 → 재시도
+			log.info("[관리자 재고 차감] 버전 충돌, 재시도 {}/{} - orderId: {}, optionNo: {}, 현재 재고: {}개", 
+					attempt, MAX_RETRY, orderId, goodsOptionNo, currentStock);
+		}
+		
+		// 최대 재시도 초과
+		log.error("[관리자 재고 차감] 최대 재시도 초과 - orderId: {}, optionNo: {}", orderId, goodsOptionNo);
+		throw new BusinessException("재고 차감 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
 	}
 
 }

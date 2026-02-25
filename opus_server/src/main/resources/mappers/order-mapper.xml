@@ -203,7 +203,8 @@
 
     <update id="increaseStock">
 		UPDATE GOODS_OPTION
-		SET STOCK = STOCK + #{qty}
+		SET STOCK = STOCK + #{qty},
+            VERSION = VERSION + 1
 		WHERE GOODS_OPTION_NO = #{goodsOptionNo}
 	</update>
 
