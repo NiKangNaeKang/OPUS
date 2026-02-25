@@ -25,7 +25,6 @@
 .payment-fail {
   min-height: 100vh;
   padding-top: 80px;
-  background: var(--soft);
   display: flex;
   align-items: center;
   justify-content: center;
