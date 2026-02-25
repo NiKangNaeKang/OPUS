@@ -112,6 +112,17 @@ export default function MusicalDetail () {
     }
   }
 
+  const { data: bestReviewLikeCount } = useQuery({
+    queryKey: ["bestReviewLikeCount", bestReview?.reviewNo],
+    queryFn: async () => {
+      const res = await axiosApi.get("/reviews/likeCount", {
+        params: { reviewNo: bestReview.reviewNo }
+      });
+      return res.data;
+    },
+    enabled: !!bestReview?.reviewNo
+  });
+
   return (
     <main className="detail-page">
       <div className="container" id="main-content">
@@ -265,7 +276,7 @@ export default function MusicalDetail () {
 
                         <div className="review__like">
                           <i className="fa-solid fa-thumbs-up" id='review-like-btn'></i>
-                          <span className="like-count">{bestReview.likeCount}</span>
+                          <span className="like-count">{bestReviewLikeCount ?? 0}</span>
                         </div>
                       </div>
 
