@@ -9,13 +9,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper; // 추가
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import jakarta.mail.internet.MimeMessage; // 추가 (Spring Boot 3 기준)
+import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.member.model.dto.Member;
 import nknk.opus.project.member.model.dto.Role;
@@ -60,8 +60,7 @@ public class MemberServiceImpl implements MemberService {
 	/* 이메일 중복 체크 */
 	@Override
 	public boolean checkEmail(String email) {
-		Member member = mapper.login(email);
-		return member != null;
+		return mapper.checkEmailExists(email) != null;
 	}
 
 	/* 이메일 인증번호 발송 */
@@ -75,7 +74,6 @@ public class MemberServiceImpl implements MemberService {
 		authStorage.put(email, code);
 
 		try {
-			// 모든 스타일을 inline으로 변경하여 호환성 확보
 			String htmlContent = """
 					<!DOCTYPE html>
 					<html>
@@ -154,7 +152,7 @@ public class MemberServiceImpl implements MemberService {
 		return mapper.signup(inputMember);
 	}
 
-	/* 연락처 수정 */
+	/* 연락처 변경 */
 	@Transactional(rollbackFor = Exception.class)
 	@Override
 	public int updateTel(Member inputMember) {
@@ -175,8 +173,12 @@ public class MemberServiceImpl implements MemberService {
 		}
 
 		String savedPw = mapper.selectCurrentPw(memberNo);
+		if (savedPw == null) {
+			throw new RuntimeException("회원 정보를 찾을 수 없습니다.");
+		}
+
 		if (!encoder.matches(currentPw, savedPw)) {
-			return 0;
+			return 0; // 현재 비밀번호 불일치
 		}
 
 		param.put("newPw", encoder.encode(newPw));
@@ -213,7 +215,6 @@ public class MemberServiceImpl implements MemberService {
 				return null;
 
 			String email = (String) googleUser.get("email");
-
 			Member loginMember = mapper.login(email);
 
 			if (loginMember == null) {

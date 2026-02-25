@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axiosApi from "../../api/axiosAPI";
 import { useAuthStore } from "../../components/auth/useAuthStore";
 import "../../css/proposals-detail.css";
+import LoadingSpinner from "../../components/loading/LoadingSpinner";
 
 const ProposalDetail = () => {
   const { boardNo } = useParams();
@@ -107,7 +108,7 @@ const ProposalDetail = () => {
     });
   };
 
-  if (isLoading) return <div className="loading">로딩 중...</div>;
+  if (isLoading) return <LoadingSpinner text="게시글을 불러오고 있습니다!" />;
   if (!data) return null;
 
   const role = member?.role;
@@ -164,17 +165,15 @@ const ProposalDetail = () => {
                       alt={`image-${idx + 1}`}
                       loading="lazy"
                       onError={(e) => {
-                        const img = e.currentTarget;
+                        const el = e.currentTarget;
 
-                        // 같은 img에서 여러번 카운트 방지
-                        if (img.dataset.broken === "1") return;
-                        img.dataset.broken = "1";
+                        if (el.dataset.broken === "1") return;
+                        el.dataset.broken = "1";
 
-                        // 깨진 이미지는 숨김
-                        img.style.display = "none";
+                        el.style.display = "none";
+                        el.onerror = null; // 재호출 방지
 
-                        // 전체 실패 판단용 카운트 증가
-                        setBrokenCount((c) => c + 1);
+                        setBrokenCount((c) => c + 1); // 필요할 때만
                       }}
                     />
                   </div>

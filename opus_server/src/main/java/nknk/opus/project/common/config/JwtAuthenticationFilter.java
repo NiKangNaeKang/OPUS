@@ -37,7 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 헤더 자체가 없으면: 여기서 막지 말고 시큐리티가 판단하게 둠
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("[JWT] NO AUTH HEADER: " + uri);
             filterChain.doFilter(request, response);
             return;
         }
@@ -47,7 +46,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // "undefined/null/blank" 같은 이상 토큰이면 즉시 401 고정 (랜덤 증상 제거)
         if (token.isBlank() || token.equalsIgnoreCase("undefined") || token.equalsIgnoreCase("null")
                 || token.equalsIgnoreCase("NaN")) {
-            System.out.println("[JWT] BAD TOKEN STRING: " + uri + " token=" + token);
             SecurityContextHolder.clearContext();
             write401(response);
             return;
@@ -55,7 +53,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             boolean valid = jwtUtil.validateToken(token);
-            System.out.println("[JWT] validate=" + valid + " uri=" + uri);
 
             if (!valid) {
                 // 만료/위조/검증실패면 즉시 401
@@ -66,7 +63,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String memberNo = jwtUtil.getMemberNo(token);
             String role = jwtUtil.getMemberRole(token);
-            System.out.println("[JWT] memberNo=" + memberNo + " role=" + role);
 
             UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
@@ -75,7 +71,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {
-            System.out.println("[JWT] EXCEPTION uri=" + uri + " msg=" + e.getMessage());
             SecurityContextHolder.clearContext();
             write401(response);
             return;
