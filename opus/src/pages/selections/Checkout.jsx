@@ -342,7 +342,8 @@ const Checkout = () => {
           goodsNo: item.goodsNo,
           goodsOptionNo: item.goodsOptionNo,
           qty: item.qty,
-          unitPrice: item.unitPrice
+          unitPrice: item.unitPrice,
+          version: item.version ?? 0,
         })),
         recipient: form.recipient,
         recipientTel: form.recipientTel,
@@ -892,7 +893,6 @@ const Checkout = () => {
         onApply={handleApplyAddress}
       />
 
-      <ScrollToTop />
     </main>
   );
 };

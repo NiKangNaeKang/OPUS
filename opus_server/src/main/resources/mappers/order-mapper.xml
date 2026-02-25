@@ -193,11 +193,31 @@
 
     <!-- 재고 차감 -->
     <update id="decreaseStock">
-        UPDATE GOODS_OPTION
-        SET STOCK = STOCK - #{qty}
-        WHERE GOODS_OPTION_NO = #{goodsOptionNo}
-          AND STOCK >= #{qty}
-    </update>
+    UPDATE GOODS_OPTION
+    SET STOCK = STOCK - #{qty},
+        VERSION = VERSION + 1
+    WHERE GOODS_OPTION_NO = #{goodsOptionNo}
+      AND VERSION = #{version}
+      AND STOCK >= #{qty}
+	</update>
+
+    <update id="increaseStock">
+		UPDATE GOODS_OPTION
+		SET STOCK = STOCK + #{qty}
+		WHERE GOODS_OPTION_NO = #{goodsOptionNo}
+	</update>
+
+    <select id="selectOptionStock" resultType="int">
+		SELECT STOCK
+		FROM GOODS_OPTION
+		WHERE GOODS_OPTION_NO = #{goodsOptionNo}
+	</select>
+
+    <select id="selectOptionVersion" resultType="int">
+		SELECT VERSION
+		FROM GOODS_OPTION
+		WHERE GOODS_OPTION_NO = #{goodsOptionNo}
+	</select>
 
     <!-- 상품명 조회 -->
     <select id="selectGoodsName" resultType="String">
