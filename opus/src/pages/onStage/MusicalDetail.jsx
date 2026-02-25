@@ -3,18 +3,19 @@ import { EmailShareButton, FacebookShareButton, LineShareButton, ThreadsShareBut
 import { EmailIcon, FacebookIcon, LineIcon, ThreadsIcon, XIcon } from "react-share";
 import { getMusicalDetail } from '../../api/kopisAPI';
 import { useQuery } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useRef, useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axiosApi from '../../api/axiosAPI';
 import { useAuthStore } from '../../components/auth/useAuthStore';
 
 export default function MusicalDetail () {
   const { mt20id } = useParams();
+  const navigate = useNavigate();
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [save, setSave] = useState(false);
   const [like, setLike] = useState(false);
   const [dislike, setDislike] = useState(false);
-  const modalBackground = useRef(); // 모달의 바깥 영역
+  const modalBackground = useRef();
   const loginMemberNo = useAuthStore(state => state.member?.memberNo);
   
   const SERVICE_KEY = "f8d2111671454d7bb5b0102d85c7cf1c";
@@ -47,6 +48,11 @@ export default function MusicalDetail () {
 
   // Like, Dislike  
   const toggleLike = async() => {
+    if (!loginMemberNo) {
+      alert("로그인 후 이용해주세요.");
+      return;
+    }
+
     try {
       const res = await axiosApi.post("/stage/like", {
         memberNo : loginMemberNo,
@@ -68,6 +74,11 @@ export default function MusicalDetail () {
   }
 
   const toggleDislike = async() => {
+    if (!loginMemberNo) {
+      alert("로그인 후 이용해주세요.");
+      return;
+    }
+
     try {
       const res = await axiosApi.post("/stage/dislike", {
         memberNo : loginMemberNo,
@@ -90,6 +101,11 @@ export default function MusicalDetail () {
 
   // Save
   const savePerform = async() => {
+    if (!loginMemberNo) {
+      alert("로그인 후 이용해주세요.");
+      return;
+    }
+
     try {
       const res = await axiosApi.post("/stage/save", {
         memberNo : loginMemberNo,
@@ -258,9 +274,14 @@ export default function MusicalDetail () {
               <div className="section" id="reviews-section">
                 <div className="reviews-head">
                   <h2 className="section-title">관람 후기</h2>
-                  <Link to={`/onStage/reviews/${data.mt20id}`}>
-                    <button className="btn btn-sm btn-outline" id='more-review-btn' type="button">후기 더보기</button>
-                  </Link>
+                  <button className="btn btn-sm btn-outline" id='more-review-btn' type="button"
+                    onClick={() => {
+                      if(!loginMemberNo) {
+                        alert("로그인 후 이용해주세요.");
+                        return;
+                      }
+                      navigate(`/onStage/reviews/${data.mt20id}`)
+                    }}>후기 더보기</button>
                 </div>
 
                 <div className="reviews">
