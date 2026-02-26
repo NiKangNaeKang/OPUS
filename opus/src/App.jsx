@@ -13,7 +13,7 @@ import OnStage from "./pages/onStage/OnStage";
 import UnveilingDetail from "./pages/UnveilingDetail";
 import MusicalDetail from './pages/onStage/MusicalDetail';
 import Reviews from "./pages/onStage/Reviews";
-import Proposals from "./pages/proposals/Proposals";
+import Proposals from "./pages/Proposals/Proposals";
 import ToastConfig from "./components/toast/ToastConfig";
 import AuthInitializer from "./components/common/AuthInitializer";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -22,10 +22,10 @@ import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
 import Orders from "./pages/selections/Orders";
 import OrderDetail from "./pages/selections/OrderDetail";
 import AuthSuccess from "./components/auth/AuthSuccess";
-import ProposalDetail from "./pages/proposals/ProposalDetail";
+import ProposalDetail from "./pages/Proposals/ProposalDetail";
 import Chatbot from "./components/Chatbot";
 import ScrollToTop from "./components/common/ScrollToTop";
-import ProposalWrite from "./pages/proposals/ProposalWrite";
+import ProposalWrite from "./pages/Proposals/ProposalWrite";
 import SavedList from "./pages/mypage/SavedList";
 import ReviewList from "./pages/mypage/ReviewList";
 import UnveilingHistory from "./pages/mypage/UnveilingHistory";
@@ -58,11 +58,11 @@ export default function App() {
           <Route path="/onStage/musical/:mt20id" element={<MusicalDetail />} />
           <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
 
-          <Route path="/proposals" element={<Proposals />} />
-          <Route path="/proposals/write" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
-          <Route path="/proposals/detail/:boardNo" element={<ProposalDetail />} />
-          <Route path="/proposals/edit/:boardNo" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
-          <Route path="/proposals/edit" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
+          <Route path="/Proposals" element={<Proposals />} />
+          <Route path="/Proposals/write" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
+          <Route path="/Proposals/detail/:boardNo" element={<ProposalDetail />} />
+          <Route path="/Proposals/edit/:boardNo" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
+          <Route path="/Proposals/edit" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
 
           <Route path="/unveiling" element={<Unveiling />} />
           <Route path="/unveiling/:id" element={<UnveilingDetail />} />
