@@ -3,9 +3,7 @@ import axiosApi from "../../api/axiosAPI";
 import { toast } from "react-toastify";
 
 const GoogleLoginButton = ({ onLoginSuccess }) => {
-
   const handleGoogleLogin = useGoogleLogin({
-
     onSuccess: async (tokenResponse) => {
       const toastId = toast.loading("구글 계정 정보 확인 중...", {
         toastId: "google-login",
@@ -15,34 +13,34 @@ const GoogleLoginButton = ({ onLoginSuccess }) => {
         const response = await axiosApi.post("/auth/google", {
           accessToken: tokenResponse.access_token,
         });
+        toast.dismiss(toastId);
 
-        // 같은 토스트를 성공 상태로 업데이트
-        toast.update(toastId, {
-          render: "구글 로그인 성공",
-          type: "success",
-          isLoading: false,
+        toast.success("구글 로그인 성공", {
+          toastId: "google-login-success",
           autoClose: 1500,
         });
 
         onLoginSuccess?.(response.data);
-
       } catch (error) {
         console.error("구글 로그인 서버 에러:", error);
 
-        toast.update(toastId, {
-          render:
-            error.response?.data?.message ||
-            "서버 통신에 실패했습니다.",
-          type: "error",
-          isLoading: false,
-          autoClose: 2000,
-        });
+        toast.dismiss(toastId);
+
+        toast.error(
+          error.response?.data?.message || "서버 통신에 실패했습니다.",
+          {
+            toastId: "google-login-error",
+            autoClose: 2000,
+          }
+        );
       }
     },
 
     onError: (error) => {
+      console.error("구글 인증 에러:", error);
       toast.error("구글 인증 창을 여는 데 실패했습니다.", {
         toastId: "google-popup-error",
+        autoClose: 2000,
       });
     },
   });
