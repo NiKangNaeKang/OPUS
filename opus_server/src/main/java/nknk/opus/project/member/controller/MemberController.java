@@ -141,14 +141,11 @@ public class MemberController {
 	/* 연락처 중복 체크 */
 	@PostMapping("/check-tel")
 	public ResponseEntity<?> checkTel(@RequestBody Map<String, String> map) {
+
 		String tel = map.get("memberTel");
 		boolean isDuplicate = service.checkTel(tel);
 
-		if (isDuplicate) {
-			log.info("[연락처 중복] Tel: {}", tel);
-			return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 등록된 연락처입니다.");
-		}
-		return ResponseEntity.ok(false);
+		return ResponseEntity.ok(Map.of("duplicate", isDuplicate));
 	}
 
 	/* 이메일 중복 체크 */
@@ -236,10 +233,11 @@ public class MemberController {
 		}
 	}
 
-	/** 내 정보 조회 (소셜 로그인 후 member 정보 로드용)
+	/**
+	 * 내 정보 조회 (소셜 로그인 후 member 정보 로드용)
+	 * 
 	 * @param authentication
-	 * @return
-	 * by Sanghoo
+	 * @return by Sanghoo
 	 */
 	@GetMapping("/me")
 	public ResponseEntity<?> getMe(Authentication authentication) {
@@ -264,12 +262,13 @@ public class MemberController {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 실패");
 		}
 	}
-	
-	/** LOGIN_TYPE=NORMAL 응찰 시 비밀번호 검증
+
+	/**
+	 * LOGIN_TYPE=NORMAL 응찰 시 비밀번호 검증
+	 * 
 	 * @param body
 	 * @param authentication
-	 * @return
-	 * by Sanghoo
+	 * @return by Sanghoo
 	 */
 	@PostMapping("/verify-password")
 	public ResponseEntity<?> verifyPassword(@RequestBody Map<String, String> body, Authentication authentication) {

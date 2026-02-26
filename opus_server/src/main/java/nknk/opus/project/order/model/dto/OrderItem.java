@@ -23,4 +23,11 @@ public class OrderItem {
 	private String goodsSize; // 옵션 사이즈
 	private String goodsColor; // 옵션 색상
 	private String thumbnail; // 썸네일 이미지
+	
+	/**
+	 * 낙관적 락용 버전
+	 * 프론트엔드 장바구니 아이템에 저장된 version 값을 그대로 전달받음
+	 * 이 값이 DB의 현재 VERSION과 다르면 → 충돌 → 재시도 또는 재고부족 오류
+	 */
+	private int version;
 }

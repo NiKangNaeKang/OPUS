@@ -197,3 +197,9 @@
     justify-content: flex-end;
   }
 }
+
+.proposal-detail-page .detail-content-text{
+  white-space: pre-wrap;   /* \n 줄바꿈 살림 */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}

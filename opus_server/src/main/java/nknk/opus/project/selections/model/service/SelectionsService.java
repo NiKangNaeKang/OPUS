@@ -16,4 +16,6 @@ public interface SelectionsService {
 
 	List<GoodsImg> selectGoodsImgList(int goodsNo);
 
+	List<String> selectDbImgList();
+
 }

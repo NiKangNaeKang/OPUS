@@ -5,9 +5,11 @@ import java.util.Map;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -60,7 +62,7 @@ public class MemberServiceImpl implements MemberService {
 	/* 이메일 중복 체크 */
 	@Override
 	public boolean checkEmail(String email) {
-		return mapper.checkEmailExists(email) != null;
+		return mapper.checkEmail(email) > 0;
 	}
 
 	/* 이메일 인증번호 발송 */
@@ -208,8 +210,11 @@ public class MemberServiceImpl implements MemberService {
 		headers.setBearerAuth(accessToken);
 
 		try {
-			Map<String, Object> googleUser = restTemplate
-					.exchange(googleUserInfoUrl, HttpMethod.GET, new HttpEntity<>(headers), Map.class).getBody();
+			ResponseEntity<Map<String, Object>> response = restTemplate.exchange(googleUserInfoUrl, HttpMethod.GET,
+					new HttpEntity<>(headers), new ParameterizedTypeReference<Map<String, Object>>() {
+					});
+
+			Map<String, Object> googleUser = response.getBody();
 
 			if (googleUser == null)
 				return null;
@@ -252,13 +257,13 @@ public class MemberServiceImpl implements MemberService {
 	public Member getMemberByEmail(String email) {
 		return mapper.findByEmail(email);
 	}
-	
+
 	@Override
 	public Member getMemberByMemberNo(int memberNo) {
 
 		return mapper.findByMemberNo(memberNo);
 	}
-	
+
 	@Override
 	public String getCurrentPw(int memberNo) {
 

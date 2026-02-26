@@ -36,12 +36,12 @@ export default function HeaderModal({ variant }) {
         sessionStorage.setItem("isLoggingOut", "true");
         toast.dismiss();
         logout();
+        resetNotifications();
         navigate("/", { replace: true });
-        toast.success("로그아웃 되었습니다.", { icon: false, toastId: "logout-success" });
+        toast.success("로그아웃 되었습니다.", { toastId: "logout-success" });
       },
       "확인"
     );
-    resetNotifications();
   }, [logout, navigate]);
 
   const authState = useAuthStore(state => state);

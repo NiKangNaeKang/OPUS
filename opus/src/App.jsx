@@ -13,7 +13,7 @@ import OnStage from "./pages/onStage/OnStage";
 import UnveilingDetail from "./pages/UnveilingDetail";
 import MusicalDetail from './pages/onStage/MusicalDetail';
 import Reviews from "./pages/onStage/Reviews";
-import Proposals from "./pages/proposals/Proposals";
+import Proposals from "./pages/Proposals/Proposals";
 import ToastConfig from "./components/toast/ToastConfig";
 import AuthInitializer from "./components/common/AuthInitializer";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -22,10 +22,10 @@ import ExhibitionDetail from "./pages/onStage/ExhibitionDetail";
 import Orders from "./pages/selections/Orders";
 import OrderDetail from "./pages/selections/OrderDetail";
 import AuthSuccess from "./components/auth/AuthSuccess";
-import ProposalDetail from "./pages/proposals/ProposalDetail";
+import ProposalDetail from "./pages/Proposals/ProposalDetail";
 import Chatbot from "./components/Chatbot";
 import ScrollToTop from "./components/common/ScrollToTop";
-import ProposalWrite from "./pages/proposals/ProposalWrite";
+import ProposalWrite from "./pages/Proposals/ProposalWrite";
 import SavedList from "./pages/mypage/SavedList";
 import ReviewList from "./pages/mypage/ReviewList";
 import UnveilingHistory from "./pages/mypage/UnveilingHistory";
@@ -33,10 +33,9 @@ import FAQ from "./pages/footer/FAQ";
 import Terms from "./pages/footer/Terms";
 import About from "./pages/footer/About";
 import Privacy from "./pages/footer/Privacy";
-
 import Admin from "./pages/admin/Admin";
 import MyPosts from "./pages/mypage/MyPosts";
-
+import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 
 export default function App() {
   return (
@@ -59,10 +58,11 @@ export default function App() {
           <Route path="/onStage/musical/:mt20id" element={<MusicalDetail />} />
           <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
 
-          <Route path="/proposals" element={<Proposals />} />
-          <Route path="/proposals/write" element={<ProposalWrite />} />
-          <Route path="/proposals/detail/:boardNo" element={<ProposalDetail />} />
-          <Route path="/proposals/edit/:boardNo" element={<ProposalWrite />} />
+          <Route path="/Proposals" element={<Proposals />} />
+          <Route path="/Proposals/write" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
+          <Route path="/Proposals/detail/:boardNo" element={<ProposalDetail />} />
+          <Route path="/Proposals/edit/:boardNo" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
+          <Route path="/Proposals/edit" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
 
           <Route path="/unveiling" element={<Unveiling />} />
           <Route path="/unveiling/:id" element={<UnveilingDetail />} />
@@ -76,18 +76,19 @@ export default function App() {
           <Route path='/payment/fail' element={<PaymentFail />} />
           
           <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
-          <Route path="/mypage/orders" element={< Orders />} />
-          <Route path="/mypage/orders/:orderNo" element={<OrderDetail />} />
-          <Route path="/mypage/wishlist" element={<SavedList />} />
-          <Route path="/mypage/reviews" element={<ReviewList />} />
-          <Route path="/mypage/auction-history" element={<UnveilingHistory />} />
-          <Route path="/mypage/myPosts" element={<MyPosts />} />
+          <Route path="/mypage/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+          <Route path="/mypage/orders/:orderNo" element={<ProtectedRoute><OrderDetail /></ProtectedRoute>} />
+          <Route path="/mypage/wishlist" element={<ProtectedRoute><SavedList /></ProtectedRoute>} />
+          <Route path="/mypage/reviews" element={<ProtectedRoute><ReviewList /></ProtectedRoute>} />
+          <Route path="/mypage/auction-history" element={<ProtectedRoute><UnveilingHistory /></ProtectedRoute>} />
+          <Route path="/mypage/myPosts" element={<ProtectedRoute><MyPosts /></ProtectedRoute>} />
 
           <Route path="/faq" element={<FAQ />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/about" element={<About />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin" element={<AdminProtectedRoute><Admin /></AdminProtectedRoute>} />
+
         </Route>
       </Routes>
 

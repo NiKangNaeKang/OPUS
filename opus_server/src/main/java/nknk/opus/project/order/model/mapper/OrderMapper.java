@@ -48,9 +48,37 @@ public interface OrderMapper {
 	List<OrderItem> selectOrderItems(String orderId);
 
 	/**
-	 * 재고 차감
+	 * [수정] 낙관적 락 기반 재고 차감
+	 *
+	 * WHERE 절에 VERSION 조건 추가 → 동시 주문 시 한 건만 성공
+	 * 반환값이 0이면 충돌(다른 트랜잭션이 먼저 수정) 또는 재고 부족
+	 *
+	 * @param goodsOptionNo 옵션 번호
+	 * @param qty           차감 수량
+	 * @param version       프론트에서 받은 현재 버전
+	 * @return 업데이트된 행 수 (1=성공, 0=충돌/재고부족)
 	 */
-	int decreaseStock(@Param("goodsOptionNo") int goodsOptionNo, @Param("qty") int qty);
+	int decreaseStock(@Param("goodsOptionNo") int goodsOptionNo,
+	                  @Param("qty") int qty,
+	                  @Param("version") int version);
+
+	/**
+	 * [추가] 재고 원복 (주문 취소 / 결제 실패 보상 처리)
+	 * version 체크 없이 단순 증가 (보상 트랜잭션)
+	 */
+	int increaseStock(@Param("goodsOptionNo") int goodsOptionNo,
+	                  @Param("qty") int qty);
+
+	/**
+	 * [추가] 단건 재고/버전 조회 (충돌 시 원인 구분용)
+	 * 재고부족인지 버전충돌인지 구분하여 재시도 여부 결정
+	 */
+	int selectOptionStock(@Param("goodsOptionNo") int goodsOptionNo);
+
+	/**
+	 * [추가] 단건 버전 조회 (재시도 시 최신 버전 확인용)
+	 */
+	int selectOptionVersion(@Param("goodsOptionNo") int goodsOptionNo);
 
 	/**
 	 * 상품명 조회
