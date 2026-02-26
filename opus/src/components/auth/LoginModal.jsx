@@ -3,7 +3,7 @@ import "../../css/loginModal.css";
 import axiosApi from "../../api/axiosAPI";
 import { useAuthStore } from "./useAuthStore";
 import { toast } from "react-toastify";
-import { getSavedEmail } from "./rememberId";
+import { getSavedEmail, setSavedEmail, clearSavedEmail } from "./rememberId";
 import GoogleLoginButton from "./GoogleLoginButton";
 import SocialRegisterForm from "./SocialRegisterForm";
 import { useAuthValidation } from "./useAuthValidation";
@@ -127,6 +127,10 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
           memberEmail: email.trim(),
           memberPw: password.trim(),
         });
+        
+          if (saveId) setSavedEmail(email.trim());
+          else clearSavedEmail();
+
         handleLoginSuccess(res.data.token, res.data.member);
       }
     } catch (err) {

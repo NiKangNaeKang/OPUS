@@ -37,7 +37,7 @@ const Proposals = () => {
   const [keyword, setKeyword] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
 
   const categoryLabel = {
     opus: "OPUS",
