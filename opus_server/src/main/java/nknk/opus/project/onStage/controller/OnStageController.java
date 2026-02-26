@@ -72,12 +72,18 @@ public class OnStageController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Agent", "Mozilla/5.0");
-        headers.set("Accept-Charset", "UTF-8");
         
         HttpEntity<Void> entity = new HttpEntity<>(headers);
-        
-        ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+        ResponseEntity<byte[]> response = restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
 
-        return ResponseEntity.ok(response.getBody());
+        try {
+            String body = new String(response.getBody(), "EUC-KR");
+
+            return ResponseEntity.ok().header("Content-Type", "application/xml; charset=UTF-8").body(body);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("인코딩 변환 실패");
+        }
     }
 }
