@@ -29,9 +29,12 @@ const Cart = () => {
 
   // 기본값으로 전체 체크
   useEffect(() => {
-    // 상품 목록이 있으면 전체 체크
     if (items.length > 0) {
-      setCheckedKeys(items.map(item => item.cartKey));
+      const validKeys = items
+        .filter(item => (item.stock ?? 0) > 0)
+        .map(item => item.cartKey);
+
+      setCheckedKeys(validKeys);
     } else {
       setCheckedKeys([]);
     }
@@ -61,7 +64,11 @@ const Cart = () => {
   };
 
   // 선택 상품 목록
-  const selectedItems = items.filter(item => checkedKeys.includes(item.cartKey));
+  const selectedItems = items.filter(
+    item =>
+      checkedKeys.includes(item.cartKey) &&
+      (item.stock ?? 0) > 0
+  );
 
   // 가격 모음
 
@@ -87,7 +94,9 @@ const Cart = () => {
 
 
   // 상품을 하나라도 선택했는지 여부
-  const hasSelectedItems = items.length > 0 && checkedKeys.length > 0;
+  const hasSelectedItems =
+    selectedItems.length > 0 &&
+    selectedItems.every(item => (item.stock ?? 0) > 0);
 
   // 페이지 이동 훅
   const navigate = useNavigate();
@@ -96,7 +105,7 @@ const Cart = () => {
   const onGoCheckout = () => {
     if (checkedKeys.length === 0) return; // 선택 없으면 무시
 
-    if(!isLoggedIn) {
+    if (!isLoggedIn) {
       alert("상품 구매는 로그인 후 이용 가능힙니다.")
       return;
     }
@@ -143,9 +152,12 @@ const Cart = () => {
             {items.map((item) => (
               <article className="cart-row" key={item.cartKey}>
                 <div className="cart-cell cart-cell--check">
-                  <input type="checkbox"
+                  <input
+                    type="checkbox"
                     checked={checkedKeys.includes(item.cartKey)}
-                    onChange={() => handleChecked(item.cartKey)} />
+                    disabled={item.stock === 0}
+                    onChange={() => handleChecked(item.cartKey)}
+                  />
                 </div>
 
                 <div className="cart-cell cart-cell--item">
@@ -156,7 +168,12 @@ const Cart = () => {
                     </div>
 
                     <div className="cart-item__info">
-                      <p className="cart-item__title">{item.goodsName}</p>
+                      <p className="cart-item__title">
+                        {item.goodsName}
+                        {item.stock === 0 && (
+                          <span className="soldout-badge">품절</span>
+                        )}
+                      </p>
                       <p className="cart-item__option">{item.goodsSize && item.goodsColor ? `옵션 : ${item.goodsSize} / ${item.goodsColor}` : item.goodsSize
                         ? `옵션 : ${item.goodsSize}` : item.goodsColor
                           ? `옵션 : ${item.goodsColor}` : ""}</p>
@@ -170,11 +187,11 @@ const Cart = () => {
 
                 <div className="cart-cell cart-cell--qty">
                   <div className="qty">
-                    <button className="qty__btn" type="button" aria-label="minus" onClick={() => setQty(item.cartKey, item.qty - 1)}>
+                    <button className="qty__btn" type="button" disabled={item.stock === 0} aria-label="minus" onClick={() => setQty(item.cartKey, item.qty - 1)}>
                       <i className="fa-solid fa-minus"></i>
                     </button>
                     <input className="qty__input" type="number" value={item.qty} min="1" readOnly />
-                    <button className="qty__btn" type="button" aria-label="plus" onClick={() => setQty(item.cartKey, item.qty + 1)}>
+                    <button className="qty__btn" type="button" disabled={item.stock === 0} aria-label="plus" onClick={() => setQty(item.cartKey, item.qty + 1)}>
                       <i className="fa-solid fa-plus"></i>
                     </button>
                   </div>

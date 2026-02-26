@@ -60,6 +60,9 @@ public class SelectionsServiceImpl implements SelectionsService{
 		return goodsImgList;
 	}
 	
+	@Override
+	public List<String> selectDbImgList() {
+		return mapper.selectDbImageList();
+	}
 	
-
 }

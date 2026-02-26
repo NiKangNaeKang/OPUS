@@ -60,6 +60,7 @@ const DeliveryManage = () => {
       return;
     
     try {
+      alert(`주문 상태를 [${STATUS_LABEL[newStatus]}]으로 변경했습니다.`)
       await adminApi.updateOrderStatus(orderNo, newStatus);
       fetchOrders();
     } catch (e) {
