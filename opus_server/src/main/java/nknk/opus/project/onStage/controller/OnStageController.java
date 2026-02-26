@@ -39,10 +39,20 @@ public class OnStageController {
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<String> response =
-                    restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+            ResponseEntity<byte[]> response = restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
 
-            return ResponseEntity.ok(response.getBody());
+            byte[] bytes = response.getBody();
+
+            if (bytes == null) {
+                return ResponseEntity.status(500).body("KCISA 응답이 비어있습니다.");
+            }
+
+            String body = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/xml; charset=UTF-8")
+                    .body(body);
+
 
         } catch (Exception e) {
             e.printStackTrace();
