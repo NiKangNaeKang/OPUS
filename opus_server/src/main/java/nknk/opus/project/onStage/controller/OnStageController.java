@@ -35,6 +35,7 @@ public class OnStageController {
             HttpHeaders headers = new HttpHeaders();
             headers.set("User-Agent", "Mozilla/5.0");
             headers.set("Accept", "application/xml");
+            headers.set("Referer", "https://www.kcisa.kr");
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -77,9 +78,19 @@ public class OnStageController {
         ResponseEntity<byte[]> response = restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
 
         try {
-            String body = new String(response.getBody(), "EUC-KR");
+        	byte[] bytes = response.getBody();
+        	
+        	if (bytes == null) {
+        	    return ResponseEntity.status(500).body("외부 API 응답이 비어있습니다.");
+        	}
 
-            return ResponseEntity.ok().header("Content-Type", "application/xml; charset=UTF-8").body(body);
+        	String body = new String(bytes, "EUC-KR");
+
+        	if (body.contains("��")) {
+        	    body = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+        	}
+
+        	return ResponseEntity.ok().header("Content-Type", "application/xml; charset=UTF-8").body(body);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,11 +118,19 @@ public class OnStageController {
                 restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
 
         try {
-            String body = new String(response.getBody(), "EUC-KR");
+        	byte[] bytes = response.getBody();
+        	
+        	if (bytes == null) {
+        	    return ResponseEntity.status(500).body("외부 API 응답이 비어있습니다.");
+        	}
 
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/xml; charset=UTF-8")
-                    .body(body);
+        	String body = new String(bytes, "EUC-KR");
+
+        	if (body.contains("��")) {
+        	    body = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+        	}
+
+        	return ResponseEntity.ok().header("Content-Type", "application/xml; charset=UTF-8").body(body);
 
         } catch (Exception e) {
             e.printStackTrace();
