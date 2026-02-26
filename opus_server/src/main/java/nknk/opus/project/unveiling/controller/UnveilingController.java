@@ -19,7 +19,6 @@ import nknk.opus.project.unveiling.model.dto.Unveiling;
 import nknk.opus.project.unveiling.model.service.UnveilingService;
 
 @RestController
-//@CrossOrigin
 @RequestMapping("/api/unveilings")
 public class UnveilingController {
 	

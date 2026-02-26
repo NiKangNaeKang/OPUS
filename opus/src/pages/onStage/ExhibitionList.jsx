@@ -62,7 +62,7 @@ export default function ExhibitionList({ search, status }) {
     isError,
     error
   } = useInfiniteQuery({
-    queryKey: ["exhibitions", status],
+    queryKey: ["exhibitions", status, search],
     queryFn: ({ pageParam }) => getAllExhibitions({ serviceKey: SERVICE_KEY, pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
