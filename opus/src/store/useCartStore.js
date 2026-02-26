@@ -125,7 +125,7 @@ export const useCartStore = create(
           }
 
           const nextItems = [...items];
-          nextItems[idx] = { ...prev, qty: nextQty, stock };
+          nextItems[idx] = { ...prev, qty: nextQty, stock, version: item.version };
           set({ items: nextItems });
         }
 
@@ -202,7 +202,7 @@ export const useCartStore = create(
               checkedKeys: state.checkedKeys.filter(
                 (key) => !cartKeys.includes(key)
               ),
-              
+
               // 비로그인 상태에서 items가 다 지워지면 hasMerged 초기화
               hasMerged: nextItems.length > 0 ? state.hasMerged : false,
             };
@@ -274,9 +274,10 @@ export const useCartStore = create(
       name: "opus_cart", // localStorage key
 
       // 로그인 상태는 persist 하지 않음
-      partialize: (state) => ({ 
-        items: state.items, 
-        checkedKeys: state.checkedKeys, 
+      partialize: (state) => ({
+        items: state.items,
+        checkedKeys: state.checkedKeys,
+        hasMerged: state.hasMerged,
       }),
     }
   )

@@ -17,15 +17,14 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-
   const [isSocialRegister, setIsSocialRegister] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
-  
-  const { 
-    isTelChecked, 
-    setIsTelChecked, 
-    handleCheckTel, 
-    handlePhoneChange 
+
+  const {
+    isTelChecked,
+    setIsTelChecked,
+    handleCheckTel,
+    handlePhoneChange,
   } = useAuthValidation();
 
   const [telMsg, setTelMsg] = useState("");
@@ -54,12 +53,10 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
     }
   }, [open, isSocialRegister, setIsTelChecked]);
 
-
   useEffect(() => {
     if (!open) return;
     setTelMsg("");
   }, [phoneNumber, open]);
-
 
   const onInternalCheckTel = async () => {
     const success = await handleCheckTel(phoneNumber);
@@ -74,7 +71,9 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
     if (data?.message === "ADDITIONAL_INFO_REQUIRED") {
       setEmail(data.email);
       setIsSocialRegister(true);
-      toast.info("가입을 위해 연락처 등록이 필요합니다.");
+      toast.info("가입을 위해 연락처 등록이 필요합니다.", {
+        toastId: "login-social-additional-info",
+      });
       return;
     }
     if (data?.success && data?.token) {
@@ -84,13 +83,17 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
 
   const handleLoginSuccess = (token, member) => {
     const userName = member?.memberEmail?.split("@")[0] || "사용자";
+
     toast.success(
       <div>
         {userName}님,<br />
         환영합니다!
       </div>,
-      { icon: false }
+      {
+        toastId: "login-welcome",
+      }
     );
+
     doLogin({ token, member });
     onClose?.();
   };
@@ -113,7 +116,9 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
         if (res.data?.success && res.data?.token) {
           handleLoginSuccess(res.data.token, res.data.member);
         } else {
-          toast.success("회원가입이 완료되었습니다.");
+          toast.success("회원가입이 완료되었습니다.", {
+            toastId: "login-social-register-complete",
+          });
           setIsSocialRegister(false);
           onClose?.();
         }
@@ -156,15 +161,34 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
           ) : (
             <>
               <label className="lm-label">이메일
-                <input className="lm-input" type="email" placeholder="example@domain.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <input
+                  className="lm-input"
+                  type="email"
+                  placeholder="example@domain.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </label>
+
               <label className="lm-label">비밀번호
-                <input className="lm-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <input
+                  className="lm-input"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </label>
 
               <div className="lm-options" style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "15px" }}>
-                <input type="checkbox" id="saveId" checked={saveId} onChange={(e) => setSaveId(e.target.checked)} />
-                <label htmlFor="saveId" style={{ fontSize: "14px", cursor: "pointer" }}>아이디 저장</label>
+                <input
+                  type="checkbox"
+                  id="saveId"
+                  checked={saveId}
+                  onChange={(e) => setSaveId(e.target.checked)}
+                />
+                <label htmlFor="saveId" style={{ fontSize: "14px", cursor: "pointer" }}>
+                  아이디 저장
+                </label>
               </div>
             </>
           )}
@@ -182,7 +206,9 @@ export default function LoginModal({ open, onClose, onSwitchSignup }) {
               </div>
 
               <div className="lm-footer">
-                <button type="button" className="lm-link" onClick={onSwitchSignup}>회원가입 (기업 회원은 별도 문의)</button>
+                <button type="button" className="lm-link" onClick={onSwitchSignup}>
+                  회원가입 (기업 회원은 별도 문의)
+                </button>
               </div>
             </>
           )}

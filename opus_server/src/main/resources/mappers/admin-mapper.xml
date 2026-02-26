@@ -112,6 +112,22 @@
 	    DELETE FROM GOODS_OPTION
 	    WHERE GOODS_NO = #{goodsNo}
 	</delete>
+
+	<!-- 옵션 수정 (사이즈/컬러/재고 모두 UPDATE, FK 보존) -->
+	<update id="updateGoodsOption" parameterType="GoodsOption">
+	    UPDATE GOODS_OPTION
+	    SET GOODS_SIZE  = #{goodsSize},
+	        GOODS_COLOR = #{goodsColor},
+	        STOCK       = #{stock}
+	    WHERE GOODS_OPTION_NO = #{goodsOptionNo}
+	</update>
+
+	<!-- 옵션 재고만 UPDATE (삭제된 옵션 비활성화 또는 NULL NULL 행 재고 갱신용) -->
+	<update id="updateGoodsOptionStock" parameterType="GoodsOption">
+	    UPDATE GOODS_OPTION
+	    SET STOCK = #{stock}
+	    WHERE GOODS_OPTION_NO = #{goodsOptionNo}
+	</update>
 	
 	<!-- 관리자용 전체 상품 조회 (삭제된 상품 포함) -->
 	<select id="selectAllGoodsForAdmin" resultType="Goods">

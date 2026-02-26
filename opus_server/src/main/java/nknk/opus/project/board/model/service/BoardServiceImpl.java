@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import nknk.opus.project.board.model.dto.Board;
 import nknk.opus.project.board.model.dto.BoardImg;
 import nknk.opus.project.board.model.mapper.BoardMapper;
+import nknk.opus.project.member.model.dto.Role;
 
 @Slf4j
 @Service
@@ -33,6 +34,10 @@ public class BoardServiceImpl implements BoardService {
 
 	@Value("${opus.board.web-path}")
 	private String webPath;
+
+	private boolean isAdmin(String role) {
+		return Role.ADMIN.getKey().equals(role);
+	}
 
 	/* 게시글 목록 조회 */
 	@Override
@@ -92,7 +97,6 @@ public class BoardServiceImpl implements BoardService {
 					throw new RuntimeException("이미지 파일(.jpg, .png, .gif, .webp)만 업로드 가능합니다.");
 				}
 
-				// 랜덤 문자열 생성기(ex. 550e8400-e29b-41d4-a716-446655440000), 하이픈 삭제
 				String rename = UUID.randomUUID().toString().replace("-", "") + ext;
 				int order = uploadList.size();
 
@@ -131,22 +135,36 @@ public class BoardServiceImpl implements BoardService {
 
 	/* 게시글 텍스트 수정 */
 	@Override
-	public int updateBoard(Board board) {
-		int result = mapper.updateBoard(board); // result == 0 : (1) 글 없음 (2) 삭제됨 (3) 본인글 아님
-		return result;
+	public int updateBoard(Board board, int memberNo, String role) {
+		if (isAdmin(role)) {
+			return mapper.adminUpdateBoard(board);
+		}
+
+		board.setMemberNo(memberNo);
+		return mapper.updateBoard(board);
 	}
 
 	/* 게시글 삭제(논리 삭제) */
 	@Override
-	public int deleteBoard(int boardNo, int memberNo) {
+	public int deleteBoard(int boardNo, int memberNo, String role) {
+		if (isAdmin(role)) {
+			return mapper.adminDeleteBoard(boardNo);
+		}
+
 		return mapper.deleteBoard(boardNo, memberNo);
 	}
 
 	/* 게시글 전체 수정 (텍스트 + 이미지 교체) */
 	@Override
-	public int updateBoardWithImages(Board board, List<MultipartFile> images) {
+	public int updateBoardWithImages(Board board, List<MultipartFile> images, int memberNo, String role) {
 
-		int result = mapper.updateBoard(board);
+		int result;
+		if (isAdmin(role)) {
+			result = mapper.adminUpdateBoard(board);
+		} else {
+			board.setMemberNo(memberNo);
+			result = mapper.updateBoard(board);
+		}
 		if (result <= 0)
 			return 0;
 
@@ -230,9 +248,16 @@ public class BoardServiceImpl implements BoardService {
 
 	/* 게시글 이미지 부분 수정(선택 삭제 + 새 이미지 추가 + 순서 재정렬) */
 	@Override
-	public int updateBoardImagesPartial(Board board, String deleteImgNosJson, List<MultipartFile> images) {
+	public int updateBoardImagesPartial(Board board, String deleteImgNosJson, List<MultipartFile> images, int memberNo,
+			String role) {
 
-		int result = mapper.updateBoard(board);
+		int result;
+		if (isAdmin(role)) {
+			result = mapper.adminUpdateBoard(board);
+		} else {
+			board.setMemberNo(memberNo);
+			result = mapper.updateBoard(board);
+		}
 		if (result <= 0)
 			return 0;
 
@@ -264,7 +289,6 @@ public class BoardServiceImpl implements BoardService {
 				} catch (Exception ignore) {
 				}
 			}
-
 			mapper.reorderImages(boardNo);
 		}
 
@@ -334,5 +358,4 @@ public class BoardServiceImpl implements BoardService {
 	public List<Board> selectMyBoards(int memberNo) {
 		return mapper.selectMyBoards(memberNo);
 	}
-
 }

@@ -19,4 +19,6 @@ public interface SelectionsMapper {
 
 	List<GoodsImg> selectGoodsImgList(int goodsNo);
 
+	List<String> selectDbImageList();
+
 }

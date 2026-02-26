@@ -147,7 +147,7 @@ function Header({ onClickUser, onLogout, isLoggedIn, variant, role }) {
                   `gnb__link admin-link ${isActive ? "is-active" : ""}`
                 }
               >
-                ADMIN
+                Admin
               </NavLink>
             )}
           </nav>

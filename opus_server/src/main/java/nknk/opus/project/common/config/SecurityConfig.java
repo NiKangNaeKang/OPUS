@@ -42,37 +42,47 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
 		http.csrf(csrf -> csrf.disable()).formLogin(form -> form.disable()).httpBasic(basic -> basic.disable())
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-				// 인증 실패 시 401 + JSON 고정 (sendError 쓰면 data.message가 비거나 HTML일 수 있음)
-				.exceptionHandling(
-						exception -> exception.authenticationEntryPoint((request, response, authException) -> {
-							response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-							response.setContentType("application/json;charset=UTF-8");
-							response.getWriter().write("{\"message\":\"세션이 만료되었습니다. 다시 로그인해주세요.\"}");
-						}))
+				// 401/403 JSON 고정
+				.exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+					response.setContentType("application/json;charset=UTF-8");
+					response.getWriter().write("{\"message\":\"세션이 만료되었습니다. 다시 로그인해주세요.\"}");
+				}).accessDeniedHandler((request, response, accessDeniedException) -> {
+					response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+					response.setContentType("application/json;charset=UTF-8");
+					response.getWriter().write("{\"message\":\"권한이 없습니다.\"}");
+				}))
 
-            // 경로별 권한 설정
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/auth/**", "/common/**").permitAll()
-                .requestMatchers("/selections/**", "/images/**").permitAll()
-                .requestMatchers("/unveiling/**", "/api/board/**").permitAll()
-                .requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/unveilings/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/bids/**").permitAll()
-                .requestMatchers("/chatbot/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/stage/bestReview").permitAll()
-                .requestMatchers(HttpMethod.GET, "/reviews/likeCount").permitAll()
-                .requestMatchers("/admin/**").authenticated()
-                .requestMatchers("/onStage/reviews/**").authenticated()
-                .requestMatchers("/stage/like").authenticated()
-                .requestMatchers("/stage/dislike").authenticated()
-                .requestMatchers("/stage/save").authenticated()
+				.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                .anyRequest().authenticated()
-            )
+						// 공개
+						.requestMatchers("/auth/**", "/common/**").permitAll()
+						.requestMatchers("/selections/**", "/images/**").permitAll().requestMatchers("/unveiling/**")
+						.permitAll().requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll()
+						.requestMatchers("/chatbot/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/unveilings/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/bids/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/stage/bestReview").permitAll()
+						.requestMatchers(HttpMethod.GET, "/reviews/likeCount").permitAll()
+
+						// 게시판: GET만 공개, 나머지 인증 필요
+						.requestMatchers(HttpMethod.GET, "/api/board/**").permitAll().requestMatchers("/api/board/**")
+						.authenticated()
+
+						// 운영자(Admin) API는 ADMIN만
+						.requestMatchers("/admin/**").hasRole("ADMIN")
+
+						.requestMatchers("/onStage/reviews/**").authenticated().requestMatchers("/stage/like")
+						.authenticated().requestMatchers("/stage/dislike").authenticated()
+						.requestMatchers("/stage/save").authenticated()
+
+						// 그 외 전부 로그인 필요
+						.anyRequest().authenticated())
+
 				.oauth2Login(oauth -> oauth.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
 						.successHandler(oauth2SuccessHandler))
 

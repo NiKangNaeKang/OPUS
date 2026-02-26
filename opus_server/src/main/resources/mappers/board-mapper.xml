@@ -7,7 +7,6 @@
 	<!-- 게시글 상세 조회 결과 매핑 + 이미지 목록 포함 -->
 	<resultMap id="boardDetailMap" type="Board">
 		<id property="boardNo" column="BOARD_NO" />
-
 		<result property="boardTitle" column="BOARD_TITLE" />
 		<result property="boardContent" column="BOARD_CONTENT" />
 		<result property="writerCompany" column="WRITER_COMPANY" />
@@ -33,8 +32,8 @@
 		B.BOARD_CATEGORY,
 		I.BOARD_IMG_PATH,
 		I.BOARD_IMG_RE
-		FROM "BOARD" B
-		LEFT JOIN "BOARD_IMAGE" I
+		FROM BOARD B
+		LEFT JOIN BOARD_IMAGE I
 		ON (I.BOARD_NO = B.BOARD_NO AND
 		I.BOARD_IMG_ORDER = 0)
 		WHERE B.BOARD_DEL_FL = 'N'
@@ -65,9 +64,8 @@
 		(SELECT BOARD_NAME FROM BOARD_TYPE BT
 		WHERE BT.BOARD_TYPE_CODE =
 		B.BOARD_TYPE_CODE) AS BOARD_NAME
-		FROM "BOARD" B
-		WHERE B.BOARD_DEL_FL =
-		'N'
+		FROM BOARD B
+		WHERE B.BOARD_DEL_FL = 'N'
 		AND B.BOARD_NO = #{boardNo}
 	</select>
 
@@ -80,7 +78,7 @@
 		BOARD_IMG_OG,
 		BOARD_IMG_RE,
 		BOARD_IMG_ORDER
-		FROM "BOARD_IMAGE"
+		FROM BOARD_IMAGE
 		WHERE BOARD_NO = #{boardNo}
 		ORDER BY
 		BOARD_IMG_ORDER ASC
@@ -88,9 +86,9 @@
 
 	<!-- 조회수 증가 -->
 	<update id="updateViewCount">
-		UPDATE "BOARD"
-		SET BOARD_VIEW_COUNT = BOARD_VIEW_COUNT
-		+ 1
+		UPDATE BOARD
+		SET BOARD_VIEW_COUNT = BOARD_VIEW_COUNT +
+		1
 		WHERE BOARD_NO = #{boardNo}
 	</update>
 
@@ -100,7 +98,7 @@
 			order="BEFORE">
 			SELECT SEQ_BOARD_NO.NEXTVAL FROM DUAL
 		</selectKey>
-		INSERT INTO "BOARD" (
+		INSERT INTO BOARD (
 		BOARD_NO,
 		BOARD_TYPE_CODE,
 		MEMBER_NO,
@@ -122,7 +120,7 @@
 	<!-- 이미지 1장 등록 -->
 	<insert id="insertBoardImageOne" parameterType="BoardImg">
 		INSERT INTO
-		"BOARD_IMAGE" (
+		BOARD_IMAGE (
 		BOARD_IMG_NO,
 		BOARD_NO,
 		BOARD_IMG_PATH,
@@ -139,27 +137,53 @@
 		)
 	</insert>
 
-	<!-- 게시글 수정(텍스트) -->
-<update id="updateBoard">
-  UPDATE "BOARD"
-  SET
-    BOARD_TITLE = #{boardTitle},
-    BOARD_CONTENT = #{boardContent},
-    BOARD_CATEGORY = #{boardCategory},
-    WRITER_COMPANY = #{writerCompany},
-    BOARD_UPDATE_DATE = SYSDATE
-  WHERE
-    BOARD_NO = #{boardNo}
-    AND MEMBER_NO = #{memberNo}
-    AND BOARD_DEL_FL = 'N'
-</update>
+	<!-- 게시글 수정(텍스트) : 본인글만 -->
+	<update id="updateBoard" parameterType="Board">
+		UPDATE BOARD
+		SET
+		BOARD_TITLE = #{boardTitle},
+		BOARD_CONTENT = #{boardContent},
+		BOARD_CATEGORY = #{boardCategory},
+		WRITER_COMPANY = #{writerCompany},
+		BOARD_UPDATE_DATE = SYSDATE
+		WHERE
+		BOARD_NO = #{boardNo}
+		AND MEMBER_NO =
+		#{memberNo}
+		AND BOARD_DEL_FL = 'N'
+	</update>
 
-	<!-- 게시글 삭제(논리 삭제) -->
+	<!-- ✅ 관리자: 게시글 수정(텍스트) : 모든 글 -->
+	<update id="adminUpdateBoard" parameterType="Board">
+		UPDATE BOARD
+		SET
+		BOARD_TITLE = #{boardTitle},
+		BOARD_CONTENT = #{boardContent},
+		BOARD_CATEGORY = #{boardCategory},
+		WRITER_COMPANY = #{writerCompany},
+		BOARD_UPDATE_DATE = SYSDATE
+		WHERE
+		BOARD_NO = #{boardNo}
+		AND BOARD_DEL_FL
+		= 'N'
+	</update>
+
+	<!-- 게시글 삭제(논리 삭제) : 본인글만 -->
 	<update id="deleteBoard">
-		UPDATE "BOARD"
+		UPDATE BOARD
 		SET BOARD_DEL_FL = 'Y'
-		WHERE BOARD_NO = #{boardNo}
+		WHERE BOARD_NO =
+		#{boardNo}
 		AND MEMBER_NO = #{memberNo}
+		AND BOARD_DEL_FL = 'N'
+	</update>
+
+	<!-- ✅ 관리자: 게시글 삭제(논리 삭제) : 모든 글 -->
+	<update id="adminDeleteBoard">
+		UPDATE BOARD
+		SET BOARD_DEL_FL = 'Y'
+		WHERE BOARD_NO =
+		#{boardNo}
 		AND BOARD_DEL_FL = 'N'
 	</update>
 
@@ -167,20 +191,20 @@
 	<select id="selectBoardImageRenames" resultType="string">
 		SELECT
 		BOARD_IMG_RE
-		FROM "BOARD_IMAGE"
+		FROM BOARD_IMAGE
 		WHERE BOARD_NO = #{boardNo}
 	</select>
 
 	<!-- 해당 게시글 이미지 전체 삭제 -->
 	<delete id="deleteBoardImages">
-		DELETE FROM "BOARD_IMAGE"
+		DELETE FROM BOARD_IMAGE
 		WHERE BOARD_NO = #{boardNo}
 	</delete>
 
 	<!-- 선택 이미지(IMG_NO 목록) 파일명 조회 -->
 	<select id="selectImageRenamesByNos" resultType="string">
 		SELECT BOARD_IMG_RE
-		FROM "BOARD_IMAGE"
+		FROM BOARD_IMAGE
 		WHERE BOARD_NO = #{boardNo}
 		AND
 		BOARD_IMG_NO IN
@@ -192,10 +216,9 @@
 
 	<!-- 선택 이미지(IMG_NO 목록) DB 삭제 -->
 	<delete id="deleteImagesByNos">
-		DELETE FROM "BOARD_IMAGE"
+		DELETE FROM BOARD_IMAGE
 		WHERE BOARD_NO = #{boardNo}
-		AND BOARD_IMG_NO
-		IN
+		AND BOARD_IMG_NO IN
 		<foreach collection="deleteNos" item="no" open="(" close=")"
 			separator=",">
 			#{no}
@@ -206,26 +229,27 @@
 	<select id="countImages" resultType="int">
 		SELECT COUNT(*)
 		FROM
-		"BOARD_IMAGE"
+		BOARD_IMAGE
 		WHERE BOARD_NO = #{boardNo}
 	</select>
 
 	<!-- 이미지 order를 0부터 재정렬 -->
 	<update id="reorderImages">
-		MERGE INTO "BOARD_IMAGE" BI
+		MERGE INTO BOARD_IMAGE BI
 		USING (
 		SELECT
 		BOARD_IMG_NO,
-		ROW_NUMBER() OVER (ORDER BY BOARD_IMG_ORDER ASC,
-		BOARD_IMG_NO ASC) - 1 AS
+		ROW_NUMBER() OVER (ORDER BY BOARD_IMG_ORDER ASC, BOARD_IMG_NO ASC) - 1
+		AS
 		NEW_ORDER
-		FROM "BOARD_IMAGE"
-		WHERE BOARD_NO =
-		#{boardNo}
+		FROM BOARD_IMAGE
+		WHERE BOARD_NO = #{boardNo}
 		) T
-		ON (BI.BOARD_IMG_NO = T.BOARD_IMG_NO)
+		ON
+		(BI.BOARD_IMG_NO = T.BOARD_IMG_NO)
 		WHEN MATCHED THEN
-		UPDATE SET BI.BOARD_IMG_ORDER = T.NEW_ORDER
+		UPDATE SET
+		BI.BOARD_IMG_ORDER = T.NEW_ORDER
 	</update>
 
 	<!-- 작성 게시글 조회 (기업회원: BOARD_TYPE_CODE=2 고정) -->
@@ -242,9 +266,9 @@
 		B.BOARD_CATEGORY,
 		B.WRITER_COMPANY,
 		BT.BOARD_NAME
-		FROM "BOARD" B
+		FROM BOARD B
 		JOIN
-		"BOARD_TYPE" BT
+		BOARD_TYPE BT
 		ON BT.BOARD_TYPE_CODE = B.BOARD_TYPE_CODE
 		WHERE
 		B.MEMBER_NO = #{memberNo}
