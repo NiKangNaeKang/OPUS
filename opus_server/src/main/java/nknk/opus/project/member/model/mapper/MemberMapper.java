@@ -10,36 +10,37 @@ import nknk.opus.project.member.model.dto.Member;
 @Mapper
 public interface MemberMapper {
 
-  Member login(@Param("memberEmail") String memberEmail);
+	Member login(@Param("memberEmail") String memberEmail);
 
-  int signup(Member inputMember);
+	int signup(Member inputMember);
 
-  int updateTel(Member inputMember);
+	int updateTel(Member inputMember);
 
-  int checkTel(@Param("tel") String tel);
+	int checkTel(@Param("tel") String tel);
 
-  String selectCurrentPw(@Param("memberNo") int memberNo);
+	int checkEmail(@Param("email") String email);
 
-  int changePw(Map<String, Object> param);
+	String selectCurrentPw(@Param("memberNo") int memberNo);
 
-  int getActiveTransactionCount(@Param("memberNo") int memberNo);
+	int changePw(Map<String, Object> param);
 
-  int withdrawMember(@Param("memberNo") int memberNo);
+	int getActiveTransactionCount(@Param("memberNo") int memberNo);
 
-  Member findByEmail(@Param("memberEmail") String email);
+	int withdrawMember(@Param("memberNo") int memberNo);
 
-  void insertMember(Member member);
+	Member findByEmail(@Param("memberEmail") String email);
 
-	Member checkEmailExists(@Param("email") String email);
-	
-	/** 회원번호로 이메일 조회 for 낙찰 이후 설명 메일 전송
+	void insertMember(Member member);
+
+	/**
+	 * 회원번호로 이메일 조회 for 낙찰 이후 설명 메일 전송
+	 * 
 	 * @param memberNo
-	 * @return
-	 * by Sanghoo
+	 * @return by Sanghoo
 	 */
 	String findEmailByMemberNo(int memberNo);
 
-	/** 
+	/**
 	 * @param memberNo
 	 * @return
 	 */

@@ -4,11 +4,10 @@ import { toast } from "react-toastify";
 
 export const useAuthValidation = () => {
   const [isTelChecked, setIsTelChecked] = useState(false);
-  const handlePhoneChange = (value, setPhoneNumber) => {
 
+  const handlePhoneChange = (value, setPhoneNumber) => {
     const rawValue = value.replace(/[^0-9]/g, "");
     let formattedValue = "";
-
 
     if (rawValue.length <= 3) {
       formattedValue = rawValue;
@@ -22,17 +21,20 @@ export const useAuthValidation = () => {
     setIsTelChecked(false);
   };
 
-
   const handleCheckTel = async (tel) => {
     const rawPhone = tel.replace(/[^0-9]/g, "");
 
     if (!rawPhone) {
-      toast.error("연락처를 입력해주세요.");
+      toast.error("연락처를 입력해주세요.", {
+        toastId: "tel-empty",
+      });
       return false;
     }
 
     if (rawPhone.length < 10) {
-      toast.error("올바른 연락처를 입력해주세요.");
+      toast.error("올바른 연락처를 입력해주세요.", {
+        toastId: "tel-invalid",
+      });
       return false;
     }
 
@@ -42,17 +44,27 @@ export const useAuthValidation = () => {
       });
 
       if (res.data === true) {
-        toast.error("이미 등록된 연락처입니다.");
+        toast.error("이미 등록된 연락처입니다.", {
+          toastId: "tel-duplicate",
+        });
         setIsTelChecked(false);
         return false;
-      } else {
-        toast.success("사용 가능한 연락처입니다.");
-        setIsTelChecked(true);
-        return true;
       }
+
+      toast.success("사용 가능한 연락처입니다.", {
+        toastId: "tel-available",
+      });
+      setIsTelChecked(true);
+      return true;
+
     } catch (err) {
-      const errorMsg = err.response?.data || "연락처 중복 확인 중 오류가 발생했습니다.";
-      toast.error(errorMsg);
+      const errorMsg =
+        err.response?.data || "연락처 중복 확인 중 오류가 발생했습니다.";
+
+      toast.error(errorMsg, {
+        toastId: "tel-check-error",
+      });
+
       setIsTelChecked(false);
       return false;
     }
@@ -62,11 +74,11 @@ export const useAuthValidation = () => {
     return pw !== "" && pw === confirm;
   };
 
-  return { 
-    isTelChecked, 
-    setIsTelChecked, 
-    handleCheckTel, 
+  return {
+    isTelChecked,
+    setIsTelChecked,
+    handleCheckTel,
     handlePhoneChange,
-    checkPwMatch 
+    checkPwMatch,
   };
 };

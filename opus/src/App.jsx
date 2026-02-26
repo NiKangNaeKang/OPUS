@@ -33,10 +33,9 @@ import FAQ from "./pages/footer/FAQ";
 import Terms from "./pages/footer/Terms";
 import About from "./pages/footer/About";
 import Privacy from "./pages/footer/Privacy";
-
 import Admin from "./pages/admin/Admin";
 import MyPosts from "./pages/mypage/MyPosts";
-
+import AdminProtectedRoute from "./components/auth/AdminProtectedRoute";
 
 export default function App() {
   return (
@@ -60,9 +59,10 @@ export default function App() {
           <Route path="/onStage/reviews/:stageNo" element={<Reviews />} />
 
           <Route path="/proposals" element={<Proposals />} />
-          <Route path="/proposals/write" element={<ProposalWrite />} />
+          <Route path="/proposals/write" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
           <Route path="/proposals/detail/:boardNo" element={<ProposalDetail />} />
-          <Route path="/proposals/edit/:boardNo" element={<ProposalWrite />} />
+          <Route path="/proposals/edit/:boardNo" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
+          <Route path="/proposals/edit" element={<ProtectedRoute><ProposalWrite /></ProtectedRoute>} />
 
           <Route path="/unveiling" element={<Unveiling />} />
           <Route path="/unveiling/:id" element={<UnveilingDetail />} />
@@ -76,18 +76,19 @@ export default function App() {
           <Route path='/payment/fail' element={<PaymentFail />} />
           
           <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
-          <Route path="/mypage/orders" element={< Orders />} />
-          <Route path="/mypage/orders/:orderNo" element={<OrderDetail />} />
-          <Route path="/mypage/wishlist" element={<SavedList />} />
-          <Route path="/mypage/reviews" element={<ReviewList />} />
-          <Route path="/mypage/auction-history" element={<UnveilingHistory />} />
-          <Route path="/mypage/myPosts" element={<MyPosts />} />
+          <Route path="/mypage/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+          <Route path="/mypage/orders/:orderNo" element={<ProtectedRoute><OrderDetail /></ProtectedRoute>} />
+          <Route path="/mypage/wishlist" element={<ProtectedRoute><SavedList /></ProtectedRoute>} />
+          <Route path="/mypage/reviews" element={<ProtectedRoute><ReviewList /></ProtectedRoute>} />
+          <Route path="/mypage/auction-history" element={<ProtectedRoute><UnveilingHistory /></ProtectedRoute>} />
+          <Route path="/mypage/myPosts" element={<ProtectedRoute><MyPosts /></ProtectedRoute>} />
 
           <Route path="/faq" element={<FAQ />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/about" element={<About />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin" element={<AdminProtectedRoute><Admin /></AdminProtectedRoute>} />
+
         </Route>
       </Routes>
 

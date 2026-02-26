@@ -4,8 +4,7 @@
 <mapper
 	namespace="nknk.opus.project.member.model.mapper.MemberMapper">
 
-	<select id="login"
-		resultType="nknk.opus.project.member.model.dto.Member">
+	<select id="login" resultType="Member">
 		SELECT
 		MEMBER_NO,
 		MEMBER_EMAIL,
@@ -14,17 +13,14 @@
 		MEMBER_ROLE,
 		LOGIN_TYPE,
 		ENROLL_DATE,
-		MEMBER_DEL_FL,
-		MEMBER_ROLE
-		FROM
-		"MEMBER"
+		MEMBER_DEL_FL
+		FROM MEMBER
 		WHERE MEMBER_EMAIL = #{memberEmail}
 		AND MEMBER_DEL_FL = 'N'
 	</select>
 
-	<insert id="signup"
-		parameterType="nknk.opus.project.member.model.dto.Member">
-		INSERT INTO "MEMBER" (
+	<insert id="signup" parameterType="Member">
+		INSERT INTO MEMBER (
 		MEMBER_NO,
 		MEMBER_EMAIL,
 		MEMBER_PW,
@@ -46,17 +42,17 @@
 		)
 	</insert>
 
-	<update id="updateTel"
-		parameterType="nknk.opus.project.member.model.dto.Member">
-		UPDATE "MEMBER"
-		SET MEMBER_TEL = #{memberTel}
+	<update id="updateTel" parameterType="Member">
+		UPDATE MEMBER
+		SET MEMBER_TEL
+		= #{memberTel}
 		WHERE
 		MEMBER_NO = #{memberNo}
 	</update>
 
 	<select id="checkTel" resultType="_int">
 		SELECT COUNT(*)
-		FROM "MEMBER"
+		FROM MEMBER
 		WHERE MEMBER_TEL = #{tel}
 		AND MEMBER_DEL_FL = 'N'
 	</select>
@@ -64,15 +60,16 @@
 	<select id="selectCurrentPw" resultType="string">
 		SELECT MEMBER_PW
 		FROM
-		"MEMBER"
+		MEMBER
 		WHERE MEMBER_NO = #{memberNo}
 	</select>
 
 	<update id="changePw">
-		UPDATE "MEMBER"
+		UPDATE MEMBER
 		SET MEMBER_PW = #{newPw}
 		WHERE
-		MEMBER_NO = #{memberNo}
+		MEMBER_NO =
+		#{memberNo}
 	</update>
 
 	<select id="getActiveTransactionCount" parameterType="int"
@@ -95,7 +92,7 @@
 	</select>
 
 	<update id="withdrawMember" parameterType="int">
-		UPDATE "MEMBER"
+		UPDATE MEMBER
 		SET
 		MEMBER_DEL_FL = 'Y',
 		WITHDRAWAL_DATE = SYSDATE
@@ -104,7 +101,7 @@
 	</update>
 
 	<select id="findByEmail" parameterType="string"
-		resultType="nknk.opus.project.member.model.dto.Member">
+		resultType="Member">
 		SELECT
 		MEMBER_NO,
 		MEMBER_EMAIL,
@@ -114,28 +111,25 @@
 		ENROLL_DATE,
 		MEMBER_DEL_FL,
 		WITHDRAWAL_DATE
-		FROM "MEMBER"
-		WHERE MEMBER_EMAIL = #{memberEmail}
+		FROM MEMBER WHERE
+		MEMBER_EMAIL = #{memberEmail}
 		AND MEMBER_DEL_FL = 'N'
 	</select>
 
-	<select id="checkEmailExists"
-		resultType="nknk.opus.project.member.model.dto.Member">
-		SELECT *
-		FROM "MEMBER"
+	<select id="checkEmail" resultType="int">
+		SELECT COUNT(*)
+		FROM MEMBER
 		WHERE MEMBER_EMAIL = #{email}
-		AND
-		MEMBER_DEL_FL = 'N'
+		AND MEMBER_DEL_FL = 'N'
 	</select>
 
-	<insert id="insertMember"
-		parameterType="nknk.opus.project.member.model.dto.Member">
+	<insert id="insertMember" parameterType="Member">
 		<selectKey keyProperty="memberNo" resultType="_int"
 			order="BEFORE">
 			SELECT SEQ_MEMBER_NO.NEXTVAL FROM DUAL
 		</selectKey>
 
-		INSERT INTO "MEMBER" (
+		INSERT INTO MEMBER (
 		MEMBER_NO,
 		MEMBER_EMAIL,
 		MEMBER_PW,
@@ -160,7 +154,7 @@
 	<select id="findEmailByMemberNo" parameterType="int"
 		resultType="string">
 		SELECT MEMBER_EMAIL
-		FROM "MEMBER"
+		FROM MEMBER
 		WHERE MEMBER_NO =
 		#{memberNo}
 		AND MEMBER_DEL_FL = 'N'
@@ -175,7 +169,8 @@
 		MEMBER_ROLE,
 		LOGIN_TYPE
 		FROM MEMBER
-		WHERE MEMBER_NO = #{memberNo}
+		WHERE
+		MEMBER_NO = #{memberNo}
 		AND MEMBER_DEL_FL = 'N'
 	</select>
 
