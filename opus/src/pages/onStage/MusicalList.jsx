@@ -160,7 +160,7 @@ export default function MusicalList({ status, search }) {
                 <article key={item.mt20id} className="show-card">
                   <Link to={`/onStage/musical/${item.mt20id}`}>
                     <div className="show-card__thumb">
-                      <img src={item.poster} alt={item.prfnm} />
+                      <img src={item.poster?.replace("http://", "https://")} alt={item.prfnm} />
                       <span className="show-badge show-badge--dark">
                         {item.prfstate || "상태없음"}
                       </span>
@@ -201,7 +201,7 @@ export default function MusicalList({ status, search }) {
                 <article key={item.mt20id} className="show-card">
                   <Link to={`/onStage/musical/${item.mt20id}`}>
                     <div className="show-card__thumb">
-                      <img src={item.poster} alt={item.prfnm} />
+                      <img src={item.poster?.replace("http://", "https://")} alt={item.prfnm} />
                       <span className="show-badge show-badge--dark">
                         {item.prfstate || "상태없음"}
                       </span>
@@ -233,7 +233,7 @@ export default function MusicalList({ status, search }) {
             <article key={item.mt20id} className="show-card">
               <Link to={`/onStage/musical/${item.mt20id}`}>
                 <div className="show-card__thumb">
-                  <img src={item.poster} alt={item.prfnm} />
+                  <img src={item.poster?.replace("http://", "https://")} alt={item.prfnm} />
                   <span className="show-badge show-badge--dark">
                     {item.prfstate || "상태없음"}
                   </span>
