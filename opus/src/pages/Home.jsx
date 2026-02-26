@@ -53,7 +53,7 @@ async function filterValidImages(items, getUrl, count) {
   return valid;
 }
 
-const PICK_COUNT = 5;
+const PICK_COUNT = Math.random() < 0.5 ? 5 : 6;
 
 export default function Home() {
   const [exhibitionPicks, setExhibitionPicks] = useState([]);
