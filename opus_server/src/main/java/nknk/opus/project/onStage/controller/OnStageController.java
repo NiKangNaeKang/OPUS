@@ -86,4 +86,36 @@ public class OnStageController {
             return ResponseEntity.status(500).body("인코딩 변환 실패");
         }
     }
+    
+    @GetMapping("/musicals/detail")
+    public ResponseEntity<String> getMusicalDetail(@RequestParam("service") String serviceKey,@RequestParam("mt20id") String mt20id) {
+
+        URI uri = UriComponentsBuilder
+        		.fromUriString("https://www.kopis.or.kr/openApi/restful/pblprfr")
+        		.path("/" + mt20id)
+                .queryParam("service", serviceKey)
+                .build()
+                .encode()
+                .toUri();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", "Mozilla/5.0");
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<byte[]> response =
+                restTemplate.exchange(uri, HttpMethod.GET, entity, byte[].class);
+
+        try {
+            String body = new String(response.getBody(), "EUC-KR");
+
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/xml; charset=UTF-8")
+                    .body(body);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("상세 조회 실패");
+        }
+    }
 }

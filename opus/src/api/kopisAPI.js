@@ -66,7 +66,9 @@ export const dateRange = [
 ]
 
 // 뮤지컬 공연 조회
-export async function getAllMusicals({serviceKey, startDate, endDate, pageParam, rows = 100, search=""}) {
+export async function getAllMusicals({
+  serviceKey, startDate, endDate, pageParam, rows = 100, search=""
+}) {
   if(!serviceKey) throw new Error("발급받은 서비스 키가 없습니다.");
   
   const params = new URLSearchParams({
@@ -84,8 +86,6 @@ export async function getAllMusicals({serviceKey, startDate, endDate, pageParam,
     params.set("shprfnm", search.trim())
   }
   
-  // const res = await fetch(`/onStage/musicals?${params.toString()}`);
-  // const res = await fetch(`https://www.kopis.or.kr/openApi/restful/pblprfr?${params.toString()}`);
   const BASE_URL = "https://opus-api.duckdns.org";
   const res = await fetch(`${BASE_URL}/onStage/musicals?${params.toString()}`);
   
@@ -94,9 +94,15 @@ export async function getAllMusicals({serviceKey, startDate, endDate, pageParam,
   }
   
   const xmlText = await res.text();
-  const items = parseKopisXML(xmlText);
-  
-  return { items, hasNext: items.length === rows }
+
+  const fixedXmlText = xmlText.replace(
+    /encoding="EUC-KR"/i,
+    'encoding="UTF-8"'
+  );
+
+  const items = parseKopisXML(fixedXmlText);
+
+  return { items, hasNext: items.length === rows };
 }
 
 // 뮤지컬 공연 조회 결과 하나로
@@ -132,25 +138,29 @@ function parseRelates(db) {
 
 // 상세 뮤지컬 공연 조회
 export async function getMusicalDetail(serviceKey, mt20id) {
-  if(!serviceKey) throw new Error("발급받은 서비스 키가 없습니다.");
-
-  // const res = await fetch(`/kopis/openApi/restful/pblprfr/${mt20id}?service=${serviceKey}`)
-  const res = await fetch(`https://www.kopis.or.kr/openApi/restful/pblprfr/${mt20id}?service=${serviceKey}`)
+  const res = await fetch(
+    `https://opus-api.duckdns.org/onStage/musicals/detail?service=${serviceKey}&mt20id=${mt20id}`
+  );
 
   if(!res.ok) {
-    throw new Error(`KOPIS 요청 실패 : ${res.status}`);
+    throw new Error(`상세 조회 실패 : ${res.status}`);
   }
 
   const xmlText = await res.text();
 
-  const doc = new DOMParser().parseFromString(xmlText, "text/xml");
+  const fixedXmlText = xmlText.replace(
+    /encoding="EUC-KR"/i,
+    'encoding="UTF-8"'
+  );
+
+  const doc = new DOMParser().parseFromString(fixedXmlText, "text/xml");
   const db = doc.getElementsByTagName("db")[0];
-  
+
   if(!db) return null;
 
   return {
-    ...parseKopisXML(xmlText)[0],
-    styurls : parseStyurls(db),
-    relates : parseRelates(db),
-  }
+    ...parseKopisXML(fixedXmlText)[0],
+    styurls: parseStyurls(db),
+    relates: parseRelates(db),
+  };
 }
