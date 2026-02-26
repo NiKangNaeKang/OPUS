@@ -277,6 +277,7 @@ export const useCartStore = create(
       partialize: (state) => ({
         items: state.items,
         checkedKeys: state.checkedKeys,
+        hasMerged: state.hasMerged,
       }),
     }
   )

@@ -236,12 +236,24 @@ const SelectionsDetail = () => {
     return baseOptionRow; // 옵션 없는 상품
   }, [hasSize, hasColor, selectedOptionRow, baseOptionRow]);
 
+  // 전체 상품 품절 여부
+  const isSoldOut = useMemo(() => {
+    if (!goodsOptions || goodsOptions.length === 0) return false;
+    return goodsOptions.every((opt) => (opt.stock ?? 0) <= 0);
+  }, [goodsOptions]);
+
   // 옵션 변경 시 재고와 선택 수량 비교 (옵션마다 재고가 다르기 때문!)
   useEffect(() => {
-    if (effectiveOptionRow != null && qty > effectiveOptionRow.stock) {
+    if (!effectiveOptionRow) return;
+
+    // 품절이면 아무것도 하지 않음
+    if ((effectiveOptionRow.stock ?? 0) === 0) return;
+
+    if (qty > effectiveOptionRow.stock) {
       alert("재고 이하의 수량만 선택 가능합니다.");
       setQty(1);
     }
+
   }, [effectiveOptionRow, qty]);
 
   // 옵션이 변경 시 수량 1로 변경
@@ -422,11 +434,21 @@ const SelectionsDetail = () => {
                       }}
                     >
                       <option value="">사이즈/수량 선택</option>
-                      {sizeList.map((s) => (
-                        <option key={s} value={s} className="option">
-                          {s}
-                        </option>
-                      ))}
+                      {sizeList.map((s) => {
+                        const hasStock = goodsOptions.some(
+                          (o) => o.goodsSize === s && (o.stock ?? 0) > 0
+                        );
+
+                        return (
+                          <option
+                            key={s}
+                            value={s}
+                            disabled={!hasStock}
+                          >
+                            {s} {!hasStock && "(품절)"}
+                          </option>
+                        );
+                      })}
                     </select>
                     <i className="fa-solid fa-chevron-down select__icon" aria-hidden="true"></i>
                   </div>
@@ -445,11 +467,24 @@ const SelectionsDetail = () => {
                       disabled={hasSize && !selectedSize} // 사이즈가 있으면 사이즈 먼저 선택
                     >
                       <option value="">색상/타입 선택</option>
-                      {colorList.map((c) => (
-                        <option key={c} value={c} className="option">
-                          {c}
-                        </option>
-                      ))}
+                      {colorList.map((c) => {
+                        const hasStock = goodsOptions.some(
+                          (o) =>
+                            (!hasSize || o.goodsSize === selectedSize) &&
+                            o.goodsColor === c &&
+                            (o.stock ?? 0) > 0
+                        );
+
+                        return (
+                          <option
+                            key={c}
+                            value={c}
+                            disabled={!hasStock}
+                          >
+                            {c} {!hasStock && "(품절)"}
+                          </option>
+                        );
+                      })}
                     </select>
                     <i className="fa-solid fa-chevron-down select__icon" aria-hidden="true"></i>
                   </div>
@@ -461,6 +496,12 @@ const SelectionsDetail = () => {
             {/* 선택 박스: 옵션 row가 확정되면 표시 */}
             {(selectedOptionRow || (!hasSize && !hasColor && effectiveOptionRow)) && (
               <div className="field selected-field">
+
+                {effectiveOptionRow?.stock === 0 && (
+                  <div className="soldout-message">
+                    해당 옵션은 품절입니다.
+                  </div>
+                )}
 
                 {/* 옵션 있는 경우 */}
                 {selectedOptionRow && (
@@ -481,13 +522,13 @@ const SelectionsDetail = () => {
 
                 <label className="field__label">수량</label>
                 <div className="qty">
-                  <button className="qty__btn" type="button" id="qtyMinus" aria-label="minus" onClick={() => handleQty(qty - 1)}>
+                  <button className="qty__btn" type="button" disabled={isSoldOut} id="qtyMinus" aria-label="minus" onClick={() => handleQty(qty - 1)}>
                     <i className="fa-solid fa-minus" aria-hidden="true"></i>
                   </button>
 
                   <input className="qty_input" type="number" id="qtyInput" value={qty} readOnly />
 
-                  <button className="qty__btn" type="button" id="qtyPlus" aria-label="plus" onClick={() => handleQty(qty + 1)}>
+                  <button className="qty__btn" type="button" disabled={isSoldOut} id="qtyPlus" aria-label="plus" onClick={() => handleQty(qty + 1)}>
                     <i className="fa-solid fa-plus" aria-hidden="true"></i>
                   </button>
                 </div>
@@ -502,8 +543,39 @@ const SelectionsDetail = () => {
             </div>
 
             <div id="product-actions" className="actions">
-              <button className="goods_btn goods_btn--outline" type="button" onClick={handleAddToCart}>장바구니</button>
-              <button className="goods_btn goods_btn--solid" type="button" onClick={handleBuyNow}>바로 구매</button>
+
+              {(isSoldOut || effectiveOptionRow?.stock === 0) ? (
+
+                <button
+                  className="goods_btn goods_btn--soldout"
+                  type="button"
+                  disabled
+                >
+                  품절
+                </button>
+
+              ) : (
+
+                <>
+                  <button
+                    className="goods_btn goods_btn--outline"
+                    type="button"
+                    onClick={handleAddToCart}
+                  >
+                    장바구니
+                  </button>
+
+                  <button
+                    className="goods_btn goods_btn--solid"
+                    type="button"
+                    onClick={handleBuyNow}
+                  >
+                    바로 구매
+                  </button>
+                </>
+
+              )}
+
             </div>
 
             <div id="product-seller-info" className="seller">

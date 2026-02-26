@@ -11,21 +11,23 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import nknk.opus.project.selections.model.service.SelectionsService;
 
 @Component
 @Slf4j
 @PropertySource("classpath:/config.properties")
 public class ImageScheduling {
-	@Value("${my.board.folder-path}")
+	
+	@Value("${opus.board.folder-path}")
 	private String boardFolderPath;
 
-	@Value("${my.profile.folder-path}")
-	private String profileFolderPath;
+	@Value("${opus.goods.folder-path}")
+	private String goodsFolderPath;
 
 	@Autowired
-	private EditBoardService service;
+	private SelectionsService service;
 
-	@Scheduled(cron = "0 0 0 1 * * ")
+	@Scheduled(cron = "0 5 0 * * *")
 	public void imageDeleteScheduling() {
 		log.info("스케줄러 동작!");
 
@@ -33,7 +35,7 @@ public class ImageScheduling {
 
 		// 서버 폴더 파일 목록 조회할 경로 설정
 		File boardFolder = new File(boardFolderPath);
-		File memberFolder = new File(profileFolderPath);
+		File memberFolder = new File(goodsFolderPath);
 
 		// 설정한 경로의 파일 목록 얻어오기
 		File[] boardArr = boardFolder.listFiles();

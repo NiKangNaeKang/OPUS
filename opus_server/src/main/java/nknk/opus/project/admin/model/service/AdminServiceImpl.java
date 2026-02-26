@@ -1,8 +1,11 @@
 package nknk.opus.project.admin.model.service;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -228,31 +231,85 @@ public class AdminServiceImpl implements AdminService {
 			}
 		}
 
-		// 옵션 수정 (기존 옵션 전체 삭제 후 재삽입)
+		// 옵션 수정
 		if (dto.getOptionsJson() != null && !dto.getOptionsJson().isEmpty()) {
-			mapper.deleteGoodsOptions(goodsNo);
 
-			ObjectMapper om = new ObjectMapper();
-			GoodsOption[] options = om.readValue(dto.getOptionsJson(), GoodsOption[].class);
+		    ObjectMapper om = new ObjectMapper();
+		    GoodsOption[] options = om.readValue(dto.getOptionsJson(), GoodsOption[].class);
 
-			boolean hasRealOption = false;
-			int defaultStock = 0;
+		    List<GoodsOption> existingOptions = mapper.selectGoodsOptionsForAdmin(goodsNo);
 
-			for (GoodsOption option : options) {
-				defaultStock = option.getStock();
-				if ((option.getGoodsSize() != null && !option.getGoodsSize().isBlank())
-						|| (option.getGoodsColor() != null && !option.getGoodsColor().isBlank())) {
-					hasRealOption = true;
-					option.setGoodsNo(goodsNo);
-					mapper.insertGoodsOption(option);
-				}
-			}
+		    Map<String, GoodsOption> existingMap = new HashMap<>();
 
-			if (!hasRealOption) {
-				GoodsOption nullOption = GoodsOption.builder().goodsNo(goodsNo).goodsSize(null).goodsColor(null)
-						.stock(defaultStock).build();
-				mapper.insertGoodsOption(nullOption);
-			}
+		    for (GoodsOption exist : existingOptions) {
+		        String key = buildOptionKey(exist.getGoodsSize(), exist.getGoodsColor());
+		        existingMap.put(key, exist);
+		    }
+
+		    Set<String> submittedKeys = new HashSet<>();
+
+		    boolean hasRealOption = false;
+		    Integer nullStock = null;
+
+		    for (GoodsOption option : options) {
+
+		        boolean hasSize = option.getGoodsSize() != null && !option.getGoodsSize().isBlank();
+		        boolean hasColor = option.getGoodsColor() != null && !option.getGoodsColor().isBlank();
+
+		        // NULL NULL 옵션
+		        if (!hasSize && !hasColor) {
+		            nullStock = option.getStock();
+		            submittedKeys.add("NULL_NULL");
+		            continue;
+		        }
+
+		        hasRealOption = true;
+
+		        option.setGoodsNo(goodsNo);
+
+		        String key = buildOptionKey(option.getGoodsSize(), option.getGoodsColor());
+		        submittedKeys.add(key);
+
+		        if (existingMap.containsKey(key)) {
+		            GoodsOption exist = existingMap.get(key);
+		            option.setGoodsOptionNo(exist.getGoodsOptionNo());
+		            mapper.updateGoodsOption(option);
+		        } else {
+		            mapper.insertGoodsOption(option);
+		        }
+		    }
+
+		    // 기존 옵션 중 제출되지 않은 실옵션은 stock 0 처리
+		    for (GoodsOption exist : existingOptions) {
+
+		        String key = buildOptionKey(exist.getGoodsSize(), exist.getGoodsColor());
+
+		        boolean isNullOption = key.equals("NULL_NULL");
+
+		        if (!submittedKeys.contains(key) && !isNullOption) {
+		            exist.setStock(0);
+		            mapper.updateGoodsOptionStock(exist);
+		        }
+		    }
+
+		    // NULL NULL 옵션 처리
+		    if (!hasRealOption) {
+
+		        GoodsOption existingNull = existingMap.get("NULL_NULL");
+
+		        if (existingNull != null) {
+		            existingNull.setStock(nullStock != null ? nullStock : 0);
+		            mapper.updateGoodsOptionStock(existingNull);
+		        } else {
+		            GoodsOption newNull = GoodsOption.builder()
+		                    .goodsNo(goodsNo)
+		                    .goodsSize(null)
+		                    .goodsColor(null)
+		                    .stock(nullStock != null ? nullStock : 0)
+		                    .build();
+		            mapper.insertGoodsOption(newNull);
+		        }
+		    }
 		}
 
 		return result;
@@ -507,4 +564,12 @@ public class AdminServiceImpl implements AdminService {
 		throw new BusinessException("재고 차감 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
 	}
 
+	private String buildOptionKey(String size, String color) {
+
+	    String s = (size == null || size.isBlank()) ? "NULL" : size.trim();
+	    String c = (color == null || color.isBlank()) ? "NULL" : color.trim();
+
+	    return s + "_" + c;
+	}
+	
 }

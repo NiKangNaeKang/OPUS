@@ -82,4 +82,8 @@ public interface AdminMapper {
 
 	void insertUnveilingImg(Unveiling unveiling);
 
+	void updateGoodsOption(GoodsOption option);
+
+	void updateGoodsOptionStock(GoodsOption existing);
+
 }
