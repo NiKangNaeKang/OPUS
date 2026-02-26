@@ -84,7 +84,8 @@ export async function getAllMusicals({serviceKey, startDate, endDate, pageParam,
     params.set("shprfnm", search.trim())
   }
   
-  const res = await fetch(`/kopis/openApi/restful/pblprfr?${params.toString()}`);
+  const res = await fetch(`/onStage/musicals?${params.toString()}`);
+  // const res = await fetch(`https://www.kopis.or.kr/openApi/restful/pblprfr?${params.toString()}`);
   
   if(!res.ok) {
     throw new Error(`KOPIS 요청 실패 : ${res.status}`);
@@ -131,7 +132,8 @@ function parseRelates(db) {
 export async function getMusicalDetail(serviceKey, mt20id) {
   if(!serviceKey) throw new Error("발급받은 서비스 키가 없습니다.");
 
-  const res = await fetch(`/kopis/openApi/restful/pblprfr/${mt20id}?service=${serviceKey}`)
+  // const res = await fetch(`/kopis/openApi/restful/pblprfr/${mt20id}?service=${serviceKey}`)
+  const res = await fetch(`https://www.kopis.or.kr/openApi/restful/pblprfr/${mt20id}?service=${serviceKey}`)
 
   if(!res.ok) {
     throw new Error(`KOPIS 요청 실패 : ${res.status}`);
