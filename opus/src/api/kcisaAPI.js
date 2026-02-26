@@ -6,14 +6,15 @@ export async function getAllExhibitions({ serviceKey, pageParam }) {
 
   const params = new URLSearchParams({
     serviceKey : serviceKey,
-    numOfRows : 20,
     pageNo : pageParam,
   });
 
   // https://api.kcisa.kr/openapi/API_CCA_145/request?serviceKey=bcec5111-252e-47c3-9dca-4b943cf5a0ed&numOfRows=10&pageNo=1
-  const res = await fetch(`/onStage/exhibitions?${params.toString()}`);
+  // const res = await fetch(`/onStage/exhibitions?${params.toString()}`);
   // const BASE_URL = "https://api.kcisa.kr/openapi";
   // const res = await fetch(`${BASE_URL}/API_CCA_145/request?${params.toString()}`);
+  const BASE_URL = "https://opus-api.duckdns.org";
+  const res = await fetch(`${BASE_URL}/onStage/exhibitions?${params.toString()}`);
 
   if(!res.ok) {
     throw new Error("전시 정보 요청 실패");

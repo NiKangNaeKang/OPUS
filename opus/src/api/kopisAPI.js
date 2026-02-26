@@ -84,8 +84,10 @@ export async function getAllMusicals({serviceKey, startDate, endDate, pageParam,
     params.set("shprfnm", search.trim())
   }
   
-  const res = await fetch(`/onStage/musicals?${params.toString()}`);
+  // const res = await fetch(`/onStage/musicals?${params.toString()}`);
   // const res = await fetch(`https://www.kopis.or.kr/openApi/restful/pblprfr?${params.toString()}`);
+  const BASE_URL = "https://opus-api.duckdns.org";
+  const res = await fetch(`${BASE_URL}/onStage/musicals?${params.toString()}`);
   
   if(!res.ok) {
     throw new Error(`KOPIS 요청 실패 : ${res.status}`);
