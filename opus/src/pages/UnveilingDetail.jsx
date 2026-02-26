@@ -301,7 +301,7 @@ export default function UnveilingDetail() {
     try {
       // 일반 로그인만 비밀번호 검증 (소셜 로그인은 Oauth를 통해 본인인증이 된 셈)
       if (!isSocialLogin) {
-        await axios.post("/auth/verify-password",
+        await axiosApi.post("/auth/verify-password",
           { memberPw: modalPw },
           {
             headers: {
