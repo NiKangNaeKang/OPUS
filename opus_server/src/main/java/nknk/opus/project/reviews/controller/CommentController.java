@@ -18,7 +18,6 @@ import nknk.opus.project.reviews.model.dto.Comment;
 import nknk.opus.project.reviews.model.service.CommentService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/comment")
 public class CommentController {
 
