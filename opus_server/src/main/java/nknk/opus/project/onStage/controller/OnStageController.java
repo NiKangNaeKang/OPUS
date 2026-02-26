@@ -21,29 +21,32 @@ public class OnStageController {
 
     // 전시 목록 조회
     @GetMapping("/exhibitions")
-    public ResponseEntity<String> getExhibitions(
-            @RequestParam String serviceKey,
-            @RequestParam(defaultValue = "1") int pageNo) {
+    public ResponseEntity<?> getExhibitions( @RequestParam String serviceKey, @RequestParam(defaultValue = "1") int pageNo) {
+        try {
+            URI uri = UriComponentsBuilder
+                    .fromUriString("https://api.kcisa.kr/openapi/API_CCA_145/request")
+                    .queryParam("serviceKey", serviceKey)
+                    .queryParam("numOfRows", 20)
+                    .queryParam("pageNo", pageNo)
+                    .build()
+                    .encode()
+                    .toUri();
 
-        URI uri = UriComponentsBuilder
-                .fromUriString("https://api.kcisa.kr/openapi/API_CCA_145/request")
-                .queryParam("serviceKey", serviceKey)
-                .queryParam("numOfRows", 20)
-                .queryParam("pageNo", pageNo)
-                .build()
-                .encode()
-                .toUri();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("User-Agent", "Mozilla/5.0");
+            headers.set("Accept", "application/xml");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Agent", "Mozilla/5.0");
-        headers.set("Accept", "application/xml");
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
+            ResponseEntity<String> response =
+                    restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
 
-        ResponseEntity<String> response =
-                restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+            return ResponseEntity.ok(response.getBody());
 
-        return ResponseEntity.ok(response.getBody());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("외부 전시 API 호출 실패");
+        }
     }
     
     // 뮤지컬 목록 조회
@@ -69,7 +72,7 @@ public class OnStageController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("User-Agent", "Mozilla/5.0");
-        headers.set("Accept", "application/xml");
+        headers.set("Accept-Charset", "UTF-8");
         
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         
