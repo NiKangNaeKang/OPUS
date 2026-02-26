@@ -48,8 +48,8 @@ public class OnStageController {
     
     // 뮤지컬 목록 조회
     @GetMapping("/musicals")
-    public ResponseEntity<String> getMusicals(@RequestParam String serviceKey, @RequestParam String startDate, @RequestParam String endDate,
-            @RequestParam(defaultValue = "1") int pageNo, @RequestParam(defaultValue = "100") int rows, @RequestParam(required = false) String search) {
+    public ResponseEntity<String> getMusicals (@RequestParam("service") String serviceKey, @RequestParam("stdate") String startDate, @RequestParam("eddate") String endDate,
+    		@RequestParam(name="cpage", defaultValue="1") int pageNo, @RequestParam(defaultValue = "100") int rows, @RequestParam(required = false, name="shprfnm") String search) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString("https://www.kopis.or.kr/openApi/restful/pblprfr")
                 .queryParam("service", serviceKey)
