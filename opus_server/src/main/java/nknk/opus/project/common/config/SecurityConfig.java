@@ -64,6 +64,7 @@ public class SecurityConfig {
 						.requestMatchers("/selections/**", "/images/**").permitAll().requestMatchers("/unveiling/**")
 						.permitAll().requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll()
 						.requestMatchers("/chatbot/**").permitAll()
+						.requestMatchers("/onStage/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/unveilings/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/bids/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/stage/bestReview").permitAll()

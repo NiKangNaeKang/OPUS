@@ -2,6 +2,9 @@ package nknk.opus.project.onStage.controller;
 
 import java.net.URI;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +21,9 @@ public class OnStageController {
 
     // 전시 목록 조회
     @GetMapping("/exhibitions")
-    public ResponseEntity<String> getExhibitions(@RequestParam String serviceKey, @RequestParam(defaultValue = "1") int pageNo) {
+    public ResponseEntity<String> getExhibitions(
+            @RequestParam String serviceKey,
+            @RequestParam(defaultValue = "1") int pageNo) {
 
         URI uri = UriComponentsBuilder
                 .fromUriString("https://api.kcisa.kr/openapi/API_CCA_145/request")
@@ -29,9 +34,16 @@ public class OnStageController {
                 .encode()
                 .toUri();
 
-        String result = restTemplate.getForObject(uri, String.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", "Mozilla/5.0");
+        headers.set("Accept", "application/xml");
 
-        return ResponseEntity.ok(result);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response =
+                restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+
+        return ResponseEntity.ok(response.getBody());
     }
     
     // 뮤지컬 목록 조회
@@ -55,7 +67,14 @@ public class OnStageController {
 
         URI uri = builder.build().encode().toUri();
 
-        String result = restTemplate.getForObject(uri, String.class);
-        return ResponseEntity.ok(result);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", "Mozilla/5.0");
+        headers.set("Accept", "application/xml");
+        
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        
+        ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+
+        return ResponseEntity.ok(response.getBody());
     }
 }
