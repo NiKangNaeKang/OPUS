@@ -80,6 +80,7 @@ public class SecurityConfig {
 						.requestMatchers("/onStage/reviews/**").authenticated().requestMatchers("/stage/like")
 						.authenticated().requestMatchers("/stage/dislike").authenticated()
 						.requestMatchers("/stage/save").authenticated()
+						
 
 						// 그 외 전부 로그인 필요
 						.anyRequest().authenticated())
