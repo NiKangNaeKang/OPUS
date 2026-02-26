@@ -64,7 +64,14 @@ public class BoardController {
 	@PostMapping(value = "/insert", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public int insertBoard(Authentication authentication, @RequestPart("board") Board board,
 			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+
 		int memberNo = getMemberNo(authentication);
+		String role = getRole(authentication);
+
+		if (Role.COMPANY.getKey().equals(role) && board.getBoardTypeCode() != 2) {
+			throw new RuntimeException("기업회원은 2번 게시판만 작성 가능합니다.");
+		}
+
 		board.setMemberNo(memberNo);
 		return service.insertBoard(board, images);
 	}
@@ -73,12 +80,13 @@ public class BoardController {
 	@PutMapping("/update/{boardNo}")
 	public int updateBoard(Authentication authentication, @PathVariable("boardNo") int boardNo,
 			@RequestBody Board board) {
+
 		int memberNo = getMemberNo(authentication);
+		String role = getRole(authentication);
 
 		board.setBoardNo(boardNo);
-		board.setMemberNo(memberNo);
-
-		return service.updateBoard(board);
+		// memberNo는 서비스에서 role에 따라 필요한 경우만 세팅함
+		return service.updateBoard(board, memberNo, role);
 	}
 
 	/* 게시글 전체 수정 (텍스트 + 이미지 교체) */
@@ -86,12 +94,12 @@ public class BoardController {
 	public int updateBoardWithImages(Authentication authentication, @PathVariable("boardNo") int boardNo,
 			@RequestPart("board") Board board,
 			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+
 		int memberNo = getMemberNo(authentication);
+		String role = getRole(authentication);
 
 		board.setBoardNo(boardNo);
-		board.setMemberNo(memberNo);
-
-		return service.updateBoardWithImages(board, images);
+		return service.updateBoardWithImages(board, images, memberNo, role);
 	}
 
 	/* 게시글 이미지 부분 수정 (기존삭제 + 신규추가) */
@@ -100,19 +108,22 @@ public class BoardController {
 			@RequestPart("board") Board board,
 			@RequestPart(value = "deleteImgNos", required = false) String deleteImgNosJson,
 			@RequestPart(value = "images", required = false) List<MultipartFile> images) {
+
 		int memberNo = getMemberNo(authentication);
+		String role = getRole(authentication);
 
 		board.setBoardNo(boardNo);
-		board.setMemberNo(memberNo);
-
-		return service.updateBoardImagesPartial(board, deleteImgNosJson, images);
+		return service.updateBoardImagesPartial(board, deleteImgNosJson, images, memberNo, role);
 	}
 
 	/* 게시글 삭제 */
 	@DeleteMapping("/delete/{boardNo}")
 	public int deleteBoard(Authentication authentication, @PathVariable("boardNo") int boardNo) {
+
 		int memberNo = getMemberNo(authentication);
-		return service.deleteBoard(boardNo, memberNo);
+		String role = getRole(authentication);
+
+		return service.deleteBoard(boardNo, memberNo, role);
 	}
 
 	/* 작성 게시글 조회 (기업회원만) */
@@ -120,8 +131,8 @@ public class BoardController {
 	public List<Board> selectMyBoards(Authentication authentication) {
 
 		int memberNo = getMemberNo(authentication);
-
 		String role = getRole(authentication);
+
 		if (!Role.COMPANY.getKey().equals(role)) {
 			throw new RuntimeException("기업 회원만 접근 가능합니다.");
 		}

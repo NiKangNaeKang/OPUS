@@ -13,6 +13,8 @@ export default function ToastConfig() {
       closeOnClick            
       pauseOnHover     
       
+      icon={false}   
+
       // 실제 토스트 박스 내부(확인/취소 버튼 등)는 클릭이 되어야 함
       toastStyle={{
         pointerEvents: "auto", 

@@ -3,41 +3,56 @@ import axiosApi from "../../api/axiosAPI";
 import { toast } from "react-toastify";
 
 const GoogleLoginButton = ({ onLoginSuccess }) => {
+
   const handleGoogleLogin = useGoogleLogin({
+
     onSuccess: async (tokenResponse) => {
-      console.log("Google Auth Success:", tokenResponse);
-      const toastId = toast.loading("구글 계정 정보 확인 중...");
+      const toastId = toast.loading("구글 계정 정보 확인 중...", {
+        toastId: "google-login",
+      });
 
       try {
         const response = await axiosApi.post("/auth/google", {
           accessToken: tokenResponse.access_token,
         });
 
-        console.log("Server Response:", response.data);
-        toast.dismiss(toastId);
+        // 같은 토스트를 성공 상태로 업데이트
+        toast.update(toastId, {
+          render: "구글 로그인 성공",
+          type: "success",
+          isLoading: false,
+          autoClose: 1500,
+        });
 
-        if (onLoginSuccess) {
-          onLoginSuccess(response.data);
-        }
+        onLoginSuccess?.(response.data);
+
       } catch (error) {
-        toast.dismiss(toastId);
         console.error("구글 로그인 서버 에러:", error);
-        toast.error(error.response?.data?.message || "서버 통신에 실패했습니다.");
+
+        toast.update(toastId, {
+          render:
+            error.response?.data?.message ||
+            "서버 통신에 실패했습니다.",
+          type: "error",
+          isLoading: false,
+          autoClose: 2000,
+        });
       }
     },
+
     onError: (error) => {
-      console.error("Google Login Window Error:", error);
-      toast.error("구글 인증 창을 여는 데 실패했습니다.");
+      toast.error("구글 인증 창을 여는 데 실패했습니다.", {
+        toastId: "google-popup-error",
+      });
     },
   });
 
   return (
-  <button
-    type="button"
-    className="lm-submit lm-google"
-    onClick={() => handleGoogleLogin()}
-  >
-    
+    <button
+      type="button"
+      className="lm-submit lm-google"
+      onClick={() => handleGoogleLogin()}
+    >
       <img
         src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg"
         alt=""
