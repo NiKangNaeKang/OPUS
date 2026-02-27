@@ -32,6 +32,16 @@ public class MemberController {
 	private final JwtUtil jwtUtil;
 	private final BCryptPasswordEncoder encoder;
 
+	// ✅ 비밀번호 정책: 영문+숫자+특수(!@#$%^&*-_) 포함, 8~16자
+	private static final String PW_REGEX =
+			"^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*\\-_])[A-Za-z\\d!@#$%^&*\\-_]{8,16}$";
+
+	private void validatePasswordPolicy(String pw) {
+		if (pw == null || !pw.matches(PW_REGEX)) {
+			throw new RuntimeException("비밀번호는 영문, 숫자, 특수문자(!@#$%^&*-_)를 포함하여 8~16자여야 합니다.");
+		}
+	}
+
 	/** 토큰(로그인) 필수 체크 */
 	private void requireAuth(Authentication authentication) {
 		if (authentication == null || authentication.getPrincipal() == null) {
@@ -141,10 +151,8 @@ public class MemberController {
 	/* 연락처 중복 체크 */
 	@PostMapping("/check-tel")
 	public ResponseEntity<?> checkTel(@RequestBody Map<String, String> map) {
-
 		String tel = map.get("memberTel");
 		boolean isDuplicate = service.checkTel(tel);
-
 		return ResponseEntity.ok(Map.of("duplicate", isDuplicate));
 	}
 
@@ -192,6 +200,9 @@ public class MemberController {
 	@PostMapping("/signup")
 	public ResponseEntity<?> signup(@RequestBody Member inputMember) {
 		try {
+			// ✅ 추가: 비밀번호 정책 검증
+			validatePasswordPolicy(inputMember.getMemberPw());
+
 			inputMember.setLoginType("NORMAL");
 			int result = service.signup(inputMember);
 			if (result > 0) {
@@ -233,12 +244,7 @@ public class MemberController {
 		}
 	}
 
-	/**
-	 * 내 정보 조회 (소셜 로그인 후 member 정보 로드용)
-	 * 
-	 * @param authentication
-	 * @return by Sanghoo
-	 */
+	/** 내 정보 조회 (소셜 로그인 후 member 정보 로드용) */
 	@GetMapping("/me")
 	public ResponseEntity<?> getMe(Authentication authentication) {
 		try {
@@ -263,13 +269,7 @@ public class MemberController {
 		}
 	}
 
-	/**
-	 * LOGIN_TYPE=NORMAL 응찰 시 비밀번호 검증
-	 * 
-	 * @param body
-	 * @param authentication
-	 * @return by Sanghoo
-	 */
+	/** LOGIN_TYPE=NORMAL 응찰 시 비밀번호 검증 */
 	@PostMapping("/verify-password")
 	public ResponseEntity<?> verifyPassword(@RequestBody Map<String, String> body, Authentication authentication) {
 		try {
@@ -331,6 +331,10 @@ public class MemberController {
 		try {
 			int memberNo = getMemberNo(authentication);
 			param.put("memberNo", memberNo); // ✅ 본인으로 고정
+
+			// ✅ 추가: 새 비밀번호 정책 검증
+			String newPw = (String) param.get("newPw");
+			validatePasswordPolicy(newPw);
 
 			int result = service.changePw(param);
 
