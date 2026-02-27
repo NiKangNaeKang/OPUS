@@ -62,7 +62,7 @@ export default function ExhibitionList({ search, status }) {
     isError,
     error
   } = useInfiniteQuery({
-    queryKey: ["exhibitions", status],
+    queryKey: ["exhibitions", status, search],
     queryFn: ({ pageParam }) => getAllExhibitions({ serviceKey: SERVICE_KEY, pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
@@ -221,7 +221,7 @@ export default function ExhibitionList({ search, status }) {
                     <Link to={`/onStage/exhibition/${item.exhibitionId}`} state={{ item }}>
                       <div className="show-card__thumb">
                         {item.image ? (
-                          <img src={item.image} alt={item.title} />
+                          <img src={item.image?.replace("http://", "https://")} alt={item.title} />
                         ) : (
                           <div style={{ height: 220 }} />
                         )}
@@ -266,7 +266,7 @@ export default function ExhibitionList({ search, status }) {
                     <Link to={`/onStage/exhibition/${item.exhibitionId}`} state={{ item }}>
                       <div className="show-card__thumb">
                         {item.image ? (
-                          <img src={item.image} alt={item.title} />
+                          <img src={item.image?.replace("http://", "https://")} alt={item.title} />
                         ) : (
                           <div style={{ height: 220 }} />
                         )}
@@ -298,7 +298,7 @@ export default function ExhibitionList({ search, status }) {
               <Link to={`/onStage/exhibition/${item.exhibitionId}`} state={{ item }}>
                 <div className="show-card__thumb">
                   {item.image ? (
-                    <img src={item.image} alt={item.title} />
+                    <img src={item.image?.replace("http://", "https://")} alt={item.title} />
                   ) : (
                     <div style={{ height: 220 }} />
                   )}

@@ -64,6 +64,7 @@ public class SecurityConfig {
 						.requestMatchers("/selections/**", "/images/**").permitAll().requestMatchers("/unveiling/**")
 						.permitAll().requestMatchers("/login/oauth2/**", "/oauth2/**").permitAll()
 						.requestMatchers("/chatbot/**").permitAll()
+						.requestMatchers("/onStage/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/unveilings/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/bids/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/stage/bestReview").permitAll()
@@ -79,6 +80,7 @@ public class SecurityConfig {
 						.requestMatchers("/onStage/reviews/**").authenticated().requestMatchers("/stage/like")
 						.authenticated().requestMatchers("/stage/dislike").authenticated()
 						.requestMatchers("/stage/save").authenticated()
+						
 
 						// 그 외 전부 로그인 필요
 						.anyRequest().authenticated())

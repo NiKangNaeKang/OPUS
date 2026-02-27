@@ -14,6 +14,11 @@ function parsePeriod(period) {
   return { startDate: toDate(start), endDate: toDate(end) };
 }
 
+function toHttps(url) {
+  if (!url) return "";
+  return url.replace(/^http:\/\//, "https://");
+}
+
 function getExhibitionStatus(period) {
   const parsed = parsePeriod(period);
   if (!parsed) return null;
@@ -35,7 +40,7 @@ function checkImage(url) {
     const img = new Image();
     img.onload = () => resolve(true);
     img.onerror = () => resolve(false);
-    img.src = url;
+    img.src = toHttps(url);
   });
 }
 
@@ -45,11 +50,22 @@ async function filterValidImages(items, getUrl, count) {
   const valid = [];
   for (const item of shuffled) {
     if (valid.length >= count) break;
-    const url = getUrl(item);
-    if (!url || !url.trim()) continue;
-    const ok = await checkImage(url);
-    if (ok) valid.push(item);
+
+    const rawUrl = getUrl(item);
+    if (!rawUrl) continue;
+
+    const httpsUrl = toHttps(rawUrl);
+    const ok = await checkImage(httpsUrl);
+
+    if (ok) {
+      valid.push({
+        ...item,
+        image: item.image ? toHttps(item.image) : item.image,
+        poster: item.poster ? toHttps(item.poster) : item.poster,
+      });
+    }
   }
+
   return valid;
 }
 

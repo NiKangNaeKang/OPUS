@@ -191,7 +191,7 @@ const ProposalWrite = () => {
 
     const remainSlots = MAX_IMAGES - remainExistingCount - newImages.length;
     if (remainSlots <= 0) {
-      alert(`이미지는 최대 ${MAX_IMAGES}장까지 가능합니다. (기존 이미지 포함)`);
+      alert(`이미지는 최대 ${MAX_IMAGES}장, 10MB까지 가능합니다. (기존 이미지 포함)`);
       e.target.value = "";
       return;
     }
@@ -199,7 +199,7 @@ const ProposalWrite = () => {
     const next = files.slice(0, remainSlots);
 
     if (files.length > remainSlots) {
-      alert(`이미지는 최대 ${MAX_IMAGES}장까지 가능합니다. (추가 가능: ${remainSlots}장)`);
+      alert(`이미지는 최대 ${MAX_IMAGES}장, 10MB까지 가능합니다. (추가 가능: ${remainSlots}장)`);
     }
 
     setNewImages((prev) => [...prev, ...next]);
@@ -299,7 +299,7 @@ const ProposalWrite = () => {
           <h1>{isEditMode ? "게시글 수정" : "새 게시글 작성"}</h1>
 
           <p className="write-sub">
-            이미지는 최대 {MAX_IMAGES}장까지 업로드할 수 있어요. (포스터 비율 3:4 추천)
+            이미지는 최대 {MAX_IMAGES}장, 10MB까지 업로드 가능합니다. (포스터 비율 3:4 추천)
           </p>
         </header>
 
@@ -376,7 +376,7 @@ const ProposalWrite = () => {
                 <input type="file" accept="image/*" multiple onChange={handleNewImagesChange} />
               </label>
 
-              <div className="upload-help">이미지가 없으면 목록에서 기본 포스터가 표시돼요. (jpg, jpeg, png, gif, webp 가능)</div>
+              <div className="upload-help">이미지가 없으면 목록에서 기본 포스터가 표시됩니다. (jpg, jpeg, png, gif, webp 가능)</div>
             </div>
 
             {isEditMode && existingImages.length > 0 && (
