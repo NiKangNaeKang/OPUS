@@ -49,8 +49,8 @@
 		WHERE UNVEILING_NO = #{unveilingNo}
 		FOR UPDATE
 	</select>
-	<!-- FOR UPDATE : 동시 응찰을 방지하기 위해 먼저 트랜잭션을 잡은 쪽만 진행, 나머지는 트랜잭션 선점자로부터 commit/rollback 
-		일어날 때까지 대기 -->
+	<!-- FOR UPDATE : 동시 응찰을 방지하기 위해 먼저 트랜잭션을 잡은 쪽만 진행,
+					 나머지는 트랜잭션 선점자로부터 commit/rollback 일어날 때까지 대기 -->
 
 	<update id="updateAfterBid" parameterType="Unveiling">
 		UPDATE UNVEILING SET
