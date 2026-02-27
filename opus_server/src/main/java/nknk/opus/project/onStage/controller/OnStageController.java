@@ -12,12 +12,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
+	
 @RestController
 @RequestMapping("/onStage")
 public class OnStageController {
+	private final RestTemplate restTemplate;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+	public OnStageController(RestTemplate restTemplate) {
+	    this.restTemplate = restTemplate;
+	}
 
     // 전시 목록 조회
     @GetMapping("/exhibitions")
@@ -33,8 +36,9 @@ public class OnStageController {
                     .toUri();
 
             HttpHeaders headers = new HttpHeaders();
-            headers.set("User-Agent", "Mozilla/5.0");
-            headers.set("Accept", "application/xml");
+            headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            headers.set("Accept", "*/*");
+            headers.set("Connection", "keep-alive");
             headers.set("Referer", "https://www.kcisa.kr");
 
             HttpEntity<Void> entity = new HttpEntity<>(headers);
@@ -56,7 +60,7 @@ public class OnStageController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("외부 전시 API 호출 실패");
+            return ResponseEntity.status(500).body("외부 전시 API 호출 실패: " + e.getMessage());
         }
     }
     
