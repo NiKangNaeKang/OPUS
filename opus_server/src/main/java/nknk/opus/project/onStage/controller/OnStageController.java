@@ -16,15 +16,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @RequestMapping("/onStage")
 public class OnStageController {
-	private final RestTemplate restTemplate;
-
-	public OnStageController(RestTemplate restTemplate) {
-	    this.restTemplate = restTemplate;
-	}
+    private final RestTemplate restTemplate = new RestTemplate();
 
     // 전시 목록 조회
     @GetMapping("/exhibitions")
-    public ResponseEntity<?> getExhibitions(@RequestParam("serviceKey") String serviceKey, @RequestParam(name = "pageNo", defaultValue = "1") int pageNo) {
+    public ResponseEntity<?> getExhibitions(@RequestParam("serviceKey") String serviceKey, @RequestParam(defaultValue = "1") int pageNo) {
         try {
             URI uri = UriComponentsBuilder
                     .fromUriString("https://api.kcisa.kr/openapi/API_CCA_145/request")
@@ -56,8 +52,6 @@ public class OnStageController {
             return ResponseEntity.ok()
                     .header("Content-Type", "application/xml; charset=UTF-8")
                     .body(body);
-
-
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("외부 전시 API 호출 실패: " + e.getMessage());
