@@ -130,7 +130,7 @@ public class TossPaymentServiceImpl implements TossPaymentService {
 			HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
 			// 3. 토스페이먼츠 API 호출 (POST /v1/payments/{paymentKey}/cancel)
-			String url = apiUrl + "/" + paymentKey + "/cancel";
+			String url = apiUrl + "/payments/" + paymentKey + "/cancel";
 
 			ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(url, HttpMethod.POST, entity,
 					TossPaymentResponse.class);
