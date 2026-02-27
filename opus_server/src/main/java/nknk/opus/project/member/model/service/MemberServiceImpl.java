@@ -145,9 +145,10 @@ public class MemberServiceImpl implements MemberService {
 			inputMember.setLoginType("NORMAL");
 
 		String pw = inputMember.getMemberPw();
-		String pwRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,16}$";
+
+		String pwRegex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*\\-_])[A-Za-z\\d!@#$%^&*\\-_]{8,16}$";
 		if (pw == null || !pw.matches(pwRegex)) {
-			throw new RuntimeException("비밀번호는 영문, 숫자를 포함하여 8~16자여야 합니다.");
+			throw new RuntimeException("비밀번호는 영문, 숫자, 특수문자(!@#$%^&*-_)를 포함하여 8~16자여야 합니다.");
 		}
 
 		inputMember.setMemberPw(encoder.encode(pw));
@@ -169,9 +170,9 @@ public class MemberServiceImpl implements MemberService {
 		String currentPw = (String) param.get("currentPw");
 		String newPw = (String) param.get("newPw");
 
-		String pwRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,16}$";
+		String pwRegex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*\\-_])[A-Za-z\\d!@#$%^&*\\-_]{8,16}$";
 		if (newPw == null || !newPw.matches(pwRegex)) {
-			throw new RuntimeException("새 비밀번호는 영문, 숫자를 포함하여 8~16자여야 합니다.");
+			throw new RuntimeException("새 비밀번호는 영문, 숫자, 특수문자(!@#$%^&*-_)를 포함하여 8~16자여야 합니다.");
 		}
 
 		String savedPw = mapper.selectCurrentPw(memberNo);
@@ -260,13 +261,11 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public Member getMemberByMemberNo(int memberNo) {
-
 		return mapper.findByMemberNo(memberNo);
 	}
 
 	@Override
 	public String getCurrentPw(int memberNo) {
-
 		return mapper.selectCurrentPw(memberNo);
 	}
 }

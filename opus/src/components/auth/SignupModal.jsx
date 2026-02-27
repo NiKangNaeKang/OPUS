@@ -173,10 +173,10 @@ export default function SignupModal({ open, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
+    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*\-_])[A-Za-z\d!@#$%^&*\-_]{8,16}$/;
 
     if (!pwRegex.test(formData.memberPw)) {
-      toast.error("비밀번호는 영문, 숫자를 포함하여 8~16자여야 합니다.", {
+      toast.error(<div>"비밀번호는 영문, 숫자, 특수문자(!@#$%^&*-_) 포함하여<br /> 8~16자여야 합니다."</div>, {
         toastId: "signup-pw-invalid",
       });
       return;
@@ -313,7 +313,7 @@ export default function SignupModal({ open, onClose }) {
               className="lm-input"
               name="memberPw"
               type="password"
-              placeholder="영문, 숫자 포함 8~16자"
+              placeholder="영문, 숫자, 특수문자(!@#$%^&*-_) 포함 8~16자"
               value={formData.memberPw}
               onChange={handleChange}
               required
