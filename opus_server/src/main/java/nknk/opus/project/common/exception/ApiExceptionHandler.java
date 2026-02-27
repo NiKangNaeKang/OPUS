@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -50,7 +51,10 @@ public class ApiExceptionHandler {
             Exception e, HttpServletRequest req
     ) {
         
-    	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+    	return ResponseEntity
+    			.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    			.contentType(MediaType.APPLICATION_JSON)
+    			.body(
                 Map.of(
                         "timestamp", OffsetDateTime.now().toString(),
                         "status", 500,
