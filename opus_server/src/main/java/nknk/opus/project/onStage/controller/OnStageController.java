@@ -24,7 +24,7 @@ public class OnStageController {
 
     // 전시 목록 조회
     @GetMapping("/exhibitions")
-    public ResponseEntity<?> getExhibitions(@RequestParam("serviceKey") String serviceKey, @RequestParam(defaultValue = "1") int pageNo) {
+    public ResponseEntity<?> getExhibitions(@RequestParam("serviceKey") String serviceKey, @RequestParam(name = "pageNo", defaultValue = "1") int pageNo) {
         try {
             URI uri = UriComponentsBuilder
                     .fromUriString("https://api.kcisa.kr/openapi/API_CCA_145/request")
