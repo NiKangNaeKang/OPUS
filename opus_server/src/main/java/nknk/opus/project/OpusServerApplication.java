@@ -13,7 +13,4 @@ public class OpusServerApplication {
 		SpringApplication.run(OpusServerApplication.class, args);
 				
 	}
-	
-	
-
 }
