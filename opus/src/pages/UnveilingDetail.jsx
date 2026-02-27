@@ -165,6 +165,7 @@ export default function UnveilingDetail() {
   // 결제 모달
   const [payModal, setPayModal] = useState(false);
   const [payLoading, setPayLoading] = useState(false);
+  const [isUrgent, setIsUrgent] = useState(false);
 
   // 라우트 이동 시 리셋
   useEffect(() => {
@@ -283,10 +284,15 @@ export default function UnveilingDetail() {
     const social = member?.loginType !== "NORMAL";
     setIsSocialLogin(social);
 
+    const minutesLeft = detail.endAt
+      ? (new Date(detail.endAt) - new Date()) / 1000 / 60
+      : Infinity;
+    setIsUrgent(minutesLeft <= 1);
+    
     setModalPw("");
     setModalError("");
     setModal(true);
-  }, [isLoggedIn, bidState, member]);
+  }, [isLoggedIn, bidState, member, detail.endAt]);
 
   // 응찰 모달 확인 클릭 → 비밀번호 검증 후 입찰
   const onBidConfirm = useCallback(async () => {
@@ -594,7 +600,7 @@ export default function UnveilingDetail() {
                 <Bullet text="경매 참여를 위해서는 실명 인증이 필수입니다." />
                 <Bullet text="응찰 후 취소는 불가능하며, 낙찰 시 구매 의무가 발생합니다." />
                 <Bullet text="낙찰가 외에 구매 수수료(낙찰가의 15%)가 별도로 부과됩니다." />
-                <Bullet text="마감 10분 전 응찰 시 자동으로 10분 연장됩니다." />
+                <Bullet text="마감 1분 전 응찰 시 자동으로 1분 연장됩니다." />
                 <Bullet text="결제는 낙찰 후 7일 이내에 완료되어야 합니다." />
                 <Bullet text="작품 배송은 결제 완료 후 3-5 영업일 소요됩니다." />
               </div>
@@ -670,6 +676,22 @@ export default function UnveilingDetail() {
                 <br />
                 응찰 후에는 취소가 불가능하며, 낙찰 시 구매 의무가 발생합니다.
               </p>
+
+              {isUrgent && (
+                <div style={{
+                  background: "#fef2f2",
+                  border: "1px solid #fca5a5",
+                  borderRadius: "8px",
+                  padding: "12px 14px",
+                  fontSize: "13px",
+                  color: "#991b1b",
+                  lineHeight: 1.7,
+                  marginTop: "4px"
+                }}>
+                  ⏰ <strong>마감 1분 이내</strong>입니다.<br />
+                  응찰 완료 시 마감 시간이 <strong>1분 연장</strong>됩니다.
+                </div>
+              )}
 
               {/* 핵심 분기: 일반 로그인 → 비밀번호 입력 / 소셜 로그인 → 안내 문구 */}
               {!isSocialLogin ? (
