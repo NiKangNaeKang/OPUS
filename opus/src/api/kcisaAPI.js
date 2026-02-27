@@ -6,7 +6,7 @@ export async function getAllExhibitions({ serviceKey, pageParam }) {
 
   const params = new URLSearchParams({
     serviceKey : serviceKey,
-    pageNo : pageParam,
+    pageNo : pageParam ?? 1,
   });
 
   // https://api.kcisa.kr/openapi/API_CCA_145/request?serviceKey=bcec5111-252e-47c3-9dca-4b943cf5a0ed&numOfRows=10&pageNo=1
