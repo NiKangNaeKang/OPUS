@@ -128,11 +128,11 @@ export default function MyPage() {
         toastId: "mypage-pw-current-empty",
       });
 
-    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
+    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*\-_])[A-Za-z\d!@#$%^&*\-_]{8,16}$/;
     if (!pwRegex.test(pwData.newPw))
       return toast.error(
         <>
-          비밀번호 형식(8~16자 영문/숫자)을
+          비밀번호 형식(8~16자 영문/숫자/특수문자)을
           <br />
           확인해주세요.
         </>,
@@ -363,7 +363,7 @@ export default function MyPage() {
                     <input
                       className="input"
                       type="password"
-                      placeholder="영문, 숫자 포함 8~16자"
+                      placeholder="영문, 숫자, 특수문자(!@#$%^&*-_) 포함 8~16자"
                       value={pwData.newPw}
                       onChange={(e) => setPwData({ ...pwData, newPw: e.target.value })}
                       required
