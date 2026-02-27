@@ -53,7 +53,6 @@ public class ApiExceptionHandler {
         
     	return ResponseEntity
     			.status(HttpStatus.INTERNAL_SERVER_ERROR)
-    			.contentType(MediaType.APPLICATION_JSON)
     			.body(
                 Map.of(
                         "timestamp", OffsetDateTime.now().toString(),
