@@ -32,26 +32,53 @@
 
 ## ⚙️ 기술 스택
 
-### Front-end
-<p> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="20"/> React (Vite)<br/> 
-<img src="https://raw.githubusercontent.com/pmndrs/zustand/main/docs/logo.png" width="20"/> Zustand<br/> 
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/axios/axios-plain.svg" width="20"/> Axios </p>
+<table>
+<tr>
+<td width="50%">
 
-### Back-end
-<p> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="20"/> Spring Boot<br/> 
-<img src="https://mybatis.org/images/mybatis-logo.png" width="20"/> MyBatis<br/> 
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/oracle/oracle-original.svg" width="20"/> Oracle DB<br/> 
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tomcat/tomcat-original.svg" width="20"/> Apache Tomcat </p>
+### 🖥 Front-end
+<p>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="24"/> React (Vite)<br/>
+<img src="https://raw.githubusercontent.com/pmndrs/zustand/main/docs/logo.png" width="24"/> Zustand<br/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/axios/axios-plain.svg" width="24"/> Axios
+</p>
 
-### Deployment
-<p> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg" width="20"/> Vercel (Front-end Hosting)<br/> 
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" width="20"/> AWS EC2 (Back-end Server) </p>
+</td>
+<td width="50%">
 
-### Infra & External
-<p> <img src="https://www.kopis.or.kr/images/main/logo.png" width="20"/> KOPIS Open API<br/> 
-<img src="https://static.toss.im/icons/png/4x/icon-toss.png" width="20"/> Toss Payments API<br/> 
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/openai/openai-original.svg" width="20"/> OpenAI GPT-4o-mini </p>
+### 🛠 Back-end
+<p>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="24"/> Spring Boot<br/>
+<img src="https://mybatis.org/images/mybatis-logo.png" width="24"/> MyBatis<br/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/oracle/oracle-original.svg" width="24"/> Oracle DB<br/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tomcat/tomcat-original.svg" width="24"/> Apache Tomcat
+</p>
 
+</td>
+</tr>
+
+<tr>
+<td width="50%">
+
+### 🚀 Deployment
+<p>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg" width="24"/> Vercel<br/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" width="24"/> AWS EC2
+</p>
+
+</td>
+<td width="50%">
+
+### ☁️ Infra & External
+<p>
+<img src="https://www.kopis.or.kr/images/main/logo.png" width="24"/> KOPIS Open API<br/>
+<img src="https://static.toss.im/icons/png/4x/icon-toss.png" width="24"/> Toss Payments API<br/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/openai/openai-original.svg" width="24"/> OpenAI GPT-4o-mini
+</p>
+
+</td>
+</tr>
+</table>
 ---
 
 ## 🗂️ 주요 기능
