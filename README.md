@@ -43,42 +43,6 @@
 
 </div>
 
-
-### 🛠 Back-end
-<p>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="24"/> Spring Boot<br/>
-<img src="https://mybatis.org/images/mybatis-logo.png" width="24"/> MyBatis<br/>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/oracle/oracle-original.svg" width="24"/> Oracle DB<br/>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tomcat/tomcat-original.svg" width="24"/> Apache Tomcat
-</p>
-
-</td>
-</tr>
-
-<tr>
-<td width="50%">
-
-### 🚀 Deployment
-<p>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg" width="24"/> Vercel<br/>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" width="24"/> AWS EC2
-</p>
-
-</td>
-<td width="50%">
-
-### ☁️ Infra & External
-<p>
-<img src="https://www.kopis.or.kr/images/main/logo.png" width="24"/> KOPIS Open API<br/>
-<img src="https://static.toss.im/icons/png/4x/icon-toss.png" width="24"/> Toss Payments API<br/>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/openai/openai-original.svg" width="24"/> OpenAI GPT-4o-mini
-</p>
-
-</td>
-</tr>
-</table>
----
-
 ## 🗂️ 주요 기능
 
 ### 🎬 On-Stage — 전시·공연 정보
