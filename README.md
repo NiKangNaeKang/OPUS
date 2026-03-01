@@ -3,6 +3,8 @@
 
 > 작품을 보는 새로운 관점을 열고, 숨겨진 예술의 무대를 드러내다
 
+---
+
 ## 🔗 Live Demo
 
 - 🌍 Service URL: https://opus-ivory.vercel.app/
